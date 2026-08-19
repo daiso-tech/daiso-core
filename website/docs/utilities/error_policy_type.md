@@ -7,8 +7,8 @@ The `ErrorPolicy` type determines which errors should be handled for example in 
 A predicate function can be used to dynamically determine if an error should be handled:
 
 ```ts
-import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { fallback } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
 class CustomError extends Error {
     constructor(
@@ -20,7 +20,7 @@ class CustomError extends Error {
         this.name = CustomError.name;
     }
 }
-const use = useFactory();
+
 const func = use((): string => {
     return "asd";
 }, [
@@ -38,10 +38,9 @@ await func();
 You can directly pass an class to match if errors are instance of the class:
 
 ```ts
-import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { fallback } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
-const use = useFactory();
 const func = use((): string => {
     return "asd";
 }, [
@@ -57,10 +56,9 @@ await func();
 You can also pass multiple error classes:
 
 ```ts
-import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { fallback } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
-const use = useFactory();
 const func = use((): string => {
     return "asd";
 }, [
@@ -79,10 +77,9 @@ You can use any [standard schema](https://standardschema.dev/) as error policy:
 
 ```ts
 import { z } from "zod";
-import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { fallback } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
-const use = useFactory();
 const func = use((): string => {
     return "asd";
 }, [
@@ -103,10 +100,9 @@ await func();
 You can treat false return values as errors. This useful when you want to retry functions that return boolean.
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
+import { retry } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
-const use = useFactory();
 const func = use(async (): Promise<boolean> => {
     // Will be
     console.log("EXECUTING");
@@ -125,4 +121,4 @@ await func();
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/utilities`](https://daiso-tech.github.io/daiso-core/types/Utilities.ErrorPolicy.html) API docs.
+For further information refer to [`eridu-tech/utilities`](https://eridu-tech.github.io/eridu-tech/types/Utilities.ErrorPolicy.html) API docs.

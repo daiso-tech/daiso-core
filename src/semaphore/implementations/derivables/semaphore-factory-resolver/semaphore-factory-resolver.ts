@@ -1,38 +1,34 @@
 /**
  * @module Semaphore
  */
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import {
-    type ISemaphoreFactoryResolver,
-    type ISemaphoreFactory,
-    type SemaphoreAdapterVariants,
-} from "@/semaphore/contracts/_module.js";
-import {
-    SemaphoreFactory,
-    type SemaphoreFactorySettingsBase,
-} from "@/semaphore/implementations/derivables/semaphore-factory/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { SemaphoreFactory } from "@/semaphore/implementations/derivables/semaphore-factory/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISemaphoreFactoryResolver,
+    ISemaphoreFactory,
+    ISemaphoreAdapter,
+} from "@/semaphore/contracts/_module.js";
+import type { SemaphoreFactorySettingsBase } from "@/semaphore/implementations/derivables/semaphore-factory/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
+ * IMPORT_PATH: `"eridu-tech/semaphore"`
  * @group Derivables
  */
 export type SemaphoreAdapters<TAdapters extends string> = Partial<
-    Record<TAdapters, SemaphoreAdapterVariants>
+    Record<TAdapters, ISemaphoreAdapter>
 >;
 
 /**
  * Configuration for `SemaphoreFactoryResolver`.
  * Registers named semaphore adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
+ * IMPORT_PATH: `"eridu-tech/semaphore"`
  * @group Derivables
  */
 export type SemaphoreFactoryResolverSettings<TAdapters extends string> =
@@ -51,20 +47,20 @@ export type SemaphoreFactoryResolverSettings<TAdapters extends string> =
 /**
  * The `SemaphoreFactoryResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
+ * IMPORT_PATH: `"eridu-tech/semaphore"`
  * @group Derivables
  */
-export class SemaphoreFactoryResolver<TAdapters extends string>
-    implements ISemaphoreFactoryResolver<TAdapters>
-{
+export class SemaphoreFactoryResolver<
+    TAdapters extends string,
+> implements ISemaphoreFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts
-     * import { SemaphoreFactoryResolver } from "@daiso-tech/core/semaphore";
-     * import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
-     * import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { SemaphoreFactoryResolver } from "eridu-tech/semaphore";
+     * import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
+     * import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -82,20 +78,6 @@ export class SemaphoreFactoryResolver<TAdapters extends string>
         private readonly settings: SemaphoreFactoryResolverSettings<TAdapters>,
     ) {}
 
-    setNamespace(namespace: INamespace): SemaphoreFactoryResolver<TAdapters> {
-        return new SemaphoreFactoryResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
-
-    setEventBus(eventBus: EventBusInput): SemaphoreFactoryResolver<TAdapters> {
-        return new SemaphoreFactoryResolver({
-            ...this.settings,
-            eventBus,
-        });
-    }
-
     setDefaultTtl(ttl: ITimeSpan | null): SemaphoreFactoryResolver<TAdapters> {
         return new SemaphoreFactoryResolver({
             ...this.settings,
@@ -112,31 +94,24 @@ export class SemaphoreFactoryResolver<TAdapters extends string>
         });
     }
 
-    setWaitUntil(waitUntil: WaitUntil): SemaphoreFactoryResolver<TAdapters> {
-        return new SemaphoreFactoryResolver({
-            ...this.settings,
-            waitUntil,
-        });
-    }
-
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): SemaphoreFactoryResolver<TAdapters> {
         return new SemaphoreFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 
     /**
      * @example
      * ```ts
-     * import { SemaphoreFactoryResolver } from "@daiso-tech/core/semaphore";
-     * import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
-     * import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { SemaphoreFactoryResolver } from "eridu-tech/semaphore";
+     * import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
+     * import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { TimeSpan } from "eridu-tech/time-span";
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

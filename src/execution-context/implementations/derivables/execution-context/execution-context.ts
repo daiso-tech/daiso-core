@@ -2,28 +2,25 @@
  * @module ExecutionContext
  */
 
-import {
-    type ContextToken,
-    type DecrementSettings,
-    type IContext,
-    type ICopyableContext,
-    type IExecutionContext,
-    type IExecutionContextAdapter,
-    type IncrementSettings,
-    type PutDecrementSettings,
-    type PutIncrementSettings,
-} from "@/execution-context/contracts/_module.js";
 import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
 import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
-import {
-    callInvokable,
-    type Invokable,
-    type InvokableFn,
-    type Lazyable,
-} from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
+
+import type {
+    ContextToken,
+    DecrementSettings,
+    IContext,
+    ICopyableContext,
+    IExecutionContext,
+    IExecutionContextAdapter,
+    IncrementSettings,
+    PutDecrementSettings,
+    PutIncrementSettings,
+} from "@/execution-context/contracts/_module.js";
+import type { Invocable, InvocableFn, Lazyable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context"`
+ * IMPORT_PATH: `"eridu-tech/execution-context"`
  *
  * Manages execution context values and provides a way to execute functions within a context.
  *
@@ -60,8 +57,7 @@ export class ExecutionContext implements IExecutionContext {
     contains<TValue>(
         token: ContextToken<Array<TValue>>,
         matchValue:
-            | NoInfer<TValue>
-            | Invokable<[value: NoInfer<TValue>], boolean>,
+            NoInfer<TValue> | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean {
         return this.current.contains(token, matchValue);
     }
@@ -152,25 +148,25 @@ export class ExecutionContext implements IExecutionContext {
 
     when(
         condition: Lazyable<boolean>,
-        ...invokables: Array<Invokable<[context: IContext], IContext>>
+        ...invocables: Array<Invocable<[context: IContext], IContext>>
     ): IContext {
-        return this.current.when(condition, ...invokables);
+        return this.current.when(condition, ...invocables);
     }
 
-    run<TValue>(invokable: Invokable<[], TValue>): TValue {
+    run<TValue>(invocable: Invocable<[], TValue>): TValue {
         const currentContext = this.executionContextStorage.get();
         const contextToRun =
             currentContext === null
                 ? new Context(new Map())
                 : currentContext.copy();
         return this.executionContextStorage.run(contextToRun, () => {
-            return callInvokable(invokable);
+            return callInvocable(invocable);
         });
     }
 
     bind<TArgs extends Array<unknown>, TReturn>(
-        fn: Invokable<[...args: TArgs], TReturn>,
-    ): InvokableFn<[...args: TArgs], TReturn> {
+        fn: Invocable<[...args: TArgs], TReturn>,
+    ): InvocableFn<[...args: TArgs], TReturn> {
         // Capture the context at bind time
         const currentContext = this.executionContextStorage.get();
         const capturedContext =
@@ -182,7 +178,7 @@ export class ExecutionContext implements IExecutionContext {
             return this.executionContextStorage.run(
                 capturedContext.copy(),
                 () => {
-                    return callInvokable(fn, ...args);
+                    return callInvocable(fn, ...args);
                 },
             );
         };

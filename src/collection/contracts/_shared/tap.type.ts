@@ -2,17 +2,17 @@
  * @module Collection
  */
 
-import { type Invokable, type Promisable } from "@/utilities/_module.js";
+import type { Invocable, Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
-export type Tap<TCollection> = Invokable<[collection: TCollection], void>;
+export type Tap<TCollection> = Invocable<[collection: TCollection], void>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  */
-export type AsyncTap<TCollection> = Invokable<
+export type AsyncTap<TCollection> = Invocable<
     [collection: TCollection],
     Promisable<void>
 >;

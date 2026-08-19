@@ -2,23 +2,23 @@
  * @module EventBus
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type BaseEvent = Record<string, unknown>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
-export type EventListenerFn<TEvent> = InvokableFn<[event: TEvent]>;
+export type EventListenerFn<TEvent> = InvocableFn<[event: TEvent]>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type IEventBusDispatcherAdapter = {
@@ -26,14 +26,14 @@ export type IEventBusDispatcherAdapter = {
      * The `dispatch` method is used for dispatching one or multiple `events`.
      */
     dispatch(
-        context: IReadableContext,
         eventName: string,
         eventData: BaseEvent,
+        context: IReadableContext,
     ): Promise<void>;
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type IEventBusListenableAdapter = {
@@ -41,18 +41,18 @@ export type IEventBusListenableAdapter = {
      * The `addListener` method is used for adding {@link EventListenerFn | `EventListenerFn`} for certain `eventName`.
      */
     addListener(
-        context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        context: IReadableContext,
     ): Promise<void>;
 
     /**
      * The `removeListener` method is used for removing {@link EventListenerFn | `EventListenerFn`} for certain `eventName`.
      */
     removeListener(
-        context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        context: IReadableContext,
     ): Promise<void>;
 };
 
@@ -60,7 +60,7 @@ export type IEventBusListenableAdapter = {
  * The `IEventBusAdapter` contract defines a way for dispatching and listening to events independent of underlying technology.
  * This contract is not meant to be used directly, instead you should use `IEventBus`
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/contracts"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/contracts"`
  * @group Contracts
  */
 export type IEventBusAdapter = IEventBusDispatcherAdapter &

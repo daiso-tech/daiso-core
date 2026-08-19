@@ -5,25 +5,24 @@ pagination_label: Creating cache adapters
 tags:
     - Cache
     - Creating adapters
-    - Creating database adapters
 keywords:
     - Cache
     - Creating adapters
-    - Creating database adapters
 ---
 
 # Creating cache adapters
 
 ## Implementing your custom ICacheAdapter
 
-In order to create an adapter you need to implement the [`ICacheAdapter`](https://daiso-tech.github.io/daiso-core/types/Cache.ICacheAdapter.html) contract.
+In order to create an adapter you need to implement the [`ICacheAdapter`](https://eridu-tech.github.io/eridu-tech/types/Cache.ICacheAdapter.html) contract.
 
 ## Testing your custom ICacheAdapter
 
-We provide a complete test suite to test your cache adapter implementation. Simply use the [`cacheAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.cacheAdapterTestSuite.html) function:
+We provide a complete test suite to test your cache adapter implementation. Simply use the [`cacheAdapterTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Cache.cacheAdapterTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized cache adapter contract conformance
+testing.
 
 Usage example:
 
@@ -31,7 +30,7 @@ Usage example:
 // filename: MyCacheAdapter.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { cacheAdapterTestSuite } from "@daiso-tech/core/cache/test-utilities";
+import { cacheAdapterTestSuite } from "eridu-tech/cache/test-utilities";
 import { MemoryCacheAdapter } from "./MemoryCacheAdapter.js";
 
 describe("class: MyCacheAdapter", () => {
@@ -45,48 +44,16 @@ describe("class: MyCacheAdapter", () => {
 });
 ```
 
-## Implementing your custom IDatabaseCacheAdapter
-
-We provide an additional contract [`IDatabaseCacheAdapter`](https://daiso-tech.github.io/daiso-core/types/Cache.IDatabaseCacheAdapter.html) for building custom cache adapters tailored to databases.
-
-## Testing your custom IDatabaseCacheAdapter
-
-We provide a complete test suite to test your database cache adapter implementation. Simply use the [`databaseCacheAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.databaseCacheAdapterTestSuite.html) function:
-
-- Preconfigured Vitest test cases
-- Common edge case coverage
-
-Usage example:
-
-```ts
-import { beforeEach, describe, expect, test } from "vitest";
-import { databaseCacheAdapterTestSuite } from "@daiso-tech/core/cache/test-utilities";
-import { MyDatabaseCacheAdapter } from "./MyDatabaseCacheAdapter.js";
-
-describe("class: MyDatabaseCacheAdapter", () => {
-    databaseCacheAdapterTestSuite({
-        createAdapter: async () => {
-            return new MyDatabaseCacheAdapter(),
-        },
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
-```
-
 ## Implementing your custom ICache class
 
-In some cases, you may need to implement a custom [`Cache`](https://daiso-tech.github.io/daiso-core/classes/Cache.Cache.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ICache`](https://daiso-tech.github.io/daiso-core/types/Cache.ICache.html) contract.
+In some cases, you may need to implement a custom [`Cache`](https://eridu-tech.github.io/eridu-tech/classes/Cache.Cache.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ICache`](https://eridu-tech.github.io/eridu-tech/types/Cache.ICache.html) contract.
 
 ## Testing your custom ICache class
 
-We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`cacheTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Cache.cacheTestSuite.html) function:
+We provide a complete test suite to verify your custom cache class implementation. Simply use the [`cacheTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Cache.cacheTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Standardized event bus behavior validation
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized cache contract conformance testing.
 
 Usage example:
 
@@ -94,7 +61,7 @@ Usage example:
 // filename: MyCache.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { cacheTestSuite } from "@daiso-tech/core/cache/test-utilities";
+import { cacheTestSuite } from "eridu-tech/cache/test-utilities";
 import { MyCache } from "./MyCache.js";
 
 describe("class: MyCache", () => {
@@ -110,4 +77,4 @@ describe("class: MyCache", () => {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech/modules/Cache.html) API docs.

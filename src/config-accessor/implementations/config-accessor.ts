@@ -1,15 +1,16 @@
 /**
  * @module ConfigAccessor
  */
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import {
-    type BaseConfig,
-    type IConfigAccessor,
-    type RestrictedPaths,
-    type PathValue,
-} from "@/config-accessor/contracts/_module.js";
 import { validateSync, UnexpectedError } from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type {
+    BaseConfig,
+    IConfigAccessor,
+    RestrictedPaths,
+    PathValue,
+} from "@/config-accessor/contracts/_module.js";
 
 /**
  * Settings for configuring an {@link  ConfigAccessor | `ConfigAccessor`} instance.
@@ -53,14 +54,13 @@ type PathSegments = {
 export class ConfigAccessor<
     TInputConfig extends BaseConfig,
     TOutputConfig extends BaseConfig = TInputConfig,
-> implements IConfigAccessor<TOutputConfig>
-{
+> implements IConfigAccessor<TOutputConfig> {
     private readonly configObject: TOutputConfig;
 
     /**
      * @example
      * ```ts
-     * import { ConfigAccessor } from "@daiso-tech/core/config-accessor";
+     * import { ConfigAccessor } from "eridu-tech/config-accessor";
      * import { z } from "zod";
      *
      * const config = {}

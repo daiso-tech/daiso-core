@@ -2,105 +2,64 @@
  * @module FileStorage
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import {
-    type FileEventMap,
-    type FileStorageAdapterVariants,
-    type ISignedFileStorageAdapter,
+import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
+import { getConstructorName } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    FileStorageAdapterVariants,
+    ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
-import {
-    File,
-    type ISerializedFile,
-} from "@/file-storage/implementations/derivables/file-storage/file.js";
-import { type ILockFactoryBase } from "@/lock/contracts/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
-import {
-    getConstructorName,
-    type InvokableFn,
-    type OneOrMore,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import type { ISerializedFile } from "@/file-storage/implementations/derivables/file-storage/file.js";
+import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type FileSerdeTransformerSettings = {
-    lockFactory: ILockFactoryBase;
-    waitUntil: WaitUntil;
-    defaultContentType: string;
     defaultContentDisposition: string | null;
     defaultContentEncoding: string | null;
     defaultCacheControl: string | null;
     defaultContentLanguage: string | null;
     originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
-    namespace: INamespace;
-    eventBus: IEventBus<FileEventMap>;
     serdeTransformerName: string;
-    onlyLowercase: boolean;
-    keyValidator: InvokableFn<[key: string], string | null>;
-    executionContext: IExecutionContext;
-    use: Use;
+    context: IReadableContext;
 };
 
 /**
  * @internal
  */
-export class FileSerdeTransformer
-    implements ISerdeTransformer<File, ISerializedFile>
-{
-    private readonly waitUntil: WaitUntil;
-    private readonly onlyLowercase: boolean;
-    private readonly keyValidator: InvokableFn<[key: string], string | null>;
+export class FileSerdeTransformer implements ISerdeTransformer<
+    File,
+    ISerializedFile
+> {
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
-    private readonly namespace: INamespace;
-    private readonly eventBus: IEventBus<FileEventMap>;
     private readonly serdeTransformerName: string;
-    private readonly defaultContentType: string;
     private readonly defaultContentDisposition: string | null;
     private readonly defaultContentEncoding: string | null;
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
-    private readonly executionContext: IExecutionContext;
-    private readonly use: Use;
-    private readonly lockFactory: ILockFactoryBase;
+    private readonly context: IReadableContext;
 
     constructor(settings: FileSerdeTransformerSettings) {
         const {
-            lockFactory,
-            onlyLowercase,
-            keyValidator,
             adapter,
-            namespace,
-            eventBus,
             serdeTransformerName,
-            defaultContentType,
             defaultCacheControl,
             defaultContentDisposition,
             defaultContentEncoding,
             defaultContentLanguage,
             originalAdapter,
-            waitUntil,
-            executionContext,
-            use,
+            context,
         } = settings;
 
-        this.lockFactory = lockFactory;
-        this.use = use;
-        this.executionContext = executionContext;
-        this.waitUntil = waitUntil;
-        this.onlyLowercase = onlyLowercase;
-        this.keyValidator = keyValidator;
+        this.context = context;
         this.originalAdapter = originalAdapter;
         this.adapter = adapter;
-        this.namespace = namespace;
-        this.eventBus = eventBus;
         this.serdeTransformerName = serdeTransformerName;
-        this.defaultContentType = defaultContentType;
         this.defaultCacheControl = defaultCacheControl;
         this.defaultContentDisposition = defaultContentDisposition;
         this.defaultContentEncoding = defaultContentEncoding;
@@ -112,7 +71,6 @@ export class FileSerdeTransformer
             "file",
             this.serdeTransformerName,
             getConstructorName(this.originalAdapter),
-            this.namespace.toString(),
         ].filter((str) => str !== "");
     }
 
@@ -126,43 +84,27 @@ export class FileSerdeTransformer
         const isSerdTransformerNameMathcing =
             this.serdeTransformerName === value._getSerdeTransformerName();
 
-        const isNamespaceMatching =
-            this.namespace.toString() === value._getNamespace().toString();
-
         const isAdapterMatching =
             getConstructorName(this.originalAdapter) ===
             getConstructorName(value._getAdapter());
 
-        return (
-            isSerdTransformerNameMathcing &&
-            isNamespaceMatching &&
-            isAdapterMatching
-        );
+        return isSerdTransformerNameMathcing && isAdapterMatching;
     }
 
     deserialize(serializedValue: ISerializedFile): File {
         const { key } = serializedValue;
-        const keyObj = this.namespace.create(key);
 
         return new File({
             originalKey: key,
-            lockFactory: this.lockFactory,
-            use: this.use,
-            executionContext: this.executionContext,
-            waitUntil: this.waitUntil,
-            onlyLowercase: this.onlyLowercase,
-            keyValidator: this.keyValidator,
+            context: this.context,
             originalAdapter: this.originalAdapter,
-            defaultContentType: this.defaultContentType,
             defaultCacheControl: this.defaultCacheControl,
             defaultContentDisposition: this.defaultContentDisposition,
             defaultContentEncoding: this.defaultContentEncoding,
             defaultContentLanguage: this.defaultContentLanguage,
-            eventDispatcher: this.eventBus,
             adapter: this.adapter,
-            key: keyObj,
+            key,
             serdeTransformerName: this.serdeTransformerName,
-            namespace: this.namespace,
         });
     }
 

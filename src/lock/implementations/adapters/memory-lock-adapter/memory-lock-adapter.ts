@@ -2,18 +2,18 @@
  * @module Lock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ILockFactory,
-    type ILockAdapter,
-    type ILockAdapterState,
+    ILockFactory,
+    ILockAdapter,
+    ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type IDeinitizable } from "@/utilities/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IDeinitizable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/memory-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/memory-lock-adapter"`
  * @group Adapters
  */
 export type MemoryLockData =
@@ -32,21 +32,21 @@ export type MemoryLockData =
  * Note the `MemoryLockAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
  * This adapter is meant for easily faking{@link ILockFactory | `ILockFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/memory-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/memory-lock-adapter"`
  * @group Adapters
  */
 export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     /**
      *  @example
      * ```ts
-     * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
+     * import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
      *
      * const lockAdapter = new MemoryLockAdapter();
      * ```
      * You can also provide an `Map`.
      * @example
      * ```ts
-     * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
+     * import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
      *
      * const map = new Map<any, any>();
      * const lockAdapter = new MemoryLockAdapter(map);
@@ -68,10 +68,10 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async acquire(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         let lock = this.map.get(key);
         if (lock !== undefined) {
@@ -101,9 +101,9 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const lock = this.map.get(key);
         if (lock === undefined) {
@@ -126,8 +126,8 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async forceRelease(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const lock = this.map.get(key);
 
@@ -149,10 +149,10 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const lock = this.map.get(key);
         if (lock === undefined) {
@@ -182,8 +182,8 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ILockAdapterState | null> {
         const lockData = this.map.get(key);
         if (lockData === undefined) {

@@ -2,26 +2,23 @@
  * @module EventBus
  */
 
-import {
-    type IEventBus,
-    type IEventBusResolver,
-    type BaseEventMap,
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import {
-    EventBus,
-    type EventBusSettingsBase,
-    type EventMapSchema,
-} from "@/event-bus/implementations/derivables/event-bus/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
+import { EventBus } from "@/event-bus/implementations/derivables/event-bus/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
 
+import type {
+    IEventBus,
+    IEventBusResolver,
+    BaseEventMap,
+    IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
+import type { EventBusSettingsBase } from "@/event-bus/implementations/derivables/event-bus/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
 export type EventBusAdapters<TAdapters extends string = string> = Partial<
@@ -32,44 +29,41 @@ export type EventBusAdapters<TAdapters extends string = string> = Partial<
  * Configuration for `EventBusResolver`.
  * Registers named event-bus adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
-export type EventBusResolverSettings<
-    TAdapters extends string = string,
-    TEventMap extends BaseEventMap = BaseEventMap,
-> = EventBusSettingsBase<TEventMap> & {
-    /**
-     * Named registry of event-bus adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
-     */
-    adapters: EventBusAdapters<TAdapters>;
+export type EventBusResolverSettings<TAdapters extends string = string> =
+    EventBusSettingsBase & {
+        /**
+         * Named registry of event-bus adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+         */
+        adapters: EventBusAdapters<TAdapters>;
 
-    /**
-     * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
-     */
-    defaultAdapter?: NoInfer<TAdapters>;
-};
+        /**
+         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+         */
+        defaultAdapter?: NoInfer<TAdapters>;
+    };
 
 /**
  * The `EventBusResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
 export class EventBusResolver<
     TAdapters extends string = string,
     TEventMap extends BaseEventMap = BaseEventMap,
-> implements IEventBusResolver<TAdapters, TEventMap>
-{
+> implements IEventBusResolver<TAdapters, TEventMap> {
     /**
      * @example
      * ```ts
-     * import { type IEventBusAdapter, BaseEvent } from "@daiso-tech/core/event-bus/contracts";
-     * import { EventBusResolver } from "@daiso-tech/core/event-bus";
-     * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-     * import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { type IEventBusAdapter, BaseEvent } from "eridu-tech/event-bus/contracts";
+     * import { EventBusResolver } from "eridu-tech/event-bus";
+     * import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+     * import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Redis from "ioredis";
      *
      * type Store = Partial<Record<string, IEventBusAdapter>>;
@@ -90,20 +84,8 @@ export class EventBusResolver<
      * ```
      */
     constructor(
-        private readonly settings: EventBusResolverSettings<
-            TAdapters,
-            TEventMap
-        >,
+        private readonly settings: EventBusResolverSettings<TAdapters>,
     ) {}
-
-    setNamespace(
-        namespace: INamespace,
-    ): EventBusResolver<TAdapters, TEventMap> {
-        return new EventBusResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
 
     setEventMapType<TEventMap_ extends BaseEventMap>(): EventBusResolver<
         TAdapters,
@@ -111,36 +93,27 @@ export class EventBusResolver<
     > {
         return new EventBusResolver({
             ...this.settings,
-        } as EventBusResolverSettings<TAdapters, TEventMap_>);
-    }
-
-    setEventMapSchema<TEventMap_ extends BaseEventMap>(
-        eventMapSchema: EventMapSchema<TEventMap_>,
-    ): EventBusResolver<TAdapters, TEventMap_> {
-        return new EventBusResolver({
-            ...this.settings,
-            eventMapSchema,
         });
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): EventBusResolver<TAdapters, TEventMap> {
         return new EventBusResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 
     /**
      * @example
      * ```ts
-     * import { type IEventBusAdapter, BaseEvent } from "@daiso-tech/core/event-bus/contracts";
-     * import { EventBusResolver } from "@daiso-tech/core/event-bus";
-     * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-     * import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { type IEventBusAdapter, BaseEvent } from "eridu-tech/event-bus/contracts";
+     * import { EventBusResolver } from "eridu-tech/event-bus";
+     * import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+     * import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

@@ -1,39 +1,35 @@
 /**
  * @module SharedLock
  */
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import {
-    type ISharedLockFactoryResolver,
-    type ISharedLockFactory,
-    type SharedLockAdapterVariants,
-} from "@/shared-lock/contracts/_module.js";
-import {
-    SharedLockFactory,
-    type SharedLockFactorySettingsBase,
-} from "@/shared-lock/implementations/derivables/shared-lock-factory/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { SharedLockFactory } from "@/shared-lock/implementations/derivables/shared-lock-factory/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type Invokable,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISharedLockFactoryResolver,
+    ISharedLockFactory,
+    ISharedLockAdapter,
+} from "@/shared-lock/contracts/_module.js";
+import type { SharedLockFactorySettingsBase } from "@/shared-lock/implementations/derivables/shared-lock-factory/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Invocable } from "@/utilities/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export type SharedLockAdapters<TAdapters extends string> = Partial<
-    Record<TAdapters, SharedLockAdapterVariants>
+    Record<TAdapters, ISharedLockAdapter>
 >;
 
 /**
  * Configuration for `SharedLockFactoryResolver`.
  * Registers named shared-lock adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export type SharedLockFactoryResolverSettings<TAdapters extends string> =
@@ -52,20 +48,20 @@ export type SharedLockFactoryResolverSettings<TAdapters extends string> =
 /**
  * The `SharedLockFactoryResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
-export class SharedLockFactoryResolver<TAdapters extends string>
-    implements ISharedLockFactoryResolver<TAdapters>
-{
+export class SharedLockFactoryResolver<
+    TAdapters extends string,
+> implements ISharedLockFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts
-     * import { SharedLockFactoryResolver } from "@daiso-tech/core/shared-lock";
-     * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-     * import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { SharedLockFactoryResolver } from "eridu-tech/shared-lock";
+     * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+     * import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -83,26 +79,12 @@ export class SharedLockFactoryResolver<TAdapters extends string>
         private readonly settings: SharedLockFactoryResolverSettings<TAdapters>,
     ) {}
 
-    setNamespace(namespace: INamespace): SharedLockFactoryResolver<TAdapters> {
-        return new SharedLockFactoryResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
-
     setCreateLockId(
-        createId: Invokable<[], string>,
+        createId: Invocable<[], string>,
     ): SharedLockFactoryResolver<TAdapters> {
         return new SharedLockFactoryResolver({
             ...this.settings,
             createLockId: createId,
-        });
-    }
-
-    setEventBus(eventBus: EventBusInput): SharedLockFactoryResolver<TAdapters> {
-        return new SharedLockFactoryResolver({
-            ...this.settings,
-            eventBus,
         });
     }
 
@@ -122,31 +104,24 @@ export class SharedLockFactoryResolver<TAdapters extends string>
         });
     }
 
-    setWaitUntil(waitUntil: WaitUntil): SharedLockFactoryResolver<TAdapters> {
-        return new SharedLockFactoryResolver({
-            ...this.settings,
-            waitUntil,
-        });
-    }
-
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): SharedLockFactoryResolver<TAdapters> {
         return new SharedLockFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 
     /**
      * @example
      * ```ts
-     * import { SharedLockFactoryResolver } from "@daiso-tech/core/shared-lock";
-     * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-     * import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { SharedLockFactoryResolver } from "eridu-tech/shared-lock";
+     * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+     * import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { TimeSpan } from "eridu-tech/time-span";
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

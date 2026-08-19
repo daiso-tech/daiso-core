@@ -2,77 +2,60 @@
  * @module RateLimiter
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import {
-    type IRateLimiterAdapter,
-    type RateLimiterEventMap,
-} from "@/rate-limiter/contracts/_module.js";
-import {
-    RateLimiter,
-    type ISerializedRateLimiter,
-} from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
-import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
-import {
-    getConstructorName,
-    type ErrorPolicy,
-    type OneOrMore,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
+import { getConstructorName } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
+import type { ISerializedRateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
+import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
+import type { ErrorPolicy, OneOrMore, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type RateLimiterSerdeTransformerSettings = {
     adapter: IRateLimiterAdapter;
-    namespace: INamespace;
     errorPolicy: ErrorPolicy;
     onlyError: boolean;
-    eventBus: IEventBus<RateLimiterEventMap>;
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
 };
 
 /**
  * @internal
  */
-export class RateLimiterSerdeTransformer
-    implements ISerdeTransformer<RateLimiter, ISerializedRateLimiter>
-{
+export class RateLimiterSerdeTransformer implements ISerdeTransformer<
+    RateLimiter,
+    ISerializedRateLimiter
+> {
     private readonly adapter: IRateLimiterAdapter;
-    private readonly namespace: INamespace;
     private readonly errorPolicy: ErrorPolicy;
-    private readonly eventBus: IEventBus<RateLimiterEventMap>;
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
     private readonly onlyError: boolean;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     constructor(settings: RateLimiterSerdeTransformerSettings) {
         const {
             adapter,
-            namespace,
-            eventBus,
             serdeTransformerName,
             enableAsyncTracking,
             errorPolicy,
             onlyError,
             waitUntil,
-            executionContext,
+            context,
         } = settings;
 
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.onlyError = onlyError;
         this.enableAsyncTracking = enableAsyncTracking;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this.namespace = namespace;
-        this.eventBus = eventBus;
         this.errorPolicy = errorPolicy;
         this.serdeTransformerName = serdeTransformerName;
     }
@@ -82,7 +65,6 @@ export class RateLimiterSerdeTransformer
             "rateLimiter",
             this.serdeTransformerName,
             getConstructorName(this.adapter),
-            this.namespace.toString(),
         ].filter((str) => str !== "");
     }
 
@@ -97,36 +79,26 @@ export class RateLimiterSerdeTransformer
         const isSerdTransformerNameMathcing =
             this.serdeTransformerName === value._getSerdeTransformerName();
 
-        const isNamespaceMatching =
-            this.namespace.toString() === value._getNamespace().toString();
-
         const isAdapterMatching =
             getConstructorName(this.adapter) ===
             getConstructorName(value._getAdapter());
 
-        return (
-            isSerdTransformerNameMathcing &&
-            isNamespaceMatching &&
-            isAdapterMatching
-        );
+        return isSerdTransformerNameMathcing && isAdapterMatching;
     }
 
     deserialize(serializedValue: ISerializedRateLimiter): RateLimiter {
         const { key, limit } = serializedValue;
-        const keyObj = this.namespace.create(key);
 
         return new RateLimiter({
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
-            eventDispatcher: this.eventBus,
             adapter: this.adapter,
-            key: keyObj,
+            key,
             limit,
             onlyError: this.onlyError,
             errorPolicy: this.errorPolicy,
             serdeTransformerName: this.serdeTransformerName,
-            namespace: this.namespace,
         });
     }
 

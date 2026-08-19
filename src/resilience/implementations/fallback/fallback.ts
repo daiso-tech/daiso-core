@@ -2,20 +2,22 @@
  * @module Resilience
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import {
-    type Invokable,
-    type AsyncLazyable,
-    type ErrorPolicySettings,
     callErrorPolicyOnValue,
     resolveAsyncLazyable,
-    callInvokable,
+    callInvocable,
     callErrorPolicyOnThrow,
 } from "@/utilities/_module.js";
 
+import type { MiddlewareFn } from "@/middleware/contracts/_module.js";
+import type {
+    Invocable,
+    AsyncLazyable,
+    ErrorPolicySettings,
+} from "@/utilities/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnFallbackData<
@@ -25,23 +27,22 @@ export type OnFallbackData<
     error: unknown;
     fallbackValue: TFallbackValue;
     args: TParameters;
-    context: IReadableContext;
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnFallback<
     TParameters extends Array<unknown> = Array<unknown>,
     TFallbackValue = unknown,
-> = Invokable<[data: OnFallbackData<TParameters, TFallbackValue>]>;
+> = Invocable<[data: OnFallbackData<TParameters, TFallbackValue>]>;
 
 /**
  * Lifecycle callbacks for the `fallback` middleware.
  * Called when the fallback value is about to be returned instead of the original result.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type FallbackCallbacks<
@@ -49,7 +50,7 @@ export type FallbackCallbacks<
     TReturn = unknown,
 > = {
     /**
-     * Callback {@link Invokable | `Invokable`} that will be called before fallback value is returned.
+     * Callback {@link Invocable | `Invocable`} that will be called before fallback value is returned.
      */
     onFallback?: OnFallback<TParameters, TReturn>;
 };
@@ -59,7 +60,7 @@ export type FallbackCallbacks<
  * Returns a default value when the wrapped function throws or returns a value matching the error policy.
  * Supports error-policy filtering to only catch specific errors.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type FallbackSettings<
@@ -71,14 +72,14 @@ export type FallbackSettings<
     };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export function fallback<TParameters extends Array<unknown>, TReturn>(
     settings: NoInfer<FallbackSettings<TParameters, TReturn>>,
 ): MiddlewareFn<TParameters, Promise<TReturn>> {
     const { fallbackValue, errorPolicy, onFallback = () => {} } = settings;
-    return async ({ args, next, context }) => {
+    return async ({ args, next }) => {
         try {
             const value = await next();
 
@@ -91,11 +92,10 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
             try {
                 void (async () => {
                     try {
-                        await callInvokable(onFallback, {
+                        await callInvocable(onFallback, {
                             error: value,
                             fallbackValue: resolvedFallbackValue,
                             args,
-                            context,
                         });
                     } catch (error: unknown) {
                         console.error(
@@ -119,11 +119,10 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
             try {
                 void (async () => {
                     try {
-                        await callInvokable(onFallback, {
+                        await callInvocable(onFallback, {
                             error,
                             fallbackValue: resolvedFallbackValue as TReturn,
                             args,
-                            context,
                         });
                     } catch (error_: unknown) {
                         console.error(
@@ -135,7 +134,7 @@ export function fallback<TParameters extends Array<unknown>, TReturn>(
             } catch {
                 /* EMPTY */
             }
-            return resolvedFallbackValue as TReturn;
+            return resolvedFallbackValue;
         }
     };
 }

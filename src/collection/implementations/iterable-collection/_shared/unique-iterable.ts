@@ -2,8 +2,9 @@
  * @module Collection
  */
 
-import { type ICollection, type Map } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type { ICollection, Map } from "@/collection/contracts/_module.js";
 
 /**
  * @internal
@@ -19,7 +20,7 @@ export class UniqueIterable<TInput, TOutput> implements Iterable<TInput> {
         const set = new Set<TOutput>([]);
 
         for (const [index, item] of this.collection.entries()) {
-            const item_ = resolveInvokable(this.callback)(
+            const item_ = resolveInvocable(this.callback)(
                 item,
                 index,
                 this.collection,

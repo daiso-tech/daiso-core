@@ -2,17 +2,14 @@
  * @module FileStorage
  */
 
-import { type Readable } from "node:stream";
-
-import { type IFileSize } from "@/file-size/contracts/_module.js";
-import { type FileSize } from "@/file-size/implementations/_module.js";
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { IFileSize } from "@/file-size/contracts/_module.js";
+import type { FileSize } from "@/file-size/implementations/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * Configuration options for generating signed download URLs.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileDownloadUrlOptions = {
@@ -46,7 +43,7 @@ export type FileDownloadUrlOptions = {
 /**
  * Configuration options for generating signed upload URLs.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileUploadUrlOptions = {
@@ -72,7 +69,7 @@ export type FileUploadUrlOptions = {
  * Metadata information about a stored file.
  * Contains versioning, type, size, and modification tracking information.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileMetadata = {
@@ -104,14 +101,14 @@ export type FileMetadata = {
  * Provides multiple data format options (text, bytes, streams) and metadata retrieval.
  * All methods follow a pattern of returning null for missing files or throwing errors on OrFail variants.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type IReadableFile = {
     /**
      * The unique identifier/path for this file in storage.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * Retrieves file content as a UTF-8 text string.
@@ -144,21 +141,6 @@ export type IReadableFile = {
     getBytesOrFail(): Promise<Uint8Array>;
 
     /**
-     * Retrieves file content as a Node.js Buffer.
-     *
-     * @returns The file content as buffer, or null if not found
-     */
-    getBuffer(): Promise<Buffer | null>;
-
-    /**
-     * Retrieves file content as a Node.js Buffer.
-     *
-     * @returns The file content as buffer
-     * @throws {KeyNotFoundFileError} If the file is not found
-     */
-    getBufferOrFail(): Promise<Buffer>;
-
-    /**
      * Retrieves file content as an ArrayBuffer (standard JavaScript).
      *
      * @returns The file content as ArrayBuffer, or null if not found
@@ -172,23 +154,6 @@ export type IReadableFile = {
      * @throws {KeyNotFoundFileError} If the file is not found
      */
     getArrayBufferOrFail(): Promise<ArrayBuffer>;
-
-    /**
-     * Retrieves file content as a Node.js Readable stream.
-     * Suitable for streaming large files without loading entire content into memory.
-     *
-     * @returns A readable stream, or null if not found
-     */
-    getReadable(): Promise<Readable | null>;
-
-    /**
-     * Retrieves file content as a Node.js Readable stream.
-     * Suitable for streaming large files without loading entire content into memory.
-     *
-     * @returns A readable stream
-     * @throws {KeyNotFoundFileError} If the file is not found
-     */
-    getReadableOrFail(): Promise<Readable>;
 
     /**
      * Retrieves file content as a standard Web Streams API ReadableStream.
@@ -278,13 +243,13 @@ export type IReadableFile = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileContent = string | ArrayBufferLike | ArrayBufferView;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type WritableFileCommonSettings = {
@@ -316,7 +281,7 @@ export type WritableFileCommonSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type WritableFileContent = WritableFileCommonSettings & {
@@ -324,7 +289,7 @@ export type WritableFileContent = WritableFileCommonSettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type WritableFileStream = WritableFileCommonSettings & {
@@ -337,7 +302,7 @@ export type WritableFileStream = WritableFileCommonSettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type IFile = IReadableFile & {

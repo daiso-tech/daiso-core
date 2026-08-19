@@ -2,21 +2,11 @@
  * @module Lock
  */
 
-import { type IEventListenable } from "@/event-bus/contracts/_module.js";
-import { type ILock } from "@/lock/contracts/lock.contract.js";
-import { type LockEventMap } from "@/lock/contracts/lock.events.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { ILock } from "@/lock/contracts/lock.contract.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
- * The `ILockListenable` contract defines a way for listening {@link ILock | `ILock`} operations.
- *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
- * @group Contracts
- */
-export type ILockListenable = IEventListenable<LockEventMap>;
-
-/**
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type LockFactoryCreateSettings = {
@@ -36,23 +26,15 @@ export type LockFactoryCreateSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * The `ILockFactory` contract defines a way for managing locks independent of the underlying technology.
+ * It comes with more convenient methods compared to `ILockAdapter`.
+ *
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
-export type ILockFactoryBase = {
+export type ILockFactory = {
     /**
      * The `create` method is used to create an instance of {@link ILock | `ILock`}.
      */
     create(key: string, settings?: LockFactoryCreateSettings): ILock;
-};
-
-/**
- * The `ILockFactory` contract defines a way for managing locks independent of the underlying technology.
- * It comes with more convenient methods compared to `ILockAdapter`.
- *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
- * @group Contracts
- */
-export type ILockFactory = ILockFactoryBase & {
-    readonly events: ILockListenable;
 };

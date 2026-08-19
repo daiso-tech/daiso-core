@@ -10,6 +10,8 @@ export function isAsyncIterable<TItem>(
     value: any,
 ): value is AsyncIterable<TItem> {
     return (
+        value !== null &&
+        value !== undefined &&
         typeof value === "object" &&
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         typeof value[Symbol.asyncIterator] === "function"

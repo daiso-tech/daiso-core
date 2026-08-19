@@ -5,40 +5,33 @@ keywords:
     - Utilities
 ---
 
-# Execution Context
+# ExecutionContext
 
-The `@daiso-tech/core/execution-context` module provides a type-safe, composable, and environment-agnostic way to store and propagate contextual data (such as request IDs, user info, or tracing metadata) across async boundaries and function calls. It is inspired by thread-local storage and context propagation in distributed systems, but is designed for modern TypeScript/JavaScript applications.
+The `eridu-tech/execution-context` module provides a type-safe, composable, and environment-agnostic way to store and propagate contextual data (such as request IDs, user info, or tracing metadata) across async boundaries and function calls. `IExecutionContext` uses symbols internally for reliable context isolation.
 
 ## Initial configuration
 
-To begin using the execution context, you'll need to create and configure an instance:
+To begin using the execution-context, you'll need to create and configure an instance:
 
 ```ts
-import {
-    ExecutionContext,
-    contextToken,
-} from "@daiso-tech/core/execution-context";
-import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
+import { ExecutionContext, contextToken } from "eridu-tech/execution-context";
+import { AlsExecutionContextAdapter } from "eridu-tech/execution-context/als-execution-context-adapter";
 
-// Create an execution context instance with an adapter
+// Create an execution-context instance with an adapter
 const executionContext = new ExecutionContext(new AlsExecutionContextAdapter());
 ```
 
-## Execution context basics
+## ExecutionContext basics
 
 ### Running code with context
 
 You can run code within a context boundary, and all context values will be accessible throughout the call chain:
 
 ```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-
-// Define context tokens using namespaced IDs to avoid collisions
-const namespace = new Namespace("myapp");
-const userToken = contextToken<{ id: string; name: string }>(
-    namespace.id("user"),
-);
-const requestIdToken = contextToken<string>(namespace.id("requestId"));
+// Define context tokens with type-safe identifiers
+type User = { id: string; name: string };
+const userToken = contextToken<User>("user");
+const requestIdToken = contextToken<string>("requestId");
 
 function logData(): void {
     // Access context values later in the call chain
@@ -129,7 +122,7 @@ The library includes several contracts that separate concerns for different use 
 
 #### `IExecutionContextBase`
 
-- `run(invokable)` — Runs a function within the current execution context. All context values are accessible during execution.
+- `run(invocable)` — Runs a function within the current execution-context. All context values are accessible during execution.
 - `bind(fn)` — Returns a new function that, when called, executes the original function within the captured context.
 
 #### `IContext`
@@ -144,7 +137,7 @@ The library includes several contracts that separate concerns for different use 
 - `updateDecrement(token, settings?)` — Decrements a numeric value only if it exists. Optional min floor.
 - `updatePush(token, ...values)` — Pushes values to an array only if it exists. No-op if missing.
 - `remove(token)` — Removes a value from the context.
-- `when(condition, ...invokables)` — Conditionally applies operations if the condition is true.
+- `when(condition, ...invocables)` — Conditionally applies operations if the condition is true.
 
 #### `IReadableContext`
 
@@ -157,4 +150,4 @@ The library includes several contracts that separate concerns for different use 
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/execution-context`](https://daiso-tech.github.io/daiso-core/modules/ExecutionContext.html) API docs.
+For further information refer to [`eridu-tech/execution-context`](https://eridu-tech.github.io/eridu-tech/modules/ExecutionContext.html) API docs.

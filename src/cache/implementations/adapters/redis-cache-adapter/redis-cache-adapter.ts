@@ -2,25 +2,35 @@
  * @module Cache
  */
 
-import { ReplyError, type Redis, type Result } from "ioredis";
+import { ReplyError } from "ioredis";
 
-import { type ICacheAdapter } from "@/cache/contracts/_module.js";
 import { RedisCacheAdapterSerde } from "@/cache/implementations/adapters/redis-cache-adapter/redis-cache-adapter-serde.js";
 import { ClearIterable } from "@/cache/implementations/adapters/redis-cache-adapter/utilities.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
+
+import type { Redis, Result } from "ioredis";
+
+import type { ICacheAdapter } from "@/cache/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 declare module "ioredis" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_cache_increment(
+        eridu_cache_increment(
             key: string,
             number: string,
         ): Result<number, Context>;
+
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        eridu_cache_get_or_add(
+            key: string,
+            value: string,
+            ttlInMs: number,
+        ): Result<string, Context>;
     }
 }
 
@@ -28,7 +38,7 @@ declare module "ioredis" {
  * Configuration for `RedisCacheAdapter`.
  * Requires a Redis client and a serde for serialising cache values to strings.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/redis-cache-adapter"`
  * @group Adapters
  */
 export type RedisCacheAdapterSettings = {
@@ -45,12 +55,12 @@ export type RedisCacheAdapterSettings = {
 /**
  * To utilize the `RedisCacheAdapter`, you must install the [`"ioredis"`](https://www.npmjs.com/package/ioredis) package and supply a {@link ISerde | `ISerde`}, with adapter like {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/redis-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/redis-cache-adapter"`
  * @group Adapters
  */
-export class RedisCacheAdapter<TType = unknown>
-    implements ICacheAdapter<TType>
-{
+export class RedisCacheAdapter<
+    TType = unknown,
+> implements ICacheAdapter<TType> {
     private static isRedisTypeError(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
         value: any,
@@ -69,9 +79,9 @@ export class RedisCacheAdapter<TType = unknown>
     /**
      * @example
      * ```ts
-     * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Redis from "ioredis";
      *
      * const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -87,14 +97,56 @@ export class RedisCacheAdapter<TType = unknown>
         this.database = database;
         this.serde = new RedisCacheAdapterSerde(serde);
         this.initIncrementCommand();
+        this.initGetOrAddCommand();
     }
 
-    private initIncrementCommand(): void {
-        if (typeof this.database.daiso_cache_increment === "function") {
+    private initGetOrAddCommand(): void {
+        if (typeof this.database.eridu_cache_get_or_add === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_cache_increment", {
+        this.database.defineCommand("eridu_cache_get_or_add", {
+            numberOfKeys: 1,
+            lua: `
+                local key = KEYS[1]
+                local newValue = ARGV[1]
+                local ttl = tonumber(ARGV[2])
+                local existing = redis.call("get", key)
+                if existing then
+                    return existing
+                end
+                if ttl == -1 then
+                    redis.call("set", key, newValue)
+                else
+                    redis.call("set", key, newValue, "PX", ttl)
+                end
+                return newValue
+                `,
+        });
+    }
+
+    async getOrAdd(
+        key: string,
+        valueToAdd: TType,
+        ttl: TimeSpan | null,
+        _context: IReadableContext,
+    ): Promise<TType> {
+        const serializedValue = this.serde.serialize(valueToAdd);
+        const ttlInMs = ttl?.toMilliseconds() ?? -1;
+        const result = await this.database.eridu_cache_get_or_add(
+            key,
+            serializedValue,
+            ttlInMs,
+        );
+        return await this.serde.deserialize(result);
+    }
+
+    private initIncrementCommand(): void {
+        if (typeof this.database.eridu_cache_increment === "function") {
+            return;
+        }
+
+        this.database.defineCommand("eridu_cache_increment", {
             numberOfKeys: 1,
             lua: `
                 local hasKey = redis.call("exists", KEYS[1])
@@ -108,7 +160,7 @@ export class RedisCacheAdapter<TType = unknown>
         });
     }
 
-    async get(_context: IReadableContext, key: string): Promise<TType | null> {
+    async get(key: string, _context: IReadableContext): Promise<TType | null> {
         const value = await this.database.get(key);
         if (value === null) {
             return null;
@@ -117,8 +169,8 @@ export class RedisCacheAdapter<TType = unknown>
     }
 
     async getAndRemove(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<TType | null> {
         const value = await this.database.getdel(key);
         if (value === null) {
@@ -128,10 +180,10 @@ export class RedisCacheAdapter<TType = unknown>
     }
 
     async add(
-        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (ttl === null) {
             const result = await this.database.set(
@@ -152,10 +204,10 @@ export class RedisCacheAdapter<TType = unknown>
     }
 
     async put(
-        _context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (ttl === null) {
             const result = await this.database.set(
@@ -176,9 +228,9 @@ export class RedisCacheAdapter<TType = unknown>
     }
 
     async update(
-        _context: IReadableContext,
         key: string,
         value: TType,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.set(
             key,
@@ -189,12 +241,12 @@ export class RedisCacheAdapter<TType = unknown>
     }
 
     async increment(
-        _context: IReadableContext,
         key: string,
         value: number,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
-            const redisResult = await this.database.daiso_cache_increment(
+            const redisResult = await this.database.eridu_cache_increment(
                 key,
                 this.serde.serialize(value),
             );
@@ -211,21 +263,25 @@ export class RedisCacheAdapter<TType = unknown>
     }
 
     async removeMany(
-        _context: IReadableContext,
         keys: Array<string>,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const deleteResult = await this.database.del(...keys);
         return deleteResult > 0;
     }
 
-    async removeAll(_context: IReadableContext): Promise<void> {
+    private async removeAll(_context: IReadableContext): Promise<void> {
         await this.database.flushdb();
     }
 
-    async removeByKeyPrefix(
-        _context: IReadableContext,
+    async removeByPrefix(
         prefix: string,
+        context: IReadableContext,
     ): Promise<void> {
+        if (prefix === "") {
+            await this.removeAll(context);
+            return;
+        }
         for await (const _ of new ClearIterable(this.database, prefix)) {
             /* Empty */
         }

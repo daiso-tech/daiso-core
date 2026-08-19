@@ -1,16 +1,15 @@
-import {
-    type StartedPostgreSqlContainer,
-    PostgreSqlContainer,
-} from "@testcontainers/postgresql";
+import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { KyselyCacheAdapter } from "@/cache/implementations/adapters/kysely-cache-adapter/_module.js";
-import { databaseCacheAdapterTestSuite } from "@/cache/implementations/test-utilities/_module.js";
+import { cacheAdapterTestSuite } from "@/cache/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("postgres class: KyselyCacheAdapter", () => {
@@ -31,7 +30,7 @@ describe("postgres class: KyselyCacheAdapter", () => {
         await database.end();
         await container.stop();
     }, timeout.toMilliseconds());
-    databaseCacheAdapterTestSuite({
+    cacheAdapterTestSuite({
         createAdapter: async () => {
             const adapter = new KyselyCacheAdapter({
                 kysely: new Kysely({
@@ -39,7 +38,6 @@ describe("postgres class: KyselyCacheAdapter", () => {
                         pool: database,
                     }),
                 }),
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
             await adapter.init();

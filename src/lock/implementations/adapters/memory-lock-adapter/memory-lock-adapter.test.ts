@@ -2,12 +2,11 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    MemoryLockAdapter,
-    type MemoryLockData,
-} from "@/lock/implementations/adapters/memory-lock-adapter/_module.js";
+import { MemoryLockAdapter } from "@/lock/implementations/adapters/memory-lock-adapter/_module.js";
 import { lockAdapterTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { MemoryLockData } from "@/lock/implementations/adapters/memory-lock-adapter/_module.js";
 
 describe("class: MemoryLockAdapter", () => {
     let map = new Map<string, MemoryLockData>();
@@ -30,19 +29,19 @@ describe("class: MemoryLockAdapter", () => {
     });
     describe("method: deInit", () => {
         test("Should clear map", async () => {
-            await adapter.acquire(noOpContext, "a", "1", null);
+            await adapter.acquire("a", "1", null, noOpContext);
             await adapter.acquire(
-                noOpContext,
                 "a",
                 "2",
                 TimeSpan.fromMilliseconds(100),
-            );
-            await adapter.acquire(noOpContext, "b", "1", null);
-            await adapter.acquire(
                 noOpContext,
+            );
+            await adapter.acquire("b", "1", null, noOpContext);
+            await adapter.acquire(
                 "b",
                 "2",
                 TimeSpan.fromMilliseconds(100),
+                noOpContext,
             );
 
             await adapter.deInit();

@@ -19,9 +19,9 @@ The `LockFactoryResolver` class provides a flexible way to configure and switch 
 To begin using the `ILockFactoryResolver`, you will need to register all required adapters during initialization.
 
 ```ts
-import { LockFactoryResolver } from "@daiso-tech/core/lock";
-import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
+import { LockFactoryResolver } from "eridu-tech/lock";
+import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
 import Redis from "ioredis";
 
 const lockFactoryResolver = new LockFactoryResolver({
@@ -69,10 +69,8 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 ### 3. Overriding default settings
 
 ```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-
 await lockFactoryResolver
-    .setNamespace(new Namespace("@my-namespace"))
+    .setDefaultTtl(TimeSpan.fromMinutes(5))
     .use("redis")
     .create("shared-resource")
     .runOrFail(async () => {
@@ -86,4 +84,4 @@ Note that the `LockFactoryResolver` is immutable, meaning any configuration over
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/lock`](https://daiso-tech.github.io/daiso-core/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech/modules/Lock.html) API docs.

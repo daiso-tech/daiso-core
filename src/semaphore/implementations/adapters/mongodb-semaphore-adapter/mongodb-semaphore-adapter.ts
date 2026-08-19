@@ -2,25 +2,26 @@
  * @module Semaphore
  */
 
-import {
-    type Document,
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type ObjectId,
+import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type {
+    Document,
+    Collection,
+    CollectionOptions,
+    Db,
+    ObjectId,
 } from "mongodb";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISemaphoreAdapter,
-    type ISemaphoreAdapterState,
-    type SemaphoreAcquireSettings,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISemaphoreAdapter,
+    ISemaphoreAdapterState,
+    SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
+import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */
 export type MongodbSemaphoreSlotSubDocument = {
@@ -29,7 +30,7 @@ export type MongodbSemaphoreSlotSubDocument = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */
 export type MongodbSemaphoreDocument = {
@@ -44,7 +45,7 @@ export type MongodbSemaphoreDocument = {
  * Configuration for `MongodbSemaphoreAdapter`.
  * Requires a MongoDB `Db` instance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */
 export type MongodbSemaphoreAdapterSettings = {
@@ -68,7 +69,7 @@ export type MongodbSemaphoreAdapterSettings = {
  *
  * Note in order to use `MongodbSemaphoreAdapter` correctly, ensure you use a single, consistent database across all server instances.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */
 export class MongodbSemaphoreAdapter
@@ -82,7 +83,7 @@ export class MongodbSemaphoreAdapter
     /**
      * @example
      * ```ts
-     * import { MongodbSemaphoreAdapter } from "@daiso-tech/core/semaphore/mongodb-semaphore-adapter";
+     * import { MongodbSemaphoreAdapter } from "eridu-tech/semaphore/mongodb-semaphore-adapter";
      * import { MongoClient } from "mongodb";
      *
      * const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
@@ -359,9 +360,9 @@ export class MongodbSemaphoreAdapter
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         slotId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphoreData = await this.collection.findOneAndUpdate(
             {
@@ -408,8 +409,8 @@ export class MongodbSemaphoreAdapter
     }
 
     async forceReleaseAll(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphoreData = await this.collection.findOneAndDelete(
             {
@@ -430,10 +431,10 @@ export class MongodbSemaphoreAdapter
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const isExpireableQuery = {
             $ne: ["$$slot.expiration", null],
@@ -497,8 +498,8 @@ export class MongodbSemaphoreAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
         const semaphore = await this.collection.findOne(
             { key },

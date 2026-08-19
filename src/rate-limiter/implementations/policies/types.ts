@@ -2,17 +2,17 @@
  * @module RateLimiter
  */
 
-import {
-    type FixedWindowLimiterSettings,
-    type SerializedFixedWindowLimiterSettings,
+import type {
+    FixedWindowLimiterSettings,
+    SerializedFixedWindowLimiterSettings,
 } from "@/rate-limiter/implementations/policies/fixed-window-limiter/_module.js";
-import {
-    type SlidingWindowLimiterSettings,
-    type SerializedSlidingWindowLimiterSettings,
+import type {
+    SlidingWindowLimiterSettings,
+    SerializedSlidingWindowLimiterSettings,
 } from "@/rate-limiter/implementations/policies/sliding-window-limiter/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export const LIMITER_POLICIES = {
@@ -21,7 +21,7 @@ export const LIMITER_POLICIES = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export type FixedWindowLimiterSettingsEnum = FixedWindowLimiterSettings & {
@@ -32,7 +32,7 @@ export type FixedWindowLimiterSettingsEnum = FixedWindowLimiterSettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/policies"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/policies"`
  * @group Policies
  */
 export type SlidingWindowLimiterSettingsEnum = SlidingWindowLimiterSettings & {
@@ -46,8 +46,7 @@ export type SlidingWindowLimiterSettingsEnum = SlidingWindowLimiterSettings & {
  * @internal
  */
 export type RateLimiterPolicySettingsEnum =
-    | FixedWindowLimiterSettingsEnum
-    | SlidingWindowLimiterSettingsEnum;
+    FixedWindowLimiterSettingsEnum | SlidingWindowLimiterSettingsEnum;
 
 /**
  * @internal

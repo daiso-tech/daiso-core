@@ -2,16 +2,16 @@
  * @module SharedLock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Represents the persistent state of a writer lock in storage.
  * Contains information about ownership and expiration time.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type IWriterLockAdapterState = {
@@ -31,7 +31,7 @@ export type IWriterLockAdapterState = {
  * Represents the persistent state of a reader semaphore in storage.
  * Contains information about the slot limit and currently acquired slots with their expiration times.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type IReaderSemaphoreAdapterState = {
@@ -52,7 +52,7 @@ export type IReaderSemaphoreAdapterState = {
  * Represents the combined persistent state of a shared lock in storage.
  * Contains both writer lock and reader semaphore state information.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockAdapterState = {
@@ -71,7 +71,7 @@ export type ISharedLockAdapterState = {
  * Internal settings for shared lock acquisition operations.
  * This is used internally by the shared lock adapter implementations and should not be directly instantiated in application code.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type SharedLockAcquireSettings = {
@@ -108,7 +108,7 @@ export type SharedLockAcquireSettings = {
  * Implementations handle writer lock and reader semaphore acquisition, release, refresh, and state tracking independent of the underlying storage.
  * **Note:** This contract is low-level and typically not used directly - prefer {@link ISharedLockFactory | `ISharedLockFactory`} for shared lock usage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockAdapter = {
@@ -116,32 +116,34 @@ export type ISharedLockAdapter = {
      * Attempts to acquire a writer lock for the specified key.
      * Succeeds only if no non-expired writer lock exists and no non-expired reader slots are held.
      *
-     * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
      * @param lockId - Unique identifier for this acquirer (becomes the owner)
      * @param ttl - Time-to-live duration or null for indefinite locks
+     * @param context - Readable execution context for the operation
+     *
      * @returns Promise resolving to true if the writer lock was successfully acquired, false if already held by another owner
      */
     acquireWriter(
-        context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
      * Releases a writer lock if owned by the specified lockId.
      * Ownership verification prevents accidental release of locks held by others.
      *
-     * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
      * @param lockId - Unique identifier of the lock owner
+     * @param context - Readable execution context for the operation
+     *
      * @returns Promise resolving to true if the writer lock was successfully released, false if not owned by lockId or doesn't exist
      */
     releaseWriter(
-        context: IReadableContext,
         key: string,
         lockId: string,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -149,30 +151,32 @@ export type ISharedLockAdapter = {
      * Used for emergency lock release or administrative cleanup.
      * Bypasses ownership verification for situations where the owner is unavailable.
      *
-     * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
+     * @param context - Readable execution context for the operation
+     *
      * @returns Promise resolving to true if the writer lock existed and was released, false if the lock is already expired
      */
     forceReleaseWriter(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
      * Refreshes (extends) the time-to-live of an existing writer lock.
      * Only succeeds if all conditions are met: ownership matches, lock hasn't expired, and it's expirable.
      *
-     * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
      * @param lockId - Unique identifier of the lock owner
      * @param ttl - New time-to-live duration to set
+     * @param context - Readable execution context for the operation
+     *
      * @returns Promise resolving to true if refresh succeeded, false if the lock is unexpirable, expired, or not owned by lockId
      */
     refreshWriter(
-        context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -180,6 +184,7 @@ export type ISharedLockAdapter = {
      * Succeeds only if no non-expired writer lock is held and the current number of acquired reader slots has not reached the limit.
      *
      * @param settings - Settings containing the context, key, lockId, limit, and ttl for the acquisition
+     *
      * @returns Promise resolving to true if the reader slot was successfully acquired, false if the slot limit has been reached
      */
     acquireReader(settings: SharedLockAcquireSettings): Promise<boolean>;
@@ -188,15 +193,16 @@ export type ISharedLockAdapter = {
      * Releases a specific reader slot if it is currently acquired.
      * Only the holder of the slot (identified by slotId) can release it.
      *
-     * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
      * @param slotId - Unique identifier of the reader slot to release
+     * @param context - Readable execution context for the operation
+     *
      * @returns Promise resolving to true if the reader slot was successfully released, false if the slot doesn't exist or is already released
      */
     releaseReader(
-        context: IReadableContext,
         key: string,
         slotId: string,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -204,51 +210,55 @@ export type ISharedLockAdapter = {
      * Used for emergency cleanup or administrative operations.
      * Bypasses ownership verification for situations where individual slot holders are unavailable.
      *
-     * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
+     * @param context - Readable execution context for the operation
+     *
      * @returns Promise resolving to true if reader slots existed and were released, false if no reader slots are acquired
      */
     forceReleaseAllReaders(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
      * Refreshes (extends) the time-to-live of an existing reader slot.
      * Only succeeds if all conditions are met: the slot exists, hasn't expired, and is expirable.
      *
-     * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
      * @param slotId - Unique identifier of the reader slot to refresh
      * @param ttl - New time-to-live duration to set
+     * @param context - Readable execution context for the operation
+     *
      * @returns Promise resolving to true if refresh succeeded, false if the slot is unexpirable, expired, or doesn't exist
      */
     refreshReader(
-        context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
      * Forcibly releases both the writer lock and all reader slots regardless of ownership.
      * Used for complete emergency cleanup of the shared lock.
      *
-     * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
+     * @param context - Readable execution context for the operation
+     *
      * @returns Promise resolving to true if the shared lock existed and was fully released, false if the shared lock doesn't exist
      */
-    forceRelease(context: IReadableContext, key: string): Promise<boolean>;
+    forceRelease(key: string, context: IReadableContext): Promise<boolean>;
 
     /**
      * Retrieves the current state of a shared lock.
      *
-     * @param context - Readable execution context for the operation
      * @param key - Unique identifier for the shared lock
+     * @param context - Readable execution context for the operation
+     *
      * @returns Promise resolving to the non-expired shared lock state if it exists; otherwise null for missing or expired shared locks
      */
     getState(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<ISharedLockAdapterState | null>;
 };

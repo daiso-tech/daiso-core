@@ -2,12 +2,12 @@
  * @module SharedLock
  */
 
-import { type ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
+import type { ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
 
 /**
  * The `ISharedLockFactoryResolver` contract makes it easy to configure and switch between different {@link ISharedLockFactory | `ISharedLockFactory`} dynamically.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockFactoryResolver<TAdapters extends string = string> = {

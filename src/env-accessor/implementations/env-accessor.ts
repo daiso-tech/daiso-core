@@ -2,23 +2,26 @@
  * @module EnvAccessor
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
+import { UninitializedEnvAccessorError } from "@/env-accessor/contracts/_module.js";
 import {
-    UninitializedEnvAccessorError,
-    type BaseEnvConfig,
-    type IEnvAccessor,
-    type RawEnvConfig,
-} from "@/env-accessor/contracts/_module.js";
-import {
-    type UndefinedToNull,
-    type OneOrMore,
-    type AsyncLazyable,
     resolveOneOrMore,
-    isInvokable,
-    type AsyncLazy,
-    callInvokable,
+    isInvocable,
+    callInvocable,
     validate,
+} from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type {
+    BaseEnvConfig,
+    IEnvAccessor,
+    RawEnvConfig,
+} from "@/env-accessor/contracts/_module.js";
+import type {
+    UndefinedToNull,
+    OneOrMore,
+    AsyncLazyable,
+    AsyncLazy,
 } from "@/utilities/_module.js";
 
 /**
@@ -48,9 +51,9 @@ export type EnvAccessorSettings<
  * @template TEnvConfig The environment config type.
  * @group Implementations
  */
-export class EnvAccessor<TEnvConfig extends BaseEnvConfig>
-    implements IEnvAccessor<TEnvConfig>
-{
+export class EnvAccessor<
+    TEnvConfig extends BaseEnvConfig,
+> implements IEnvAccessor<TEnvConfig> {
     private envConfig: TEnvConfig | null = null;
 
     private readonly schema: StandardSchemaV1<
@@ -63,7 +66,7 @@ export class EnvAccessor<TEnvConfig extends BaseEnvConfig>
     /**
      * @example
      * ```ts
-     * import { EnvAccessor } from "@daiso-tech/core/env-accessor";
+     * import { EnvAccessor } from "eridu-tech/env-accessor";
      * import { z } from "zod";
      * import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
      *
@@ -110,7 +113,7 @@ export class EnvAccessor<TEnvConfig extends BaseEnvConfig>
         const resolvedSource = resolveOneOrMore(this.sources).map<
             AsyncLazy<RawEnvConfig>
         >((source) => {
-            if (isInvokable(source)) {
+            if (isInvocable(source)) {
                 return source;
             }
             return () => source;
@@ -120,7 +123,7 @@ export class EnvAccessor<TEnvConfig extends BaseEnvConfig>
         for (const source of resolvedSource) {
             mergedRawConfig = {
                 ...mergedRawConfig,
-                ...(await callInvokable(source)),
+                ...(await callInvocable(source)),
             };
         }
 

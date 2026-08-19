@@ -12,39 +12,39 @@ import {
     HeadObjectCommand,
     ListObjectsCommand,
     PutObjectCommand,
-    type S3Client,
     S3ServiceException,
-    type ServerSideEncryption,
     CreateBucketCommand,
     DeleteBucketCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    FILE_WRITE_ENUM,
-    type FileAdapterSignedUploadUrlSettings,
-    type FileAdapterSignedDownloadUrlSettings,
-    type FileAdapterMetadata,
-    type FileAdapterStream,
-    type FileWriteEnum,
-    type ISignedFileStorageAdapter,
-    type WritableFileAdapterContent,
-    type WritableFileAdapterStream,
+import { FILE_WRITE_ENUM } from "@/file-storage/contracts/_module.js";
+import { callInvocable, UnexpectedError } from "@/utilities/_module.js";
+
+import type { S3Client, ServerSideEncryption } from "@aws-sdk/client-s3";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    FileAdapterSignedUploadUrlSettings,
+    FileAdapterSignedDownloadUrlSettings,
+    FileAdapterMetadata,
+    FileAdapterStream,
+    FileWriteEnum,
+    ISignedFileStorageAdapter,
+    WritableFileAdapterContent,
+    WritableFileAdapterStream,
 } from "@/file-storage/contracts/_module.js";
-import {
-    callInvokable,
-    UnexpectedError,
-    type IDeinitizable,
-    type IInitizable,
-    type Invokable,
+import type {
+    IDeinitizable,
+    IInitizable,
+    Invocable,
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
-export type S3FilePublicUrlGenerator = Invokable<
+export type S3FilePublicUrlGenerator = Invocable<
     [settings: { key: string; bucket: string; client: S3Client }],
     Promise<string>
 >;
@@ -53,7 +53,7 @@ export type S3FilePublicUrlGenerator = Invokable<
  * Configuration for `S3FileStorageAdapter`.
  * Provides AWS S3-backed file storage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
 export type S3FileStorageAdapterSettings = {
@@ -113,7 +113,7 @@ export type S3FileStorageAdapterSettings = {
      *
      * @default
      * ```ts
-     * import { defaultPublicUrlGenerator } from "@daiso-tech/core/file-storage/s3-file-storage-adapter"
+     * import { defaultPublicUrlGenerator } from "eridu-tech/file-storage/s3-file-storage-adapter"
      * defaultPublicUrlGenerator
      * ```
      */
@@ -121,7 +121,7 @@ export type S3FileStorageAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
 export const defaultPublicUrlGenerator: S3FilePublicUrlGenerator = async ({
@@ -147,7 +147,7 @@ export const defaultPublicUrlGenerator: S3FilePublicUrlGenerator = async ({
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/aws-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/aws-file-storage-adapter"`
  * @group Adapters
  */
 export class S3FileStorageAdapter
@@ -167,7 +167,7 @@ export class S3FileStorageAdapter
      * @example
      * ```ts
      * import { S3Client } from "@aws-sdk/client-s3"
-     * import { S3FileStorageAdapter } from "@daiso-tech/core/file-storage/s3-file-storage-adapter";
+     * import { S3FileStorageAdapter } from "eridu-tech/file-storage/s3-file-storage-adapter";
      *
      * const s3FileStorageAdapter = new S3FileStorageAdapter({
      *   client: new S3Client({
@@ -249,12 +249,12 @@ export class S3FileStorageAdapter
     }
 
     async getPublicUrl(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<string | null> {
         if (
             this.enableAccurateGetPublicUrl &&
-            !(await this.exists(context, key))
+            !(await this._exists(key, context))
         ) {
             return null;
         }
@@ -262,7 +262,7 @@ export class S3FileStorageAdapter
             return new URL(key, this.cdnUrl).toString();
         }
 
-        return await callInvokable(this.publicUrlGenerator, {
+        return await callInvocable(this.publicUrlGenerator, {
             key,
             bucket: this.bucket,
             client: this.client,
@@ -270,13 +270,13 @@ export class S3FileStorageAdapter
     }
 
     async getSignedDownloadUrl(
-        context: IReadableContext,
         key: string,
         settings: FileAdapterSignedDownloadUrlSettings,
+        context: IReadableContext,
     ): Promise<string | null> {
         if (
             this.enableAccurateGetSignedDownloadUrl &&
-            !(await this.exists(context, key))
+            !(await this._exists(key, context))
         ) {
             return null;
         }
@@ -296,9 +296,9 @@ export class S3FileStorageAdapter
     }
 
     async getSignedUploadUrl(
-        _context: IReadableContext,
         key: string,
         settings: FileAdapterSignedUploadUrlSettings,
+        _context: IReadableContext,
     ): Promise<string> {
         return await getSignedUrl(
             this.client,
@@ -314,7 +314,10 @@ export class S3FileStorageAdapter
         );
     }
 
-    async exists(_context: IReadableContext, key: string): Promise<boolean> {
+    private async _exists(
+        key: string,
+        _context: IReadableContext,
+    ): Promise<boolean> {
         try {
             const response = await this.client.send(
                 new HeadObjectCommand({
@@ -329,9 +332,13 @@ export class S3FileStorageAdapter
         }
     }
 
+    async exists(key: string, context: IReadableContext): Promise<boolean> {
+        return this._exists(key, context);
+    }
+
     async getStream(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<FileAdapterStream | null> {
         try {
             const response = await this.client.send(
@@ -351,8 +358,8 @@ export class S3FileStorageAdapter
     }
 
     async getBytes(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<Uint8Array | null> {
         try {
             const response = await this.client.send(
@@ -372,8 +379,8 @@ export class S3FileStorageAdapter
     }
 
     async getMetaData(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<FileAdapterMetadata | null> {
         try {
             const response = await this.client.send(
@@ -409,9 +416,9 @@ export class S3FileStorageAdapter
     }
 
     async add(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             await this.client.send(
@@ -448,9 +455,9 @@ export class S3FileStorageAdapter
     }
 
     async addStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             await this.client.send(
@@ -477,9 +484,9 @@ export class S3FileStorageAdapter
     }
 
     async update(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             await this.client.send(
@@ -504,9 +511,9 @@ export class S3FileStorageAdapter
     }
 
     async updateStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             await this.client.send(
@@ -593,9 +600,9 @@ export class S3FileStorageAdapter
     }
 
     async put(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         if (!this.enableAccuratePut) {
             return await this.unaccuratePut(key, content);
@@ -605,11 +612,11 @@ export class S3FileStorageAdapter
     }
 
     private async accuratePutStream(
-        context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        context: IReadableContext,
     ): Promise<boolean> {
-        const exists = await this.exists(context, key);
+        const exists = await this._exists(key, context);
         await this.client.send(
             new PutObjectCommand({
                 ServerSideEncryption: this.serverSideEncryption,
@@ -647,28 +654,28 @@ export class S3FileStorageAdapter
     }
 
     async putStream(
-        context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        context: IReadableContext,
     ): Promise<boolean> {
         if (!this.enableAccuratePut) {
             return await this.unaccuratePutStream(key, stream);
         }
 
-        return await this.accuratePutStream(context, key, stream);
+        return await this.accuratePutStream(key, stream, context);
     }
 
-    async copy(
-        context: IReadableContext,
+    private async _copy(
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<FileWriteEnum> {
-        const sourceExists = await this.exists(context, source);
+        const sourceExists = await this._exists(source, context);
         if (!sourceExists) {
             return FILE_WRITE_ENUM.NOT_FOUND;
         }
 
-        const destinationExists = await this.exists(context, destination);
+        const destinationExists = await this._exists(destination, context);
         if (destinationExists) {
             return FILE_WRITE_ENUM.KEY_EXISTS;
         }
@@ -689,10 +696,18 @@ export class S3FileStorageAdapter
         }
     }
 
-    async copyAndReplace(
-        _context: IReadableContext,
+    async copy(
         source: string,
         destination: string,
+        context: IReadableContext,
+    ): Promise<FileWriteEnum> {
+        return this._copy(source, destination, context);
+    }
+
+    private async _copyAndReplace(
+        source: string,
+        destination: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             await this.client.send(
@@ -710,37 +725,45 @@ export class S3FileStorageAdapter
         }
     }
 
-    async move(
-        context: IReadableContext,
+    async copyAndReplace(
         source: string,
         destination: string,
+        context: IReadableContext,
+    ): Promise<boolean> {
+        return this._copyAndReplace(source, destination, context);
+    }
+
+    async move(
+        source: string,
+        destination: string,
+        context: IReadableContext,
     ): Promise<FileWriteEnum> {
-        const result = await this.copy(context, source, destination);
+        const result = await this._copy(source, destination, context);
         if (result === FILE_WRITE_ENUM.SUCCESS) {
-            await this.removeMany(context, [source]);
+            await this._removeMany([source], context);
         }
         return result;
     }
 
     async moveAndReplace(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<boolean> {
-        const hasMoved = await this.copyAndReplace(
-            context,
+        const hasMoved = await this._copyAndReplace(
             source,
             destination,
+            context,
         );
         if (hasMoved) {
-            await this.removeMany(context, [source]);
+            await this._removeMany([source], context);
         }
         return hasMoved;
     }
 
-    async removeMany(
-        context: IReadableContext,
+    private async _removeMany(
         keys: Array<string>,
+        context: IReadableContext,
     ): Promise<boolean> {
         if (!this.enableAccurateRemoveMany) {
             await this.client.send(
@@ -755,7 +778,7 @@ export class S3FileStorageAdapter
         }
 
         const results = await Promise.all(
-            keys.map((key) => this.exists(context, key)),
+            keys.map((key) => this._exists(key, context)),
         );
         await this.client.send(
             new DeleteObjectsCommand({
@@ -773,9 +796,16 @@ export class S3FileStorageAdapter
         return false;
     }
 
-    async removeByPrefix(
+    async removeMany(
+        keys: Array<string>,
         context: IReadableContext,
+    ): Promise<boolean> {
+        return this._removeMany(keys, context);
+    }
+
+    async removeByPrefix(
         prefix: string,
+        context: IReadableContext,
     ): Promise<void> {
         const listResponse = await this.client.send(
             new ListObjectsCommand({
@@ -790,6 +820,6 @@ export class S3FileStorageAdapter
             listResponse.Contents?.map((item) => item.Key).filter(
                 (key) => key !== undefined,
             ) ?? [];
-        await this.removeMany(context, keysToDelete);
+        await this._removeMany(keysToDelete, context);
     }
 }

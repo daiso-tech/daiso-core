@@ -5,7 +5,7 @@
 /**
  * The error occurs when attempting to access the default adapter of the `Factory` class instance, which has not been defined.
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Errors
  */
 export class DefaultAdapterNotDefinedError extends Error {
@@ -18,7 +18,7 @@ export class DefaultAdapterNotDefinedError extends Error {
 /**
  * The error occurs when attempting to access the an adapter of the `Factory` class instance, which has not been registered.
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Errors
  */
 export class UnregisteredAdapterError extends Error {
@@ -29,7 +29,7 @@ export class UnregisteredAdapterError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Errors
  */
 export class UnexpectedError extends Error {

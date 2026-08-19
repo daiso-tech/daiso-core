@@ -1,24 +1,22 @@
 /**
  * @module Semaphore
  */
-import {
-    type TestAPI,
-    type SuiteAPI,
-    type ExpectStatic,
-    type beforeEach,
-    vi,
-} from "vitest";
+import { vi } from "vitest";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay, type Promisable } from "@/utilities/_module.js";
+import { delay } from "@/utilities/_module.js";
+
+import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/test-utilities"`
  * @group Utilities
  */
 export type SemaphoreAdapterTestSuiteSettings = {
@@ -31,7 +29,7 @@ export type SemaphoreAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -41,8 +39,8 @@ export type SemaphoreAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -53,19 +51,19 @@ export type SemaphoreAdapterTestSuiteSettings = {
 /**
  * The `semaphoreAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link ISemaphoreAdapter | `ISemaphoreAdapter`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/test-utilities"`
  * @group Utilities
  * @example
  * ```ts
  * import { afterEach, beforeEach, describe, expect, test } from "vitest";
- * import { semaphoreAdapterTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
- * import { RedisSemaphoreAdapter } from "@daiso-tech/core/semaphore/redis-semaphore-adapter";
+ * import { semaphoreAdapterTestSuite } from "eridu-tech/semaphore/test-utilities";
+ * import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
  * import { Redis } from "ioredis";
  * import {
  *     RedisContainer,
  *     type StartedRedisContainer,
  * } from "@testcontainers/redis";
- * import { TimeSpan } from "@daiso-tech/core/time-span";
+ * import { TimeSpan } from "eridu-tech/time-span";
  *
  * const timeout = TimeSpan.fromMinutes(2);
  * describe("class: RedisSemaphoreAdapter", () => {
@@ -380,7 +378,7 @@ export function semaphoreAdapterTestSuite(
                 });
                 const slotId3 = "3";
 
-                const result1 = await adapter.getState(context, key);
+                const result1 = await adapter.getState(key, context);
                 expect(result1?.limit).toBe(limit);
 
                 const result2 = await adapter.acquire({
@@ -409,9 +407,9 @@ export function semaphoreAdapterTestSuite(
 
                 const noneExistingKey = "c";
                 const result = await adapter.release(
-                    context,
                     noneExistingKey,
                     slotId,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -432,9 +430,9 @@ export function semaphoreAdapterTestSuite(
 
                 const noneExistingSlotId = "2";
                 const result = await adapter.release(
-                    context,
                     key,
                     noneExistingSlotId,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -454,7 +452,7 @@ export function semaphoreAdapterTestSuite(
                 });
                 await delayWithBuffer(ttl);
 
-                const result = await adapter.release(context, key, slotId);
+                const result = await adapter.release(key, slotId, context);
 
                 expect(result).toBe(false);
             });
@@ -471,7 +469,7 @@ export function semaphoreAdapterTestSuite(
                     ttl,
                     limit,
                 });
-                const result = await adapter.release(context, key, slotId);
+                const result = await adapter.release(key, slotId, context);
 
                 expect(result).toBe(true);
             });
@@ -488,7 +486,7 @@ export function semaphoreAdapterTestSuite(
                     ttl,
                     limit,
                 });
-                const result = await adapter.release(context, key, slotId);
+                const result = await adapter.release(key, slotId, context);
 
                 expect(result).toBe(true);
             });
@@ -513,8 +511,8 @@ export function semaphoreAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await adapter.release(context, key, slotId1);
-                await adapter.release(context, key, slotId2);
+                await adapter.release(key, slotId1, context);
+                await adapter.release(key, slotId2, context);
 
                 const newLimit = 3;
                 const slotId3 = "3";
@@ -526,7 +524,7 @@ export function semaphoreAdapterTestSuite(
                     ttl,
                 });
 
-                const result1 = await adapter.getState(context, key);
+                const result1 = await adapter.getState(key, context);
                 expect(result1?.limit).toBe(newLimit);
 
                 const slotId4 = "4";
@@ -579,12 +577,12 @@ export function semaphoreAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await adapter.release(context, key, slotId1);
+                await adapter.release(key, slotId1, context);
 
-                const result1 = await adapter.getState(context, key);
+                const result1 = await adapter.getState(key, context);
                 expect(result1?.acquiredSlots.size).toBe(1);
 
-                await adapter.release(context, key, slotId2);
+                await adapter.release(key, slotId2, context);
 
                 const slotId3 = "3";
                 const result2 = await adapter.acquire({
@@ -623,8 +621,8 @@ export function semaphoreAdapterTestSuite(
 
                 const noneExistingKey = "c";
                 const result = await adapter.forceReleaseAll(
-                    context,
                     noneExistingKey,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -644,7 +642,7 @@ export function semaphoreAdapterTestSuite(
                 });
                 await delayWithBuffer(ttl);
 
-                const result = await adapter.forceReleaseAll(context, key);
+                const result = await adapter.forceReleaseAll(key, context);
 
                 expect(result).toBe(false);
             });
@@ -669,10 +667,10 @@ export function semaphoreAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await adapter.release(context, key, slotId1);
-                await adapter.release(context, key, slotId2);
+                await adapter.release(key, slotId1, context);
+                await adapter.release(key, slotId2, context);
 
-                const result = await adapter.forceReleaseAll(context, key);
+                const result = await adapter.forceReleaseAll(key, context);
 
                 expect(result).toBe(false);
             });
@@ -690,7 +688,7 @@ export function semaphoreAdapterTestSuite(
                     ttl,
                 });
 
-                const result = await adapter.forceReleaseAll(context, key);
+                const result = await adapter.forceReleaseAll(key, context);
 
                 expect(result).toBe(true);
             });
@@ -716,7 +714,7 @@ export function semaphoreAdapterTestSuite(
                     ttl: ttl2,
                 });
 
-                await adapter.forceReleaseAll(context, key);
+                await adapter.forceReleaseAll(key, context);
 
                 const slotId3 = "3";
                 const ttl3 = null;
@@ -760,7 +758,7 @@ export function semaphoreAdapterTestSuite(
                     limit,
                     ttl,
                 });
-                await adapter.forceReleaseAll(context, key);
+                await adapter.forceReleaseAll(key, context);
 
                 const newLimit = 3;
                 const slotId3 = "3";
@@ -772,7 +770,7 @@ export function semaphoreAdapterTestSuite(
                     ttl,
                 });
 
-                const result1 = await adapter.getState(context, key);
+                const result1 = await adapter.getState(key, context);
                 expect(result1?.limit).toBe(newLimit);
 
                 const slotId4 = "4";
@@ -822,10 +820,10 @@ export function semaphoreAdapterTestSuite(
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const noneExistingKey = "c";
                 const result = await adapter.refresh(
-                    context,
                     noneExistingKey,
                     slotId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -847,10 +845,10 @@ export function semaphoreAdapterTestSuite(
                 const noneExistingSlotId = "c";
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refresh(
-                    context,
                     key,
                     noneExistingSlotId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -871,10 +869,10 @@ export function semaphoreAdapterTestSuite(
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refresh(
-                    context,
                     key,
                     slotId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -894,10 +892,10 @@ export function semaphoreAdapterTestSuite(
                 });
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refresh(
-                    context,
                     key,
                     slotId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(false);
@@ -917,10 +915,10 @@ export function semaphoreAdapterTestSuite(
                 });
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refresh(
-                    context,
                     key,
                     slotId,
                     newTtl,
+                    context,
                 );
 
                 expect(result).toBe(true);
@@ -950,7 +948,7 @@ export function semaphoreAdapterTestSuite(
                 });
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
-                await adapter.refresh(context, key, slotId2, newTtl);
+                await adapter.refresh(key, slotId2, newTtl, context);
                 await delayWithBuffer(newTtl);
 
                 const slotId3 = "3";
@@ -988,7 +986,7 @@ export function semaphoreAdapterTestSuite(
                 });
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
-                await adapter.refresh(context, key, slotId2, newTtl);
+                await adapter.refresh(key, slotId2, newTtl, context);
                 await delayWithBuffer(newTtl.divide(2));
 
                 const slotId3 = "3";
@@ -1016,7 +1014,7 @@ export function semaphoreAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const key = "a";
 
-                const result = await adapter.getState(context, key);
+                const result = await adapter.getState(key, context);
 
                 expect(result).toBeNull();
             });
@@ -1034,7 +1032,7 @@ export function semaphoreAdapterTestSuite(
                 });
                 await delayWithBuffer(ttl);
 
-                const result = await adapter.getState(context, key);
+                const result = await adapter.getState(key, context);
 
                 expect(result).toBeNull();
             });
@@ -1062,9 +1060,9 @@ export function semaphoreAdapterTestSuite(
                     ttl: ttl2,
                 });
 
-                await adapter.forceReleaseAll(context, key);
+                await adapter.forceReleaseAll(key, context);
 
-                const result = await adapter.getState(context, key);
+                const result = await adapter.getState(key, context);
 
                 expect(result).toBeNull();
             });
@@ -1092,10 +1090,10 @@ export function semaphoreAdapterTestSuite(
                     ttl: ttl2,
                 });
 
-                await adapter.release(context, key, slotId1);
-                await adapter.release(context, key, slotId2);
+                await adapter.release(key, slotId1, context);
+                await adapter.release(key, slotId2, context);
 
-                const result = await adapter.getState(context, key);
+                const result = await adapter.getState(key, context);
 
                 expect(result).toBeNull();
             });
@@ -1113,7 +1111,7 @@ export function semaphoreAdapterTestSuite(
                     ttl,
                 });
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect(state?.limit).toBe(limit);
             });
@@ -1141,7 +1139,7 @@ export function semaphoreAdapterTestSuite(
                     ttl: ttl2,
                 });
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect(state?.acquiredSlots.size).toBe(2);
             });
@@ -1159,7 +1157,7 @@ export function semaphoreAdapterTestSuite(
                     ttl,
                 });
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect({
                     ...state,
@@ -1194,7 +1192,7 @@ export function semaphoreAdapterTestSuite(
                     vi.useRealTimers();
                 }
 
-                const state = await adapter.getState(context, key);
+                const state = await adapter.getState(key, context);
 
                 expect({
                     ...state,

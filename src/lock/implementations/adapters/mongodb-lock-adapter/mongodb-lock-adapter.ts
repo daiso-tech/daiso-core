@@ -2,26 +2,21 @@
  * @module Lock
  */
 
-import {
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type ObjectId,
-} from "mongodb";
+import type { Collection, CollectionOptions, Db, ObjectId } from "mongodb";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ILockAdapter,
-    type ILockAdapterState,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ILockAdapter,
+    ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
 
 /**
  * Configuration for `MongodbLockAdapter`.
  * Requires a MongoDB `Db` instance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/mongodb-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/mongodb-lock-adapter"`
  * @group Adapters
  */
 export type MongodbLockAdapterSettings = {
@@ -41,7 +36,7 @@ export type MongodbLockAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/mongodb-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/mongodb-lock-adapter"`
  * @group Adapters
  */
 export type MongodbLockDocument = {
@@ -56,7 +51,7 @@ export type MongodbLockDocument = {
  *
  * Note in order to use `MongodbLockAdapter` correctly, ensure you use a single, consistent database across all server instances.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/mongodb-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/mongodb-lock-adapter"`
  * @group Adapters
  */
 export class MongodbLockAdapter
@@ -67,7 +62,7 @@ export class MongodbLockAdapter
     /**
      * @example
      * ```ts
-     * import { MongodbLockAdapter } from "@daiso-tech/core/lock/mongodb-lock-adapter";
+     * import { MongodbLockAdapter } from "eridu-tech/lock/mongodb-lock-adapter";
      * import { MongoClient } from "mongodb";
      *
      * const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
@@ -141,10 +136,10 @@ export class MongodbLockAdapter
     }
 
     async acquire(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl?.toEndDate() ?? null;
         const isExpiredQuery = {
@@ -209,9 +204,9 @@ export class MongodbLockAdapter
     }
 
     async release(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const isUnexpirableQuery = {
             expiration: {
@@ -246,8 +241,8 @@ export class MongodbLockAdapter
     }
 
     async forceRelease(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const lockData = await this.collection.findOneAndDelete({ key });
         if (lockData === null) {
@@ -261,10 +256,10 @@ export class MongodbLockAdapter
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const isUnexpiredQuery = {
             $and: [
@@ -316,8 +311,8 @@ export class MongodbLockAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ILockAdapterState | null> {
         const lockData = await this.collection.findOne({
             key,

@@ -2,19 +2,18 @@
  * @module CircuitBreaker
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type InferInstance } from "@/utilities/_module.js";
+import type { InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when circuit breaker is in open state and will not allow any attempts.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Errors
  */
 export class OpenCircuitBreakerError extends Error {
-    static create(key: IKey, cause?: unknown): OpenCircuitBreakerError {
+    static create(key: string, cause?: unknown): OpenCircuitBreakerError {
         return new OpenCircuitBreakerError(
-            `Circuit breaker for key "${key.get()}" is in opened state. All calls are being blocked until transitioned to half opened state.`,
+            `Circuit breaker for key "${key}" is in opened state. All calls are being blocked until transitioned to half opened state.`,
             cause,
         );
     }
@@ -31,9 +30,9 @@ export class OpenCircuitBreakerError extends Error {
 }
 
 export class IsolatedCircuitBreakerError extends Error {
-    static create(key: IKey, cause?: unknown): IsolatedCircuitBreakerError {
+    static create(key: string, cause?: unknown): IsolatedCircuitBreakerError {
         return new IsolatedCircuitBreakerError(
-            `Circuit breaker for key "${key.get()}" is manually isolated. All calls are being blocked until reseted.`,
+            `Circuit breaker for key "${key}" is manually isolated. All calls are being blocked until reseted.`,
             cause,
             // Circuit breaker "a" is manually isolated; all requests are being blocked.
         );
@@ -51,7 +50,7 @@ export class IsolatedCircuitBreakerError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Errors
  */
 export const CIRCUIT_BREAKER_ERRORS = {
@@ -60,7 +59,7 @@ export const CIRCUIT_BREAKER_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Errors
  */
 export type AllCircuitBreakerErrors = InferInstance<
@@ -68,7 +67,7 @@ export type AllCircuitBreakerErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Errors
  */
 export function isCircuitBreakerError(

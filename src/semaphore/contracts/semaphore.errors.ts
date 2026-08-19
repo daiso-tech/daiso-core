@@ -2,19 +2,18 @@
  * @module Semaphore
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type InferInstance } from "@/utilities/_module.js";
+import type { InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when trying to acquire a semaphore slot, but all slots are already taken.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export class LimitReachedSemaphoreError extends Error {
-    static create(key: IKey, cause?: unknown): LimitReachedSemaphoreError {
+    static create(key: string, cause?: unknown): LimitReachedSemaphoreError {
         return new LimitReachedSemaphoreError(
-            `Key "${key.get()}" has reached the limit`,
+            `Key "${key}" has reached the limit`,
             cause,
         );
     }
@@ -33,17 +32,17 @@ export class LimitReachedSemaphoreError extends Error {
 /**
  * The error is thrown when trying to refresh a semaphore slot that is already expired.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export class FailedRefreshSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         slotId: string,
         cause?: unknown,
     ): FailedRefreshSemaphoreError {
         return new FailedRefreshSemaphoreError(
-            `Failed to refresh slot "${slotId}" of key "${key.get()}"`,
+            `Failed to refresh slot "${slotId}" of key "${key}"`,
             cause,
         );
     }
@@ -62,17 +61,17 @@ export class FailedRefreshSemaphoreError extends Error {
 /**
  * The error is thrown when trying to release a semaphore slot that is already expired.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export class FailedReleaseSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         slotId: string,
         cause?: unknown,
     ): FailedReleaseSemaphoreError {
         return new FailedReleaseSemaphoreError(
-            `Failed to release slot "${slotId}" of key "${key.get()}"`,
+            `Failed to release slot "${slotId}" of key "${key}"`,
             cause,
         );
     }
@@ -89,7 +88,7 @@ export class FailedReleaseSemaphoreError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export const SEMAPHORE_ERRORS = {
@@ -99,7 +98,7 @@ export const SEMAPHORE_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export type AllSemaphoreErrors = InferInstance<
@@ -107,7 +106,7 @@ export type AllSemaphoreErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Errors
  */
 export function isSemaphoreError(value: unknown): value is AllSemaphoreErrors {

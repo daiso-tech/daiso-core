@@ -2,21 +2,20 @@
  * @module Collection
  */
 
-import {
-    type AsyncPredicate,
-    type IAsyncCollection,
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    AsyncPredicate,
+    IAsyncCollection,
 } from "@/collection/contracts/_module.js";
-import {
-    resolveInvokable,
-    type AsyncIterableValue,
-} from "@/utilities/_module.js";
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class AsyncPartionIterable<TInput>
-    implements AsyncIterable<IAsyncCollection<TInput>>
-{
+export class AsyncPartionIterable<TInput> implements AsyncIterable<
+    IAsyncCollection<TInput>
+> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
@@ -30,7 +29,7 @@ export class AsyncPartionIterable<TInput>
         const arrayB: Array<TInput> = [];
         for await (const [index, item] of this.collection.entries()) {
             if (
-                await resolveInvokable(this.predicateFn)(
+                await resolveInvocable(this.predicateFn)(
                     item,
                     index,
                     this.collection,

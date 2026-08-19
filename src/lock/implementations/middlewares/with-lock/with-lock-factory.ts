@@ -1,0 +1,80 @@
+/**
+ * @module Lock
+ */
+
+import { v4 } from "uuid";
+
+import { callInvocable } from "@/utilities/_module.js";
+
+import type { ILockFactory } from "@/lock/contracts/_module.js";
+import type { MiddlewareFn } from "@/middleware/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
+import type { Invocable } from "@/utilities/_module.js";
+
+/**
+ * Settings for the distributed-lock middleware.
+ *
+ * @typeParam TParameters - Tuple type of the wrapped function's parameters.
+ * @group Middleware
+ */
+export type WithLockSettings<
+    TParameters extends Array<unknown> = Array<unknown>,
+> = {
+    /**
+     *  A function that produces the lock key from the wrapped
+     * function's arguments. The lock is acquired on this key, ensuring mutual
+     * exclusion across processes for the same key.
+     */
+    key: Invocable<TParameters, string>;
+
+    /**
+     *  A function that produces a unique identifier for the
+     * current lock acquisition attempt. The lock ID distinguishes competing
+     * consumers trying to acquire the same lock.
+     *
+     * @default
+     * ```ts
+     * import { v4 } from "uuid";
+     *
+     * () => v4()
+     * ```
+     */
+    lockId?: Invocable<TParameters, string>;
+
+    /**
+     * Time-to-live for the lock. If `null` the lock never expires
+     * automatically. If omitted the default TTL of the lock factory is used.
+     */
+    ttl?: ITimeSpan | null;
+};
+
+/**
+ * Creates a middleware factory that wraps function calls with a distributed
+ * lock.
+ *
+ * Before executing the wrapped function a lock is acquired on the derived key.
+ * If another process already holds the lock the call waits (or fails
+ * immediately for non-blocking locks) until the lock is released.
+ *
+ * @param lockFactory - The lock factory to use.
+ * @returns A function that accepts {@link WithLockSettings} and returns a
+ *          middleware.
+ *
+ * IMPORT_PATH: `"eridu-tech/lock/middlewares"`
+ * @group Middleware
+ */
+export function withLockFactory(lockFactory: ILockFactory) {
+    return <TParameters extends Array<unknown>, TReturn>(
+        settings: WithLockSettings<TParameters>,
+    ): MiddlewareFn<TParameters, Promise<TReturn>> => {
+        const { key, lockId = () => v4(), ...rest } = settings;
+        return ({ next, args }) => {
+            return lockFactory
+                .create(callInvocable(key, ...args), {
+                    ...rest,
+                    lockId: callInvocable(lockId, ...args),
+                })
+                .runOrFail(next);
+        };
+    };
+}

@@ -5,25 +5,23 @@ pagination_label: Event-bus usage
 tags:
     - Event-bus
     - Usage
-    - Namespace
 keywords:
     - Event-bus
     - Usage
-    - Namespace
 ---
 
 # EventBus usage
 
-The `@daiso-tech/core/event-bus` component provides a way for dispatching and listening to events independent of underlying technology.
+The `eridu-tech/event-bus` component provides a way for dispatching and listening to events independent of underlying technology.
 
 ## Initial configuration
 
 To begin using the `EventBus` class, you'll need to create and configure an instance:
 
 ```ts
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import type { IEventBus } from "@daiso-tech/core/event-bus/contracts";
-import { EventBus } from "@daiso-tech/core/event-bus";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import type { IEventBus } from "eridu-tech/event-bus/contracts";
+import { EventBus } from "eridu-tech/event-bus";
 
 const eventBus: IEventBus = new EventBus({
     // You can choose the adapter to use
@@ -32,7 +30,7 @@ const eventBus: IEventBus = new EventBus({
 ```
 
 :::info
-Here is a complete list of settings for the [`EventBus`](https://daiso-tech.github.io/daiso-core/types/EventBus.EventBusSettingsBase.html) class.
+Here is a complete list of settings for the [`EventBus`](https://eridu-tech.github.io/eridu-tech/types/EventBus.EventBusSettingsBase.html) class.
 :::
 
 ## Event handling basics
@@ -57,7 +55,7 @@ await eventBus.dispatch("add", {
 To properly remove a listener, you must use a named function:
 
 ```ts
-import type { BaseEvent } from "@daiso-tech/core/event-bus/contracts";
+import type { BaseEvent } from "eridu-tech/event-bus/contracts";
 
 const listener = (event: BaseEvent) => {
     console.log(event);
@@ -81,9 +79,9 @@ await eventBus.dispatch("add", {
 An event map can be used to strictly type the events:
 
 ```ts
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import type { IEventBus } from "@daiso-tech/core/event-bus/contracts";
-import { EventBus } from "@daiso-tech/core/event-bus";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import type { IEventBus } from "eridu-tech/event-bus/contracts";
+import { EventBus } from "eridu-tech/event-bus";
 
 type AddEvent = {
     a: number;
@@ -113,35 +111,6 @@ await eventBus.dispatch("add", {
 // A typescript error will show up because the event name doesnt exist.
 await eventBus.addListener("addd", (event) => {
     console.log(event);
-});
-```
-
-### Runtime type safety
-
-You can enforce runtime and compiletime type safety by passing [standard schema](https://standardschema.dev/) to the cache:
-
-```ts
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { z } from "zod";
-
-const eventMapSchema = {
-    add: z.object({
-        a: z.number(),
-        b: z.number(),
-    }),
-};
-
-// The event type will be infered
-const eventBus = new EventBus({
-    adapter: new MemoryEventBusAdapter(),
-    eventMapSchema,
-});
-
-// A typescript and runtime error will show up because the event fields doesnt match
-await eventBus.dispatch("add", {
-    nbr1: 1,
-    nbr2: 2,
 });
 ```
 
@@ -185,7 +154,7 @@ await eventBus.dispatch("add", {
 You can also cancel one-time listeners before they trigger:
 
 ```ts
-import type { BaseEvent } from "@daiso-tech/core/event-bus/contracts";
+import type { BaseEvent } from "eridu-tech/event-bus/contracts";
 
 const listener = (event: BaseEvent) => {
     console.log(event);
@@ -222,8 +191,8 @@ await eventBus.dispatch("add", {
 Wait for events using promises:
 
 ```ts
-import { delay } from "@daiso-tech/core/utilities";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { delay } from "eridu-tech/utilities";
+import { TimeSpan } from "eridu-tech/time-span";
 
 // Register the promise before dispatching the event.
 const eventPromise = eventBus.asPromise("add");
@@ -286,20 +255,20 @@ await unsubscribe();
 
 The library includes two additional contracts:
 
-- [`IEventDispatcher`](https://daiso-tech.github.io/daiso-core/types/EventBus.IEventDispatcher.html) - Allows only for event dispatching.
+- [`IEventDispatcher`](https://eridu-tech.github.io/eridu-tech/types/EventBus.IEventDispatcher.html) - Allows only for event dispatching.
 
-- [`IEventListenable`](https://daiso-tech.github.io/daiso-core/types/EventBus.IEventListenable.html) - Allows only for event listening.
+- [`IEventListenable`](https://eridu-tech.github.io/eridu-tech/types/EventBus.IEventListenable.html) - Allows only for event listening.
 
-This seperation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
+This separation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
 
 ```ts
 import type {
     IEventBus,
     IEventListenable,
     IEventDispatcher,
-} from "@daiso-tech/core/event-bus/contracts";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
+} from "eridu-tech/event-bus/contracts";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
 
 type AddEvent = {
     a: number;
@@ -341,12 +310,12 @@ await listenerFunc(eventBus);
 await dispatchingFunc(eventBus);
 ```
 
-### Invokable listeners
+### Invocable listeners
 
-An event listener is `Invokable` meaning you can also pass in an object (class instance or object literal) as listener:
+An event listener is `Invocable` meaning you can also pass in an object (class instance or object literal) as listener:
 
 :::info
-For further information refer the [`Invokable`](../../utilities/invokable.md) docs.
+For further information refer the [`Invocable`](../../utilities/invocable.md) docs.
 :::
 
 ```ts
@@ -375,58 +344,6 @@ await eventBus.dispatch("add", {
 });
 ```
 
-### Namespacing
-
-You can use the `Namespace` class to group related without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import Redis from "ioredis";
-
-const client = new Redis("YOUR_REDIS_CONNECTION_STRING");
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const eventBusA = new EventBus({
-    namespace: new Namespace("@eventBus-a"),
-    adapter: new RedisPubSubEventBusAdapter({
-        client,
-        serde,
-    }),
-});
-const eventBusB = new EventBus({
-    namespace: new Namespace("@eventBus-b"),
-    adapter: new RedisPubSubEventBusAdapter({
-        client,
-        serde,
-    }),
-});
-
-await eventBusA.addListener("test", (event) => {
-    console.log("TEST_A:", event);
-});
-await eventBusB.addListener("test", () => {
-    console.log("TEST_B", event);
-});
-
-// Will only log "TEST_A" { testA: true }
-await eventBusA.dispatch("test", {
-    testA: true,
-});
-
-// Will only log "TEST_B" { testB: true }
-await eventBusB.dispatch("test", {
-    testB: true,
-});
-```
-
 ## Further information
 
-For further information refer to [`@daiso-tech/core/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.
+For further information refer to [`eridu-tech/event-bus`](https://eridu-tech.github.io/eridu-tech/modules/EventBus.html) API docs.

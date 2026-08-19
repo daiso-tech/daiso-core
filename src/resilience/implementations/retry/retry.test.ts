@@ -1,24 +1,15 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { type IContext } from "@/execution-context/contracts/_module.js";
-import { Context } from "@/execution-context/implementations/derivables/execution-context/context.js";
-import { type NextFn } from "@/middleware/contracts/_module.js";
 import { RetryResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import { retry } from "@/resilience/implementations/retry/retry.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/time-span.contract.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+
+import type { NextFn } from "@/middleware/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 describe("function: retry", () => {
-    let context: IContext;
-
-    beforeEach(() => {
-        context = new Context(new Map());
-    });
-
     describe("setting: maxAttempts", () => {
         test("Should throw TypeError when maxAttempts is less than 1", () => {
             expect(() => retry({ maxAttempts: 0 })).toThrow(TypeError);
@@ -34,7 +25,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
 
             expect(nextFn).toHaveBeenCalledTimes(4);
@@ -50,7 +41,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
 
             expect(nextFn).toHaveBeenCalledTimes(2);
@@ -68,7 +59,7 @@ describe("function: retry", () => {
             const result = await middleware({
                 args: [],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(result).toBe("success");
@@ -89,7 +80,7 @@ describe("function: retry", () => {
             const result = await middleware({
                 args: [],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(result).toBe("success");
@@ -106,7 +97,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
 
             expect(nextFn).toHaveBeenCalledTimes(1);
@@ -128,7 +119,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
 
             expect(backoffPolicy).toHaveBeenCalledTimes(2);
@@ -149,7 +140,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
 
             expect(backoffPolicy).toHaveBeenCalledTimes(1);
@@ -168,7 +159,7 @@ describe("function: retry", () => {
                 backoffPolicy,
             });
 
-            await middleware({ args: [], next: nextFn, context });
+            await middleware({ args: [], next: nextFn, name: "" });
 
             expect(backoffPolicy).not.toHaveBeenCalled();
         });
@@ -187,7 +178,7 @@ describe("function: retry", () => {
                 errorPolicy: { treatFalseAsError: true },
             });
 
-            await middleware({ args: [], next: nextFn, context });
+            await middleware({ args: [], next: nextFn, name: "" });
 
             expect(backoffPolicy).toHaveBeenCalledTimes(1);
             expect(backoffPolicy).toHaveBeenCalledWith(1, false);
@@ -205,7 +196,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
         });
 
@@ -220,7 +211,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
         });
 
@@ -237,7 +228,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toBe(lastError);
         });
 
@@ -254,17 +245,17 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            try {
-                await middleware({ args: [], next: nextFn, context });
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(
+                middleware({ args: [], next: nextFn, name: "" }),
+            ).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(RetryResilienceError);
                 const retryError = error as RetryResilienceError;
                 expect(retryError.errors).toHaveLength(2);
                 expect(retryError.errors[0]).toBe(error1);
                 expect(retryError.errors[1]).toBe(error2);
                 expect(retryError.maxAttempts).toBe(2);
-            }
+                return true;
+            });
         });
     });
 
@@ -279,7 +270,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
 
             expect(nextFn).toHaveBeenCalledTimes(2);
@@ -300,7 +291,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(NonRetryableError);
 
             expect(nextFn).toHaveBeenCalledTimes(2);
@@ -319,7 +310,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow("not retryable");
 
             expect(nextFn).toHaveBeenCalledTimes(2);
@@ -339,7 +330,7 @@ describe("function: retry", () => {
             const result = await middleware({
                 args: [],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(result).toBe(true);
@@ -359,7 +350,7 @@ describe("function: retry", () => {
             const result = await middleware({
                 args: [],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(result).toBe(false);
@@ -383,13 +374,13 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(ErrorC);
 
             expect(nextFn).toHaveBeenCalledTimes(3);
         });
 
-        test("Should support errorPolicy as an invokable object", async () => {
+        test("Should support errorPolicy as an invocable object", async () => {
             const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
                 .fn()
                 .mockRejectedValueOnce(new Error("retryable"))
@@ -404,7 +395,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow("not retryable");
 
             expect(nextFn).toHaveBeenCalledTimes(2);
@@ -422,7 +413,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toBe(error);
 
             expect(nextFn).toHaveBeenCalledTimes(1);
@@ -439,7 +430,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow();
 
             expect(nextFn).toHaveBeenCalledTimes(3);
@@ -456,7 +447,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow();
 
             expect(nextFn).toHaveBeenCalledTimes(1);
@@ -477,7 +468,7 @@ describe("function: retry", () => {
             const result = await middleware({
                 args: [],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(result).toBe(false);
@@ -498,7 +489,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toBe(thrownError);
 
             expect(nextFn).toHaveBeenCalledTimes(2);
@@ -522,7 +513,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toBe(error2);
 
             expect(errorPolicy).toHaveBeenCalledTimes(2);
@@ -543,7 +534,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
 
             expect(nextFn).toHaveBeenCalledTimes(3);
@@ -561,7 +552,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
 
             expect(nextFn).toHaveBeenCalledTimes(3);
@@ -578,7 +569,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow(RetryResilienceError);
 
             expect(nextFn).toHaveBeenCalledTimes(3);
@@ -594,15 +585,15 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            try {
-                await middleware({ args: [], next: nextFn, context });
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(
+                middleware({ args: [], next: nextFn, name: "" }),
+            ).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(RetryResilienceError);
                 const retryError = error as RetryResilienceError;
                 expect(retryError.errors).toHaveLength(2);
                 expect(retryError.errors).toEqual([false, false]);
-            }
+                return true;
+            });
         });
     });
 
@@ -619,7 +610,7 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await middleware({ args: [], next: nextFn, context });
+            await middleware({ args: [], next: nextFn, name: "" });
 
             expect(onExecutionAttempt).toHaveBeenCalledTimes(2);
         });
@@ -636,7 +627,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow();
 
             expect(onExecutionAttempt).toHaveBeenCalledTimes(3);
@@ -666,28 +657,10 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await middleware({ args, next: nextFn, context });
+            await middleware({ args, next: nextFn, name: "" });
 
             expect(onExecutionAttempt).toHaveBeenCalledWith(
                 expect.objectContaining({ args: ["hello", 42] }),
-            );
-        });
-
-        test("Should be called with context", async () => {
-            const onExecutionAttempt = vi.fn();
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 2,
-                onExecutionAttempt,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
-            });
-
-            await middleware({ args: [], next: nextFn, context });
-
-            expect(onExecutionAttempt).toHaveBeenCalledWith(
-                expect.objectContaining({ context }),
             );
         });
 
@@ -707,7 +680,7 @@ describe("function: retry", () => {
             const result = await middleware({
                 args: [],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(result).toBe("ok");
@@ -728,7 +701,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow();
 
             expect(onRetryDelay).toHaveBeenCalledTimes(2);
@@ -746,7 +719,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow();
 
             expect(onRetryDelay).toHaveBeenCalledTimes(1);
@@ -763,7 +736,7 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await middleware({ args: [], next: nextFn, context });
+            await middleware({ args: [], next: nextFn, name: "" });
 
             expect(onRetryDelay).not.toHaveBeenCalled();
         });
@@ -783,7 +756,7 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await middleware({ args: [], next: nextFn, context });
+            await middleware({ args: [], next: nextFn, name: "" });
 
             expect(onRetryDelay).toHaveBeenNthCalledWith(
                 1,
@@ -807,7 +780,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow();
 
             expect(onRetryDelay).toHaveBeenNthCalledWith(
@@ -837,14 +810,14 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toThrow();
 
             expect(onRetryDelay).toHaveBeenNthCalledWith(
                 1,
                 expect.objectContaining({
                     waitTime: expect.objectContaining({
-                        [TO_MILLISECONDS]: expect.any(Function) as InvokableFn<
+                        [TO_MILLISECONDS]: expect.any(Function) as InvocableFn<
                             [],
                             number
                         >,
@@ -874,29 +847,10 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await middleware({ args, next: nextFn, context });
+            await middleware({ args, next: nextFn, name: "" });
 
             expect(onRetryDelay).toHaveBeenCalledWith(
                 expect.objectContaining({ args: ["test-arg"] }),
-            );
-        });
-
-        test("Should be called with context", async () => {
-            const onRetryDelay = vi.fn();
-            const nextFn: NextFn<Array<unknown>, Promise<unknown>> = vi
-                .fn()
-                .mockRejectedValueOnce(new Error("fail"))
-                .mockResolvedValue("ok");
-            const middleware = retry({
-                maxAttempts: 3,
-                onRetryDelay,
-                backoffPolicy: () => TimeSpan.fromMilliseconds(0),
-            });
-
-            await middleware({ args: [], next: nextFn, context });
-
-            expect(onRetryDelay).toHaveBeenCalledWith(
-                expect.objectContaining({ context }),
             );
         });
 
@@ -917,7 +871,7 @@ describe("function: retry", () => {
             const result = await middleware({
                 args: [],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(result).toBe("ok");
@@ -936,7 +890,7 @@ describe("function: retry", () => {
                 backoffPolicy: () => TimeSpan.fromMilliseconds(0),
             });
 
-            await middleware({ args: [], next: nextFn, context });
+            await middleware({ args: [], next: nextFn, name: "" });
 
             expect(onRetryDelay).toHaveBeenCalledWith(
                 expect.objectContaining({ error: false }),
@@ -957,7 +911,7 @@ describe("function: retry", () => {
             const result = await middleware({
                 args: [],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(result).toBe(42);
@@ -976,7 +930,7 @@ describe("function: retry", () => {
             const result = await middleware({
                 args: [],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(result).toBe("recovered");
@@ -995,7 +949,7 @@ describe("function: retry", () => {
             });
 
             await expect(
-                middleware({ args: [], next: nextFn, context }),
+                middleware({ args: [], next: nextFn, name: "" }),
             ).rejects.toBe(error);
 
             expect(nextFn).toHaveBeenCalledTimes(1);
@@ -1013,7 +967,7 @@ describe("function: retry", () => {
             await middleware({
                 args: ["hello", 123],
                 next: nextFn,
-                context,
+                name: "",
             });
 
             expect(nextFn).toHaveBeenCalledTimes(1);

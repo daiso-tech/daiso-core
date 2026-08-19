@@ -2,17 +2,18 @@
  * @module RateLimiter
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type RateLimiterState } from "@/rate-limiter/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { BlockedRateLimiterError } from "@/rate-limiter/contracts/rate-limiter.errors.js";
-import { type AsyncLazy } from "@/utilities/_module.js";
+
+import type { RateLimiterState } from "@/rate-limiter/contracts/_module.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * State and metadata methods for a rate limiter instance.
  * Provides read-only access to rate limiter state and configuration properties.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiterStateMethods = {
@@ -27,7 +28,7 @@ export type IRateLimiterStateMethods = {
      * The unique identifier for this rate limiter instance.
      * Multiple rate limiter instances with the same key share the same request quota.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * The maximum number of allowed requests within the rate limiting window.
@@ -39,7 +40,7 @@ export type IRateLimiterStateMethods = {
  * Rate limiting operations for controlling request throughput.
  * Provides methods to execute async functions within rate limit constraints.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiter = IRateLimiterStateMethods & {

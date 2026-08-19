@@ -2,18 +2,18 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IRateLimiterFactory,
-    type IRateLimiterData,
-    type IRateLimiterStorageAdapter,
-    type IRateLimiterStorageAdapterTransaction,
+    IRateLimiterFactory,
+    IRateLimiterData,
+    IRateLimiterStorageAdapter,
+    IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
-import { type IDeinitizable, type InvokableFn } from "@/utilities/_module.js";
+import type { IDeinitizable, InvocableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type MemoryRateLimiterData<TType = unknown> = {
@@ -25,7 +25,7 @@ export type MemoryRateLimiterData<TType = unknown> = {
 /**
  * The `MemoryRateLimiterStorageAdapter` is used for easily facking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export class MemoryRateLimiterStorageAdapter<TType>
@@ -34,7 +34,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
     /**
      * @example
      * ```ts
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
      *
      * const rateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter();
      * ```
@@ -53,18 +53,18 @@ export class MemoryRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await fn({
             upsert: (
-                _nestedContext: IReadableContext,
                 key: string,
                 state: TType,
                 expiration: Date,
+                _nestedContext: IReadableContext,
             ): Promise<void> => {
                 const ttl = expiration.getTime() - Date.now();
                 const timeoutId = setTimeout(() => {
@@ -78,17 +78,17 @@ export class MemoryRateLimiterStorageAdapter<TType>
                 return Promise.resolve();
             },
             find: (
-                context: IReadableContext,
                 key: string,
+                _nestedContext: IReadableContext,
             ): Promise<IRateLimiterData<TType> | null> => {
-                return this.find(context, key);
+                return this.find(key, _nestedContext);
             },
         });
     }
 
     find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         const data = this.map.get(key);
         if (data === undefined) {
@@ -100,7 +100,7 @@ export class MemoryRateLimiterStorageAdapter<TType>
         });
     }
 
-    remove(_context: IReadableContext, key: string): Promise<void> {
+    remove(key: string, _context: IReadableContext): Promise<void> {
         const data = this.map.get(key);
         if (data === undefined) {
             return Promise.resolve();

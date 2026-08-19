@@ -4,25 +4,26 @@
 
 import { EventEmitter } from "node:events";
 
-import { type Redis } from "ioredis";
-
-import {
-    type BaseEvent,
-    type EventListenerFn,
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     SuperJsonSerdeAdapter,
 } from "@/serde/implementations/adapters/_module.js";
 
+import type { Redis } from "ioredis";
+
+import type {
+    BaseEvent,
+    EventListenerFn,
+    IEventBusAdapter,
+} from "@/event-bus/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
+
 /**
  * Configuration for `RedisPubSubEventBusAdapter`.
  * Requires a Redis client and a serde for serialising event payloads.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/redis-pub-sub-event-bus-adapter"`
  * @group Adapters
  */
 export type RedisPubSubEventBusAdapterSettings = {
@@ -39,7 +40,7 @@ export type RedisPubSubEventBusAdapterSettings = {
 /**
  * To utilize the `RedisPubSubEventBusAdapter`, you must install the [`"ioredis"`](https://www.npmjs.com/package/ioredis) package and supply a {@link ISerde | `ISerde`}, with a {@link SuperJsonSerdeAdapter | `SuperJsonSerdeAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter"`
+ * IMPORT_PATH: `"eridu-tech/event-bus/redis-pub-sub-event-bus-adapter"`
  * @group Adapters
  */
 export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
@@ -51,9 +52,9 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     /**
      *  @example
      * ```ts
-     * import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Redis from "ioredis";
      *
      * const client = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -76,9 +77,9 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     };
 
     async addListener(
-        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        _context: IReadableContext,
     ): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.eventEmitter.on(eventName, listener);
@@ -90,9 +91,9 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     }
 
     async removeListener(
-        _context: IReadableContext,
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
+        _context: IReadableContext,
     ): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.eventEmitter.off(eventName, listener);
@@ -101,9 +102,9 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     }
 
     async dispatch(
-        _context: IReadableContext,
         eventName: string,
         eventData: BaseEvent,
+        _context: IReadableContext,
     ): Promise<void> {
         await this.dispatcherClient.publish(
             eventName,

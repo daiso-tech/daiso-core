@@ -3,35 +3,20 @@
  */
 
 import {
-    type TestAPI,
-    type SuiteAPI,
-    type ExpectStatic,
-    type beforeEach,
-    vi,
-} from "vitest";
-
-import {
     KeyNotFoundCacheError,
-    type ICache,
-    type NotFoundCacheEvent,
-    type AddedCacheEvent,
-    type DecrementedCacheEvent,
-    type FoundCacheEvent,
-    type IncrementedCacheEvent,
-    type RemovedCacheEvent,
-    type ClearedCacheEvent,
-    type UpdatedCacheEvent,
-    CACHE_EVENTS,
     KeyExistsCacheError,
 } from "@/cache/contracts/_module.js";
-import { type EventWithType } from "@/event-bus/contracts/_module.js";
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay, type Promisable } from "@/utilities/_module.js";
+import { delay } from "@/utilities/_module.js";
+
+import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
+
+import type { ICache } from "@/cache/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/cache/test-utilities"`
  * @group TestUtilities
  */
 export type CacheTestSuiteSettings = {
@@ -40,43 +25,29 @@ export type CacheTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createCache: () => Promisable<ICache>;
-    /**
-     * @default false
-     */
-    excludeEventTests?: boolean;
 
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
      */
     delayBuffer?: ITimeSpan;
-
-    /**
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span"
-     *
-     * TimeSpan.fromMilliseconds(10)
-     * ```
-     */
-    eventDispatchWaitTime?: ITimeSpan;
 };
 
 /**
  * The `cacheTestSuite` function simplifies the process of testing your custom implementation of {@link ICache | `ICache`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/cache/test-utilities"`
  * @group TestUtilities
  * @example
  * ```ts
  * import { beforeEach, describe, expect, test } from "vitest";
- * import { cacheTestSuite } from "@daiso-tech/core/cache/test-utilities";
- * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
- * import { Cache } from "@daiso-tech/core/cache";
+ * import { cacheTestSuite } from "eridu-tech/cache/test-utilities";
+ * import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+ * import { Cache } from "eridu-tech/cache";
  *
  * describe("class: Cache", () => {
  *     cacheTestSuite({
@@ -100,21 +71,12 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
         createCache,
         describe,
         beforeEach: beforeEach_,
-        excludeEventTests = false,
         delayBuffer = TimeSpan.fromMilliseconds(10),
-        eventDispatchWaitTime = TimeSpan.fromMilliseconds(10),
     } = settings;
     let cache: ICache<number>;
     beforeEach_(async () => {
         cache = (await createCache()) as ICache<number>;
     });
-
-    const waitForSettings = {
-        interval: TimeSpan.fromTimeSpan(eventDispatchWaitTime).toMilliseconds(),
-        timeout: TimeSpan.fromTimeSpan(eventDispatchWaitTime)
-            .multiply(3)
-            .toMilliseconds(),
-    };
 
     async function delayWithBuffer(ttl: ITimeSpan): Promise<void> {
         await delay(TimeSpan.fromTimeSpan(ttl).addTimeSpan(delayBuffer));
@@ -135,9 +97,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return false when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.exists(key);
@@ -156,7 +116,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return true when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     const result = await cache.exists(key);
 
@@ -173,9 +133,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return true when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.missing(key);
@@ -194,7 +152,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return false when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     const result = await cache.missing(key);
 
@@ -211,9 +169,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return null when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.get(key);
@@ -234,7 +190,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const result = await cache.get(key);
 
@@ -247,22 +203,16 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const result = cache.getOrFail(key);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = cache.getOrFail(key);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should return value when key exists", async () => {
                     const key = "a";
@@ -278,7 +228,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const result = await cache.getOrFail(key);
 
@@ -296,9 +246,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return default value when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const defaultValue = -1;
@@ -321,7 +269,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const defaultValue = -1;
                     const result = await cache.getOr(key, defaultValue);
@@ -339,9 +287,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return null when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.getAndRemove(key);
@@ -362,7 +308,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const result = await cache.getAndRemove(key);
 
@@ -383,7 +329,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     await cache.getAndRemove(key);
 
@@ -411,9 +357,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return value to add when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const valueToAdd = -1;
@@ -423,9 +367,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should persist value when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const valueToAdd = -1;
@@ -461,7 +403,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const valueToAdd = -1;
                     const result = await cache.getOrAdd(key, valueToAdd);
@@ -472,7 +414,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 1;
-                    await cache.add(key, value, { ttl: LONG_TTL });
+                    await cache.add(key, value, LONG_TTL);
 
                     const valueToAdd = -1;
                     await cache.getOrAdd(key, valueToAdd);
@@ -502,9 +444,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return true when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -515,9 +455,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -541,7 +479,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.add(key, value2);
@@ -564,7 +502,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.add(key, value2);
@@ -594,9 +532,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not throw error when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.addOrFail(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.addOrFail(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -607,9 +543,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.addOrFail(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.addOrFail(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -627,24 +561,18 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value2 = 2;
                     const result = cache.addOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyExistsCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyExistsCacheError);
                 });
                 test("Should throw KeyExistsCacheError when key is unexpired", async () => {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.addOrFail(key, value1, {
-                        ttl: LONG_TTL,
-                    });
+                    await cache.addOrFail(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = cache.addOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyExistsCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyExistsCacheError);
                 });
                 test("Should not persist value when key exists", async () => {
                     const key = "a";
@@ -668,9 +596,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.addOrFail(key, value1, {
-                        ttl: LONG_TTL,
-                    });
+                    await cache.addOrFail(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     try {
@@ -713,7 +639,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     await cache.add(key, value1);
 
                     const value2 = 2;
-                    await cache.put(key, value2, { ttl: TTL });
+                    await cache.put(key, value2, TTL);
 
                     await delayWithBuffer(TTL);
                     const result = await cache.get(key);
@@ -722,7 +648,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return true when key is unexpired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.put(key, value2);
@@ -732,7 +658,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist value when key is unexpired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.put(key, value2);
@@ -743,10 +669,10 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist ttl when key is unexpired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
-                    await cache.put(key, value2, { ttl: TTL });
+                    await cache.put(key, value2, TTL);
 
                     await delayWithBuffer(TTL);
                     const result = await cache.get(key);
@@ -773,7 +699,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value = 2;
-                    await cache.put(key, value, { ttl: TTL });
+                    await cache.put(key, value, TTL);
 
                     await delayWithBuffer(TTL);
                     const result = await cache.get(key);
@@ -801,9 +727,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return false when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -814,9 +738,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -840,7 +762,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.update(key, value2);
@@ -863,7 +785,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.update(key, value2);
@@ -879,9 +801,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     const result = cache.updateOrFail(key, value);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key does not exists", async () => {
                     const key = "a";
@@ -901,24 +821,18 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = cache.updateOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -948,7 +862,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = cache.updateOrFail(key, value2);
@@ -971,7 +885,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.updateOrFail(key, value2);
@@ -1001,9 +915,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return false when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1014,9 +926,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1040,7 +950,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.increment(key, value2);
@@ -1063,7 +973,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.increment(key, value2);
@@ -1079,9 +989,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     const result = cache.incrementOrFail(key, value);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key does not exists", async () => {
                     const key = "a";
@@ -1101,24 +1009,18 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = cache.incrementOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1148,7 +1050,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = cache.incrementOrFail(key, value2);
@@ -1171,7 +1073,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.incrementOrFail(key, value2);
@@ -1201,9 +1103,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return false when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1214,9 +1114,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1240,7 +1138,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = await cache.decrement(key, value2);
@@ -1263,7 +1161,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.decrement(key, value2);
@@ -1279,9 +1177,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const value = 1;
                     const result = cache.decrementOrFail(key, value);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key does not exists", async () => {
                     const key = "a";
@@ -1301,24 +1197,18 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
                     const result = cache.decrementOrFail(key, value2);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not persist value when key is expired", async () => {
                     const key = "a";
                     const value1 = 1;
-                    await cache.add(key, value1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, value1, TTL);
                     await delayWithBuffer(TTL);
 
                     const value2 = 2;
@@ -1348,7 +1238,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     const result = cache.decrementOrFail(key, value2);
@@ -1371,7 +1261,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const key = "a";
 
                     const value1 = 1;
-                    await cache.add(key, value1, { ttl: LONG_TTL });
+                    await cache.add(key, value1, LONG_TTL);
 
                     const value2 = 2;
                     await cache.decrementOrFail(key, value2);
@@ -1390,9 +1280,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 });
                 test("Should return false when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.remove(key);
@@ -1411,7 +1299,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should return true when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     const result = await cache.remove(key);
 
@@ -1430,7 +1318,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist removal when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     await cache.remove(key);
 
@@ -1444,22 +1332,16 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
 
                     const result = cache.removeOrFail(key);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should throw KeyNotFoundCacheError when key is expired", async () => {
                     const key = "a";
-                    await cache.add(key, 1, {
-                        ttl: TTL,
-                    });
+                    await cache.add(key, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = cache.removeOrFail(key);
 
-                    await expect(result).rejects.toBeInstanceOf(
-                        KeyNotFoundCacheError,
-                    );
+                    await expect(result).rejects.toThrow(KeyNotFoundCacheError);
                 });
                 test("Should not throw error when key exists", async () => {
                     const key = "a";
@@ -1473,7 +1355,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should not throw error when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     const result = cache.removeOrFail(key);
 
@@ -1492,7 +1374,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                 test("Should persist removal when key is unexpired", async () => {
                     const key = "a";
 
-                    await cache.add(key, 1, { ttl: LONG_TTL });
+                    await cache.add(key, 1, LONG_TTL);
 
                     await cache.removeOrFail(key);
 
@@ -1505,7 +1387,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyA = "a";
                     const keyB = "b";
                     const keyC = "c";
-                    await cache.add(keyA, 1, { ttl: TTL });
+                    await cache.add(keyA, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     const result = await cache.removeMany([keyA, keyB, keyC]);
@@ -1516,7 +1398,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyA = "a";
                     const keyB = "b";
                     const keyC = "c";
-                    await cache.add(keyA, 1, { ttl: TTL });
+                    await cache.add(keyA, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     await cache.add(keyC, 2);
@@ -1528,7 +1410,7 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     const keyA = "a";
                     const keyB = "b";
                     const keyC = "c";
-                    await cache.add(keyA, 1, { ttl: TTL });
+                    await cache.add(keyA, 1, TTL);
                     await delayWithBuffer(TTL);
 
                     await cache.add(keyC, 2);
@@ -1540,1238 +1422,6 @@ export function cacheTestSuite(settings: CacheTestSuiteSettings): void {
                     expect(resultB).toBeNull();
                     const resultC = await cache.get(keyC);
                     expect(resultC).toBeNull();
-                });
-            });
-        });
-        describe.skipIf(excludeEventTests)("Event tests:", () => {
-            describe("method: exists", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    await cache.exists(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch FoundCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.exists(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            type: CACHE_EVENTS.FOUND,
-                        } satisfies EventWithType<
-                            FoundCacheEvent,
-                            typeof CACHE_EVENTS.FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: missing", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    await cache.missing(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch FoundCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.missing(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            type: CACHE_EVENTS.FOUND,
-                        } satisfies EventWithType<
-                            FoundCacheEvent,
-                            typeof CACHE_EVENTS.FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: get", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    await cache.get(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch FoundCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.get(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            type: CACHE_EVENTS.FOUND,
-                        } satisfies EventWithType<
-                            FoundCacheEvent,
-                            typeof CACHE_EVENTS.FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: getOr", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    await cache.getOr(key, -1);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch FoundCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.getOr(key, -1);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            type: CACHE_EVENTS.FOUND,
-                        } satisfies EventWithType<
-                            FoundCacheEvent,
-                            typeof CACHE_EVENTS.FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: getOrFail", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    try {
-                        await cache.getOrFail(key);
-                    } catch (error: unknown) {
-                        if (!(error instanceof KeyNotFoundCacheError)) {
-                            throw error;
-                        }
-                    }
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch FoundCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.getOrFail(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            type: CACHE_EVENTS.FOUND,
-                        } satisfies EventWithType<
-                            FoundCacheEvent,
-                            typeof CACHE_EVENTS.FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: add", () => {
-                test("Should dispatch AddedCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: AddedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.ADDED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value, { ttl: TTL });
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            ttl: expect.any(TimeSpan) as TimeSpan,
-                            type: CACHE_EVENTS.ADDED,
-                        } satisfies EventWithType<
-                            AddedCacheEvent,
-                            typeof CACHE_EVENTS.ADDED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-
-                        const ttl_ = handlerFn.mock.calls[0]?.[0].ttl;
-                        expect(ttl_?.toMilliseconds()).toBe(
-                            TTL.toMilliseconds(),
-                        );
-                    }, waitForSettings);
-                });
-            });
-            describe("method: update", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.update(key, value);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch UpdatedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: UpdatedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.UPDATED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value1 = 1;
-                    await cache.add(key, value1);
-                    const value2 = 2;
-                    await cache.update(key, value2);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value: value2,
-                            type: CACHE_EVENTS.UPDATED,
-                        } satisfies EventWithType<
-                            UpdatedCacheEvent,
-                            typeof CACHE_EVENTS.UPDATED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: updateOrFail", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    try {
-                        await cache.updateOrFail(key, value);
-                    } catch (error: unknown) {
-                        if (!(error instanceof KeyNotFoundCacheError)) {
-                            throw error;
-                        }
-                    }
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch UpdatedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: UpdatedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.UPDATED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value1 = 1;
-                    await cache.add(key, value1);
-                    const value2 = 2;
-                    await cache.updateOrFail(key, value2);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value: value2,
-                            type: CACHE_EVENTS.UPDATED,
-                        } satisfies EventWithType<
-                            UpdatedCacheEvent,
-                            typeof CACHE_EVENTS.UPDATED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: put", () => {
-                test("Should dispatch AddedCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: AddedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.ADDED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.put(key, value, { ttl: TTL });
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            ttl: expect.any(TimeSpan) as TimeSpan,
-                            type: CACHE_EVENTS.ADDED,
-                        } satisfies EventWithType<
-                            AddedCacheEvent,
-                            typeof CACHE_EVENTS.ADDED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-
-                        const ttl = handlerFn.mock.calls[0]?.[0].ttl;
-                        expect(ttl?.toMilliseconds()).toBe(
-                            ttl?.toMilliseconds(),
-                        );
-                    }, waitForSettings);
-                });
-                test("Should dispatch UpdatedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: UpdatedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.UPDATED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.put(key, value, { ttl: TTL });
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            type: CACHE_EVENTS.UPDATED,
-                        } satisfies EventWithType<
-                            UpdatedCacheEvent,
-                            typeof CACHE_EVENTS.UPDATED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: remove", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    await cache.remove(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-                    }, waitForSettings);
-
-                    const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                    expect(keyObj?.get()).toBe(key);
-                });
-                test("Should dispatch RemovedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: RemovedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.REMOVED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.remove(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.REMOVED,
-                        } satisfies EventWithType<
-                            RemovedCacheEvent,
-                            typeof CACHE_EVENTS.REMOVED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: removeOrFail", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    try {
-                        await cache.removeOrFail(key);
-                    } catch (error: unknown) {
-                        if (!(error instanceof KeyNotFoundCacheError)) {
-                            throw error;
-                        }
-                    }
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch RemovedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: RemovedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.REMOVED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.removeOrFail(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.REMOVED,
-                        } satisfies EventWithType<
-                            RemovedCacheEvent,
-                            typeof CACHE_EVENTS.REMOVED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: removeMany", () => {
-                test("Should dispatch RemovedCacheEvent when one key exists", async () => {
-                    const handlerFn = vi.fn((_event: RemovedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.REMOVED,
-                        handlerFn,
-                    );
-
-                    const key1 = "a";
-                    const key2 = "b";
-                    const value = 1;
-                    await cache.add(key1, value);
-
-                    await cache.removeMany([key1, key2]);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.REMOVED,
-                        } satisfies EventWithType<
-                            RemovedCacheEvent,
-                            typeof CACHE_EVENTS.REMOVED
-                        >);
-
-                        const keyObj1 = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj1?.get()).toBe("a");
-
-                        const keyObj2 = handlerFn.mock.calls[1]?.[0].key;
-                        expect(keyObj2?.get()).toBe("b");
-                    }, waitForSettings);
-                });
-                test("Should dispatch NotFoundCacheEvent when all keys doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key1 = "a";
-                    const key2 = "b";
-                    await cache.removeMany([key1, key2]);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledTimes(2);
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj1 = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj1?.get()).toBe("a");
-
-                        const keyObj2 = handlerFn.mock.calls[1]?.[0].key;
-                        expect(keyObj2?.get()).toBe("b");
-                    }, waitForSettings);
-                });
-            });
-            describe("method: getAndRemove", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    await cache.getAndRemove(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should not dispatch FoundCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.getAndRemove(key);
-
-                    await delay(eventDispatchWaitTime);
-                    expect(handlerFn).not.toHaveBeenCalled();
-                });
-                test("Should dispatch RemovedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: RemovedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.REMOVED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.getAndRemove(key);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.REMOVED,
-                        } satisfies EventWithType<
-                            RemovedCacheEvent,
-                            typeof CACHE_EVENTS.REMOVED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: getOrAdd", () => {
-                test("Should not dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.getOrAdd(key, value);
-
-                    await delay(eventDispatchWaitTime);
-                    expect(handlerFn).not.toHaveBeenCalled();
-                });
-                test("Should dispatch FoundCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: FoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.add(key, value);
-                    await cache.getOrAdd(key, value);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            type: CACHE_EVENTS.FOUND,
-                        } satisfies EventWithType<
-                            FoundCacheEvent,
-                            typeof CACHE_EVENTS.FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch AddedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn((_event: AddedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.ADDED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.getOrAdd(key, value, { ttl: TTL });
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value,
-                            ttl: expect.any(TimeSpan) as TimeSpan,
-                            type: CACHE_EVENTS.ADDED,
-                        } satisfies EventWithType<
-                            AddedCacheEvent,
-                            typeof CACHE_EVENTS.ADDED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-
-                        const ttl = handlerFn.mock.calls[0]?.[0].ttl;
-                        expect(ttl?.toMilliseconds()).toBe(
-                            TTL.toMilliseconds(),
-                        );
-                    }, waitForSettings);
-                });
-            });
-            describe("method: increment", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.increment(key, value);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch IncrementedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn(
-                        (_event: IncrementedCacheEvent) => {},
-                    );
-                    await cache.events.addListener(
-                        CACHE_EVENTS.INCREMENTED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value1 = 1;
-                    await cache.add(key, value1);
-                    const value2 = 2;
-                    await cache.increment(key, value2);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value: value2,
-                            type: CACHE_EVENTS.INCREMENTED,
-                        } satisfies EventWithType<
-                            IncrementedCacheEvent,
-                            typeof CACHE_EVENTS.INCREMENTED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: incrementOrFail", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    try {
-                        await cache.incrementOrFail(key, value);
-                    } catch (error: unknown) {
-                        if (!(error instanceof KeyNotFoundCacheError)) {
-                            throw error;
-                        }
-                    }
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch IncrementedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn(
-                        (_event: IncrementedCacheEvent) => {},
-                    );
-                    await cache.events.addListener(
-                        CACHE_EVENTS.INCREMENTED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value1 = 1;
-                    await cache.add(key, value1);
-                    const value2 = 2;
-                    await cache.incrementOrFail(key, value2);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value: value2,
-                            type: CACHE_EVENTS.INCREMENTED,
-                        } satisfies EventWithType<
-                            IncrementedCacheEvent,
-                            typeof CACHE_EVENTS.INCREMENTED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: decrement", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    await cache.decrement(key, value);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch DecrementedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn(
-                        (_event: DecrementedCacheEvent) => {},
-                    );
-                    await cache.events.addListener(
-                        CACHE_EVENTS.DECREMENTED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value1 = 1;
-                    await cache.add(key, value1);
-                    const value2 = 2;
-                    await cache.decrement(key, value2);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value: value2,
-                            type: CACHE_EVENTS.DECREMENTED,
-                        } satisfies EventWithType<
-                            DecrementedCacheEvent,
-                            typeof CACHE_EVENTS.DECREMENTED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: decrementOrFail", () => {
-                test("Should dispatch NotFoundCacheEvent when key doesnt exists", async () => {
-                    const handlerFn = vi.fn((_event: NotFoundCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.NOT_FOUND,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value = 1;
-                    try {
-                        await cache.decrementOrFail(key, value);
-                    } catch (error: unknown) {
-                        if (!(error instanceof KeyNotFoundCacheError)) {
-                            throw error;
-                        }
-                    }
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            type: CACHE_EVENTS.NOT_FOUND,
-                        } satisfies EventWithType<
-                            NotFoundCacheEvent,
-                            typeof CACHE_EVENTS.NOT_FOUND
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-                test("Should dispatch DecrementedCacheEvent when key exists", async () => {
-                    const handlerFn = vi.fn(
-                        (_event: DecrementedCacheEvent) => {},
-                    );
-                    await cache.events.addListener(
-                        CACHE_EVENTS.DECREMENTED,
-                        handlerFn,
-                    );
-
-                    const key = "a";
-                    const value1 = 1;
-                    await cache.add(key, value1);
-                    const value2 = 2;
-                    await cache.decrementOrFail(key, value2);
-                    await vi.waitFor(() => {
-                        expect(handlerFn).toHaveBeenCalledOnce();
-                        expect(handlerFn).toHaveBeenCalledWith({
-                            key: expect.objectContaining({
-                                get: expect.any(Function) as IKey["get"],
-                                toString: expect.any(
-                                    Function,
-                                ) as IKey["toString"],
-                                equals: expect.any(Function) as IKey["equals"],
-                            } satisfies IKey) as IKey,
-                            value: value2,
-                            type: CACHE_EVENTS.DECREMENTED,
-                        } satisfies EventWithType<
-                            DecrementedCacheEvent,
-                            typeof CACHE_EVENTS.DECREMENTED
-                        >);
-
-                        const keyObj = handlerFn.mock.calls[0]?.[0].key;
-                        expect(keyObj?.get()).toBe(key);
-                    }, waitForSettings);
-                });
-            });
-            describe("method: clear", () => {
-                test("Should dispatch ClearedCacheEvent when clear method is called", async () => {
-                    const handler = vi.fn((_event: ClearedCacheEvent) => {});
-                    await cache.events.addListener(
-                        CACHE_EVENTS.CLEARED,
-                        handler,
-                    );
-
-                    await cache.add("a", 1);
-                    await cache.add("b", 2);
-                    await cache.add("c", 3);
-                    await cache.clear();
-                    await vi.waitFor(() => {
-                        expect(handler).toHaveBeenCalledOnce();
-                        expect(handler).toHaveBeenCalledWith({
-                            type: CACHE_EVENTS.CLEARED,
-                        });
-                    }, waitForSettings);
                 });
             });
         });

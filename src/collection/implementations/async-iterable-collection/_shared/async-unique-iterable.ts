@@ -2,18 +2,20 @@
  * @module Collection
  */
 
-import {
-    type AsyncMap,
-    type IAsyncCollection,
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    AsyncMap,
+    IAsyncCollection,
 } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class AsyncUniqueIterable<TInput, TOutput>
-    implements AsyncIterable<TInput>
-{
+export class AsyncUniqueIterable<
+    TInput,
+    TOutput,
+> implements AsyncIterable<TInput> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private callback: AsyncMap<
@@ -26,7 +28,7 @@ export class AsyncUniqueIterable<TInput, TOutput>
     async *[Symbol.asyncIterator](): AsyncIterator<TInput> {
         const set = new Set<TOutput>([]);
         for await (const [index, item] of this.collection.entries()) {
-            const item_ = await resolveInvokable(this.callback)(
+            const item_ = await resolveInvocable(this.callback)(
                 item,
                 index,
                 this.collection,

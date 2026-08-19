@@ -1,22 +1,22 @@
 /**
  * @module Serde
  */
-import {
-    type IFlexibleSerdeAdapter,
-    type ISerdeTransformerAdapter,
+import type {
+    IFlexibleSerdeAdapter,
+    ISerdeTransformerAdapter,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IFlexibleSerde,
+    IFlexibleSerde,
 } from "@/serde/contracts/_module.js";
 
 /**
  * The `NoOpSerdeAdapter` will do nothing and is used for easily mocking {@link IFlexibleSerde | `IFlexibleSerde`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/no-op-serde-adapter"`
+ * IMPORT_PATH: `"eridu-tech/serde/no-op-serde-adapter"`
  * @group Adapters
  */
-export class NoOpSerdeAdapter<TSerializedValue>
-    implements IFlexibleSerdeAdapter<TSerializedValue>
-{
+export class NoOpSerdeAdapter<
+    TSerializedValue,
+> implements IFlexibleSerdeAdapter<TSerializedValue> {
     serialize<TValue>(value: TValue): TSerializedValue {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return value as any;

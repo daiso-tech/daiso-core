@@ -2,64 +2,22 @@
  * @module Cache
  */
 
-import { type CacheEventMap } from "@/cache/contracts/cache.events.js";
-import { type IEventListenable } from "@/event-bus/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import {
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type Invokable,
-    type AsyncLazyable,
-    type NoneFunc,
+    Invocable,
+    AsyncLazyable,
+    NoneFunc,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ValidationError,
+    ValidationError,
 } from "@/utilities/_module.js";
-
-/**
- * The `ICacheListenable` contract provides a way to listen to cache operation events and track state changes.
- * Subscribe to cache events to monitor entry additions, retrievals, updates, evictions, and expirations.
- *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
- * @group Contracts
- */
-export type ICacheListenable<TType = unknown> = IEventListenable<
-    CacheEventMap<TType>
->;
-
-/**
- * Configuration settings for cache write operations.
- *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
- * @group Contracts
- */
-export type CacheWriteSettings = {
-    /**
-     * Time-to-live (TTL) duration for cached entries.
-     * When set, entries will automatically expire after this duration.
-     * Pass `null` to cache entries without automatic expiration.
-     */
-    ttl?: ITimeSpan | null;
-
-    /**
-     * Random jitter factor (0-1) to add variance to expiration times.
-     * Prevents thundering herd problems when many entries expire simultaneously.
-     * A value of 0.1 adds ±10% randomness to the TTL.
-     */
-    jitter?: number;
-
-    /**
-     * Used internally for testing to control random number generation.
-     *
-     * @internal
-     */
-    _mathRandom?: () => number;
-};
 
 /**
  * The `IReadableCache` contract defines a read-only interface for accessing cached key-value pairs.
  * It provides methods to retrieve values independent of the underlying cache storage backend (Redis, Memcached, database, etc.).
  * Use this contract when you need read-only access to cache data without mutation capabilities.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Contracts
  */
 export type IReadableCache<TType = unknown> = {
@@ -113,30 +71,12 @@ export type IReadableCache<TType = unknown> = {
 };
 
 /**
- * Configuration settings for cache get-or-add operations.
- * Extends {@link CacheWriteSettings | `CacheWriteSettings`} to support atomic read-compute-write patterns.
+ * The `ICache` contract defines a way for storing and reading as key-value pairs independent of data storage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Contracts
  */
-export type GetOrAddSettings = CacheWriteSettings & {
-    /**
-     * Enable distributed locking for the get-or-add operation.
-     * When enabled, uses a lock to ensure only one client computes and caches the value,
-     * preventing cache stampedes when multiple clients request the same missing key.
-     *
-     * @default false
-     */
-    enableLocking?: boolean;
-};
-
-/**
- * The `ICacheBase` contract defines a way for storing and reading as key-value pairs independent of data storage.
- *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
- * @group Contracts
- */
-export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
+export type ICache<TType = unknown> = IReadableCache<TType> & {
     /**
      * The `getAndRemove` method returns the value when `key` is found otherwise null will be returned.
      * The key will be removed after it is returned.
@@ -145,15 +85,20 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
     getAndRemove(key: string): Promise<TType | null>;
 
     /**
-     * The `getOrAdd` method will retrieve the given `key` if found otherwise `valueToAdd` will be added and returned.
+     * The `getOrAdd` method retrieves the value for the given `key` if it exists,
+     * otherwise adds the `valueToAdd` to the cache and returns it.
      *
-     * @param valueToAdd - can be regular value, sync or async {@link Invokable | `Invokable`} value and {@link Promise | `Promise`} value.
+     * @param key - The cache key to retrieve or add.
+     * @param valueToAdd - The value to store if the key is not found.
+     * @param ttl - Optional time-to-live for the cached item. If `null` is passed, the item will not expire.
+     *
+     * @returns The cached value if the key exists, or the newly added value.
      * @throws {ValidationError}
      */
     getOrAdd(
         key: string,
-        valueToAdd: AsyncLazyable<NoneFunc<TType>>,
-        settings?: GetOrAddSettings,
+        valueToAdd: TType,
+        ttl?: ITimeSpan | null,
     ): Promise<TType>;
 
     /**
@@ -164,11 +109,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * @returns Returns true when key doesn't exists otherwise false will be returned.
      * @throws {ValidationError}
      */
-    add(
-        key: string,
-        value: TType,
-        settings?: CacheWriteSettings,
-    ): Promise<boolean>;
+    add(key: string, value: TType, ttl?: ITimeSpan): Promise<boolean>;
 
     /**
      * The `addOrFail` method adds a `key` with given `value` when key doesn't exists.
@@ -177,11 +118,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * @throws {KeyExistsCacheError}
      * @throws {ValidationError}
      */
-    addOrFail(
-        key: string,
-        value: TType,
-        settings?: CacheWriteSettings,
-    ): Promise<void>;
+    addOrFail(key: string, value: TType, ttl?: ITimeSpan): Promise<void>;
 
     /**
      * The `put` methods upsert the given key and replaces the ttl when updated.
@@ -191,11 +128,7 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
      * @returns Returns true if the `key` where replaced otherwise false is returned.
      * @throws {ValidationError}
      */
-    put(
-        key: string,
-        value: TType,
-        settings?: CacheWriteSettings,
-    ): Promise<boolean>;
+    put(key: string, value: TType, ttl?: ITimeSpan): Promise<boolean>;
 
     /**
      * The `update` method updates the given `key` with given `value`.
@@ -282,26 +215,13 @@ export type ICacheBase<TType = unknown> = IReadableCache<TType> & {
     /**
      * The `removeMany` method removes many keys.
      *
-     * @param keys - The param items can be a string or an `Iterable` of strings.
-     * If the param items are an `Iterable`, it will be joined into a single string.
-     * Think of an `Iterable` as representing a path.
-     *
+     * @param keys
      * @returns Returns true if one of the keys where deleted otherwise false is returned.
      */
-    removeMany(keys: Iterable<string>): Promise<boolean>;
+    removeMany(keys: Array<string>): Promise<boolean>;
 
     /**
      * The `clear` method removes all the keys in the cache. If a cache is in a group then only the keys part of the group will be removed.
      */
     clear(): Promise<void>;
-};
-
-/**
- * The `ICache` contract defines a way for as key-value pairs independent of data storage and listening to operation events.
- *
- * IMPORT_PATH: `"@daiso-tech/core/cache/contracts"`
- * @group Contracts
- */
-export type ICache<TType = unknown> = ICacheBase<TType> & {
-    readonly events: ICacheListenable<TType>;
 };

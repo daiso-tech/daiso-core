@@ -8,10 +8,11 @@ import {
     resolveSamplingBreakerSettings,
     serializeSamplingBreakerSettings,
 } from "@/circuit-breaker/implementations/policies/sampling-breaker/_module.js";
-import {
-    BREAKER_POLICIES,
-    type CircuitBreakerPolicySettingsEnum,
-    type SerializedCircuitBreakerPolicySettingsEnum,
+import { BREAKER_POLICIES } from "@/circuit-breaker/implementations/policies/types.js";
+
+import type {
+    CircuitBreakerPolicySettingsEnum,
+    SerializedCircuitBreakerPolicySettingsEnum,
 } from "@/circuit-breaker/implementations/policies/types.js";
 
 /**

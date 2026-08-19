@@ -2,12 +2,11 @@
  * @module Middleware
  */
 
-import { type IContext } from "@/execution-context/contracts/_module.js";
-import {
-    type InvokableFn,
-    type IInvokableObject,
-    type OneOrMore,
-    type Invokable,
+import type {
+    InvocableFn,
+    IInvocableObject,
+    OneOrMore,
+    Invocable,
 } from "@/utilities/_module.js";
 
 /**
@@ -29,26 +28,25 @@ import {
  * @see {@link MiddlewareArgs | `MiddlewareArgs`}
  * @see {@link MiddlewareFn | `MiddlewareFn`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type NextFn<
     TParameters extends Array<unknown> = Array<unknown>,
     TReturn = unknown,
-> = InvokableFn<[args?: TParameters], TReturn>;
+> = InvocableFn<[args?: TParameters], TReturn>;
 
 /**
  * Arguments passed to middleware functions during execution.
  *
- * Contains the original function arguments, a reference to the next middleware in the chain,
- * and the execution context for accessing and modifying state.
+ * Contains the original function arguments, a reference to the next middleware in the chain.
  *
  * @typeParam TParameters - Type of arguments passed to the function
  * @typeParam TReturn - Type of value returned from the function
  *
  * @example
  * ```ts
- * const loggingMiddleware: MiddlewareFn = ({ args, next, context }) => {
+ * const loggingMiddleware: MiddlewareFn = ({ args, next }) => {
  *   console.log('Before:', args);
  *   const result = next(args);
  *   console.log('After:', result);
@@ -60,19 +58,27 @@ export type NextFn<
  * @see {@link MiddlewareFn | `MiddlewareFn`}
  * @see {@link IContext | `IContext`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type MiddlewareArgs<
     TParameters extends Array<unknown> = Array<unknown>,
     TReturn = unknown,
 > = {
-    /** The arguments passed to the original function */
+    /**
+     * The arguments passed to the original function
+     */
     args: TParameters;
-    /** Function to call the next middleware or final function */
+
+    /**
+     * Function to call the next middleware or final function
+     */
     next: NextFn<TParameters, TReturn>;
-    /** Execution context for state management */
-    context: IContext;
+
+    /**
+     * The name of the function.
+     */
+    name: string;
 };
 
 /**
@@ -99,13 +105,13 @@ export type MiddlewareArgs<
  * @see {@link MiddlewareFn | `MiddlewareFn`}
  * @see {@link Middleware | `Middleware`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type IMiddlewareObject<
     TParameters extends Array<unknown> = Array<unknown>,
     TReturn = unknown,
-> = IInvokableObject<[args: MiddlewareArgs<TParameters, TReturn>], TReturn> & {
+> = IInvocableObject<[args: MiddlewareArgs<TParameters, TReturn>], TReturn> & {
     /** Execution priority. Lower values execute first. Defaults to 0. */
     priority?: number;
 };
@@ -119,38 +125,58 @@ export type IMiddlewareObject<
  * @typeParam TParameters - Type of arguments passed to the function
  * @typeParam TReturn - Type of value returned from the function
  *
- * @example
- * ```ts
- * const cacheToken = contextToken<Map<string, unknown>>("cache");
- *
- * const cacheMiddleware: MiddlewareFn = async ({ args, next, context }) => {
- *   const cacheKey = JSON.stringify(args);
- *   const cache = context.getOr(cacheToken, () => new Map());
- *   if (cache.has(cacheKey)) return cache.get(cacheKey);
- *
- *   const result = await next(args);
- *   cache.set(cacheKey, result);
- *   context.put(cacheToken, cache);
- *   return result;
- * };
- * ```
- *
- * @see {@link IMiddlewareObject | `IMiddlewareObject`}
- * @see {@link Middleware | `Middleware`}
- *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type MiddlewareFn<
     TParameters extends Array<unknown> = Array<unknown>,
     TReturn = unknown,
-> = InvokableFn<[args: MiddlewareArgs<TParameters, TReturn>], TReturn>;
+> = InvocableFn<[args: MiddlewareArgs<TParameters, TReturn>], TReturn>;
+
+/**
+ * Defines a middleware function with type inference.
+ *
+ * A convenience helper that ensures the provided handler conforms to the
+ * {@link MiddlewareFn} signature while preserving exact parameter and
+ * return types. This allows TypeScript to infer narrower types for
+ * `TParameters` and `TReturn` without needing explicit generic annotations
+ * on the handler.
+ *
+ * Use this when defining middleware functions to get accurate type checking
+ * and IntelliSense without sacrificing type safety.
+ *
+ * @typeParam TParameters - Type of arguments passed through the middleware chain
+ * @typeParam TReturn - Type of value returned from the function
+ * @param middleware - A function conforming to {@link MiddlewareFn}.
+ * @returns The same handler, typed as {@link MiddlewareFn}.
+ *
+ * @example
+ * ```ts
+ * const loggingMiddleware = defineMiddleware(({ args, next, context }) => {
+ *     console.log('Before:', args);
+ *     const result = next(args);
+ *     console.log('After:', result);
+ *     return result;
+ * });
+ * ```
+ *
+ * IMPORT_PATH: `eridu-tech/middleware`
+ * @group Contracts
+ */
+export function defineMiddleware<
+    TParameters extends Array<unknown> = Array<unknown>,
+    TReturn = unknown,
+>(
+    middleware: MiddlewareFn<TParameters, TReturn>,
+): MiddlewareFn<TParameters, TReturn> {
+    return middleware;
+}
 
 /**
  * A middleware in the execution chain.
  *
  * Can be either a function or an object implementation. Both forms have access to
- * the original arguments, the next middleware function, and the execution context.
+ * the original arguments, the next middleware function.
  *
  * Middlewares are executed in order of priority (lower priority first), and each
  * middleware can:
@@ -159,7 +185,6 @@ export type MiddlewareFn<
  * - Cache results
  * - Handle errors
  * - Modify return values
- * - Access and manipulate execution context
  *
  * @typeParam TParameters - Type of arguments passed to the function
  * @typeParam TReturn - Type of value returned from the function
@@ -168,7 +193,7 @@ export type MiddlewareFn<
  * @see {@link IMiddlewareObject | `IMiddlewareObject`}
  * @see {@link MiddlewareArgs | `MiddlewareArgs`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type Middleware<
@@ -179,46 +204,47 @@ export type Middleware<
     | IMiddlewareObject<TParameters, TReturn>;
 
 /**
- * Function that applies a middleware chain to an invokable function or object.
+ * Function that applies a middleware chain to an invocable function or object.
  *
- * Wraps the provided invokable with the specified middlewares, creating a new function
+ * Wraps the provided invocable with the specified middlewares, creating a new function
  * that executes all middlewares in priority order before delegating to the original
- * invokable. The execution happens within the provided execution context.
+ * invocable.
  *
- * @typeParam TParameters - Type of arguments passed to the invokable
- * @typeParam TReturn - Type of value returned from the invokable
+ * @typeParam TParameters - Type of arguments passed to the invocable
+ * @typeParam TReturn - Type of value returned from the invocable
  *
- * @param invokable - The function or object to wrap with middleware
+ * @param invocable - The function or object to wrap with middleware
  * @param middlewares - One or more middleware to apply, executed in priority order
  *
- * @returns A new invokable function that applies the middleware chain
+ * @returns A new invocable function that applies the middleware chain
  *
  * @example
  * ```ts
- * const use = useFactory();
+ * function main(use: Use): void {
+ *   // Apply a single middleware
+ *   const logged = use(fetchData, loggingMiddleware);
  *
- * // Apply a single middleware
- * const logged = use(fetchData, loggingMiddleware);
+ *   // Apply multiple middlewares (executed in priority order)
+ *   const enhanced = use(fetchData, [
+ *     { priority: 0, invoke: authMiddleware },
+ *     { priority: 10, invoke: cacheMiddleware },
+ *     { priority: 20, invoke: loggingMiddleware }
+ *   ]);
  *
- * // Apply multiple middlewares (executed in priority order)
- * const enhanced = use(fetchData, [
- *   { priority: 0, invoke: authMiddleware },
- *   { priority: 10, invoke: cacheMiddleware },
- *   { priority: 20, invoke: loggingMiddleware }
- * ]);
+ *   // Call the wrapped function
+ *   const result = logged(arg1, arg2);
+ * }
  *
- * // Call the wrapped function
- * const result = logged(arg1, arg2);
  * ```
  *
  * @see {@link UseFactorySettings | `UseFactorySettings`}
  * @see {@link Middleware | `Middleware`}
- * @see {@link Invokable | `Invokable`}
+ * @see {@link Invocable | `Invocable`}
  *
- * IMPORT_PATH: `@daiso-tech/core/middleware`
+ * IMPORT_PATH: `eridu-tech/middleware`
  * @group Contracts
  */
 export type Use = <TParameters extends Array<unknown>, TReturn>(
-    invokable: Invokable<TParameters, TReturn>,
+    invocable: Invocable<TParameters, TReturn>,
     middlewares: OneOrMore<Middleware<TParameters, TReturn>>,
-) => InvokableFn<TParameters, TReturn>;
+) => InvocableFn<TParameters, TReturn>;

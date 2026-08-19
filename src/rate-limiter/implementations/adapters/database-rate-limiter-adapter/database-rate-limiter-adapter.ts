@@ -2,29 +2,28 @@
  * @module RateLimiter
  */
 
-import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import { exponentialBackoff } from "@/backoff-policies/implementations/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type IRateLimiterAdapter,
-    type IRateLimiterAdapterState,
-    type IRateLimiterPolicy,
-    type IRateLimiterStorageAdapter,
-} from "@/rate-limiter/contracts/_module.js";
-import {
-    InternalRateLimiterPolicy,
-    type AllRateLimiterState,
-} from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/internal-rate-limiter-policy.js";
+import { InternalRateLimiterPolicy } from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/internal-rate-limiter-policy.js";
 import { RateLimiterStateManager } from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/rate-limiter-state-manager.js";
 import { RateLimiterStorage } from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/rate-limiter-storage.js";
 import { FixedWindowLimiter } from "@/rate-limiter/implementations/policies/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
+import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiterAdapter,
+    IRateLimiterAdapterState,
+    IRateLimiterPolicy,
+    IRateLimiterStorageAdapter,
+} from "@/rate-limiter/contracts/_module.js";
+import type { AllRateLimiterState } from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/internal-rate-limiter-policy.js";
+
 /**
  * Configuration for `DatabaseRateLimiterAdapter`.
  * Wraps a {@link IRateLimiterStorageAdapter | `IRateLimiterStorageAdapter`} with rate-limiter logic.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/database-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/database-rate-limiter-adapter"`
  * @group Adapters
  */
 export type DatabaseRateLimiterAdapterSettings = {
@@ -37,7 +36,7 @@ export type DatabaseRateLimiterAdapterSettings = {
      * You can define your own {@link BackoffPolicy | `BackoffPolicy`}.
      * @default
      * ```ts
-     * import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
+     * import { exponentialBackoff } from "eridu-tech/backoff-policies";
      *
      * exponentialBackoff();
      * ```
@@ -48,7 +47,7 @@ export type DatabaseRateLimiterAdapterSettings = {
      * You can define your own {@link IRateLimiterPolicy | `IRateLimiterPolicy`}.
      * @default
      * ```ts
-     * import { FixedWindowLimiter } from "@daiso-tech/core/rate-limiter/policies";
+     * import { FixedWindowLimiter } from "eridu-tech/rate-limiter/policies";
      *
      * new FixedWindowLimiter();
      * ```
@@ -57,20 +56,20 @@ export type DatabaseRateLimiterAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/database-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/database-rate-limiter-adapter"`
  * @group Adapters
  */
-export class DatabaseRateLimiterAdapter<TMetrics = unknown>
-    implements IRateLimiterAdapter
-{
+export class DatabaseRateLimiterAdapter<
+    TMetrics = unknown,
+> implements IRateLimiterAdapter {
     private readonly rateLimiterStorage: RateLimiterStorage<TMetrics>;
     private readonly rateLimiterStateManager: RateLimiterStateManager<TMetrics>;
 
     /**
      * @example
      * ```ts
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
      *
      * const rateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter();
      * const rateLimiterAdapter = new DatabaseRateLimiterAdapter({
@@ -101,8 +100,8 @@ export class DatabaseRateLimiterAdapter<TMetrics = unknown>
     }
 
     async getState(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<IRateLimiterAdapterState | null> {
         const state = await this.rateLimiterStorage.find(context, key);
         if (state === null) {
@@ -118,9 +117,9 @@ export class DatabaseRateLimiterAdapter<TMetrics = unknown>
     }
 
     async updateState(
-        context: IReadableContext,
         key: string,
         limit: number,
+        context: IReadableContext,
     ): Promise<IRateLimiterAdapterState> {
         const currentDate = new Date();
         const track = this.rateLimiterStateManager.track(currentDate);
@@ -146,7 +145,7 @@ export class DatabaseRateLimiterAdapter<TMetrics = unknown>
         };
     }
 
-    async reset(context: IReadableContext, key: string): Promise<void> {
+    async reset(key: string, context: IReadableContext): Promise<void> {
         await this.rateLimiterStorage.remove(context, key);
     }
 }

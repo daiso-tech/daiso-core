@@ -5,30 +5,34 @@
 import {
     CIRCUIT_BREAKER_STATE,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ICircuitBreakerFactory,
-    type CircuitBreakerState,
-    type CircuitBreakerStateTransition,
-    type ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+
+import type {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ICircuitBreakerFactory,
+    CircuitBreakerState,
+    CircuitBreakerStateTransition,
+    ICircuitBreakerAdapter,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * The `NoOpCircuitBreakerAdapter` will do nothing and is used for easily mocking {@link ICircuitBreakerFactory | `ICircuitBreakerFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/no-op-circuit-breaker-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/no-op-circuit-breaker-adapter"`
  * @group Adapters
  */
 export class NoOpCircuitBreakerAdapter implements ICircuitBreakerAdapter {
     getState(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<CircuitBreakerState> {
         return Promise.resolve(CIRCUIT_BREAKER_STATE.CLOSED);
     }
 
     updateState(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<CircuitBreakerStateTransition> {
         return Promise.resolve({
             from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -36,19 +40,19 @@ export class NoOpCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         } satisfies CircuitBreakerStateTransition);
     }
 
-    isolate(_context: IReadableContext, _key: string): Promise<void> {
+    isolate(_key: string, _context: IReadableContext): Promise<void> {
         return Promise.resolve();
     }
 
-    trackFailure(_context: IReadableContext, _key: string): Promise<void> {
+    trackFailure(_key: string, _context: IReadableContext): Promise<void> {
         return Promise.resolve();
     }
 
-    trackSuccess(_context: IReadableContext, _key: string): Promise<void> {
+    trackSuccess(_key: string, _context: IReadableContext): Promise<void> {
         return Promise.resolve();
     }
 
-    reset(_context: IReadableContext, _key: string): Promise<void> {
+    reset(_key: string, _context: IReadableContext): Promise<void> {
         return Promise.resolve();
     }
 }

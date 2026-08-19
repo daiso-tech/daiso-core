@@ -1,20 +1,29 @@
-// @ts-ignore
+/**
+ * Docusaurus plugin that generates a professional Open Graph image for every
+ * page at build time (postBuild), writes it under `preview_images/`, and
+ * injects the matching og:image / twitter:image meta tags into each page.
+ *
+ * Rendering is delegated to a generator function (see `OgGenerator`). The
+ * default implementation uses @vercel/og; the site config can supply its own
+ * branded generator via the `ogGenerator` plugin option.
+ */
+// @ts-ignore - fs-extra ships its own types; keep import-style parity with docusaurus
 import * as fs from "fs-extra";
 import * as path from "path";
-import { LoadContext, Plugin } from "@docusaurus/types";
+import type { LoadContext, Plugin } from "@docusaurus/types";
 
 import {
-    CanvasGeneratorParams,
-    CanvasGenerator,
+    OgGenerator,
+    OgGeneratorParams,
     PluginOptions,
     GenerateImageOptions,
     DocusaurusMetadata,
 } from "./types.js";
-import { defaultCanvasGenerator } from "./default-canvas-generator.js";
+import { defaultOgGenerator } from "./default-og-generator.js";
 import { generateImageFileName, generateTitleFromPath } from "./utils.js";
 
 function decodeHtmlEntities(text: string): string {
-    const entities: { [key: string]: string } = {
+    const entities: Record<string, string> = {
         "&amp;": "&",
         "&lt;": "<",
         "&gt;": ">",
@@ -34,13 +43,10 @@ function decodeHtmlEntities(text: string): string {
             const num = match.slice(2, -1);
             if (num.startsWith("x")) {
                 // Hexadecimal
-                const code = parseInt(num.slice(1), 16);
-                return String.fromCharCode(code);
-            } else {
-                // Decimal
-                const code = parseInt(num, 10);
-                return String.fromCharCode(code);
+                return String.fromCharCode(parseInt(num.slice(1), 16));
             }
+            // Decimal
+            return String.fromCharCode(parseInt(num, 10));
         }
 
         return match;
@@ -48,7 +54,7 @@ function decodeHtmlEntities(text: string): string {
 }
 
 function cleanTitle(title: string): string {
-    // Remove everything after the last pipe character
+    // Remove everything after the last pipe character (site title suffix)
     const lastPipeIndex = title.lastIndexOf("|");
     if (lastPipeIndex !== -1) {
         return title.substring(0, lastPipeIndex).trim();
@@ -140,14 +146,14 @@ async function generatePreviewImage(
     outputDir: string,
     options: GenerateImageOptions,
 ): Promise<void> {
-    const { canvasGenerator, assetsDir } = options;
+    const { ogGenerator, assetsDir } = options;
 
-    const canvasParams: CanvasGeneratorParams = {
+    const ogParams: OgGeneratorParams = {
         metadata,
         assetsDir,
     };
 
-    const buffer = await canvasGenerator(canvasParams);
+    const buffer = await ogGenerator(ogParams);
 
     const imageFileName = generateImageFileName(metadata.routePath);
     const imagePath = path.join(outputDir, imageFileName);
@@ -161,9 +167,8 @@ export default function previewImageGeneratorPlugin(
     context: LoadContext,
     options: PluginOptions,
 ): Plugin<void> {
-    const { siteDir, outDir, siteConfig } = context;
-    const { canvasGenerator = defaultCanvasGenerator, assetsDir = "assets" } =
-        options;
+    const { outDir, siteConfig } = context;
+    const { ogGenerator = defaultOgGenerator, assetsDir = "og-assets" } = options;
 
     return {
         name: "preview-image-generator",
@@ -197,7 +202,7 @@ export default function previewImageGeneratorPlugin(
                     };
 
                     await generatePreviewImage(metadata, previewImagesDir, {
-                        canvasGenerator,
+                        ogGenerator,
                         assetsDir,
                     });
                 } catch (error) {
@@ -208,12 +213,10 @@ export default function previewImageGeneratorPlugin(
                 }
             }
 
-            console.log(
-                `✅ Generated ${props.routesPaths.length} preview images`,
-            );
+            console.log(`✅ Generated ${props.routesPaths.length} preview images`);
         },
     };
 }
 
-export { defaultCanvasGenerator };
-export type { CanvasGenerator, CanvasGeneratorParams, PluginOptions };
+export { defaultOgGenerator };
+export type { OgGenerator, OgGeneratorParams, PluginOptions };

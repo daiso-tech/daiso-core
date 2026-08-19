@@ -2,15 +2,14 @@
  * @module CircuitBreaker
  */
 
-import { type CircuitBreakerState } from "@/circuit-breaker/contracts/_module.js";
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type AsyncLazy } from "@/utilities/_module.js";
+import type { CircuitBreakerState } from "@/circuit-breaker/contracts/_module.js";
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * State and metadata methods for a circuit breaker instance.
  * Provides read-only access to circuit breaker state and configuration properties.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type ICircuitBreakerStateMethods = {
@@ -25,14 +24,14 @@ export type ICircuitBreakerStateMethods = {
      * The unique identifier for this circuit breaker instance.
      * Multiple circuit breaker instances with the same key share the same failure tracking.
      */
-    readonly key: IKey;
+    readonly key: string;
 };
 
 /**
  * Circuit breaker pattern implementation for protecting against cascading failures.
  * Provides methods to execute functions while monitoring for failures and controlling request flow.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type ICircuitBreaker = ICircuitBreakerStateMethods & {

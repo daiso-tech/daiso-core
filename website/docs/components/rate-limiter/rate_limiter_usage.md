@@ -1,30 +1,28 @@
 ---
 sidebar_position: 1
 sidebar_label: Usage
-pagination_label: Rate-limiter Usage
+pagination_label: RateLimiter Usage
 tags:
-    - Rate-limiter
+    - RateLimiter
     - Usage
-    - Namespace
 keywords:
-    - Rate-limiter
+    - RateLimiter
     - Usage
-    - Namespace
 ---
 
-# Rate-limiter usage
+# RateLimiter usage
 
-The `@daiso-tech/core/rate-limiter` component provides a way for managing rate-limiter independent of underlying platform or storage.
+The `eridu-tech/rate-limiter` component provides a way for managing rate-limiter independent of underlying platform or storage.
 
 ## Initial configuration
 
 To begin using the `RateLimiterFactory` class, you'll need to create and configure an instance:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
+import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+import { RateLimiterFactory } from "eridu-tech/rate-limiter";
 
 const rateLimiterFactory = new RateLimiterFactory({
     // You can provide default settings
@@ -36,10 +34,10 @@ const rateLimiterFactory = new RateLimiterFactory({
 ```
 
 :::info
-Here is a complete list of settings for the [`RateLimiterFactory`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.RateLimiterFactorySettingsBase.html) class.
+Here is a complete list of settings for the [`RateLimiterFactory`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.RateLimiterFactorySettingsBase.html) class.
 :::
 
-## Rate-limiter basics
+## RateLimiter basics
 
 ### Creating a rate-limiter
 
@@ -61,7 +59,7 @@ Note the method throws an error when the rate-limiter is blocked.
 :::
 
 :::info
-You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../../utilities/invokable.md) as values for the `runOrFail` method.
+You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TValue>>`](../../utilities/invocable.md) as values for the `runOrFail` method.
 :::
 
 ### Applying rate-limiter on only erros
@@ -104,10 +102,10 @@ await rateLimiter.reset();
 
 ### Checking rate-limiter state
 
-You can get the rate-limiter state by using the `getState` method, it returns [`RateLimiterState`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.RateLimiterState.html).
+You can get the rate-limiter state by using the `getState` method, it returns [`RateLimiterState`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.RateLimiterState.html).
 
 ```ts
-import { RATE_LIMITER_STATE } from "@daiso-tech/core/rate-limiter/contracts";
+import { RATE_LIMITER_STATE } from "eridu-tech/rate-limiter/contracts";
 
 const state = await rateLimiter.getState();
 
@@ -122,7 +120,7 @@ if (state === RATE_LIMITER_STATE.BLOCKED) {
 }
 ```
 
-### Rate-limiter instance variables
+### RateLimiter instance variables
 
 The `RateLimiter` class exposes instance variables such as:
 
@@ -130,53 +128,10 @@ The `RateLimiter` class exposes instance variables such as:
 const rateLimiter = rateLimiterFactory.create("resource");
 
 // Will return the key of the rate-limiter which is "resource"
-console.log(rateLimiter.key.toString());
+console.log(rateLimiter.key);
 ```
-
-:::info
-The `key` field is an object that implements [`IKey`](../namespace.md) contract.
-:::
 
 ## Patterns
-
-### Namespacing
-
-You can use the `Namespace` class to group related rate-limiters without conflicts. Since namespacing is not used be default, you need to pass an obeject that implements `INamespace` object.
-
-:::info
-For further information about namespacing refer to [`@daiso-tech/core/namespace`](../namespace.md) documentation.
-:::
-
-```ts
-import { Namespace } from "@daiso-tech/core/namespace";
-import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-
-const rateLimiterFactoryA = new RateLimiterFactory({
-    namespace: new Namespace("@rate-limiter-a"),
-    adapter: new RedisRateLimiterAdapter({ database }),
-});
-const rateLimiterFactoryB = new RateLimiterFactory({
-    namespace: new Namespace("@rate-limiter-b"),
-    adapter: new RedisRateLimiterAdapter({ database }),
-});
-
-const rateLimiterA = rateLimiterFactoryA.create("key");
-const rateLimiterB = rateLimiterFactoryB.create("key");
-
-await rateLimiterA.runOrFail(async () => {
-    // some operation
-});
-
-// Will log "ALLOWED"
-console.log((await rateLimiterA.getState()).type);
-
-// Will log "EXPIRED" because rateLimiterB is in a different namespace
-console.log((await rateLimiterB.getState()).type);
-```
 
 ### Serialization and deserialization of rate-limiters
 
@@ -187,10 +142,10 @@ In order to serialize or deserialize a rate-limiter you need pass an object that
 Manually serializing and deserializing the rate-limiter:
 
 ```ts
-import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
+import { RateLimiterFactory } from "eridu-tech/rate-limiter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -218,13 +173,13 @@ Note you only need manuall serialization and deserialization when integrating wi
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the rate-limiter manually.
 
 ```ts
-import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-import type { IRateLimiter } from "@daiso-tech/core/rate-limiter/contracts";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "@daiso-tech/core/event-bus";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
+import type { IRateLimiter } from "eridu-tech/rate-limiter/contracts";
+import { RateLimiterFactory } from "eridu-tech/rate-limiter";
+import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 const redis = new Redis("YOUR_REDIS_CONNECTION");
@@ -263,144 +218,14 @@ await eventBus.addListener(
 );
 ```
 
-### Rate-limiter events
+### Separating rate-limiter creation from usage
 
-You can listen to different [rate-limiter events](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) that are triggered by the `RateLimiter` instance.
-Refer to the [`EventBus`](../event_bus/event_bus_usage.md) documentation to learn how to use events. Since no events are dispatched by default, you need to pass an object that implements `IEventBus` or `IEventBusAdapter` contract.
+The library includes 2 additional contracts:
 
-```ts
-import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import {
-    RateLimiterFactory,
-    RATE_LIMITER_EVENTS,
-} from "@daiso-tech/core/rate-limiter";
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
+- [`IRateLimiter`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.IRateLimiter.html) - Allows only for manipulating of the rate-limiter.
 
-const rateLimiterFactory = new RateLimiterFactory({
-    adapter: new DatabaseRateLimiterAdapter({
-        adapter: new MemoryRateLimiterStorageAdapter(),
-    }),
-    eventBus: new MemoryEventBusAdapter(),
-});
-
-await rateLimiterFactory.events.addListener(
-    RATE_LIMITER_EVENTS.BLOCKED,
-    (_event) => {
-        console.log("Got blocked:", event);
-    },
-);
-
-await rateLimiterFactory.create("a").isolate();
-```
-
-:::warning
-If multiple rate-limiter adapters (e.g., `RedisRateLimiterAdapter` and `DatabaseRateLimiterAdapter`) are used at the same time, you need to isolate their events by assigning separate namespaces. This prevents listeners from unintentionally capturing events across adapters.
-
-```ts
-import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import Redis from "ioredis";
-import { Namespace } from "@daiso-tech/core/namespace";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const redisPubSubEventBusAdapter = new RedisPubSubEventBusAdapter({
-    client: new Redis("YOUR_REDIS_CONNECTION_STRING"),
-    serde,
-});
-
-const memoryRateLimiterFactory = new RateLimiterFactory({
-    adapter: new DatabaseRateLimiterAdapter({
-        adapter: new MemoryRateLimiterStorageAdapter(),
-    }),
-    // We assign distinct namespaces to DatabaseRateLimiterAdapter and RedisRateLimiterAdapter to isolate their events.
-    namespace: new Namespace(["memory", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter,
-});
-
-const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
-    serde,
-    database: new Redis("YOUR_REDIS_CONNECTION_STRING"),
-});
-const redisRateLimiterFactory = new RateLimiterFactory({
-    adapter: redisRateLimiterAdapter,
-    // We assign distinct namespaces to DatabaseRateLimiterAdapter and RedisRateLimiterAdapter to isolate their events.
-    namespace: new Namespace(["redis", "event-bus"]),
-    eventBus: redisPubSubEventBusAdapter,
-});
-```
-
-:::
-
-### Separating creating, listening to and using rate-limiters
-
-The library includes 3 additional contracts:
-
-- [`IRateLimiter`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiter.html) - Allows only for manipulating of the lock.
-
-- [`IRateLimiterFactoryBase`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterFactoryBase.html) - Allows only for creation of locks.
-
-- [`IRateLimiterListenable`](https://daiso-tech.github.io/daiso-core/types/RateLimiter.IRateLimiterListenable.html) - Allows only to listening to lock events.
-
-This seperation makes it easy to visually distinguish the 3 contracts, making it immediately obvious that they serve different purposes.
-
-```ts
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-import { RateLimiterFactory } from "@daiso-tech/core/rate-limiter";
-import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import {
-    type IRateLimiter,
-    type IRateLimiterFactoryBase,
-    type IRateLimiterListenable,
-    RATE_LIMITER_EVENTS,
-} from "@daiso-tech/core/rate-limiter/contracts";
-
-async function rateLimiterFunc(rateLimiter: IRateLimiter): Promise<void> {
-    await rateLimiter.runOrFail(async () => {
-        // ... rate limited section
-    });
-}
-
-async function rateLimiterFactoryFunc(
-    rateLimiterFactory: IRateLimiterFactoryBase,
-): Promise<void> {
-    // You cannot access the listener methods
-    // You will get typescript error if you try
-
-    const rateLimiter = rateLimiterFactory.create("resource");
-    await rateLimiterFunc(rateLimiter);
-}
-
-async function rateLimiterListenableFunc(
-    rateLimiterListenable: IRateLimiterListenable,
-): Promise<void> {
-    // You cannot access the rateLimiterFactory methods
-    // You will get typescript error if you try
-
-    await rateLimiterListenable.addListener(
-        RATE_LIMITER_EVENTS.BLOCKED,
-        (event) => {
-            console.log("Blocked:", event);
-        },
-    );
-}
-
-const rateLimiterFactory = new RateLimiterFactory({
-    adapter: new DatabaseRateLimiterAdapter({
-        adapter: new MemoryRateLimiterStorageAdapter(),
-    }),
-    eventBus: new MemoryEventBusAdapter(),
-});
-await rateLimiterListenableFunc(rateLimiterFactory.events);
-await rateLimiterFactoryFunc(rateLimiterFactory);
-```
+- [`IRateLimiterFactory`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.IRateLimiterFactory.html) - Allows only for creation of rate-limiters.
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech/modules/RateLimiter.html) API docs.

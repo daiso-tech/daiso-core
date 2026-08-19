@@ -2,29 +2,23 @@
  * @module FileStorage
  */
 
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import {
-    type IFileStorage,
-    type ISignedFileStorageAdapter,
-    type IFileStorageResolver,
-    type IFileUrlAdapter,
-} from "@/file-storage/contracts/_module.js";
-import {
-    FileStorage,
-    type FileKeyValidator,
-    type FileStorageSettingsBase,
-} from "@/file-storage/implementations/derivables/file-storage/_module.js";
-import { type LockFactoryInput } from "@/lock/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
+import { FileStorage } from "@/file-storage/implementations/derivables/file-storage/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IFileStorage,
+    ISignedFileStorageAdapter,
+    IFileStorageResolver,
+    IFileUrlAdapter,
+} from "@/file-storage/contracts/_module.js";
+import type { FileStorageSettingsBase } from "@/file-storage/implementations/derivables/file-storage/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export type FileStorageAdapters<TAdapters extends string = string> = Partial<
@@ -35,7 +29,7 @@ export type FileStorageAdapters<TAdapters extends string = string> = Partial<
  * Configuration for `FileStorageResolver`.
  * Registers named file-storage adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export type FileStorageResolverSettings<TAdapters extends string = string> =
@@ -52,20 +46,20 @@ export type FileStorageResolverSettings<TAdapters extends string = string> =
     };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/file-storage"`
+ * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
-export class FileStorageResolver<TAdapters extends string = string>
-    implements IFileStorageResolver<TAdapters>
-{
+export class FileStorageResolver<
+    TAdapters extends string = string,
+> implements IFileStorageResolver<TAdapters> {
     /**
      * @example
      * ```ts
-     * import { FileStorageResolver } from "@daiso-tech/core/file-storage";
-     * import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
-     * import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { FileStorageResolver } from "eridu-tech/file-storage";
+     * import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
+     * import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
      * const fileStorageResolver = new FileStorageResolver({
@@ -81,27 +75,6 @@ export class FileStorageResolver<TAdapters extends string = string>
     constructor(
         private readonly settings: FileStorageResolverSettings<TAdapters>,
     ) {}
-
-    setNamespace(namespace: INamespace): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
-
-    setEventBus(eventBus: EventBusInput): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            eventBus,
-        });
-    }
-
-    setDefaultContentType(contentType: string): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            defaultContentType: contentType,
-        });
-    }
 
     setDefaultContentDisposition(
         contentDisposition: string | null,
@@ -148,44 +121,12 @@ export class FileStorageResolver<TAdapters extends string = string>
         });
     }
 
-    setOnlyLowercase(onlyLowercase: boolean): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            onlyLowercase,
-        });
-    }
-
-    setKeyValidator(
-        keyValidator: FileKeyValidator,
-    ): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            keyValidator,
-        });
-    }
-
-    setWaitUntil(waitUntil: WaitUntil): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            waitUntil,
-        });
-    }
-
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): FileStorageResolver<TAdapters> {
         return new FileStorageResolver({
             ...this.settings,
-            executionContext,
-        });
-    }
-
-    setLockFactory(
-        lockFactory: LockFactoryInput,
-    ): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            lockFactory,
+            context,
         });
     }
 

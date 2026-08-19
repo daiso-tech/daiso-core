@@ -2,10 +2,10 @@
  * @module Resilience
  */
 
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Errors
  */
 export class TimeoutResilienceError extends Error {
@@ -32,7 +32,7 @@ export class TimeoutResilienceError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Errors
  */
 export class RetryResilienceError extends AggregateError {
@@ -62,7 +62,7 @@ export class RetryResilienceError extends AggregateError {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Errors
  */
 export class RetryIntervalResilienceError extends AggregateError {
@@ -99,7 +99,7 @@ export class RetryIntervalResilienceError extends AggregateError {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Errors
  */
 export const RESILIENCE_ERRORS = {
@@ -111,7 +111,7 @@ export const RESILIENCE_ERRORS = {
 /**
  * Union of all error types that can be thrown by resilience middlewares.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Errors
  */
 export type AllResilienceErrors =
@@ -120,7 +120,7 @@ export type AllResilienceErrors =
     | TimeoutResilienceError;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Errors
  */
 export function isResilienceError(

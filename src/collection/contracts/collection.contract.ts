@@ -2,31 +2,31 @@
  * @module Collection
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-import {
-    type Comparator,
-    type PredicateInvokable,
-    type ForEach,
-    type Map,
-    type Modifier,
-    type Tap,
-    type Transform,
-    type Reduce,
-    type CrossJoinResult,
-    type EnsureMap,
-    type EnsureRecord,
+import type {
+    Comparator,
+    PredicateInvocable,
+    ForEach,
+    Map,
+    Modifier,
+    Tap,
+    Transform,
+    Reduce,
+    CrossJoinResult,
+    EnsureMap,
+    EnsureRecord,
 } from "@/collection/contracts/_shared/_module.js";
-import {
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ItemNotFoundCollectionError,
+    ItemNotFoundCollectionError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type MultipleItemsFoundCollectionError,
+    MultipleItemsFoundCollectionError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EmptyCollectionError,
+    EmptyCollectionError,
 } from "@/collection/contracts/collection.errors.js";
-import { type ISerializable } from "@/serde/contracts/_module.js";
-import { type IterableValue, type Lazyable } from "@/utilities/_module.js";
+import type { ISerializable } from "@/serde/contracts/_module.js";
+import type { IterableValue, Lazyable } from "@/utilities/_module.js";
 
 /**
  * Collapses 1 layer of nested array, iterable, or collection types into their element type.
@@ -35,7 +35,7 @@ import { type IterableValue, type Lazyable } from "@/utilities/_module.js";
  *
  * @template TValue - The value type to collapse.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Contracts
  */
 export type Collapse<TValue> = TValue extends string
@@ -54,7 +54,7 @@ export type Collapse<TValue> = TValue extends string
  *
  * @template TInput - The element type of the serialized collection.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Contracts
  */
 export type SerializedCollection<TInput = unknown> = {
@@ -66,12 +66,11 @@ export type SerializedCollection<TInput = unknown> = {
  * The `ICollection` contract offers a fluent and efficient approach to working with {@link Iterable | `Iterable`} objects.
  * `ICollection` is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection/contracts"`
+ * IMPORT_PATH: `"eridu-tech/collection/contracts"`
  * @group Contracts
  */
 export interface ICollection<TInput = unknown>
-    extends Iterable<TInput>,
-        ISerializable<SerializedCollection<TInput>> {
+    extends Iterable<TInput>, ISerializable<SerializedCollection<TInput>> {
     /**
      * The `toIterator` method converts the collection to a new iterator.
      */
@@ -96,7 +95,7 @@ export interface ICollection<TInput = unknown>
      * The `filter` method filters the collection using `predicateFn`, keeping only those items that pass `predicateFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -109,7 +108,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     filter<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): ICollection<TOutput>;
 
     /**
@@ -124,7 +123,7 @@ export interface ICollection<TInput = unknown>
      * The `reject` method filters the collection using `predicateFn`, keeping only those items that not pass `predicateFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -137,7 +136,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     reject<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): ICollection<Exclude<TInput, TOutput>>;
 
     /**
@@ -145,7 +144,7 @@ export interface ICollection<TInput = unknown>
      * The `mapFn` is free to modify the item and return it, thus forming a new collection of modified items.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -166,7 +165,7 @@ export interface ICollection<TInput = unknown>
      * The final result of running the reducer across all items of the array is a single value.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -178,7 +177,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -212,7 +211,7 @@ export interface ICollection<TInput = unknown>
      * @throws {TypeError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -224,7 +223,7 @@ export interface ICollection<TInput = unknown>
      * }
      * ```
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -242,7 +241,7 @@ export interface ICollection<TInput = unknown>
      * The `collapse` method collapses a collection of iterables into a single, flat collection.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number[]>): void {
@@ -261,7 +260,7 @@ export interface ICollection<TInput = unknown>
      * It is identical to a `map` method followed by a `collapse` method.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string[]>): void {
@@ -281,7 +280,7 @@ export interface ICollection<TInput = unknown>
      * The `change` method changes only the items that passes `predicateFn` using `mapFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -294,7 +293,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     change<TFilterOutput extends TInput, TMapOutput>(
-        predicateFn: PredicateInvokable<
+        predicateFn: PredicateInvocable<
             TInput,
             ICollection<TInput>,
             TFilterOutput
@@ -306,7 +305,7 @@ export interface ICollection<TInput = unknown>
      * The `set` method changes a item by i>index` using `value`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -319,7 +318,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -340,7 +339,7 @@ export interface ICollection<TInput = unknown>
      * The `get` method returns the item by index. If the item is not found null will returned.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -361,7 +360,7 @@ export interface ICollection<TInput = unknown>
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -381,7 +380,7 @@ export interface ICollection<TInput = unknown>
      * The `page` method returns a new collection containing the items that would be present on ` page ` with custom ` pageSize `.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -402,7 +401,7 @@ export interface ICollection<TInput = unknown>
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -422,7 +421,7 @@ export interface ICollection<TInput = unknown>
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -442,7 +441,7 @@ export interface ICollection<TInput = unknown>
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -462,7 +461,7 @@ export interface ICollection<TInput = unknown>
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -482,7 +481,7 @@ export interface ICollection<TInput = unknown>
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -501,7 +500,7 @@ export interface ICollection<TInput = unknown>
      * @throws {EmptyCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -513,14 +512,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     percentage(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): number;
 
     /**
      * The `some` method determines whether at least one item in the collection matches `predicateFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -532,14 +531,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     some<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): boolean;
 
     /**
      * The `every` method determines whether all items in the collection matches `predicateFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -551,14 +550,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     every<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): boolean;
 
     /**
      * The `take` method takes the first `limit` items.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -572,7 +571,7 @@ export interface ICollection<TInput = unknown>
      *
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -590,7 +589,7 @@ export interface ICollection<TInput = unknown>
      * The `takeUntil` method takes items until `predicateFn` returns true.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -603,14 +602,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     takeUntil(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<TInput>;
 
     /**
      * The `takeWhile` method takes items until `predicateFn` returns false.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -623,14 +622,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     takeWhile(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<TInput>;
 
     /**
      * The `skip` method skips the first `offset` items.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -648,7 +647,7 @@ export interface ICollection<TInput = unknown>
      * The `skipUntil` method skips items until `predicateFn` returns true.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -661,14 +660,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     skipUntil(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<TInput>;
 
     /**
      * The `skipWhile` method skips items until `predicateFn` returns false.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -681,14 +680,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     skipWhile(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<TInput>;
 
     /**
      * The `when` method will execute `callback` when `condition` evaluates to true.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -710,7 +709,7 @@ export interface ICollection<TInput = unknown>
      * The `whenEmpty` method will execute `callback` when the collection is empty.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -723,7 +722,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -743,7 +742,7 @@ export interface ICollection<TInput = unknown>
      * The `whenNot` method will execute `callback` when `condition` evaluates to false.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -764,7 +763,7 @@ export interface ICollection<TInput = unknown>
      * The `whenNotEmpty` method will execute `callback` when the collection is not empty.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -776,7 +775,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -797,7 +796,7 @@ export interface ICollection<TInput = unknown>
      * This method is useful when you want compose multiple smaller functions.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -829,7 +828,7 @@ export interface ICollection<TInput = unknown>
      * The `tap` method passes a copy of the original collection to `callback`, allowing you to do something with the items while not affecting the original collection.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -851,7 +850,7 @@ export interface ICollection<TInput = unknown>
      * If `chunkSize` is not divisible with total number of items then the last chunk will contain the remaining items.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -869,7 +868,7 @@ export interface ICollection<TInput = unknown>
      * The chunk variable passed to the `predicateFn` may be used to inspect the previous item.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -885,14 +884,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     chunkWhile(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<ICollection<TInput>>;
 
     /**
      * The `split` method breaks a collection evenly into `chunkAmount` of chunks.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -906,7 +905,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -920,7 +919,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -939,7 +938,7 @@ export interface ICollection<TInput = unknown>
      * The `partition` method is used to separate items that pass `predicateFn` from those that do not.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -953,14 +952,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     partition(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): ICollection<ICollection<TInput>>;
 
     /**
      * The `sliding` method returns a new collection of chunks representing a "sliding window" view of the items in the collection.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -980,7 +979,7 @@ export interface ICollection<TInput = unknown>
      * By default the equality check occurs on the item.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1007,7 +1006,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1038,7 +1037,7 @@ export interface ICollection<TInput = unknown>
      * By default the equality check occurs on the item.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1056,7 +1055,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1080,7 +1079,7 @@ export interface ICollection<TInput = unknown>
      * By default the equality check occurs on the item.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1093,7 +1092,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * type Phone = {
      *   name: string;
@@ -1129,7 +1128,7 @@ export interface ICollection<TInput = unknown>
      * By default the equality check occurs on the item.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1142,7 +1141,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * type Phone = {
      *   name: string;
@@ -1184,7 +1183,7 @@ export interface ICollection<TInput = unknown>
      * The `repeat` method will repeat the original collection `amount` times.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1203,7 +1202,7 @@ export interface ICollection<TInput = unknown>
      * The padding is applied from the start of this collection.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1255,7 +1254,7 @@ export interface ICollection<TInput = unknown>
      * The padding is applied from the end of this collection.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1268,7 +1267,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1281,7 +1280,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1295,7 +1294,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1317,7 +1316,7 @@ export interface ICollection<TInput = unknown>
      * where `start` and `end` (end not included) represent the index of items in the collection.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1330,7 +1329,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1343,7 +1342,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1356,7 +1355,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1369,7 +1368,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1382,7 +1381,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1400,7 +1399,7 @@ export interface ICollection<TInput = unknown>
      * The `prepend` method adds `iterable` to the beginning of the collection.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1420,7 +1419,7 @@ export interface ICollection<TInput = unknown>
      * The `append` method adds `iterable` to the end of the collection.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1440,7 +1439,7 @@ export interface ICollection<TInput = unknown>
      * The `insertBefore` method adds `iterable` before the first item that matches `predicateFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1453,7 +1452,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     insertBefore<TExtended = TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
         iterable: IterableValue<TInput | TExtended>,
     ): ICollection<TInput | TExtended>;
 
@@ -1461,7 +1460,7 @@ export interface ICollection<TInput = unknown>
      * The `insertAfter` method adds `iterable` after the first item that matches `predicateFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1474,7 +1473,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     insertAfter<TExtended = TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
         iterable: IterableValue<TInput | TExtended>,
     ): ICollection<TInput | TExtended>;
 
@@ -1482,7 +1481,7 @@ export interface ICollection<TInput = unknown>
      * The `crossJoin` method cross joins the collection's values among `iterables`, returning a Cartesian product with all possible permutations.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1500,7 +1499,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1531,7 +1530,7 @@ export interface ICollection<TInput = unknown>
      * The returned collection has size of the shortest collection.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1544,7 +1543,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1557,7 +1556,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -1577,7 +1576,7 @@ export interface ICollection<TInput = unknown>
      * The `sort` method sorts the collection. You can provide a `comparator` function.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1590,7 +1589,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * type Person = {
      *   name: string;
@@ -1624,7 +1623,7 @@ export interface ICollection<TInput = unknown>
      * The reversing of the collection will be applied in chunks that are the size of ` chunkSize `.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1648,7 +1647,7 @@ export interface ICollection<TInput = unknown>
      * By default it will get the first item. If the collection is empty or no items passes ` predicateFn ` than null i returned.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1660,7 +1659,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1672,7 +1671,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1685,7 +1684,7 @@ export interface ICollection<TInput = unknown>
      * // 3
      */
     first<TOutput extends TInput>(
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | null;
 
     /**
@@ -1693,7 +1692,7 @@ export interface ICollection<TInput = unknown>
      * By default it will get the first item. If the collection is empty or no items passes ` predicateFn ` than ` defaultValue `.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1705,7 +1704,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1717,7 +1716,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1729,7 +1728,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1742,7 +1741,7 @@ export interface ICollection<TInput = unknown>
      */
     firstOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: Lazyable<TExtended>,
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | TExtended;
 
     /**
@@ -1751,7 +1750,7 @@ export interface ICollection<TInput = unknown>
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1763,7 +1762,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1775,7 +1774,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1787,7 +1786,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     firstOrFail<TOutput extends TInput>(
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput;
 
     /**
@@ -1795,7 +1794,7 @@ export interface ICollection<TInput = unknown>
      * By default it will get the last item. If the collection is empty or no items passes ` predicateFn ` than null i returned.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1807,7 +1806,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1819,7 +1818,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1831,7 +1830,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     last<TOutput extends TInput>(
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | null;
 
     /**
@@ -1839,7 +1838,7 @@ export interface ICollection<TInput = unknown>
      * By default it will get the last item. If the collection is empty or no items passes ` predicateFn ` than ` defaultValue `.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1851,7 +1850,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1863,7 +1862,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1875,7 +1874,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1888,7 +1887,7 @@ export interface ICollection<TInput = unknown>
      */
     lastOr<TOutput extends TInput, TExtended = TInput>(
         defaultValue: Lazyable<TExtended>,
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput | TExtended;
 
     /**
@@ -1897,7 +1896,7 @@ export interface ICollection<TInput = unknown>
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1909,7 +1908,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1921,7 +1920,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1933,7 +1932,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     lastOrFail<TOutput extends TInput>(
-        predicateFn?: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn?: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput;
 
     /**
@@ -1941,7 +1940,7 @@ export interface ICollection<TInput = unknown>
      * If the `predicateFn` does not match or matches the first item then null is returned.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1953,7 +1952,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1965,7 +1964,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     before(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput | null;
 
     /**
@@ -1973,7 +1972,7 @@ export interface ICollection<TInput = unknown>
      * If the collection is empty or the `predicateFn` does not match or matches the first item then `defaultValue` is returned.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1985,7 +1984,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -1997,7 +1996,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2010,7 +2009,7 @@ export interface ICollection<TInput = unknown>
      */
     beforeOr<TExtended = TInput>(
         defaultValue: Lazyable<TExtended>,
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput | TExtended;
 
     /**
@@ -2019,7 +2018,7 @@ export interface ICollection<TInput = unknown>
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2031,7 +2030,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2043,7 +2042,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     beforeOrFail(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput;
 
     /**
@@ -2051,7 +2050,7 @@ export interface ICollection<TInput = unknown>
      * If the collection is empty or the `predicateFn` does not match or matches the last item then null is returned.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2063,7 +2062,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2075,7 +2074,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     after(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput | null;
 
     /**
@@ -2083,7 +2082,7 @@ export interface ICollection<TInput = unknown>
      * If the collection is empty or the `predicateFn` does not match or matches the last item then `defaultValue` is returned.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2095,7 +2094,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2107,7 +2106,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2120,7 +2119,7 @@ export interface ICollection<TInput = unknown>
      */
     afterOr<TExtended = TInput>(
         defaultValue: Lazyable<TExtended>,
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput | TExtended;
 
     /**
@@ -2129,7 +2128,7 @@ export interface ICollection<TInput = unknown>
      * @throws {ItemNotFoundCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2141,7 +2140,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2153,7 +2152,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     afterOrFail(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): TInput;
 
     /**
@@ -2163,7 +2162,7 @@ export interface ICollection<TInput = unknown>
      * @throws {MultipleItemsFoundCollectionError}
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2175,7 +2174,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2187,7 +2186,7 @@ export interface ICollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2199,14 +2198,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     sole<TOutput extends TInput>(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>, TOutput>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>, TOutput>,
     ): TOutput;
 
     /**
      * The `nth` method creates a new collection consisting of every n-th item.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -2224,7 +2223,7 @@ export interface ICollection<TInput = unknown>
      * The `count` method returns the total number of items in the collection that passes `predicateFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<number>): void {
@@ -2235,7 +2234,7 @@ export interface ICollection<TInput = unknown>
      * }
      * ```
      */
-    count(predicateFn: PredicateInvokable<TInput, ICollection<TInput>>): number;
+    count(predicateFn: PredicateInvocable<TInput, ICollection<TInput>>): number;
 
     /**
      * The `size` returns the size of the collection.
@@ -2256,7 +2255,7 @@ export interface ICollection<TInput = unknown>
      * The `searchFirst` return the index of the first item that matches `predicateFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -2268,14 +2267,14 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     searchFirst(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): number;
 
     /**
      * The `searchLast` return the index of the last item that matches `predicateFn`.
      * @example
      * ```ts
-     * import type { ICollection } from "@daiso-tech/core/collection/contracts";
+     * import type { ICollection } from "eridu-tech/collection/contracts";
      *
      * // Assume the inputed collection is empty.
      * function main(collection: ICollection<string>): void {
@@ -2287,7 +2286,7 @@ export interface ICollection<TInput = unknown>
      * ```
      */
     searchLast(
-        predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ): number;
 
     /**

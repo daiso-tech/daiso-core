@@ -2,21 +2,22 @@
  * @module Middleware
  */
 
-import {
-    type Enhance,
-    type InferMethodNames,
-    type InferParameters,
-    type InferReturn,
-    type Middleware,
-    type Use,
+import { use } from "@/middleware/implementations/use-factory/_module.js";
+
+import type {
+    Enhance,
+    InferMethodNames,
+    InferParameters,
+    InferReturn,
+    Middleware,
+    Use,
 } from "@/middleware/contracts/_module.js";
-import { type InvokableFn, type OneOrMore } from "@/utilities/_module.js";
+import type { InvocableFn, OneOrMore } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `@daiso-tech/core/middleware`
- * @group Implementations
+ * @internal
  */
-export function enhanceFactory(use: Use): Enhance {
+export function enhanceFactory(use_: Use): Enhance {
     return <TInstance, TField extends InferMethodNames<TInstance>>(
         obj: TInstance,
         field: TField,
@@ -27,14 +28,30 @@ export function enhanceFactory(use: Use): Enhance {
             >
         >,
     ): void => {
-        const fn = obj[field] as InvokableFn<any, any>;
+        const fn = obj[field] as InvocableFn<any, any>;
+        if (typeof fn === "undefined") {
+            return fn;
+        }
         if (typeof fn !== "function") {
             throw new TypeError(
                 `Cannot enhance ${String(field)} because it is not a function`,
             );
         }
 
+        const enhancedFn = use_(fn.bind(obj), middlewares);
+        Object.defineProperty(enhancedFn, "name", {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            value: (obj[field] as any).name,
+            configurable: true,
+        });
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        obj[field] = use(fn.bind(obj), middlewares) as any;
+        obj[field] = enhancedFn as any;
     };
 }
+
+/**
+ * IMPORT_PATH: `eridu-tech/middleware`
+ * @group Implementations
+ */
+export const enhance = enhanceFactory(use);

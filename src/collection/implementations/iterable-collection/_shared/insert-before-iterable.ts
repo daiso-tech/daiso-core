@@ -2,21 +2,22 @@
  * @module Collection
  */
 
-import {
-    type PredicateInvokable,
-    type ICollection,
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    PredicateInvocable,
+    ICollection,
 } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class InsertBeforeIterable<TInput, TExtended>
-    implements Iterable<TInput | TExtended>
-{
+export class InsertBeforeIterable<TInput, TExtended> implements Iterable<
+    TInput | TExtended
+> {
     constructor(
         private collection: ICollection<TInput>,
-        private predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        private predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
         private iterable: Iterable<TInput | TExtended>,
     ) {}
 
@@ -25,7 +26,7 @@ export class InsertBeforeIterable<TInput, TExtended>
         for (const [index, item] of this.collection.entries()) {
             if (
                 !hasMatched &&
-                resolveInvokable(this.predicateFn)(item, index, this.collection)
+                resolveInvocable(this.predicateFn)(item, index, this.collection)
             ) {
                 yield* this.iterable;
                 hasMatched = true;

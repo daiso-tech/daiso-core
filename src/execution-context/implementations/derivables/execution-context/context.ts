@@ -2,27 +2,26 @@
  * @module ExecutionContext
  */
 
-import {
-    type ContextToken,
-    type DecrementSettings,
-    type IContext,
-    type ICopyableContext,
-    type IncrementSettings,
-    type PutDecrementSettings,
-    type PutIncrementSettings,
-} from "@/execution-context/contracts/_module.js";
 import { NotFoundExecutionContextError } from "@/execution-context/contracts/execution-context.errors.js";
 import {
-    callInvokable,
-    isInvokable,
+    callInvocable,
+    isInvocable,
     OPTION,
     optionNone,
     optionSome,
     resolveLazyable,
-    type Invokable,
-    type Lazyable,
-    type Option,
 } from "@/utilities/_module.js";
+
+import type {
+    ContextToken,
+    DecrementSettings,
+    IContext,
+    ICopyableContext,
+    IncrementSettings,
+    PutDecrementSettings,
+    PutIncrementSettings,
+} from "@/execution-context/contracts/_module.js";
+import type { Invocable, Lazyable, Option } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -46,22 +45,21 @@ export class Context implements ICopyableContext {
     contains<TValue>(
         token: ContextToken<Array<TValue>>,
         matchValue:
-            | NoInfer<TValue>
-            | Invokable<[value: NoInfer<TValue>], boolean>,
+            NoInfer<TValue> | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean {
         const arr = this.get(token);
         if (arr === null) {
             return false;
         }
-        let predicate: Invokable<[value: NoInfer<TValue>], boolean>;
-        if (!isInvokable(matchValue)) {
+        let predicate: Invocable<[value: NoInfer<TValue>], boolean>;
+        if (!isInvocable(matchValue)) {
             const value = matchValue;
             predicate = (item_) => item_ === value;
         } else {
             predicate = matchValue;
         }
         for (const item of arr) {
-            if (callInvokable(predicate, item)) {
+            if (callInvocable(predicate, item)) {
                 return true;
             }
         }
@@ -230,11 +228,11 @@ export class Context implements ICopyableContext {
 
     when(
         condition: Lazyable<boolean>,
-        ...invokables: Array<Invokable<[context: IContext], IContext>>
+        ...invocables: Array<Invocable<[context: IContext], IContext>>
     ): IContext {
         if (resolveLazyable(condition)) {
-            for (const invokable of invokables) {
-                callInvokable(invokable, this);
+            for (const invocable of invocables) {
+                callInvocable(invocable, this);
             }
         }
         return this;

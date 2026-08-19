@@ -2,37 +2,26 @@
  * @module Lock
  */
 
-import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
-    type ILock,
-    type ILockAdapter,
     FailedAcquireLockError,
-    LOCK_EVENTS,
     FailedReleaseLockError,
     FailedRefreshLockError,
-    type LockEventMap,
     LOCK_STATE,
-    type ILockState,
-    type ILockExpiredState,
-    type ILockAcquiredState,
-    type ILockUnavailableState,
-    type LockAdapterVariants,
 } from "@/lock/contracts/_module.js";
-import {
-    handleDispatch,
-    handleUnexpectedError,
-} from "@/lock/implementations/derivables/lock-factory/event-helpers.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type AsyncLazy,
-    callInvokable,
-    resolveLazyable,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import { resolveLazyable } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ILock,
+    ILockAdapter,
+    ILockState,
+    ILockExpiredState,
+    ILockAcquiredState,
+    ILockUnavailableState,
+} from "@/lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -49,17 +38,12 @@ export type ISerializedLock = {
  */
 export type LockSettings = {
     serdeTransformerName: string;
-    namespace: INamespace;
     adapter: ILockAdapter;
-    originalAdapter: LockAdapterVariants;
-    eventDispatcher: IEventDispatcher<LockEventMap>;
-    key: IKey;
+    key: string;
     lockId: string;
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
-    waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
-    use: Use;
+    context: IReadableContext;
 };
 
 /**
@@ -72,65 +56,46 @@ export class Lock implements ILock {
     static _serialize(deserializedValue: Lock): ISerializedLock {
         return {
             version: "1",
-            key: deserializedValue._key.get(),
+            key: deserializedValue.key,
             lockId: deserializedValue.lockId,
             ttlInMs: deserializedValue._ttl?.toMilliseconds() ?? null,
         };
     }
 
-    private readonly namespace: INamespace;
     private readonly adapter: ILockAdapter;
-    private readonly originalAdapter: LockAdapterVariants;
-    private readonly eventDispatcher: IEventDispatcher<LockEventMap>;
-    private readonly _key: IKey;
+    private readonly _key: string;
     private readonly lockId: string;
     private _ttl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
-    private readonly use: Use;
+    private readonly context: IReadableContext;
 
     constructor(settings: LockSettings) {
         const {
-            namespace,
             adapter,
-            originalAdapter,
-            eventDispatcher,
             key,
             lockId,
             ttl,
             serdeTransformerName,
             defaultRefreshTime,
-            waitUntil,
-            executionContext,
-            use,
+            context,
         } = settings;
 
-        this.use = use;
-        this.executionContext = executionContext;
-        this.waitUntil = waitUntil;
-        this.namespace = namespace;
-        this.originalAdapter = originalAdapter;
+        this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this.eventDispatcher = eventDispatcher;
         this._key = key;
         this.lockId = lockId;
         this._ttl = ttl;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
-    _getNamespace(): INamespace {
-        return this.namespace;
-    }
-
     _getSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _getAdapter(): LockAdapterVariants {
-        return this.originalAdapter;
+    _getAdapter(): ILockAdapter {
+        return this.adapter;
     }
 
     async runOrFail<TValue = void>(
@@ -145,71 +110,23 @@ export class Lock implements ILock {
     }
 
     async acquire(): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.acquire(
-                this.executionContext,
-                this._key.toString(),
-                this.lockId,
-                this._ttl,
-            );
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-            handleDispatch({
-                on: "true",
-                eventName: LOCK_EVENTS.ACQUIRED,
-                eventData: {
-                    lock: this,
-                },
-                waitUntil: this.waitUntil,
-                eventDispatcher: this.eventDispatcher,
-            }),
-            handleDispatch({
-                on: "false",
-                eventName: LOCK_EVENTS.UNAVAILABLE,
-                eventData: {
-                    lock: this,
-                },
-                waitUntil: this.waitUntil,
-                eventDispatcher: this.eventDispatcher,
-            }),
-        ])();
+        return await this.adapter.acquire(
+            this._key,
+            this.lockId,
+            this._ttl,
+            this.context,
+        );
     }
 
     async acquireOrFail(): Promise<void> {
-        const hasAquired = await this.acquire();
-        if (!hasAquired) {
+        const hasAcquired = await this.acquire();
+        if (!hasAcquired) {
             throw FailedAcquireLockError.create(this._key);
         }
     }
 
     async release(): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.release(
-                this.executionContext,
-                this._key.toString(),
-                this.lockId,
-            );
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-            handleDispatch({
-                on: "true",
-                eventName: LOCK_EVENTS.RELEASED,
-                eventData: {
-                    lock: this,
-                },
-                waitUntil: this.waitUntil,
-                eventDispatcher: this.eventDispatcher,
-            }),
-            handleDispatch({
-                on: "false",
-                eventName: LOCK_EVENTS.FAILED_RELEASE,
-                eventData: {
-                    lock: this,
-                },
-                waitUntil: this.waitUntil,
-                eventDispatcher: this.eventDispatcher,
-            }),
-        ])();
+        return await this.adapter.release(this._key, this.lockId, this.context);
     }
 
     async releaseOrFail(): Promise<void> {
@@ -220,63 +137,20 @@ export class Lock implements ILock {
     }
 
     async forceRelease(): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.forceRelease(
-                this.executionContext,
-                this._key.toString(),
-            );
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-            async ({ next }) => {
-                const hasReleased = await next();
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(LOCK_EVENTS.FORCE_RELEASED, {
-                        lock: this,
-                        hasReleased,
-                    }),
-                );
-                return hasReleased;
-            },
-        ])();
+        return await this.adapter.forceRelease(this._key, this.context);
     }
 
     async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
-        return this.use(async () => {
-            return await this.adapter.refresh(
-                this.executionContext,
-                this._key.toString(),
-                this.lockId,
-                TimeSpan.fromTimeSpan(ttl),
-            );
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-            handleDispatch({
-                on: "true",
-                eventName: LOCK_EVENTS.REFRESHED,
-                eventData: {
-                    lock: this,
-                },
-                waitUntil: this.waitUntil,
-                eventDispatcher: this.eventDispatcher,
-            }),
-            handleDispatch({
-                on: "false",
-                eventName: LOCK_EVENTS.FAILED_REFRESH,
-                eventData: {
-                    lock: this,
-                },
-                waitUntil: this.waitUntil,
-                eventDispatcher: this.eventDispatcher,
-            }),
-            async ({ next }) => {
-                const hasRefreshed = await next();
-                if (hasRefreshed) {
-                    this._ttl = TimeSpan.fromTimeSpan(ttl);
-                }
-                return hasRefreshed;
-            },
-        ])();
+        const hasRefreshed = await this.adapter.refresh(
+            this._key,
+            this.lockId,
+            TimeSpan.fromTimeSpan(ttl),
+            this.context,
+        );
+        if (hasRefreshed) {
+            this._ttl = TimeSpan.fromTimeSpan(ttl);
+        }
+        return hasRefreshed;
     }
 
     async refreshOrFail(ttl?: ITimeSpan): Promise<void> {
@@ -286,7 +160,7 @@ export class Lock implements ILock {
         }
     }
 
-    get key(): IKey {
+    get key(): string {
         return this._key;
     }
 
@@ -299,34 +173,27 @@ export class Lock implements ILock {
     }
 
     async getState(): Promise<ILockState> {
-        return this.use(async () => {
-            const state = await this.adapter.getState(
-                this.executionContext,
-                this._key.toString(),
-            );
-            if (state === null) {
-                return {
-                    type: LOCK_STATE.EXPIRED,
-                } satisfies ILockExpiredState;
-            }
-            if (state.owner === this.lockId) {
-                return {
-                    type: LOCK_STATE.ACQUIRED,
-                    remainingTime:
-                        state.expiration === null
-                            ? null
-                            : TimeSpan.fromDateRange({
-                                  start: new Date(),
-                                  end: state.expiration,
-                              }),
-                } satisfies ILockAcquiredState;
-            }
+        const state = await this.adapter.getState(this._key, this.context);
+        if (state === null) {
             return {
-                type: LOCK_STATE.UNAVAILABLE,
-                owner: state.owner,
-            } satisfies ILockUnavailableState;
-        }, [
-            handleUnexpectedError(this.waitUntil, this.eventDispatcher, this),
-        ])();
+                type: LOCK_STATE.EXPIRED,
+            } satisfies ILockExpiredState;
+        }
+        if (state.owner === this.lockId) {
+            return {
+                type: LOCK_STATE.ACQUIRED,
+                remainingTime:
+                    state.expiration === null
+                        ? null
+                        : TimeSpan.fromDateRange({
+                              start: new Date(),
+                              end: state.expiration,
+                          }),
+            } satisfies ILockAcquiredState;
+        }
+        return {
+            type: LOCK_STATE.UNAVAILABLE,
+            owner: state.owner,
+        } satisfies ILockUnavailableState;
     }
 }

@@ -2,8 +2,8 @@
  * @module Serde
  */
 
-import { type ISerde } from "@/serde/contracts/serde.contract.js";
-import { type OneOrMore } from "@/utilities/_module.js";
+import type { ISerde } from "@/serde/contracts/serde.contract.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * Base structure for serialized values with version tracking.
@@ -12,7 +12,7 @@ import { type OneOrMore } from "@/utilities/_module.js";
  * All serialized values should include a version field to handle migration
  * as serialization formats evolve.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export type SerializedValueBase = {
@@ -34,7 +34,7 @@ export type SerializedValueBase = {
  *
  * @template TSerializedValue - The serialized representation type (must extend SerializedValueBase)
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export type SerializableClass<TSerializedValue extends SerializedValueBase> = {
@@ -64,7 +64,7 @@ export type SerializableClass<TSerializedValue extends SerializedValueBase> = {
  *
  * @template TSerializedValue - The serialized representation type (must extend SerializedValueBase with version)
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export type ISerializable<TSerializedValue extends SerializedValueBase> = {
@@ -90,7 +90,7 @@ export type ISerializable<TSerializedValue extends SerializedValueBase> = {
  * @template TDeserializedValue - The runtime/decoded type
  * @template TSerializedValue - The serialized/encoded representation type
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export type ISerdeTransformer<
@@ -134,7 +134,7 @@ export type ISerdeTransformer<
  * Registration interface for Custom serialization and deserialization transformers.
  * Use this interface to register custom logic for classes and objects that require special serialization handling.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export interface ISerderRegister {
@@ -187,7 +187,7 @@ export interface ISerderRegister {
  *
  * @template TSerializedValue - The serialized format (JSON, binary, etc., defaults to unknown)
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export type IFlexibleSerde<TSerializedValue = unknown> =

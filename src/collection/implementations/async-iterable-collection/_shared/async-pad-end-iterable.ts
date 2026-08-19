@@ -2,15 +2,15 @@
  * @module Collection
  */
 
-import { type IAsyncCollection } from "@/collection/contracts/_module.js";
-import { type AsyncIterableValue } from "@/utilities/_module.js";
+import type { IAsyncCollection } from "@/collection/contracts/_module.js";
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class AsyncPadEndIterable<TInput, TExtended>
-    implements AsyncIterable<TInput | TExtended>
-{
+export class AsyncPadEndIterable<TInput, TExtended> implements AsyncIterable<
+    TInput | TExtended
+> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private maxLength: number,

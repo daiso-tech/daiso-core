@@ -2,22 +2,21 @@
  * @module SharedLock
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type InferInstance } from "@/utilities/_module.js";
+import type { InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is thrown when trying to acquire a semaphore slot, but all slots are already taken.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class LimitReachedReaderSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         cause?: unknown,
     ): LimitReachedReaderSemaphoreError {
         return new LimitReachedReaderSemaphoreError(
-            `Key "${key.get()}" has reached the limit`,
+            `Key "${key}" has reached the limit`,
             cause,
         );
     }
@@ -36,17 +35,17 @@ export class LimitReachedReaderSemaphoreError extends Error {
 /**
  * The error is thrown when trying to refresh a semaphore slot that is already expired.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedRefreshReaderSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         slotId: string,
         cause?: unknown,
     ): FailedRefreshReaderSemaphoreError {
         return new FailedRefreshReaderSemaphoreError(
-            `Failed to refresh slot "${slotId}" of key "${key.get()}"`,
+            `Failed to refresh slot "${slotId}" of key "${key}"`,
             cause,
         );
     }
@@ -65,17 +64,17 @@ export class FailedRefreshReaderSemaphoreError extends Error {
 /**
  * The error is thrown when trying to release a semaphore slot that is already expired.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedReleaseReaderSemaphoreError extends Error {
     static create(
-        key: IKey,
+        key: string,
         slotId: string,
         cause?: unknown,
     ): FailedReleaseReaderSemaphoreError {
         return new FailedReleaseReaderSemaphoreError(
-            `Failed to release slot "${slotId}" of key "${key.get()}"`,
+            `Failed to release slot "${slotId}" of key "${key}"`,
             cause,
         );
     }
@@ -92,7 +91,7 @@ export class FailedReleaseReaderSemaphoreError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export const READER_SEMAPHORE_ERRORS = {
@@ -102,7 +101,7 @@ export const READER_SEMAPHORE_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export type AllReaderSemaphoreErrors = InferInstance<
@@ -110,7 +109,7 @@ export type AllReaderSemaphoreErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export function isReaderSemaphoreError(
@@ -127,13 +126,13 @@ export function isReaderSemaphoreError(
 /**
  * The error is thrown when trying to acquire a shared-lock that is owned by a different owner.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedAcquireWriterLockError extends Error {
-    static create(key: IKey, cause?: unknown): FailedAcquireWriterLockError {
+    static create(key: string, cause?: unknown): FailedAcquireWriterLockError {
         return new FailedAcquireWriterLockError(
-            `Key "${key.get()}" already acquired`,
+            `Key "${key}" already acquired`,
             cause,
         );
     }
@@ -152,17 +151,17 @@ export class FailedAcquireWriterLockError extends Error {
 /**
  * The error is thrown when trying to release a shared-lock that is owned by a different owner.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedReleaseWriterLockError extends Error {
     static create(
-        key: IKey,
+        key: string,
         lockId: string,
         cause?: unknown,
     ): FailedReleaseWriterLockError {
         return new FailedReleaseWriterLockError(
-            `Unonwed release on key "${key.get()}" by owner "${lockId}"`,
+            `Unonwed release on key "${key}" by owner "${lockId}"`,
             cause,
         );
     }
@@ -181,17 +180,17 @@ export class FailedReleaseWriterLockError extends Error {
 /**
  * The error is thrown when trying to refresh a shared-lock that is owned by a different owner.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export class FailedRefreshWriterLockError extends Error {
     static create(
-        _key: IKey,
+        key: string,
         lockId: string,
         cause?: unknown,
     ): FailedRefreshWriterLockError {
         return new FailedRefreshWriterLockError(
-            `Unonwed refresh on key "${_key.get()}" by owner "${lockId}"`,
+            `Unonwed refresh on key "${key}" by owner "${lockId}"`,
             cause,
         );
     }
@@ -208,7 +207,7 @@ export class FailedRefreshWriterLockError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export const WRITER_LOCK_ERRORS = {
@@ -218,7 +217,7 @@ export const WRITER_LOCK_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export type AllWriterLockErrors = InferInstance<
@@ -226,7 +225,7 @@ export type AllWriterLockErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export function isWriterLockError(
@@ -241,7 +240,7 @@ export function isWriterLockError(
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export const SHARED_LOCK_ERRORS = {
@@ -250,7 +249,7 @@ export const SHARED_LOCK_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export type AllSharedLockErrors = InferInstance<
@@ -258,7 +257,7 @@ export type AllSharedLockErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Errors
  */
 export function isSharedLockError(

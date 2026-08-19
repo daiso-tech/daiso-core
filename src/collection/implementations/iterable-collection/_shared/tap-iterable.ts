@@ -2,8 +2,9 @@
  * @module Collection
  */
 
-import { type ICollection, type Tap } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type { ICollection, Tap } from "@/collection/contracts/_module.js";
 
 /**
  * @internal
@@ -15,7 +16,7 @@ export class TapIterable<TInput> implements Iterable<TInput> {
     ) {}
 
     *[Symbol.iterator](): Iterator<TInput> {
-        resolveInvokable(this.callback)(this.collection);
+        resolveInvocable(this.callback)(this.collection);
         yield* this.collection;
     }
 }

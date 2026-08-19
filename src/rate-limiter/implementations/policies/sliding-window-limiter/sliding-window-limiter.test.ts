@@ -1,10 +1,9 @@
 import { describe, expect, test } from "vitest";
 
-import {
-    SlidingWindowLimiter,
-    type SlidingWindowLimiterState,
-} from "@/rate-limiter/implementations/policies/sliding-window-limiter/sliding-window-limiter.js";
+import { SlidingWindowLimiter } from "@/rate-limiter/implementations/policies/sliding-window-limiter/sliding-window-limiter.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
+
+import type { SlidingWindowLimiterState } from "@/rate-limiter/implementations/policies/sliding-window-limiter/sliding-window-limiter.js";
 
 describe("class: SlidingWindowLimiter", () => {
     describe("constructor", () => {

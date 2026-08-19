@@ -8,27 +8,27 @@ import { join, normalize } from "node:path";
 import { pipeline } from "node:stream/promises";
 
 import etag from "etag";
-import { lookup } from "mime-types";
 
-import { type ICodec } from "@/codec/contracts/_module.js";
 import { Base64Codec } from "@/codec/implementations/base-64-codec/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    FILE_WRITE_ENUM,
-    type FileAdapterMetadata,
-    type FileAdapterStream,
-    type FileWriteEnum,
-    type IFileStorageAdapter,
-    type WritableFileAdapterContent,
-    type WritableFileAdapterStream,
+import { FILE_WRITE_ENUM } from "@/file-storage/contracts/_module.js";
+
+import type { ICodec } from "@/codec/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    FileAdapterMetadata,
+    FileAdapterStream,
+    FileWriteEnum,
+    IFileStorageAdapter,
+    WritableFileAdapterContent,
+    WritableFileAdapterStream,
 } from "@/file-storage/contracts/_module.js";
-import { type IDeinitizable, type IInitizable } from "@/utilities/_module.js";
+import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
 
 /**
  * Configuration for `FsFileStorageAdapter`.
  * Provides local filesystem-based file storage.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/fs-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/fs-file-storage-adapter"`
  * @group Adapters
  */
 export type FsFileStorageAdapterSettings = {
@@ -43,7 +43,7 @@ export type FsFileStorageAdapterSettings = {
     /**
      * @default
      * ```ts
-     * import { Base64Codec } from "@daiso-tech/core/codec/base-64-codec"
+     * import { Base64Codec } from "eridu-tech/codec/base-64-codec"
      *
      * new Base64Codec()
      * ```
@@ -55,7 +55,7 @@ export type FsFileStorageAdapterSettings = {
  * The `FsFileStorageAdapter` is used for local development when persistence is needed when restarting the dev server.
  * Note `FsFileStorageAdapter` lacks nested folder support. A flat hierarchy is used, requiring filename encoding/decoding.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/fs-file-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/fs-file-storage-adapter"`
  * @group Adapters
  */
 export class FsFileStorageAdapter
@@ -67,8 +67,8 @@ export class FsFileStorageAdapter
     /**
      * @example
      * ```ts
-     * import { Base64Codec } from "@daiso-tech/core/codex/base-64-codec";
-     * import { FsFileStorageAdapter } from "@daiso-tech/core/file-storage/fs-file-storage-adapter";
+     * import { Base64Codec } from "eridu-tech/codex/base-64-codec";
+     * import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
      *
      * const fileStorageAdapter = new FsFileStorageAdapter({
      *   // Both settings are optional
@@ -145,14 +145,14 @@ export class FsFileStorageAdapter
         return join(this.location, this.codec.encode(key));
     }
 
-    async exists(_context: IReadableContext, key: string): Promise<boolean> {
+    async exists(key: string, _context: IReadableContext): Promise<boolean> {
         const normalizeKey = this.normalizeKey(key);
         return FsFileStorageAdapter.isFileFound(normalizeKey);
     }
 
     async getStream(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<FileAdapterStream | null> {
         const normalizeKey = this.normalizeKey(key);
         if (!(await FsFileStorageAdapter.isFileFound(normalizeKey))) {
@@ -162,8 +162,8 @@ export class FsFileStorageAdapter
     }
 
     async getBytes(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<Uint8Array | null> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -178,19 +178,15 @@ export class FsFileStorageAdapter
     }
 
     async getMetaData(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<FileAdapterMetadata | null> {
         try {
             const normalizeKey = this.normalizeKey(key);
             const stat = await fs.stat(normalizeKey);
-            let contentType = lookup(key);
-            if (contentType === false) {
-                contentType = "application/octet-stream";
-            }
             return {
                 etag: etag(stat),
-                contentType,
+                contentType: null,
                 fileSizeInBytes: stat.size,
                 updatedAt: stat.mtime,
             } satisfies FileAdapterMetadata;
@@ -203,9 +199,9 @@ export class FsFileStorageAdapter
     }
 
     async add(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -222,9 +218,9 @@ export class FsFileStorageAdapter
     }
 
     async addStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -242,9 +238,9 @@ export class FsFileStorageAdapter
     }
 
     async update(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -262,9 +258,9 @@ export class FsFileStorageAdapter
     }
 
     async updateStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeKey = this.normalizeKey(key);
@@ -282,9 +278,9 @@ export class FsFileStorageAdapter
     }
 
     async put(
-        _context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const normalizeKey = this.normalizeKey(key);
         const isFound = await FsFileStorageAdapter.isFileFound(normalizeKey);
@@ -293,9 +289,9 @@ export class FsFileStorageAdapter
     }
 
     async putStream(
-        _context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const normalizeKey = this.normalizeKey(key);
         const isFound = await FsFileStorageAdapter.isFileFound(normalizeKey);
@@ -304,10 +300,10 @@ export class FsFileStorageAdapter
         return isFound;
     }
 
-    async copy(
-        _context: IReadableContext,
+    private async _copy(
         source: string,
         destination: string,
+        _context: IReadableContext,
     ): Promise<FileWriteEnum> {
         try {
             const normalizeSource = this.normalizeKey(source);
@@ -331,10 +327,18 @@ export class FsFileStorageAdapter
         }
     }
 
-    async copyAndReplace(
-        _context: IReadableContext,
+    async copy(
         source: string,
         destination: string,
+        context: IReadableContext,
+    ): Promise<FileWriteEnum> {
+        return this._copy(source, destination, context);
+    }
+
+    private async _copyAndReplace(
+        source: string,
+        destination: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         try {
             const normalizeSource = this.normalizeKey(source);
@@ -350,35 +354,15 @@ export class FsFileStorageAdapter
         }
     }
 
-    async move(
-        context: IReadableContext,
+    async copyAndReplace(
         source: string,
         destination: string,
-    ): Promise<FileWriteEnum> {
-        const result = await this.copy(context, source, destination);
-        if (result === FILE_WRITE_ENUM.SUCCESS) {
-            await this.removeMany(context, [source]);
-        }
-        return result;
-    }
-
-    async moveAndReplace(
         context: IReadableContext,
-        source: string,
-        destination: string,
     ): Promise<boolean> {
-        const hasMoved = await this.copyAndReplace(
-            context,
-            source,
-            destination,
-        );
-        if (hasMoved) {
-            await this.removeMany(context, [source]);
-        }
-        return hasMoved;
+        return this._copyAndReplace(source, destination, context);
     }
 
-    async removeMany(
+    private async _removeMany(
         _context: IReadableContext,
         keys: Array<string>,
     ): Promise<boolean> {
@@ -408,9 +392,44 @@ export class FsFileStorageAdapter
         return false;
     }
 
+    async move(
+        source: string,
+        destination: string,
+        context: IReadableContext,
+    ): Promise<FileWriteEnum> {
+        const result = await this._copy(source, destination, context);
+        if (result === FILE_WRITE_ENUM.SUCCESS) {
+            await this._removeMany(context, [source]);
+        }
+        return result;
+    }
+
+    async moveAndReplace(
+        source: string,
+        destination: string,
+        context: IReadableContext,
+    ): Promise<boolean> {
+        const hasMoved = await this.copyAndReplace(
+            source,
+            destination,
+            context,
+        );
+        if (hasMoved) {
+            await this._removeMany(context, [source]);
+        }
+        return hasMoved;
+    }
+
+    async removeMany(
+        keys: Array<string>,
+        context: IReadableContext,
+    ): Promise<boolean> {
+        return this._removeMany(context, keys);
+    }
+
     async removeByPrefix(
-        _context: IReadableContext,
         prefix: string,
+        _context: IReadableContext,
     ): Promise<void> {
         const encodedFiles = await fs.readdir(normalize(this.location), {
             recursive: true,

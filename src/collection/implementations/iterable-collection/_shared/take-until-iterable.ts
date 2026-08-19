@@ -2,11 +2,12 @@
  * @module Collection
  */
 
-import {
-    type PredicateInvokable,
-    type ICollection,
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    PredicateInvocable,
+    ICollection,
 } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -14,13 +15,13 @@ import { resolveInvokable } from "@/utilities/_module.js";
 export class TakeUntilIterable<TInput> implements Iterable<TInput> {
     constructor(
         private collection: ICollection<TInput>,
-        private predicateFn: PredicateInvokable<TInput, ICollection<TInput>>,
+        private predicateFn: PredicateInvocable<TInput, ICollection<TInput>>,
     ) {}
 
     *[Symbol.iterator](): Iterator<TInput> {
         for (const [index, item] of this.collection.entries()) {
             if (
-                resolveInvokable(this.predicateFn)(item, index, this.collection)
+                resolveInvocable(this.predicateFn)(item, index, this.collection)
             ) {
                 break;
             }

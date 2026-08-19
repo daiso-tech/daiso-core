@@ -2,16 +2,17 @@
  * @module SharedLock
  */
 
-import { type Redis, type Result } from "ioredis";
-
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISharedLockAdapter,
-    type ISharedLockAdapterState,
-    type SharedLockAcquireSettings,
-} from "@/shared-lock/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import { UnexpectedError } from "@/utilities/errors.js";
+
+import type { Redis, Result } from "ioredis";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISharedLockAdapter,
+    ISharedLockAdapterState,
+    SharedLockAcquireSettings,
+} from "@/shared-lock/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * @internal
@@ -41,32 +42,32 @@ declare module "ioredis" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     interface RedisCommander<Context> {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_acquire_writer(
+        eridu_shared_lock_acquire_writer(
             key: string,
             lockId: string,
             expiration: number | null,
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_release_writer(
+        eridu_shared_lock_release_writer(
             key: string,
             lockId: string,
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_refresh_writer(
+        eridu_shared_lock_refresh_writer(
             key: string,
             lockId: string,
             expiration: number,
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_force_release_writer(
+        eridu_shared_lock_force_release_writer(
             key: string,
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_acquire_reader(
+        eridu_shared_lock_acquire_reader(
             key: string,
             lockId: string,
             limit: number,
@@ -75,14 +76,14 @@ declare module "ioredis" {
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_release_reader(
+        eridu_shared_lock_release_reader(
             key: string,
             lockId: string,
             now: number,
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_refresh_reader(
+        eridu_shared_lock_refresh_reader(
             key: string,
             lockId: string,
             expiration: number,
@@ -90,13 +91,13 @@ declare module "ioredis" {
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_force_release_all_readers(
+        eridu_shared_lock_force_release_all_readers(
             key: string,
             now: number,
         ): Result<1 | 0, Context>;
 
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_force_release(
+        eridu_shared_lock_force_release(
             key: string,
             now: number,
         ): Result<1 | 0, Context>;
@@ -105,7 +106,7 @@ declare module "ioredis" {
          * Returns {@link IRedisJsonSharedLockState | `IRedisJsonSharedLockState | null`} as json string.
          */
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        daiso_shared_lock_get_state(
+        eridu_shared_lock_get_state(
             key: string,
             now: number,
         ): Result<string, Context>;
@@ -117,14 +118,14 @@ declare module "ioredis" {
  *
  * Note in order to use `RedisSharedLockAdapter` correctly, ensure you use a single, consistent database across all server instances.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/redis-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/redis-shared-lock-adapter"`
  * @group Adapters
  */
 export class RedisSharedLockAdapter implements ISharedLockAdapter {
     /**
      * @example
      * ```ts
-     * import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
+     * import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
      * import Redis from "ioredis";
      *
      * const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -132,11 +133,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
      * ```
      */
     constructor(private readonly database: Redis) {
-        this.initAquireWriterCommand();
+        this.initAcquireWriterCommand();
         this.initReleaseWriterCommand();
         this.initRefreshWriterCommand();
         this.initForceReleaseWriterCommand();
-        this.initAquireReaderCommand();
+        this.initAcquireReaderCommand();
         this.initReleaseReaderCommand();
         this.initRefreshReaderCommand();
         this.initForceReleaseAllReadersCommand();
@@ -160,14 +161,14 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         `;
     }
 
-    private initAquireWriterCommand(): void {
+    private initAcquireWriterCommand(): void {
         if (
-            typeof this.database.daiso_shared_lock_acquire_writer === "function"
+            typeof this.database.eridu_shared_lock_acquire_writer === "function"
         ) {
             return;
         }
 
-        this.database.defineCommand("daiso_shared_lock_acquire_writer", {
+        this.database.defineCommand("eridu_shared_lock_acquire_writer", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -199,11 +200,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
 
     private initReleaseWriterCommand(): void {
         if (
-            typeof this.database.daiso_shared_lock_release_writer === "function"
+            typeof this.database.eridu_shared_lock_release_writer === "function"
         ) {
             return;
         }
-        this.database.defineCommand("daiso_shared_lock_release_writer", {
+        this.database.defineCommand("eridu_shared_lock_release_writer", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -233,11 +234,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
 
     private initRefreshWriterCommand(): void {
         if (
-            typeof this.database.daiso_shared_lock_refresh_writer === "function"
+            typeof this.database.eridu_shared_lock_refresh_writer === "function"
         ) {
             return;
         }
-        this.database.defineCommand("daiso_shared_lock_refresh_writer", {
+        this.database.defineCommand("eridu_shared_lock_refresh_writer", {
             numberOfKeys: 1,
             lua: `
                 -- Arguments
@@ -291,12 +292,12 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
 
     private initForceReleaseWriterCommand(): void {
         if (
-            typeof this.database.daiso_shared_lock_force_release_writer ===
+            typeof this.database.eridu_shared_lock_force_release_writer ===
             "function"
         ) {
             return;
         }
-        this.database.defineCommand("daiso_shared_lock_force_release_writer", {
+        this.database.defineCommand("eridu_shared_lock_force_release_writer", {
             numberOfKeys: 1,
             lua: `
                 -- Arguments
@@ -410,14 +411,14 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         `;
     }
 
-    private initAquireReaderCommand(): void {
+    private initAcquireReaderCommand(): void {
         if (
-            typeof this.database.daiso_shared_lock_acquire_reader === "function"
+            typeof this.database.eridu_shared_lock_acquire_reader === "function"
         ) {
             return;
         }
 
-        this.database.defineCommand("daiso_shared_lock_acquire_reader", {
+        this.database.defineCommand("eridu_shared_lock_acquire_reader", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -462,12 +463,12 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
 
     private initReleaseReaderCommand(): void {
         if (
-            typeof this.database.daiso_shared_lock_release_reader === "function"
+            typeof this.database.eridu_shared_lock_release_reader === "function"
         ) {
             return;
         }
 
-        this.database.defineCommand("daiso_shared_lock_release_reader", {
+        this.database.defineCommand("eridu_shared_lock_release_reader", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -502,11 +503,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
 
     private initRefreshReaderCommand(): void {
         if (
-            typeof this.database.daiso_shared_lock_refresh_reader === "function"
+            typeof this.database.eridu_shared_lock_refresh_reader === "function"
         ) {
             return;
         }
-        this.database.defineCommand("daiso_shared_lock_refresh_reader", {
+        this.database.defineCommand("eridu_shared_lock_refresh_reader", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -592,13 +593,13 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
 
     private initForceReleaseAllReadersCommand(): void {
         if (
-            typeof this.database.daiso_shared_lock_force_release_all_readers ===
+            typeof this.database.eridu_shared_lock_force_release_all_readers ===
             "function"
         ) {
             return;
         }
         this.database.defineCommand(
-            "daiso_shared_lock_force_release_all_readers",
+            "eridu_shared_lock_force_release_all_readers",
             {
                 numberOfKeys: 1,
                 lua: `
@@ -615,11 +616,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
 
     private initForceReleaseCommand(): void {
         if (
-            typeof this.database.daiso_shared_lock_force_release === "function"
+            typeof this.database.eridu_shared_lock_force_release === "function"
         ) {
             return;
         }
-        this.database.defineCommand("daiso_shared_lock_force_release", {
+        this.database.defineCommand("eridu_shared_lock_force_release", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -704,11 +705,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     private initGetStateCommand(): void {
-        if (typeof this.database.daiso_shared_lock_get_state === "function") {
+        if (typeof this.database.eridu_shared_lock_get_state === "function") {
             return;
         }
 
-        this.database.defineCommand("daiso_shared_lock_get_state", {
+        this.database.defineCommand("eridu_shared_lock_get_state", {
             numberOfKeys: 1,
             lua: `
                 local key = KEYS[1];
@@ -732,12 +733,12 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async acquireWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_shared_lock_acquire_writer(
+        const result = await this.database.eridu_shared_lock_acquire_writer(
             key,
             lockId,
             ttl?.toEndDate().getTime() ?? null,
@@ -746,11 +747,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async releaseWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_shared_lock_release_writer(
+        const result = await this.database.eridu_shared_lock_release_writer(
             key,
             lockId,
         );
@@ -758,12 +759,12 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async refreshWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_shared_lock_refresh_writer(
+        const result = await this.database.eridu_shared_lock_refresh_writer(
             key,
             lockId,
             ttl.toEndDate().getTime(),
@@ -772,17 +773,17 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async forceReleaseWriter(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result =
-            await this.database.daiso_shared_lock_force_release_writer(key);
+            await this.database.eridu_shared_lock_force_release_writer(key);
         return result === 1;
     }
 
     async acquireReader(settings: SharedLockAcquireSettings): Promise<boolean> {
         const { key, lockId, limit, ttl } = settings;
-        const result = await this.database.daiso_shared_lock_acquire_reader(
+        const result = await this.database.eridu_shared_lock_acquire_reader(
             key,
             lockId,
             limit,
@@ -793,11 +794,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async releaseReader(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_shared_lock_release_reader(
+        const result = await this.database.eridu_shared_lock_release_reader(
             key,
             lockId,
             Date.now(),
@@ -806,12 +807,12 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async refreshReader(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_shared_lock_refresh_reader(
+        const result = await this.database.eridu_shared_lock_refresh_reader(
             key,
             lockId,
             ttl.toEndDate().getTime(),
@@ -821,11 +822,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async forceReleaseAllReaders(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const result =
-            await this.database.daiso_shared_lock_force_release_all_readers(
+            await this.database.eridu_shared_lock_force_release_all_readers(
                 key,
                 Date.now(),
             );
@@ -833,10 +834,10 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async forceRelease(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
-        const result = await this.database.daiso_shared_lock_force_release(
+        const result = await this.database.eridu_shared_lock_force_release(
             key,
             Date.now(),
         );
@@ -844,11 +845,11 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISharedLockAdapterState | null> {
         const json = JSON.parse(
-            await this.database.daiso_shared_lock_get_state(key, Date.now()),
+            await this.database.eridu_shared_lock_get_state(key, Date.now()),
         ) as IRedisJsonSharedLockState | null;
         if (json === null) {
             return null;

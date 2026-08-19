@@ -4,7 +4,8 @@ import { contextToken } from "@/execution-context/contracts/execution-context.co
 import { NotFoundExecutionContextError } from "@/execution-context/contracts/execution-context.errors.js";
 import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/als-execution-context-adapter.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/execution-context/execution-context.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+
+import type { InvocableFn } from "@/utilities/_module.js";
 
 describe("class: ExecutionContext", () => {
     let context: ExecutionContext;
@@ -832,7 +833,7 @@ describe("class: ExecutionContext", () => {
     });
 
     describe("method: when", () => {
-        test("Should execute invokable when condition is true", () => {
+        test("Should execute invocable when condition is true", () => {
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -843,7 +844,7 @@ describe("class: ExecutionContext", () => {
             expect(result).toBe(42);
         });
 
-        test("Should not execute invokable when condition is false", () => {
+        test("Should not execute invocable when condition is false", () => {
             const token = contextToken<number>("counter");
 
             const result = context.run(() => {
@@ -875,7 +876,7 @@ describe("class: ExecutionContext", () => {
             expect(result).toEqual({ evaluated: true, value: 100 });
         });
 
-        test("Should execute multiple invokables in sequence", () => {
+        test("Should execute multiple invocables in sequence", () => {
             const token1 = contextToken<number>("count1");
             const token2 = contextToken<number>("count2");
 
@@ -897,7 +898,7 @@ describe("class: ExecutionContext", () => {
     });
 
     describe("method: run", () => {
-        test("Should execute invokable and return its value", () => {
+        test("Should execute invocable and return its value", () => {
             const result = context.run(() => 42);
 
             expect(result).toBe(42);
@@ -1286,7 +1287,7 @@ describe("class: ExecutionContext", () => {
             });
         });
 
-        test("Should pass context to each invokable", () => {
+        test("Should pass context to each invocable", () => {
             const token = contextToken<number>("count");
 
             context.run(() => {
@@ -1716,7 +1717,7 @@ describe("class: ExecutionContext", () => {
             test("Binds within nested run context", () => {
                 const token = contextToken<number>("value");
 
-                let boundFn = null as InvokableFn<[], number | null> | null;
+                let boundFn = null as InvocableFn<[], number | null> | null;
 
                 context.run(() => {
                     context.put(token, 100);
@@ -1761,7 +1762,7 @@ describe("class: ExecutionContext", () => {
             test("Captures proper snapshot in deeply nested contexts", () => {
                 const token = contextToken<number>("value");
 
-                let capturedBound = null as InvokableFn<
+                let capturedBound = null as InvocableFn<
                     [],
                     number | null
                 > | null;
@@ -2247,7 +2248,7 @@ describe("class: ExecutionContext", () => {
                     return context;
                 });
 
-                // Invokable was not called because not in run context
+                // Invocable was not called because not in run context
                 expect(invoked).toBe(false);
                 expect(context.get(token)).toBeNull();
             });
@@ -2261,7 +2262,7 @@ describe("class: ExecutionContext", () => {
                     return context;
                 });
 
-                // Invokable was not called (expected)
+                // Invocable was not called (expected)
                 expect(invoked).toBe(false);
                 expect(context.get(token)).toBeNull();
             });

@@ -2,23 +2,22 @@
  * @module BackoffPolicy
  */
 
-import {
-    type BackoffPolicy,
-    type DynamicBackoffPolicy,
-} from "@/backoff-policies/contracts/_module.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/_module.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable, isInvokable, withJitter } from "@/utilities/_module.js";
+import { callInvocable, isInvocable, withJitter } from "@/utilities/_module.js";
+
+import type {
+    BackoffPolicy,
+    DynamicBackoffPolicy,
+} from "@/backoff-policies/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * Configuration for the constant backoff policy.
  * Each retry waits for the same fixed `delay`, optionally randomised by a jitter
  * factor to spread out thundering-herd retries across multiple clients.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  * @group Implementations
  */
@@ -27,7 +26,7 @@ export type ConstantBackoffSettings = {
      * Fixed wait duration applied between every retry attempt.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(1)
      * ```
@@ -77,15 +76,15 @@ export function resolveConstantBackoffSettings(
 /**
  * Constant backoff policy with jitter
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export function constantBackoff(
     settings: DynamicBackoffPolicy<ConstantBackoffSettings> = {},
 ): BackoffPolicy {
     return (_attempt, error) => {
-        if (isInvokable(settings)) {
-            const dynamicSettings = callInvokable(settings, error);
+        if (isInvocable(settings)) {
+            const dynamicSettings = callInvocable(settings, error);
             if (dynamicSettings === undefined) {
                 settings = {};
             } else {

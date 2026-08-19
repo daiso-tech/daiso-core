@@ -2,25 +2,24 @@
  * @module RateLimiter
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type RateLimiterBlockedState } from "@/rate-limiter/contracts/rate-limiter-state.contract.js";
-import { type InferInstance } from "@/utilities/_module.js";
+import type { RateLimiterBlockedState } from "@/rate-limiter/contracts/rate-limiter-state.contract.js";
+import type { InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error is throw when rate limiter blocks the attempts.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Errors
  */
 export class BlockedRateLimiterError extends Error {
     static create(
         state: Omit<RateLimiterBlockedState, "type">,
-        key: IKey,
+        key: string,
         cause?: unknown,
     ): BlockedRateLimiterError {
         return new BlockedRateLimiterError(
             state,
-            `Rate limiter for key "${key.get()}" is blocked. All calls are being blocked until wait time is reached.`,
+            `Rate limiter for key "${key}" is blocked. All calls are being blocked until wait time is reached.`,
             cause,
         );
     }
@@ -41,7 +40,7 @@ export class BlockedRateLimiterError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Errors
  */
 export const RATE_LIMITER_ERRORS = {
@@ -49,7 +48,7 @@ export const RATE_LIMITER_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Errors
  */
 export type AllRateLimiterErrors = InferInstance<
@@ -57,7 +56,7 @@ export type AllRateLimiterErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Errors
  */
 export function isRateLimiterError(

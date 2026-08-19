@@ -2,22 +2,24 @@
  * @module CircuitBreaker
  */
 
-import { MysqlAdapter, Transaction, type Kysely } from "kysely";
+import { MysqlAdapter } from "kysely";
 
-import {
-    type ICircuitBreakerStorageAdapter,
-    type ICircuitBreakerStorageAdapterTransaction,
+import type { Kysely } from "kysely";
+
+import type {
+    ICircuitBreakerStorageAdapter,
+    ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvokableFn,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type KyselyCircuitBreakerStorageTable = {
@@ -26,7 +28,7 @@ export type KyselyCircuitBreakerStorageTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type KyselyCircuitBreakerStorageTables = {
@@ -38,7 +40,7 @@ export type KyselyCircuitBreakerStorageTables = {
  * Requires a Kysely database instance typed with the circuit-breaker storage schema.
  * Call `init()` to create the storage table when it has not already been provisioned.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type KyselyCircuitBreakerStorageAdapterSettings = {
@@ -50,16 +52,6 @@ export type KyselyCircuitBreakerStorageAdapterSettings = {
      * Serde instance for serializing and deserializing circuit-breaker state to and from strings.
      */
     serde: ISerde<string>;
-
-    /**
-     * @default
-     * ```ts
-     * import { Transaction } from "kysely"
-     *
-     * !(settings.kysely instanceof Transaction)
-     * ```
-     */
-    enableTransactions?: boolean;
 };
 
 /**
@@ -83,9 +75,9 @@ async function find<TType>(
 /**
  * @internal
  */
-class KyselyCircuitBreakerStorageAdapterTransaction<TType = unknown>
-    implements ICircuitBreakerStorageAdapterTransaction<TType>
-{
+class KyselyCircuitBreakerStorageAdapterTransaction<
+    TType = unknown,
+> implements ICircuitBreakerStorageAdapterTransaction<TType> {
     private readonly kysely: Kysely<KyselyCircuitBreakerStorageTables>;
     private readonly serde: ISerde<string>;
     private readonly isMysql: boolean;
@@ -100,9 +92,9 @@ class KyselyCircuitBreakerStorageAdapterTransaction<TType = unknown>
     }
 
     async upsert(
-        _context: IReadableContext,
         key: string,
         state: TType,
+        _context: IReadableContext,
     ): Promise<void> {
         const serializedState = this.serde.serialize(state);
         await this.kysely
@@ -126,7 +118,7 @@ class KyselyCircuitBreakerStorageAdapterTransaction<TType = unknown>
             .execute();
     }
 
-    async find(_context: IReadableContext, key: string): Promise<TType | null> {
+    async find(key: string, _context: IReadableContext): Promise<TType | null> {
         return find(key, {
             serde: this.serde,
             kysely: this.kysely,
@@ -140,7 +132,7 @@ class KyselyCircuitBreakerStorageAdapterTransaction<TType = unknown>
  * Note in order to use `KyselyCircuitBreakerStorageAdapter` correctly, you need to use a database that has support for transactions.
  * The adapter have been tested with `sqlite`, `postgres` and `mysql` databases.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export class KyselyCircuitBreakerStorageAdapter<TType>
@@ -148,14 +140,13 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
 {
     private readonly kysely: Kysely<KyselyCircuitBreakerStorageTables>;
     private readonly serde: ISerde<string>;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
      * ```ts
-     * import { KyselyCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/kysely-circuit-breaker-storage-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { KyselyCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
@@ -173,28 +164,20 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
      * ```
      */
     constructor(settings: KyselyCircuitBreakerStorageAdapterSettings) {
-        const {
-            kysely,
-            serde,
-            enableTransactions = !(settings.kysely instanceof Transaction),
-        } = settings;
+        const { kysely, serde } = settings;
 
         this.kysely = kysely;
         this.serde = serde;
-        this.enableTransactions = enableTransactions;
     }
     private _transaction<TValue>(
-        trxFn: InvokableFn<
+        trxFn: InvocableFn<
             [trx: Kysely<KyselyCircuitBreakerStorageTables>],
             Promise<TValue>
         >,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return this.kysely.transaction().execute(async (trx) => {
-                return await trxFn(trx);
-            });
-        }
-        return trxFn(this.kysely);
+        return this.kysely.transaction().execute(async (trx) => {
+            return await trxFn(trx);
+        });
     }
 
     /**
@@ -230,11 +213,11 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await this._transaction(async (trx) => {
             return await fn(
@@ -246,14 +229,14 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
         });
     }
 
-    async find(_context: IReadableContext, key: string): Promise<TType | null> {
+    async find(key: string, _context: IReadableContext): Promise<TType | null> {
         return find(key, {
             serde: this.serde,
             kysely: this.kysely,
         });
     }
 
-    async remove(_context: IReadableContext, key: string): Promise<void> {
+    async remove(key: string, _context: IReadableContext): Promise<void> {
         await this.kysely
             .deleteFrom("circuitBreaker")
             .where("circuitBreaker.key", "=", key)

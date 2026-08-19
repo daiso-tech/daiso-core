@@ -1,16 +1,17 @@
 /**
  * @module Collection
  */
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
 import { validate, ValidationError } from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 /**
  * @internal
  */
-export class AsyncValidateIterable<TInput, TOutput>
-    implements AsyncIterable<TOutput>
-{
+export class AsyncValidateIterable<
+    TInput,
+    TOutput,
+> implements AsyncIterable<TOutput> {
     constructor(
         private readonly iterable: AsyncIterable<TInput>,
         private readonly schema: StandardSchemaV1<TInput, TOutput>,

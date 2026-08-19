@@ -5,14 +5,17 @@
 import { SuperJSON } from "superjson";
 
 import {
-    type ISerdeTransformerAdapter,
-    type IFlexibleSerdeAdapter,
     DeserializationSerdeError,
     SerializationSerdeError,
 } from "@/serde/contracts/_module.js";
 
+import type {
+    ISerdeTransformerAdapter,
+    IFlexibleSerdeAdapter,
+} from "@/serde/contracts/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/serde/super-json-serde-adapter"`
+ * IMPORT_PATH: `"eridu-tech/serde/super-json-serde-adapter"`
  * @group Adapters
  */
 export class SuperJsonSerdeAdapter implements IFlexibleSerdeAdapter<string> {

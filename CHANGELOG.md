@@ -1,5 +1,823 @@
 # @daiso-tech/core
 
+## 0.58.0
+
+### Minor Changes
+
+- bbfafec: ## Cache adapter API simplification
+
+    Simplified the `ICacheAdapter` contract by removing the `removeAll` method and renaming `removeByKeyPrefix` to `removeByPrefix`.
+
+    ### What changed
+    - **Removed** `ICacheAdapter.removeAll(context)`.
+    - **Renamed** `ICacheAdapter.removeByKeyPrefix(prefix, context)` to `ICacheAdapter.removeByPrefix(prefix, context)`.
+    - Calling `removeByPrefix` with an empty string prefix (`""`) now clears the entire cache, which replaces the removed `removeAll` method.
+
+    ### Migration
+    - Replace calls to `removeAll(context)` with `removeByPrefix("", context)`.
+    - Rename any calls to `removeByKeyPrefix(prefix, context)` to `removeByPrefix(prefix, context)`.
+    - If you maintain a custom implementation of `ICacheAdapter`, update it to the new contract and remove the `removeAll` method.
+
+## 0.57.4
+
+### Patch Changes
+
+- 95bc7f2: Changed all type-only imports to the top-level `import type` form and adjusted the ESLint config accordingly, so the compiled output no longer emits runtime side-effect imports for type-only packages like `@standard-schema/spec` (fixes `ERR_MODULE_NOT_FOUND` for consumers).
+
+## 0.57.3
+
+### Patch Changes
+
+- e513526: Updated dependency versions.
+
+    > **Minimum Node.js version is now `>=24`** — added via the `engines` field in `package.json`. Ensure your runtime uses Node.js 24 or newer.
+
+    **dependencies**
+
+    | Package     | From      | To        |
+    | ----------- | --------- | --------- |
+    | `superjson` | `^2.2.2`  | `^2.2.6`  |
+    | `type-fest` | `^5.6.0`  | `^5.8.0`  |
+    | `uuid`      | `^11.0.5` | `^14.0.1` |
+
+    **peerDependencies**
+
+    | Package   | From      | To        |
+    | --------- | --------- | --------- |
+    | `ioredis` | `^5.0.0`  | `^6.0.0`  |
+    | `kysely`  | `^0.28.0` | `^0.29.4` |
+    | `mongodb` | `^6.0.0`  | `^7.5.0`  |
+
+    **devDependencies**
+
+    | Package                            | From        | To          |
+    | ---------------------------------- | ----------- | ----------- |
+    | `@aws-sdk/client-s3`               | `^3.1011.0` | `^3.1102.0` |
+    | `@aws-sdk/s3-request-presigner`    | `^3.1011.0` | `^3.1102.0` |
+    | `@changesets/cli`                  | `^2.27.7`   | `^2.31.1`   |
+    | `@standard-schema/spec`            | `^1.0.0`    | `^1.1.0`    |
+    | `@testcontainers/minio`            | `^11.13.0`  | `^12.0.4`   |
+    | `@testcontainers/mongodb`          | `^10.13.2`  | `^12.0.4`   |
+    | `@testcontainers/mysql`            | `^11.0.0`   | `^12.0.4`   |
+    | `@testcontainers/postgresql`       | `^11.0.0`   | `^12.0.4`   |
+    | `@testcontainers/redis`            | `^10.13.2`  | `^12.0.4`   |
+    | `@types/better-sqlite3`            | `^7.6.13`   | `^9.6.0`    |
+    | `@types/node`                      | `^25.6.0`   | `^26.1.2`   |
+    | `@types/pg`                        | `^8.15.4`   | `^8.20.3`   |
+    | `@types/uuid`                      | `^10.0.0`   | `^11.0.0`   |
+    | `@typescript-eslint/eslint-plugin` | `^8.1.0`    | `^8.66.0`   |
+    | `@typescript-eslint/parser`        | `^8.1.0`    | `^8.66.0`   |
+    | `better-sqlite3`                   | `^12.5.0`   | `^13.0.2`   |
+    | `commitizen`                       | `^4.3.1`    | `^4.3.2`    |
+    | `execa`                            | — (new)     | `^10.0.1`   |
+    | `hono`                             | `^4.12.26`  | `^4.13.0`   |
+    | `ioredis`                          | `^5.4.1`    | `^6.0.0`    |
+    | `kysely`                           | `^0.28.2`   | `^0.29.4`   |
+    | `mongodb`                          | `^6.10.0`   | `^7.5.0`    |
+    | `mysql2`                           | `^3.14.1`   | `^3.23.2`   |
+    | `pg`                               | `^8.16.0`   | `^8.22.0`   |
+    | `publint`                          | `^0.3.8`    | `^0.3.22`   |
+    | `rimraf`                           | `^6.0.1`    | `^6.1.3`    |
+    | `testcontainers`                   | `^11.13.0`  | `^12.0.4`   |
+    | `tsc-alias`                        | `^1.8.10`   | `^1.9.1`    |
+    | `tsx`                              | `^4.21.0`   | `^4.23.5`   |
+    | `typedoc`                          | `^0.27.1`   | `^0.28.20`  |
+    | `typedoc-plugin-merge-modules`     | `^6.1.0`    | `^7.0.0`    |
+    | `typescript`                       | `^5.5.4`    | `^6.0.3`    |
+    | `vite-tsconfig-paths`              | `^4.3.2`    | `^6.1.1`    |
+    | `vitest`                           | `^3.0.2`    | `^4.1.10`   |
+    | `zod`                              | `^3.25.49`  | `^4.4.3`    |
+
+## 0.57.2
+
+### Patch Changes
+
+- 50d8345: First release under the new package name
+
+## 0.57.1
+
+### Patch Changes
+
+- 121c86c: Updated readme
+
+## 0.57.0
+
+### Minor Changes
+
+- f04a94b: Renamed `IInvokableObject` to `IInvocableObject` type
+  Renamed `InvokableFn` to `InvocableFn` type
+  Renamed `Invokable` to `Invocable` type
+- dc2a537: ## Simplified Database Adapter Settings
+
+    Removed the `enableTransactions`, `shouldRemoveExpiredKeys`, and `expiredKeysRemovalInterval` settings from all database-backed adapters. Database operations are now always wrapped in a transaction, and the built-in background cleanup of expired records has been removed.
+
+    ### What changed
+
+    **Removed `enableTransactions` from:**
+
+    - `KyselyCacheAdapter`
+    - `KyselyCircuitBreakerStorageAdapter`
+    - `KyselyLockAdapter`
+    - `KyselyRateLimiterStorageAdapter`
+    - `KyselySemaphoreAdapter`
+    - `KyselySharedLockAdapter`
+    - `MongodbCircuitBreakerStorageAdapter`
+    - `MongodbRateLimiterStorageAdapter`
+
+    Every operation is now always executed inside a database transaction (with `serializable` isolation for the Kysely lock, semaphore, and shared-lock adapters), which matches the previous default behavior.
+
+    **Removed `shouldRemoveExpiredKeys` and `expiredKeysRemovalInterval` from:**
+
+    - `KyselyCacheAdapter`
+    - `KyselyLockAdapter`
+    - `KyselyRateLimiterStorageAdapter`
+    - `KyselySemaphoreAdapter`
+    - `KyselySharedLockAdapter`
+
+    The background task that periodically removed expired records is no longer started automatically.
+
+    ### Migration
+    - Remove any `enableTransactions`, `shouldRemoveExpiredKeys`, or `expiredKeysRemovalInterval` options from adapter settings — they are no longer accepted.
+    - If you relied on automatic expired-key cleanup, schedule `removeAllExpired()` yourself (e.g. with a cron job or `setInterval`), as the adapters no longer run it in the background.
+
+## 0.56.0
+
+### Minor Changes
+
+- 12a2908: ## Execution Context Integration for All Adapters
+
+    All adapter contracts across `Cache`, `CircuitBreaker`, `EventBus`, `FileStorage`, `Lock`, `RateLimiter`, `Semaphore`, and `SharedLock` now accept an `IReadableContext` parameter as the last argument on every method. This enables passing execution-scoped metadata — such as request IDs, tenant IDs, correlation tokens, or authentication context — through the adapter layer without adding framework-specific coupling.
+
+    ### Motivation
+
+    Previously, adapter methods had no standard mechanism to receive execution-scoped metadata. Users who needed to propagate context (e.g., for logging, tracing, or tenant isolation) had to implement workarounds such as storing context in closures, using global state, or threading custom parameters through non-standard extensions.
+
+    By adding `context: IReadableContext` as the final parameter on all adapter methods, the execution context becomes a first-class citizen of the adapter contract. This follows the dependency inversion principle — adapters depend on the abstract `IReadableContext` interface rather than any concrete context implementation, keeping them portable across environments.
+
+    ### Breaking Changes
+
+    **All adapter methods** across the following contracts now require `context: IReadableContext` as the last positional argument:
+
+    | Contract                 | Affected Methods                                                                                                                                                                                       |
+    | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+    | `ICacheAdapter`          | `get`, `getAndRemove`, `add`, `getOrAdd`, `put`, `update`, `increment`, `removeMany`, `removeAll`, `removeByKeyPrefix`                                                                                 |
+    | `ILockAdapter`           | `acquire`, `release`, `forceRelease`, `refresh`, `getState`                                                                                                                                            |
+    | `ICircuitBreakerAdapter` | `getState`, `trackFailure`, `trackSuccess`, `updateState`, `reset`, `isolate`                                                                                                                          |
+    | `IEventBusAdapter`       | `dispatch`, `addListener`, `removeListener`                                                                                                                                                            |
+    | `IFileStorageAdapter`    | `exists`, `getStream`, `getBytes`, `getMetaData`, `add`, `addStream`, `update`, `updateStream`, `put`, `putStream`, `copy`, `copyAndReplace`, `move`, `moveAndReplace`, `removeMany`, `removeByPrefix` |
+    | `IFileUrlAdapter`        | `getPublicUrl`, `getSignedDownloadUrl`, `getSignedUploadUrl`                                                                                                                                           |
+    | `IRateLimiterAdapter`    | `getState`, `reset`, `updateState`                                                                                                                                                                     |
+    | `ISemaphoreAdapter`      | `release`, `forceReleaseAll`, `refresh`, `getState`                                                                                                                                                    |
+    | `ISharedLockAdapter`     | `acquireWriter`, `releaseWriter`, `forceReleaseWriter`, `refreshWriter`, `releaseReader`, `forceReleaseAllReaders`, `refreshReader`, `forceRelease`, `getState`                                        |
+
+    **Note:** `ISemaphoreAdapter.acquire` and `ISharedLockAdapter.acquireReader` accept `context` via a settings object (`SemaphoreAcquireSettings` / `SharedLockAcquireSettings`) rather than as a positional argument, due to the number of parameters involved.
+
+    ### Migration
+
+    All call sites that invoke adapter methods directly must now pass a `context: IReadableContext` value as the last argument. In test environments, use `NoOpContext`:
+
+    ```diff
+    -import { NoOpContext } from "@daiso-tech/core/execution-context";
+    -
+    -const context = new NoOpContext();
+    -await adapter.get(context, "myKey");
+    +import { NoOpContext } from "@daiso-tech/core/execution-context";
+    +
+    +const context = new NoOpContext();
+    +await adapter.get("myKey", context);
+    ```
+
+    All built-in adapter implementations (`Redis*Adapter`, `Kysely*Adapter`, `Memory*Adapter`, `MongoDB*Adapter`, `NoOp*Adapter`) have already been updated to accept and propagate the context parameter.
+
+- 5c28ea2: ## Architectural Shift: Composable Cache Plugins
+
+    The cache module has undergone a significant architectural refactoring. Behaviours that were previously hard-coded into the `Cache` and `CacheResolver` implementations — schema validation, TTL jitter, and write-lock serialisation — have been extracted into standalone, composable plugins. The core `Cache` class is now a thin passthrough that delegates operations directly to the underlying `ICacheAdapter`, while optional capabilities are layered on via the middleware plugin system (`PluginFn`/`withPlugin`).
+
+    ### Motivation
+
+    The previous architecture baked cross-cutting concerns like schema validation, TTL jittering, and distributed write locking directly into the `Cache` and `CacheResolver` classes. This had several drawbacks:
+
+    - **Tight coupling**: Users who wanted only one feature (e.g., schema validation) still paid the overhead of the other features.
+    - **Difficult to extend**: Adding new cross-cutting behaviours required modifying the core `Cache` class, increasing complexity and risk.
+    - **No composability**: Behaviours could not be mixed, matched, or reordered independently.
+    - **Testing complexity**: Core cache tests had to account for all combined behaviours.
+
+    The new plugin-based architecture solves these problems by keeping the `Cache` class focused on a single responsibility — delegating to an `ICacheAdapter` — and providing each cross-cutting behaviour as an independent `PluginFn<ICacheAdapter>` that can be composed via `withPlugin(adapter, ...plugins)`.
+
+    ### Breaking Changes
+
+    **Removed from `CacheSettingsBase`:**
+
+    - `schema` — use the `withCacheSchema` plugin instead.
+    - `lockFactory` — use the `withCacheWriteLock` plugin instead.
+
+    **Removed types:**
+
+    - `CacheWriteSettings` — TTL is now passed as an inline `ITimeSpan | null` parameter on `add`, `put`, `getOrAdd`, and related methods.
+
+    **Changed API signatures:**
+
+    - `Cache` constructor no longer accepts `schema` or `lockFactory` settings.
+    - `CacheResolver` no longer carries schema or write-lock configuration.
+    - `ICache.getOrAdd` now accepts `ttl?: ITimeSpan | null` as its third parameter instead of a `CacheWriteSettings` object.
+
+    ### New Plugin-Based Capabilities
+
+    The following behaviours are no longer built into `Cache` or `CacheResolver`. They are available as opt-in plugins:
+
+    **`withCacheJitter`** — Adds random jitter to TTL values on `add` and `put` operations to help prevent cache stampedes (thundering-herd problems).
+
+    - Configurable via `defaultJitter` (default ±20 %).
+    - `WITHOUT` this plugin, TTLs are stored as-is — no jitter is applied.
+    - Import path: `@daiso-tech/core/cache/plugins`
+
+    **`withCacheSchema`** — Validates cache values against a `StandardSchemaV1`-compliant schema before storing (`add`, `put`, `update`) and optionally on retrieval (`get`, `getAndRemove`).
+
+    - Controlled via `shouldValidateOutput` (default `true`).
+    - `WITHOUT` this plugin, no schema validation occurs — any value type is accepted.
+    - Import path: `@daiso-tech/core/cache/plugins`
+
+    **`withCacheWriteLock`** — Acquires a distributed lock via `ILockFactory` before executing mutating cache operations (`add`, `put`, `update`, `increment`, `getAndRemove`, `removeMany`), ensuring concurrent writes to the same cache entry are serialised.
+
+    - The set of protected methods is configurable via `onlyMethods`.
+    - `WITHOUT` this plugin, concurrent writes proceed without locking — the adapter's own concurrency guarantees apply.
+    - Import path: `@daiso-tech/core/cache/plugins`
+
+    ### How the New Architecture Works
+
+    The `Cache` class has been simplified to a thin wrapper that:
+
+    1. Accepts an `ICacheAdapter` (optionally enhanced by plugins) via `CacheSettings.adapter`.
+    2. Delegates every operation (`get`, `add`, `put`, `update`, `increment`, `remove`, `clear`, etc.) directly to the adapter.
+    3. No longer performs schema validation, TTL jittering, or write-lock acquisition internally.
+
+    ### Migration
+
+    Users who relied on the previous built-in schema validation, TTL jitter, or write-lock behaviour must now explicitly compose the corresponding plugins.
+
+    | Previous behaviour                      | New requirement                                               |
+    | --------------------------------------- | ------------------------------------------------------------- |
+    | Schema validation on cache reads/writes | Apply `withCacheSchema({ schema })` to the adapter            |
+    | TTL jitter to prevent stampedes         | Apply `withCacheJitter({ defaultJitter })` to the adapter     |
+    | Distributed write locking               | Apply `withCacheWriteLock({ lockFactory })` to the adapter    |
+    | All three behaviours combined           | Apply all three plugins via `withPlugin(adapter, p1, p2, p3)` |
+
+    **Before (built-in behaviour):**
+
+    ```ts
+    const cache = new Cache({ adapter, schema: mySchema });
+    ```
+
+    **After (explicit plugin composition):**
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { withCacheSchema } from "@daiso-tech/core/cache/plugins";
+
+    const adapter = withPlugin(
+        new MemoryCacheAdapter(),
+        withCacheSchema({ schema: mySchema }),
+    );
+    const cache = new Cache({ adapter });
+    ```
+
+    If you do not apply any plugins, the cache behaves as a pure passthrough — no validation, no jitter, no locking. This reduces overhead when these features are not needed.
+
+- 2467757: ## Architectural Shift: Composable EventBus Plugins
+
+    The event-bus module has undergone a significant architectural refactoring. Schema validation that was previously hard-coded into the `EventBus` class has been extracted into a standalone, composable plugin. The core `EventBus` class is now a thin passthrough that delegates operations directly to the underlying `IEventBusAdapter`, while optional capabilities are layered on via the middleware plugin system (`PluginFn`/`withPlugin`).
+
+    ### Motivation
+
+    The previous architecture baked schema validation directly into the `EventBus` and `EventBusResolver` classes. This had several drawbacks:
+
+    - **Tight coupling**: Users who didn't need schema validation still paid the overhead of importing the validation infrastructure.
+    - **Difficult to extend**: Adding new cross-cutting behaviours (such as event name prefixing) required modifying the core `EventBus` class.
+    - **No composability**: Behaviours could not be mixed, matched, or reordered independently.
+    - **Testing complexity**: Core EventBus tests had to account for all combined validation scenarios.
+
+    The new plugin-based architecture solves these problems by keeping the `EventBus` class focused on a single responsibility — delegating to an `IEventBusAdapter` — and providing each cross-cutting behaviour as an independent `PluginFn<IEventBusAdapter>` that can be composed via `withPlugin(adapter, ...plugins)`.
+
+    ### Breaking Changes
+
+    **Removed from `EventBus` class:**
+
+    - `EventBusSettings` and `EventBusSettingsBase` no longer accept `eventMapSchema` or `shouldValidateOutput`. These are now configured via the `withEventBusSchema` plugin.
+    - `EventBusSettings` is no longer generic over `TEventMap` — the constructor signature is now `constructor(settings: EventBusSettings)` instead of `constructor(settings: EventBusSettings<TEventMap>)`.
+
+    **Removed from `EventBusResolver` class:**
+
+    - `EventBusResolverSettings` no longer accepts the `TEventMap` generic parameter — simplified to `EventBusResolverSettings<TAdapters>`.
+    - The `setEventMapSchema()` method has been removed. Use the `withEventBusSchema` plugin instead.
+
+    **Removed types:**
+
+    - `EventMapSchema` (previously exported from `@daiso-tech/core/event-bus`) — now exported from `@daiso-tech/core/event-bus/plugins` with an updated API.
+
+    **Removed behaviour:**
+
+    - The `EventBus` class no longer validates event data on `dispatch`, nor validates listener output on `addListener`, `listenOnce`, `asPromise`, `subscribeOnce`, or `subscribe`. Schema validation is now opt-in via the `withEventBusSchema` plugin.
+
+    ### New Plugin-Based Capabilities
+
+    The following behaviours are no longer built into `EventBus`. They are available as opt-in plugins:
+
+    **`withEventBusSchema`** — Validates event data against a `StandardSchemaV1`-compliant schema map. On `dispatch`, the event data is validated before being forwarded to the adapter. When `shouldValidateListeners` is `true` (default), listener functions are also wrapped to validate event data before it reaches the listener.
+
+    - The `defineEventMapSchema` helper provides type-safety when defining the schema map.
+    - `WITHOUT` this plugin, no schema validation occurs — any event data is accepted.
+    - Import path: `@daiso-tech/core/event-bus/plugins`
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
+    import { withEventBusSchema } from "@daiso-tech/core/event-bus/plugins";
+    import { z } from "zod";
+
+    const adapter = withPlugin(
+        new MemoryEventBusAdapter(),
+        withEventBusSchema({
+            eventMapSchema: {
+                add: z.object({ a: z.number(), b: z.number() }),
+            },
+        }),
+    );
+    ```
+
+    **`withEventBusPrefix`** — Prefixes all event names passed to an event bus adapter. Every method that accepts an event name (`dispatch`, `addListener`, `removeListener`) will have the given prefix prepended before the call is forwarded to the underlying adapter.
+
+    - Useful for multi-tenant systems, environment isolation, and module scoping.
+    - Import path: `@daiso-tech/core/event-bus/plugins`
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
+    import { withEventBusPrefix } from "@daiso-tech/core/event-bus/plugins";
+
+    const adapter = withPlugin(
+        new MemoryEventBusAdapter(),
+        withEventBusPrefix("app:"),
+    );
+    ```
+
+    **`withListenerTracking`** — Solves the listener reference tracking problem that arises when middleware plugins wrap listener functions in `addListener`. It maintains an internal `original → wrapper` mapping so that `removeListener` correctly resolves the original listener to its wrapped counterpart before forwarding.
+
+    - Use this when composing plugins that wrap listeners (like `withEventBusSchema` with `shouldValidateListeners` enabled).
+    - Import path: `@daiso-tech/core/event-bus/plugins`
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
+    import {
+        withEventBusSchema,
+        withListenerTracking,
+        defineEventMapSchema,
+    } from "@daiso-tech/core/event-bus/plugins";
+    import { z } from "zod";
+
+    const eventMapSchema = defineEventMapSchema({
+        add: z.object({ a: z.number(), b: z.number() }),
+    });
+    const adapter = withPlugin(
+        new MemoryEventBusAdapter(),
+        withListenerTracking(withEventBusSchema({ eventMapSchema })),
+    );
+    ```
+
+    ### How the New Architecture Works
+
+    The `EventBus` class has been simplified to a thin wrapper that:
+
+    1. Accepts an `IEventBusAdapter` (optionally enhanced by plugins) via `EventBusSettings.adapter`.
+    2. Delegates every operation (`dispatch`, `addListener`, `removeListener`, `listenOnce`, `asPromise`, `subscribeOnce`, `subscribe`) directly to the adapter.
+    3. No longer performs schema validation internally.
+
+    Plugins receive the adapter and an `enhance` function, allowing them to intercept and modify specific methods using the same middleware pattern used by all other daiso-core components.
+
+    ### Migration
+
+    **Before (built-in validation):**
+
+    ```ts
+    const eventBus = new EventBus({
+        adapter: new MemoryEventBusAdapter(),
+        eventMapSchema,
+    });
+    ```
+
+    **After (explicit plugin composition):**
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { withEventBusSchema } from "@daiso-tech/core/event-bus/plugins";
+
+    const adapter = withPlugin(
+        new MemoryEventBusAdapter(),
+        withEventBusSchema({ eventMapSchema }),
+    );
+    const eventBus = new EventBus({ adapter });
+    ```
+
+    ### New Export Path
+
+    A new export path has been added to `package.json`:
+
+    ```
+    @daiso-tech/core/event-bus/plugins
+    ```
+
+    This exports `withEventBusSchema`, `withEventBusPrefix`, `withListenerTracking`, `EventMapSchema`, `WithEventBusSchemaSettings`, and `defineEventMapSchema`.
+
+- 6594c43: ## Simplified Cache Adapter Contract
+
+    The `IDatabaseCacheAdapter`, `IDatabaseCacheTransaction`, and `ICacheData` contracts have been removed in favor of the simpler `ICacheAdapter` contract. This eliminates the transaction-based database abstraction layer, making the cache adapter interface more straightforward.
+
+    ### Motivation
+
+    The `IDatabaseCacheAdapter` contract introduced unnecessary complexity by wrapping all results in `ICacheData` / `ICacheDataExpiration` objects and requiring transaction support. The simpler `ICacheAdapter` contract returns primitive values directly, reducing boilerplate for adapter implementors and improving runtime performance.
+
+    ### Breaking Changes
+
+    **Removed types:**
+
+    - `IDatabaseCacheAdapter`
+    - `IDatabaseCacheTransaction`
+    - `ICacheData`
+    - `ICacheDataExpiration`
+
+    **Removed test utility:**
+
+    - `databaseCacheAdapterTestSuite` — use `cacheAdapterTestSuite` instead.
+
+    **Refactored adapters:**
+
+    - `KyselyCacheAdapter` now implements `ICacheAdapter` directly instead of `IDatabaseCacheAdapter`.
+
+    ### Migration
+
+    Custom `IDatabaseCacheAdapter` implementations should migrate to `ICacheAdapter`. The new contract expects methods to return primitive values (`TType | null`, `boolean`, `void`) directly instead of wrapping results in `ICacheData` / `ICacheDataExpiration` objects. Use `cacheAdapterTestSuite` instead of `databaseCacheAdapterTestSuite` for testing.
+
+- 1f6cbd6: ## Simplified Lock Adapter Contract
+
+    The `IDatabaseLockAdapter`, `IDatabaseLockTransaction`, and `ILockData` contracts have been removed in favor of the simpler `ILockAdapter` contract. This eliminates the transaction-based database abstraction layer, making the lock adapter interface more straightforward.
+
+    ### Motivation
+
+    The `IDatabaseLockAdapter` contract introduced unnecessary complexity by wrapping results in `ILockData` / `ILockExpirationData` objects and requiring transaction support. The simpler `ILockAdapter` contract returns primitive values directly, reducing boilerplate for adapter implementors and improving runtime performance.
+
+    ### Breaking Changes
+
+    **Removed types:**
+
+    - `IDatabaseLockAdapter`
+    - `IDatabaseLockTransaction`
+    - `ILockData`
+    - `ILockExpirationData`
+
+    **Removed test utility:**
+
+    - `databaseLockAdapterTestSuite` — use `lockAdapterTestSuite` instead.
+
+    **Removed classes:**
+
+    - `DatabaseLockAdapter` derivable class
+
+    **Refactored adapters:**
+
+    - `KyselyLockAdapter` now implements `ILockAdapter` directly with `acquire`, `release`, `forceRelease`, `refresh`, and `getState` methods.
+
+    ### Migration
+
+    Custom `IDatabaseLockAdapter` implementations should migrate to `ILockAdapter`. The new contract expects methods with the following signatures:
+
+    - `acquire(context, key, lockId, ttl): Promise<boolean>`
+    - `release(context, key, lockId): Promise<boolean>`
+    - `forceRelease(context, key): Promise<boolean>`
+    - `refresh(context, key, lockId, ttl): Promise<boolean>`
+    - `getState(context, key): Promise<ILockAdapterState | null>`
+
+    Use `lockAdapterTestSuite` instead of `databaseLockAdapterTestSuite` for testing. Replace custom `DatabaseLockAdapter` subclasses with direct `ILockAdapter` implementations.
+
+- 69c0ddf: ## Simplified Semaphore Adapter Contract
+
+    The `IDatabaseSemaphoreAdapter`, `IDatabaseSemaphoreTransaction`, and related data contracts have been removed in favor of the simpler `ISemaphoreAdapter` contract. This eliminates the transaction-based database abstraction layer, making the semaphore adapter interface more straightforward.
+
+    ### Motivation
+
+    The `IDatabaseSemaphoreAdapter` contract introduced unnecessary complexity by wrapping results in `ISemaphoreData`, `ISemaphoreSlotData`, and `ISemaphoreSlotExpirationData` objects and requiring transaction support. The simpler `ISemaphoreAdapter` contract returns primitive values directly, reducing boilerplate for adapter implementors and improving runtime performance.
+
+    ### Breaking Changes
+
+    **Removed types:**
+
+    - `IDatabaseSemaphoreAdapter`
+    - `IDatabaseSemaphoreTransaction`
+    - `ISemaphoreData`
+    - `ISemaphoreSlotData`
+    - `ISemaphoreSlotExpirationData`
+
+    **Removed test utility:**
+
+    - `databaseSemaphoreAdapterTestSuite` — use `semaphoreAdapterTestSuite` instead.
+
+    **Refactored adapters:**
+
+    - `KyselySemaphoreAdapter` now implements `ISemaphoreAdapter` directly with `acquire`, `release`, `forceReleaseAll`, `refresh`, and `getState` methods.
+
+    ### Migration
+
+    Custom `IDatabaseSemaphoreAdapter` implementations should migrate to `ISemaphoreAdapter`. The new contract expects methods with the following signatures:
+
+    - `acquire(settings: SemaphoreAcquireSettings): Promise<boolean>`
+    - `release(context, key, slotId): Promise<boolean>`
+    - `forceReleaseAll(context, key): Promise<boolean>`
+    - `refresh(context, key, slotId, ttl): Promise<boolean>`
+    - `getState(context, key): Promise<ISemaphoreAdapterState | null>`
+
+    Use `semaphoreAdapterTestSuite` instead of `databaseSemaphoreAdapterTestSuite` for testing. Replace custom `IDatabaseSemaphoreAdapter` subclasses with direct `ISemaphoreAdapter` implementations.
+
+- 69c0ddf: ## Simplified Shared Lock Adapter Contract
+
+    The `IDatabaseSharedLockAdapter`, `IDatabaseSharedLockTransaction`, and related data contracts have been removed in favor of the simpler `ISharedLockAdapter` contract. This eliminates the transaction-based database abstraction layer, making the shared-lock adapter interface more straightforward.
+
+    ### Motivation
+
+    The `IDatabaseSharedLockAdapter` contract introduced unnecessary complexity by wrapping results in `IWriterLockData`, `IReaderSemaphoreData`, and related objects, while requiring transaction support. The simpler `ISharedLockAdapter` contract returns primitive values directly, reducing boilerplate for adapter implementors and improving runtime performance.
+
+    ### Breaking Changes
+
+    **Removed types:**
+
+    - `IDatabaseSharedLockAdapter`
+    - `IDatabaseSharedLockTransaction`
+    - `IWriterLockData`
+    - `IWriterLockExpirationData`
+    - `IReaderSemaphoreSlotExpirationData`
+    - `IReaderSemaphoreSlotData`
+    - `IReaderSemaphoreData`
+
+    **Removed test utility:**
+
+    - `databaseSharedLockAdapterTestSuite` — use `sharedLockAdapterTestSuite` instead.
+
+    **Removed classes:**
+
+    - `DatabaseSharedLockAdapter` derivable class
+
+    **Refactored adapters:**
+
+    - `KyselySharedLockAdapter` now implements `ISharedLockAdapter` directly with `acquireWriter`, `releaseWriter`, `forceReleaseWriter`, `refreshWriter`, `acquireReader`, `releaseReader`, `forceReleaseAllReaders`, `refreshReader`, `forceRelease`, and `getState` methods.
+
+    ### Migration
+
+    Custom `IDatabaseSharedLockAdapter` implementations should migrate to `ISharedLockAdapter`. The new contract expects methods with the following signatures:
+
+    - `acquireWriter(context, key, lockId, ttl): Promise<boolean>`
+    - `releaseWriter(context, key, lockId): Promise<boolean>`
+    - `forceReleaseWriter(context, key): Promise<boolean>`
+    - `refreshWriter(context, key, lockId, ttl): Promise<boolean>`
+    - `acquireReader(settings: SharedLockAcquireSettings): Promise<boolean>`
+    - `releaseReader(context, key, slotId): Promise<boolean>`
+    - `forceReleaseAllReaders(context, key): Promise<boolean>`
+    - `refreshReader(context, key, slotId, ttl): Promise<boolean>`
+    - `forceRelease(context, key): Promise<boolean>`
+    - `getState(context, key): Promise<ISharedLockAdapterState | null>`
+
+    Use `sharedLockAdapterTestSuite` instead of `databaseSharedLockAdapterTestSuite` for testing. Replace custom `DatabaseSharedLockAdapter` subclasses with direct `ISharedLockAdapter` implementations.
+
+- 2e8ee5d: ## Cross-Platform File Storage and Extracted Locking
+
+    The `IFileStorage` contract has been updated to remove Node.js-specific read methods and extract built-in locking into a standalone plugin. The `FileStorage` class now works in non-Node.js environments such as Cloudflare Workers without requiring Node.js compatibility.
+
+    ### Motivation
+
+    The previous `IFileStorage` contract included Node.js-specific methods (`getBuffer`, `getReadable`) that prevented the component from working in edge-runtime environments. Additionally, built-in locking coupled the `FileStorage` class to the lock infrastructure even for users who didn't need it. By extracting locking into a plugin and replacing Node-specific APIs with runtime-agnostic alternatives, the file-storage module is now portable across environments.
+
+    ### Breaking Changes
+
+    **Removed methods from `IFile`:**
+
+    - `IFile.getBuffer` — use `IFile.getBytes` instead (returns `Uint8Array | null`).
+    - `IFile.getBufferOrFail` — use `IFile.getBytesOrFail` instead (returns `Uint8Array` or throws).
+    - `IFile.getReadable` — use `IFile.getStream` instead (returns a readable stream).
+    - `IFile.getReadableOrFail` — use `IFile.getStreamOrFail` instead (returns a readable stream or throws).
+
+    **Removed behaviour:**
+
+    - Built-in locking from the `FileStorage` class — locking is now provided by the standalone `withFileStorageLock` plugin.
+
+    ### New Plugin-Based Capabilities
+
+    **`withFileStorageLock`** — Adds distributed locking to file storage operations.
+
+    - Import path: `@daiso-tech/core/file-storage/plugins`
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { withFileStorageLock } from "@daiso-tech/core/file-storage/plugins";
+    import { MemoryFileStorageAdapter } from "@daiso-tech/core/file-storage/memory-file-storage-adapter";
+    import { MemoryLockFactory } from "@daiso-tech/core/lock/memory-lock-factory";
+
+    const adapter = withPlugin(
+        new MemoryFileStorageAdapter(),
+        withFileStorageLock({ lockFactory: new MemoryLockFactory() }),
+    );
+    ```
+
+    ### Migration
+    - Replace all calls to `getBuffer(key)` with `getBytes(key)`.
+    - Replace all calls to `getBufferOrFail(key)` with `getBytesOrFail(key)`.
+    - Replace all calls to `getReadable(key)` with `getStream(key)`.
+    - Replace all calls to `getReadableOrFail(key)` with `getStreamOrFail(key)`.
+    - If you relied on the built-in locking, apply the `withFileStorageLock` plugin to your file storage adapter as shown above.
+
+- 65e14ba: ## Architectural Shift: Composable `with*Prefix` Plugins
+
+    The built-in namespacing system has been refactored into opt-in `with*Prefix` plugins across all affected components. The `@daiso-tech/core/namespace` module has been removed entirely. Key management is now simplified to plain strings, and prefixing is handled via middleware plugins when needed.
+
+    ### Motivation
+
+    The previous namespace system (`INamespace`, `IKey`, `Namespace` class) added unnecessary complexity for what is fundamentally a string-prefixing concern. Every component had to carry namespace configuration through its settings, and keys were wrapped in `IKey` objects instead of plain strings. This made the API harder to use and increased bundle size for users who didn't need namespacing.
+
+    The new approach removes the namespace abstraction entirely. Key prefixing is now an opt-in `PluginFn` applied directly to the adapter, keeping the core components simple and the API surface clean.
+
+    ### Breaking Changes
+
+    **Removed `@daiso-tech/core/namespace` module:**
+
+    - `INamespace` contract
+    - `IKey` interface
+    - `Namespace` class
+    - `NoOpNamespace` class
+
+    **Removed `namespace` setting** from component constructors:
+
+    - `Cache` — `CacheSettingsBase.namespace`
+    - `EventBus` — `EventBusSettingsBase.namespace`
+    - `LockFactory` — `LockFactorySettingsBase.namespace`
+    - `CircuitBreakerFactory`, `FileStorage`, `RateLimiterFactory`, `SemaphoreFactory`, `SharedLockFactory` — same pattern
+
+    **Simplified key types** across all components:
+
+    - All method parameters changed from `IKey` to `string`
+    - `removeMany(keys: Iterable<string>)` changed to `removeMany(keys: Array<string>)`
+    - Error classes (`KeyNotFoundCacheError`, `KeyExistsCacheError`, etc.) now accept `string` instead of `IKey`
+    - `ILockState.key` changed from `IKey` to `string`
+
+    ### New Plugin-Based Capabilities
+
+    Key prefixing is now opt-in via middleware plugins. Available plugins:
+
+    | Component       | Plugin                     | Import path                                |
+    | --------------- | -------------------------- | ------------------------------------------ |
+    | cache           | `withCachePrefix`          | `@daiso-tech/core/cache/plugins`           |
+    | circuit-breaker | `withCircuitBreakerPrefix` | `@daiso-tech/core/circuit-breaker/plugins` |
+    | file-storage    | `withFileStoragePrefix`    | `@daiso-tech/core/file-storage/plugins`    |
+    | lock            | `withLockPrefix`           | `@daiso-tech/core/lock/plugins`            |
+    | rate-limiter    | `withRateLimiterPrefix`    | `@daiso-tech/core/rate-limiter/plugins`    |
+    | semaphore       | `withSemaphorePrefix`      | `@daiso-tech/core/semaphore/plugins`       |
+    | shared-lock     | `withSharedLockPrefix`     | `@daiso-tech/core/shared-lock/plugins`     |
+    | event-bus       | `withEventBusPrefix`       | `@daiso-tech/core/event-bus/plugins`       |
+
+    ```ts
+    import { withPlugin } from "@daiso-tech/core/middleware";
+    import { withCachePrefix } from "@daiso-tech/core/cache/plugins";
+
+    const adapter = withPlugin(
+        new MemoryCacheAdapter(),
+        withCachePrefix("tenant-42:"),
+    );
+
+    // Keys are automatically prefixed:
+    await adapter.add(context, "my-key", "value");
+    // Internally calls adapter.add(context, "tenant-42:my-key", "value")
+    ```
+
+    ### How the New Architecture Works
+
+    Instead of passing a `Namespace` instance to the component constructor, prefixing is now applied at the adapter level. The `with*Prefix` plugin intercepts key-related method calls and prepends the configured prefix before forwarding to the underlying adapter. This keeps components adapter-agnostic and makes prefixing composable with other plugins.
+
+    ### Migration
+
+    **If you used `Namespace` directly**, replace with a `with*Prefix` plugin on the adapter:
+
+    ```diff
+    -import { Cache, Namespace } from "@daiso-tech/core";
+    -
+    -const cache = new Cache({
+    -    adapter: new MemoryCacheAdapter(),
+    -    namespace: new Namespace("my-app"),
+    -});
+    +import { Cache } from "@daiso-tech/core";
+    +import { withPlugin } from "@daiso-tech/core/middleware";
+    +import { withCachePrefix } from "@daiso-tech/core/cache/plugins";
+    +
+    +const adapter = withPlugin(new MemoryCacheAdapter(), withCachePrefix("my-app:"));
+    +const cache = new Cache({ adapter });
+    ```
+
+    **If you imported `INamespace` or `IKey` types**, update to use plain `string` instead.
+
+    **If you were using `NoOpNamespace`**, simply omit the `namespace` setting (it was the default).
+
+## 0.55.0
+
+### Minor Changes
+
+- 7edaf05: ### Middleware Component Overhaul
+
+    - **Decoupled middleware from execution-context**: The middleware component no longer depends on the `execution-context` component. The `Use` type and `useFactory` implementation have been refactored to remove the `IExecutionContext` dependency — middleware can now receive context via other mechanisms.
+    - **Added `WithPlugin` contract and `withPluginFactory`**: Introduced the `WithPlugin` type and `withPluginFactory(enhance)` implementation, which applies one or more plugins (function or object-based) to an object instance, each receiving the instance and an `Enhance` function.
+
+    ### Resilience Middleware Renaming
+
+    All resilience component middleware factories have been renamed from `{name}-middleware-factory` to `with-{name}-factory` for a more consistent and descriptive naming convention:
+
+    - **Cache**: `cacheMiddlewareFactory` → `withCacheFactory`
+    - **Circuit Breaker**: `circuitBreakerMiddlewareFactory` → `withCircuitBreakerFactory`
+    - **Lock**: `lockMiddlewareFactory` → `withLockFactory`
+    - **Rate Limiter**: `rateLimiterMiddlewareFactory` → `withRateLimiterFactory` (detected as rename)
+    - **Semaphore**: `semaphoreMiddlewareFactory` → `withSemaphoreFactory`
+    - **Shared Lock**: `sharedLockMiddlewareFactory` → `withSharedLockFactory`
+
+    ### Context Dependency Updates
+
+    All resilience components now depend on `IReadableContext` instead of `IExecutionContext`:
+
+    - Cache
+    - Circuit Breaker
+    - Event Bus
+    - File Storage
+    - Lock
+    - Rate Limiter
+    - Semaphore
+    - Shared Lock
+
+- 6fcfd1f: ### Middleware system simplification
+
+    The middleware module has been simplified by removing the factory layer and exposing pre-configured public APIs directly.
+
+    #### Breaking changes
+    - **`useFactory` is now internal.** Instead of calling `useFactory()` to create a `Use` function, import the pre-configured `use` constant directly from `@daiso-tech/core/middleware`.
+    - **`enhanceFactory` is now internal.** Instead of calling `enhanceFactory(use)` to create an `Enhance` function, import the pre-configured `enhance` constant directly from `@daiso-tech/core/middleware`.
+    - **`withPluginFactory` is now internal.** Instead of calling `withPluginFactory(enhance)` to create a `WithPlugin` function, import the pre-configured `withPlugin` constant directly from `@daiso-tech/core/middleware`.
+    - **`UseFactorySettings` type and `defaultPriority` option removed.** `useFactory` no longer accepts a settings object. The default priority for function-based middlewares is now always `0`. To assign a custom priority, set the `priority` property on an `IMiddlewareObject`.
+
+    #### New public API
+    - Added `use` — a pre-configured middleware application function. Import directly from `@daiso-tech/core/middleware`.
+    - Added `enhance` — a pre-configured method enhancer. Import directly from `@daiso-tech/core/middleware`.
+    - Added `withPlugin` — a pre-configured plugin applicator. Import directly from `@daiso-tech/core/middleware`.
+
+    #### Migration guide
+
+    **Before:**
+
+    ```ts
+    import {
+        useFactory,
+        enhanceFactory,
+        withPluginFactory,
+    } from "@daiso-tech/core/middleware";
+
+    const use = useFactory();
+    const enhance = enhanceFactory(use);
+    const withPlugin = withPluginFactory(enhance);
+    ```
+
+    **After:**
+
+    ```ts
+    import { use, enhance, withPlugin } from "@daiso-tech/core/middleware";
+    ```
+
+    You cannot rely on `defaultPriority` setting, all middlewares default priorities are `0`.
+
+## 0.54.1
+
+### Patch Changes
+
+- 3377c6d: Updatead README.md file
+
+## 0.54.0
+
+### Minor Changes
+
+- d945731: Add new `HttpRouter` component — a framework-agnostic HTTP router implementing the Winter TC fetch standard.
+
+    Key features:
+
+    - **Winter TC compliant** — Exposes a standard `fetch(request: Request): Response` signature compatible with any runtime (Node.js, Bun, Deno, Cloudflare Workers, etc.)
+    - **Typed routing** — Path parameters, optional parameters, wildcards, regex-constrained parameters, and method matching
+    - **Route grouping** — Prefix-based route grouping with nesting support
+    - **Three middleware layers** — Router-level Winter TC middleware, shared middleware via `router.use()`, and endpoint-specific middleware via `middlewares` builder
+    - **Rich request handling** — `HttpReq` with access to JSON body, form data (including file uploads), path/query parameters, headers, cookies, and Standard Schema validation
+    - **Fluent response builder** — `HttpRes` with status codes, headers, cookie management (set, remove, check, strip), and helpers for `text()`, `html()`, `json()`, `notFound()`, `redirect()`, `permanentRedirect()`
+    - **Winter TC interoperability** — `HttpRouter.fromWinterTcHandler()` static method to adapt Winter TC handlers for use as endpoint handlers, plus `WinterTcMiddlewareFn`, `IWinterTcMiddlewareObject`, and `defineWinterTcMiddleware`
+    - **Typed HTTP errors** — `HttpError` class for structured error responses with status codes
+    - **File upload support** — `HttpFile` with content access methods (text, bytes, stream, buffer) and file properties
+    - **Testing utilities** — `HttpReq.test()` with `TestReqSettings` for creating synthetic requests with mocked params, headers, cookies, and body variants (JSON, URL-encoded, multipart, custom)
+    - **Composable architecture** — Built on Hono's router engine (SmartRouter, RegExpRouter, TrieRouter) with support for custom router adapters
+
 ## 0.53.0
 
 ### Minor Changes
@@ -229,7 +1047,6 @@
     Now all these adapters take instance of `IReadableExecutionContext` as first argument.
 
     #### Integrated execution-context with following classes:
-
     - `Cache`
     - `CircuitBreakerFactory`
     - `EventBus`
@@ -244,7 +1061,6 @@
 - 3a3df7c: - **Unified Middleware System**: Introduced a new middleware component that replaces the legacy Hooks system. - **Hybrid Support**: Natively handles both synchronous and asynchronous functions within a single interface. - **Execution Context**: Added full support for passing execution context through the middleware chain. - **Priority Management**: Built-in support for defining execution order via priority levels.
 
     ### Changed
-
     - **Removed Hooks Component**: The legacy Hooks system has been removed to reduce architectural complexity.
         - **Simplified API**: Removed the need for separate classes for sync and async hooks, significantly reducing boilerplate.
         - **Refined DX**: Replaced the verbose and complex Hooks API with a more ergonomic and streamlined middleware pattern.
@@ -264,7 +1080,6 @@
     - shared-lock
 
     #### New Features
-
     - Added a reusable delay utility
     - The following classes support `waitUntil` configuration, facilitating seamless integration with serverless environments like `Vercel`, `Cloudflare`, and `Netlify`:
         - `Cache`
@@ -295,7 +1110,6 @@
         - Reader: `acquireReaderBlocking`, `acquireReaderBlockingOrFail`, `runReaderBlockingOrFail`
 
     ## New Features
-
     - **`retryInterval` Middleware**: A new utility that retries a function call at a specified interval until a defined timeout is reached. This provides a unified way to handle retries across the framework without needing specialized "blocking" variants of every method.
 
 ## 0.50.0
@@ -1125,8 +1939,8 @@
 - 3ca9190: Renamed `FallbackSettings.fallbackPolicy` to `FallbackSettings.errorPolicy`
 - 3ca9190: - Removed the following types:
 
-                                                                                                                        - `AsyncFactoryable`
-                                                                                                                        - `Factoryable`
+                                                                                                                                      - `AsyncFactoryable`
+                                                                                                                                      - `Factoryable`
 
     - Updated remaining factory types to use the new `InvokableFn` and `InvokableObject` contracts:
         - Synchronous factories:
@@ -1674,7 +2488,6 @@
         - <i>ISerializer</i>: Handles olny serialization.
 
     ## New Features
-
     - Introduced the <i>ISerializable</i> contract, enabling classes to be marked as serializable.
     - Added the <i>IFlexibleSerde</i> contract, allowing registration of custom classes for serialization and deserialization.
     - Implemented the <i>ISerializable</i> contract the <i>TimeSpan</i> class.
@@ -1694,7 +2507,6 @@
       This method simplifies add listener that will only execute once.
 
     ## Changes
-
     - Moved event bus group logic from the <i>Cache</i> class into the adapters classes.
         - **Key Impact**: Each adapter is now required to implement the <i>getGroup</i> and <i>withGroup</i> methods.
         - This change enhances flexibility for adapter-specific logic.
@@ -1740,7 +2552,6 @@
     - **Added `toMap`**: Converts a collection to a `Map` if the items are tuples of two elements.
 
     ### IAsyncCollection
-
     - **Added `toRecord`**: Converts a collection to a `Record` if the items are tuples of two elements, where the first element is a `string`, `number`, or `symbol`.
     - **Added `toMap`**: Converts a collection to a `Map` if the items are tuples of two elements.
 
@@ -1759,7 +2570,6 @@
     - Added MemoryCacheAdapter
 
     ## Changes
-
     - Added Cache module: Introduced a new Cache module that supports both TTL (time-to-live) keys and non-TTL keys.
     - Removed Storage module: Its functionality has been replaced by the more versatile Cache module, which supports both TTL and non-TTL keys.
         - New Cache Adapters: Added the following cache adapters for improved flexibility and compatibility:
@@ -1819,19 +2629,16 @@
     - Added IEventBusAdapter, RedisEventBusAdapter and MemoryEventBusAdapter.
 
     ## Improvements
-
     - Improvevd IStorage so they trigger events that can be listenable
     - Improved IStorage by adding new methods that that are useful for multitennacy
 
     ## New Features
-
     - Introduced the `EventBus` class and the `IEventBus` contract, which provide essential methods for supporting multitenancy.
     - Added IEventBusAdapter contract the following event bus adapters:
         - `RedisEventBusAdapter`
         - `MemoryEventBusAdapter`
 
     ## Improvements
-
     - Enhanced `IStorage` to trigger events that can be subscribed to for better event-driven behavior.
     - Expanded `IStorage` with new methods designed to support multitenancy effectively.
 
@@ -1868,7 +2675,6 @@
 - e2031da: # New features
 
     ## Async utilities
-
     - Added <i>abortable</i> async utility function.
     - Added <i>abortableIterable</i> utility function.
     - Added <i>delay</i> async utility function.
@@ -1881,7 +2687,6 @@
     - Added <i>constant</i>, <i>exponential</i>, <i>linear</i> and <i>polynomial</i> backoff policies.
 
     ## Utilities
-
     - Added TimeSpan class that makes easy to work time intervals.
 
 - d070f85: Introduced a new namespace feature for the Storage contract. This enhancement enables the creation of a new Storage instance with a specified prefixed namespace, derived from the current Storage.
@@ -1897,12 +2702,10 @@
 - ff9b885: ## Cache
 
     ### Contracts
-
     - Added cache contract
     - Added cache adapter contract.
 
     ### Adapters
-
     - Added redis cache adapter
     - Added mongodb cache adapter
     - Added sqlite cache adapter.
@@ -1910,11 +2713,9 @@
     ## Serializer
 
     ### Contracts
-
     - Added serializer contract
 
     ### Adapters
-
     - Added super json serializer adapter
     - Added redis serializer adapter
     - Added mongodb serializer adapter

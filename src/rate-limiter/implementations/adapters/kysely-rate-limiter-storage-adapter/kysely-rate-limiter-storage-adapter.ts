@@ -2,26 +2,26 @@
  * @module RateLimiter
  */
 
-import { MysqlAdapter, Transaction, type Kysely } from "kysely";
+import { MysqlAdapter } from "kysely";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type IRateLimiterData,
-    type IRateLimiterStorageAdapter,
-    type IRateLimiterStorageAdapterTransaction,
+import type { Kysely } from "kysely";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiterData,
+    IRateLimiterStorageAdapter,
+    IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvokableFn,
-    type IPrunable,
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
+    IPrunable,
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type KyselyRateLimiterTable = {
@@ -34,7 +34,7 @@ export type KyselyRateLimiterTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type KyselyRateLimiterStorageTables = {
@@ -66,9 +66,9 @@ async function find<TType>(
 /**
  * @internal
  */
-class KyselyRateLimiterStorageAdapterTransaction<TType>
-    implements IRateLimiterStorageAdapterTransaction<TType>
-{
+class KyselyRateLimiterStorageAdapterTransaction<
+    TType,
+> implements IRateLimiterStorageAdapterTransaction<TType> {
     private readonly isMysql: boolean;
 
     constructor(
@@ -80,10 +80,10 @@ class KyselyRateLimiterStorageAdapterTransaction<TType>
     }
 
     async upsert(
-        _context: IReadableContext,
         key: string,
         state: TType,
         expiration: Date,
+        _context: IReadableContext,
     ): Promise<void> {
         const expirationAsMs = expiration.getTime();
         const serializedState = this.serde.serialize(state);
@@ -114,8 +114,8 @@ class KyselyRateLimiterStorageAdapterTransaction<TType>
     }
 
     async find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         return await find(this.kysely, this.serde, key);
     }
@@ -125,7 +125,7 @@ class KyselyRateLimiterStorageAdapterTransaction<TType>
  * Configuration for `KyselyRateLimiterStorageAdapter`.
  * Requires a Kysely database instance with the rate-limiter schema applied.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type KyselyRateLimiterStorageAdapterSettings = {
@@ -137,37 +137,10 @@ export type KyselyRateLimiterStorageAdapterSettings = {
      * Serde instance for serializing and deserializing rate-limiter state to and from strings.
      */
     serde: ISerde<string>;
-
-    /**
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromMinutes(1)
-     * ```
-     */
-    expiredKeysRemovalInterval?: ITimeSpan;
-
-    /**
-     * When `true`, a background task periodically removes expired rate-limiter records.
-     * Set to `false` to disable automatic cleanup.
-     * @default true
-     */
-    shouldRemoveExpiredKeys?: boolean;
-
-    /**
-     * @default
-     * ```ts
-     * import { Transaction } from "kysely"
-     *
-     * !(settings.kysely instanceof Transaction)
-     * ```
-     */
-    enableTransactions?: boolean;
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export class KyselyRateLimiterStorageAdapter<TType>
@@ -179,18 +152,13 @@ export class KyselyRateLimiterStorageAdapter<TType>
 {
     private readonly kysely: Kysely<KyselyRateLimiterStorageTables>;
     private readonly serde: ISerde<string>;
-    private readonly expiredKeysRemovalInterval: TimeSpan;
-    private readonly shouldRemoveExpiredKeys: boolean;
-    private intervalId: string | number | NodeJS.Timeout | undefined | null =
-        null;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
      * ```ts
-     * import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
@@ -208,34 +176,20 @@ export class KyselyRateLimiterStorageAdapter<TType>
      * ```
      */
     constructor(settings: KyselyRateLimiterStorageAdapterSettings) {
-        const {
-            kysely,
-            serde,
-            expiredKeysRemovalInterval = TimeSpan.fromMinutes(1),
-            shouldRemoveExpiredKeys = true,
-            enableTransactions = !(settings.kysely instanceof Transaction),
-        } = settings;
+        const { kysely, serde } = settings;
 
-        this.expiredKeysRemovalInterval = TimeSpan.fromTimeSpan(
-            expiredKeysRemovalInterval,
-        );
-        this.shouldRemoveExpiredKeys = shouldRemoveExpiredKeys;
         this.kysely = kysely;
         this.serde = serde;
-        this.enableTransactions = enableTransactions;
     }
     private _transaction<TValue>(
-        trxFn: InvokableFn<
+        trxFn: InvocableFn<
             [trx: Kysely<KyselyRateLimiterStorageTables>],
             Promise<TValue>
         >,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return this.kysely.transaction().execute(async (trx) => {
-                return await trxFn(trx);
-            });
-        }
-        return trxFn(this.kysely);
+        return this.kysely.transaction().execute(async (trx) => {
+            return await trxFn(trx);
+        });
     }
 
     /**
@@ -243,10 +197,6 @@ export class KyselyRateLimiterStorageAdapter<TType>
      * Note all rate limiter data will be removed.
      */
     async deInit(): Promise<void> {
-        if (this.shouldRemoveExpiredKeys && this.intervalId !== null) {
-            clearInterval(this.intervalId);
-        }
-
         // Should throw if the index does not exists thats why the try catch is used.
         try {
             await this.kysely.schema
@@ -294,12 +244,6 @@ export class KyselyRateLimiterStorageAdapter<TType>
         } catch {
             /* EMPTY */
         }
-
-        if (this.shouldRemoveExpiredKeys) {
-            this.intervalId = setInterval(() => {
-                void this.removeAllExpired();
-            }, this.expiredKeysRemovalInterval.toMilliseconds());
-        }
     }
 
     async removeAllExpired(): Promise<void> {
@@ -310,11 +254,11 @@ export class KyselyRateLimiterStorageAdapter<TType>
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await this._transaction(async (trx) => {
             return await fn(
@@ -324,13 +268,13 @@ export class KyselyRateLimiterStorageAdapter<TType>
     }
 
     async find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         return await find(this.kysely, this.serde, key);
     }
 
-    async remove(_context: IReadableContext, key: string): Promise<void> {
+    async remove(key: string, _context: IReadableContext): Promise<void> {
         await this.kysely
             .deleteFrom("rateLimiter")
             .where("rateLimiter.key", "=", key)

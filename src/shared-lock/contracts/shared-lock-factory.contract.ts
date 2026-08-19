@@ -2,23 +2,13 @@
  * @module SharedLock
  */
 
-import { type IEventListenable } from "@/event-bus/contracts/_module.js";
-import { type ISharedLock } from "@/shared-lock/contracts/shared-lock.contract.js";
-import { type SharedLockEventMap } from "@/shared-lock/contracts/shared-lock.events.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-
-/**
- * The `ISharedLockListenable` contract defines a way for listening {@link ISharedLock | `ISharedLock`} operations.
- *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
- * @group Contracts
- */
-export type ISharedLockListenable = IEventListenable<SharedLockEventMap>;
+import type { ISharedLock } from "@/shared-lock/contracts/shared-lock.contract.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * Configuration settings for creating a shared lock instance through the factory.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type SharedLockFactoryCreateSettings = {
@@ -44,23 +34,15 @@ export type SharedLockFactoryCreateSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * The `ISharedLockFactory` contract defines a way for managing locks independent of the underlying technology.
+ * It comes with more convenient methods compared to `ISharedLockAdapter`.
+ *
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
-export type ISharedLockFactoryBase = {
+export type ISharedLockFactory = {
     /**
      * The `create` method is used to create an instance of {@link ISharedLock | `ISharedLock`}.
      */
     create(key: string, settings: SharedLockFactoryCreateSettings): ISharedLock;
-};
-
-/**
- * The `ISharedLockFactory` contract defines a way for managing locks independent of the underlying technology.
- * It comes with more convenient methods compared to `ISharedLockAdapter`.
- *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
- * @group Contracts
- */
-export type ISharedLockFactory = ISharedLockFactoryBase & {
-    readonly events: ISharedLockListenable;
 };

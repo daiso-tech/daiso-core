@@ -2,83 +2,68 @@
  * @module CircuitBreaker
  */
 
-import {
-    type CircuitBreakerEventMap,
-    type CircuitBreakerTrigger,
-    type ICircuitBreakerAdapter,
+import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
+import { getConstructorName } from "@/utilities/_module.js";
+
+import type {
+    CircuitBreakerTrigger,
+    ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
-import {
-    CircuitBreaker,
-    type ISerializedCircuitBreaker,
-} from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    getConstructorName,
-    type ErrorPolicy,
-    type OneOrMore,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import type { ISerializedCircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { ErrorPolicy, OneOrMore, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type CircuitBreakerSerdeTransformerSettings = {
     adapter: ICircuitBreakerAdapter;
-    namespace: INamespace;
     slowCallTime: TimeSpan;
     errorPolicy: ErrorPolicy;
     trigger: CircuitBreakerTrigger;
-    eventBus: IEventBus<CircuitBreakerEventMap>;
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
 };
 
 /**
  * @internal
  */
-export class CircuitBreakerSerdeTransformer
-    implements ISerdeTransformer<CircuitBreaker, ISerializedCircuitBreaker>
-{
+export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
+    CircuitBreaker,
+    ISerializedCircuitBreaker
+> {
     private readonly adapter: ICircuitBreakerAdapter;
-    private readonly namespace: INamespace;
     private readonly slowCallTime: TimeSpan;
     private readonly errorPolicy: ErrorPolicy;
     private readonly trigger: CircuitBreakerTrigger;
-    private readonly eventBus: IEventBus<CircuitBreakerEventMap>;
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     constructor(settings: CircuitBreakerSerdeTransformerSettings) {
         const {
             adapter,
-            namespace,
             slowCallTime,
             errorPolicy,
             trigger,
-            eventBus,
             serdeTransformerName,
             enableAsyncTracking,
             waitUntil,
-            executionContext,
+            context,
         } = settings;
 
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.adapter = adapter;
-        this.namespace = namespace;
         this.slowCallTime = slowCallTime;
         this.errorPolicy = errorPolicy;
         this.trigger = trigger;
-        this.eventBus = eventBus;
         this.serdeTransformerName = serdeTransformerName;
     }
 
@@ -87,7 +72,6 @@ export class CircuitBreakerSerdeTransformer
             "circuitBreaker",
             this.serdeTransformerName,
             getConstructorName(this.adapter),
-            this.namespace.toString(),
         ].filter((str) => str !== "");
     }
 
@@ -102,36 +86,26 @@ export class CircuitBreakerSerdeTransformer
         const isSerdTransformerNameMathcing =
             this.serdeTransformerName === value._getSerdeTransformerName();
 
-        const isNamespaceMatching =
-            this.namespace.toString() === value._getNamespace().toString();
-
         const isAdapterMatching =
             getConstructorName(this.adapter) ===
             getConstructorName(value._getAdapter());
 
-        return (
-            isSerdTransformerNameMathcing &&
-            isNamespaceMatching &&
-            isAdapterMatching
-        );
+        return isSerdTransformerNameMathcing && isAdapterMatching;
     }
 
     deserialize(serializedValue: ISerializedCircuitBreaker): CircuitBreaker {
         const { key } = serializedValue;
-        const keyObj = this.namespace.create(key);
 
         return new CircuitBreaker({
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
-            eventDispatcher: this.eventBus,
             adapter: this.adapter,
-            key: keyObj,
+            key,
             slowCallTime: this.slowCallTime,
             errorPolicy: this.errorPolicy,
             trigger: this.trigger,
             serdeTransformerName: this.serdeTransformerName,
-            namespace: this.namespace,
         });
     }
 

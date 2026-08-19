@@ -2,12 +2,11 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    MemoryRateLimiterStorageAdapter,
-    type MemoryRateLimiterData,
-} from "@/rate-limiter/implementations/adapters/memory-rate-limiter-storage-adapter/_module.js";
+import { MemoryRateLimiterStorageAdapter } from "@/rate-limiter/implementations/adapters/memory-rate-limiter-storage-adapter/_module.js";
 import { rateLimiterStorageAdapterTestSuite } from "@/rate-limiter/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
+
+import type { MemoryRateLimiterData } from "@/rate-limiter/implementations/adapters/memory-rate-limiter-storage-adapter/_module.js";
 
 describe("class: MemoryRateLimiterStorageAdapter", () => {
     const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
@@ -24,26 +23,26 @@ describe("class: MemoryRateLimiterStorageAdapter", () => {
         test("Should clear rate limiter data", async () => {
             const map = new Map<string, MemoryRateLimiterData>();
             const adapter = new MemoryRateLimiterStorageAdapter(map);
-            await adapter.transaction(noOpContext, async (trx) => {
+            await adapter.transaction(async (trx) => {
                 await trx.upsert(
-                    noOpContext,
                     "a",
                     1,
                     TimeSpan.fromSeconds(2).toEndDate(),
+                    noOpContext,
                 );
                 await trx.upsert(
-                    noOpContext,
                     "b",
                     2,
                     TimeSpan.fromSeconds(2).toEndDate(),
+                    noOpContext,
                 );
                 await trx.upsert(
-                    noOpContext,
                     "c",
                     3,
                     TimeSpan.fromSeconds(2).toEndDate(),
+                    noOpContext,
                 );
-            });
+            }, noOpContext);
             await adapter.deInit();
 
             expect(map.size).toBe(0);

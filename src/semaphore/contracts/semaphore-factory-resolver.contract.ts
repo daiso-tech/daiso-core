@@ -2,12 +2,12 @@
  * @module Semaphore
  */
 
-import { type ISemaphoreFactory } from "@/semaphore/contracts/semaphore-factory.contract.js";
+import type { ISemaphoreFactory } from "@/semaphore/contracts/semaphore-factory.contract.js";
 
 /**
  * The `ISemaphoreFactoryResolver` contract makes it easy to configure and switch between different {@link ISemaphoreFactory | `ISemaphoreFactory`} dynamically.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreFactoryResolver<TAdapters extends string = string> = {

@@ -16,14 +16,14 @@ keywords:
     - NoOp
 ---
 
-## Configuring EventBus adapters
+# Configuring EventBus adapters
 
 ## MemoryEventBusAdapter
 
 To use the `MemoryEventBusAdapter` you only need to create instance of it.
 
 ```ts
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
 
 const eventBusAdapter = new MemoryEventBusAdapter();
 ```
@@ -31,7 +31,7 @@ const eventBusAdapter = new MemoryEventBusAdapter();
 You can also provide an `EventEmitter` that will be used for dispatching the events in memory:
 
 ```ts
-import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
 import { EventEmitter } from "node:events";
 
 const eventEmitter = new EventEmitter<any>();
@@ -52,9 +52,9 @@ To use the `RedisPubSubEventBusAdapter`, you'll need to:
 - We recommend using `SuperJsonSerdeAdapter` for this purpose
 
 ```ts
-import { RedisPubSubEventBusAdapter } from "@daiso-tech/core/event-bus/redis-pub-sub-event-bus-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import Redis from "ioredis";
 
 const client = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -70,15 +70,15 @@ const eventBusAdapter = new RedisPubSubEventBusAdapter({
 The `NoOpEventBusAdapter` is a no-operation implementation, it performs no actions when called.
 
 ```ts
-import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
+import { NoOpEventBusAdapter } from "eridu-tech/event-bus/no-op-event-bus-adapter";
 
 const noEventBusAdapter = new NoOpEventBusAdapter();
 ```
 
 :::info
-The `NoOpEventBusAdapter` is useful when you want to mock out or disable your [`EventBus`](https://daiso-tech.github.io/daiso-core/classes/EventBus.EventBus.html) class.
+The `NoOpEventBusAdapter` is useful when you want to mock out or disable your [`EventBus`](https://eridu-tech.github.io/eridu-tech/classes/EventBus.EventBus.html) class.
 :::
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/event-bus`](https://daiso-tech.github.io/daiso-core/modules/EventBus.html) API docs.
+For further information refer to [`eridu-tech/event-bus`](https://eridu-tech.github.io/eridu-tech/modules/EventBus.html) API docs.

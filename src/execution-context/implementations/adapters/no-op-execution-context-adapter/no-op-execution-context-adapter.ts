@@ -2,11 +2,13 @@
  * @module ExecutionContext
  */
 
-import { type IExecutionContextAdapter } from "@/execution-context/contracts/_module.js";
-import { callInvokable, type InvokableFn } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
+
+import type { IExecutionContextAdapter } from "@/execution-context/contracts/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/no-op-execution-context-adapter"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/no-op-execution-context-adapter"`
  *
  * No-operation execution context adapter.
  *
@@ -19,14 +21,14 @@ import { callInvokable, type InvokableFn } from "@/utilities/_module.js";
  *
  * @group Adapters
  */
-export class NoOpExecutionContextAdapter<TValue>
-    implements IExecutionContextAdapter<TValue>
-{
+export class NoOpExecutionContextAdapter<
+    TValue,
+> implements IExecutionContextAdapter<TValue> {
     get(): TValue | null {
         return null;
     }
 
-    run<TReturn>(_context: TValue, fn: InvokableFn<[], TReturn>): TReturn {
-        return callInvokable(fn);
+    run<TReturn>(_context: TValue, fn: InvocableFn<[], TReturn>): TReturn {
+        return callInvocable(fn);
     }
 }

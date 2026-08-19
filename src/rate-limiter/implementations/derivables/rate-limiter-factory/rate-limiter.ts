@@ -2,29 +2,26 @@
  * @module RateLimiter
  */
 
-import { type IEventDispatcher } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type IKey, type INamespace } from "@/namespace/contracts/_module.js";
 import {
     BlockedRateLimiterError,
-    RATE_LIMITER_EVENTS,
     RATE_LIMITER_STATE,
-    type IRateLimiter,
-    type IRateLimiterAdapter,
-    type IRateLimiterAdapterState,
-    type RateLimiterAllowedState,
-    type RateLimiterBlockedState,
-    type RateLimiterEventMap,
-    type RateLimiterState,
 } from "@/rate-limiter/contracts/_module.js";
 import {
     callErrorPolicyOnThrow,
-    callInvokable,
+    callInvocable,
     resolveAsyncLazyable,
-    type AsyncLazy,
-    type ErrorPolicy,
-    type WaitUntil,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiter,
+    IRateLimiterAdapter,
+    IRateLimiterAdapterState,
+    RateLimiterAllowedState,
+    RateLimiterBlockedState,
+    RateLimiterState,
+} from "@/rate-limiter/contracts/_module.js";
+import type { AsyncLazy, ErrorPolicy, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -32,15 +29,13 @@ import {
 export type RateLimiterSettings = {
     limit: number;
     enableAsyncTracking: boolean;
-    eventDispatcher: IEventDispatcher<RateLimiterEventMap>;
     adapter: IRateLimiterAdapter;
-    key: IKey;
+    key: string;
     errorPolicy: ErrorPolicy;
     onlyError: boolean;
-    namespace: INamespace;
     serdeTransformerName: string;
     waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
+    context: IReadableContext;
 };
 
 /**
@@ -62,53 +57,43 @@ export class RateLimiter implements IRateLimiter {
     static _serialize(deserializedValue: RateLimiter): ISerializedRateLimiter {
         return {
             version: "1",
-            key: deserializedValue._key.get(),
+            key: deserializedValue._key,
             limit: deserializedValue._limit,
         };
     }
 
     private readonly waitUntil: WaitUntil;
-    private readonly _key: IKey;
+    private readonly _key: string;
     private readonly _limit: number;
     private readonly errorPolicy: ErrorPolicy;
     private readonly onlyError: boolean;
     private readonly adapter: IRateLimiterAdapter;
-    private readonly eventDispatcher: IEventDispatcher<RateLimiterEventMap>;
     private readonly enableAsyncTracking: boolean;
     private readonly serdeTransformerName: string;
-    private readonly namespace: INamespace;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     constructor(settings: RateLimiterSettings) {
         const {
             limit,
             enableAsyncTracking,
-            eventDispatcher,
             key,
             errorPolicy,
             onlyError,
             adapter,
             serdeTransformerName,
-            namespace,
             waitUntil,
-            executionContext,
+            context,
         } = settings;
 
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
-        this.namespace = namespace;
         this.serdeTransformerName = serdeTransformerName;
         this._limit = limit;
         this.enableAsyncTracking = enableAsyncTracking;
-        this.eventDispatcher = eventDispatcher;
         this._key = key;
         this.errorPolicy = errorPolicy;
         this.onlyError = onlyError;
         this.adapter = adapter;
-    }
-
-    _getNamespace(): INamespace {
-        return this.namespace;
     }
 
     _getSerdeTransformerName(): string {
@@ -147,15 +132,12 @@ export class RateLimiter implements IRateLimiter {
     }
 
     async getState(): Promise<RateLimiterState> {
-        const state = await this.adapter.getState(
-            this.executionContext,
-            this._key.toString(),
-        );
+        const state = await this.adapter.getState(this._key, this.context);
 
         return this.toRateLimiterState(state);
     }
 
-    get key(): IKey {
+    get key(): string {
         return this._key;
     }
 
@@ -167,32 +149,15 @@ export class RateLimiter implements IRateLimiter {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
-            await this.adapter.getState(
-                this.executionContext,
-                this._key.toString(),
-            ),
+            await this.adapter.getState(this._key, this.context),
         );
 
         if (state.type === RATE_LIMITER_STATE.BLOCKED) {
-            callInvokable(
-                this.waitUntil,
-                this.eventDispatcher.dispatch(RATE_LIMITER_EVENTS.BLOCKED, {
-                    rateLimiter: this,
-                }),
-            );
-
             const { type: _type, ...rest } = state;
             throw BlockedRateLimiterError.create(rest, this._key);
         }
 
         try {
-            callInvokable(
-                this.waitUntil,
-                this.eventDispatcher.dispatch(RATE_LIMITER_EVENTS.ALLOWED, {
-                    rateLimiter: this,
-                }),
-            );
-
             return await resolveAsyncLazyable(asyncFn);
         } catch (error: unknown) {
             const isErrorMatching = await callErrorPolicyOnThrow(
@@ -201,39 +166,15 @@ export class RateLimiter implements IRateLimiter {
             );
 
             if (isErrorMatching) {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        RATE_LIMITER_EVENTS.TRACKED_FAILURE,
-                        {
-                            rateLimiter: this,
-                            error,
-                        },
-                    ),
-                );
-            } else {
-                callInvokable(
-                    this.waitUntil,
-                    this.eventDispatcher.dispatch(
-                        RATE_LIMITER_EVENTS.UNTRACKED_FAILURE,
-                        {
-                            rateLimiter: this,
-                            error,
-                        },
-                    ),
-                );
-            }
-
-            if (isErrorMatching) {
                 const fn = async () => {
                     await this.adapter.updateState(
-                        this.executionContext,
-                        this._key.toString(),
+                        this._key,
                         this.limit,
+                        this.context,
                     );
                 };
                 if (this.enableAsyncTracking) {
-                    callInvokable(this.waitUntil, fn());
+                    callInvocable(this.waitUntil, fn());
                 } else {
                     await fn();
                 }
@@ -247,31 +188,13 @@ export class RateLimiter implements IRateLimiter {
         asyncFn: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
-            await this.adapter.updateState(
-                this.executionContext,
-                this._key.toString(),
-                this.limit,
-            ),
+            await this.adapter.updateState(this._key, this.limit, this.context),
         );
 
         if (state.type === RATE_LIMITER_STATE.BLOCKED) {
-            callInvokable(
-                this.waitUntil,
-                this.eventDispatcher.dispatch(RATE_LIMITER_EVENTS.BLOCKED, {
-                    rateLimiter: this,
-                }),
-            );
-
             const { type: _type, ...rest } = state;
             throw BlockedRateLimiterError.create(rest, this._key);
         }
-
-        callInvokable(
-            this.waitUntil,
-            this.eventDispatcher.dispatch(RATE_LIMITER_EVENTS.ALLOWED, {
-                rateLimiter: this,
-            }),
-        );
 
         return await resolveAsyncLazyable(asyncFn);
     }
@@ -286,12 +209,6 @@ export class RateLimiter implements IRateLimiter {
     }
 
     async reset(): Promise<void> {
-        await this.adapter.reset(this.executionContext, this._key.toString());
-        callInvokable(
-            this.waitUntil,
-            this.eventDispatcher.dispatch(RATE_LIMITER_EVENTS.RESETED, {
-                rateLimiter: this,
-            }),
-        );
+        await this.adapter.reset(this._key, this.context);
     }
 }

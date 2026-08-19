@@ -1,29 +1,28 @@
 ---
 sidebar_position: 4
 sidebar_label: Creating adapters
-pagination_label: Creating semaphore adapters
+pagination_label: Creating Semaphore adapters
 tags:
     - Semaphore
     - Creating adapters
-    - Creating database adapters
 keywords:
     - Semaphore
     - Creating adapters
-    - Creating database adapters
 ---
 
-# Creating semaphore adapters
+# Creating Semaphore adapters
 
 ## Implementing your custom ISemaphoreAdapter
 
-In order to create an adapter you need to implement the [`ISemaphoreAdapter`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreAdapter.html) contract.
+In order to create an adapter you need to implement the [`ISemaphoreAdapter`](https://eridu-tech.github.io/eridu-tech/types/Semaphore.ISemaphoreAdapter.html) contract.
 
 ## Testing your custom ISemaphoreAdapter
 
-We provide a complete test suite to test your semaphore adapter implementation. Simply use the [`semaphoreAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Semaphore.semaphoreAdapterTestSuite.htmll) function:
+We provide a complete test suite to test your semaphore adapter implementation. Simply use the [`semaphoreAdapterTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Semaphore.semaphoreAdapterTestSuite.htmll) function:
 
-- Preconfigured Vitest test cases
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized semaphore adapter contract conformance
+testing.
 
 Usage example:
 
@@ -31,7 +30,7 @@ Usage example:
 // filename: MySemaphoreAdapter.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { semaphoreAdapterTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
+import { semaphoreAdapterTestSuite } from "eridu-tech/semaphore/test-utilities";
 import { MemorySemaphoreAdapter } from "./MemorySemaphoreAdapter.js";
 
 describe("class: MySemaphoreAdapter", () => {
@@ -45,48 +44,17 @@ describe("class: MySemaphoreAdapter", () => {
 });
 ```
 
-## Implementing your custom IDatabaseSemaphoreAdapter
-
-We provide an additional contract [`IDatabaseSemaphoreAdapter`](https://daiso-tech.github.io/daiso-core/types/Semaphore.IDatabaseSemaphoreAdapter.html) for building custom semaphore adapters tailored to databases.
-
-## Testing your custom IDatabaseSemaphoreAdapter
-
-We provide a complete test suite to test your database semaphore adapter implementation. Simply use the [`databaseSemaphoreAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Semaphore.databaseSemaphoreAdapterTestSuite.html) function:
-
-- Preconfigured Vitest test cases
-- Common edge case coverage
-
-Usage example:
-
-```ts
-import { beforeEach, describe, expect, test } from "vitest";
-import { databaseSemaphoreAdapterTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
-import { MyDatabaseSemaphoreAdapter } from "./MyDatabaseSemaphoreAdapter.js";
-
-describe("class: MyDatabaseSemaphoreAdapter", () => {
-    databaseSemaphoreAdapterTestSuite({
-        createAdapter: async () => {
-            return new MyDatabaseSemaphoreAdapter(),
-        },
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
-```
-
 ## Implementing your custom ISemaphoreFactory class
 
-In some cases, you may need to implement a custom [`SemaphoreFactory`](https://daiso-tech.github.io/daiso-core/classes/Semaphore.SemaphoreFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ISemaphoreFactory`](https://daiso-tech.github.io/daiso-core/types/Semaphore.ISemaphoreFactory.html) contract.
+In some cases, you may need to implement a custom [`SemaphoreFactory`](https://eridu-tech.github.io/eridu-tech/classes/Semaphore.SemaphoreFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ISemaphoreFactory`](https://eridu-tech.github.io/eridu-tech/types/Semaphore.ISemaphoreFactory.html) contract.
 
 ## Testing your custom ISemaphoreFactory class
 
-We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`semaphoreFactoryTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Semaphore.semaphoreFactoryTestSuite.html) function:
+We provide a complete test suite to verify your custom event-bus class implementation. Simply use the [`semaphoreFactoryTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Semaphore.semaphoreFactoryTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Standardized event bus behavior validation
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized semaphore factory contract conformance
+testing.
 
 Usage example:
 
@@ -94,7 +62,7 @@ Usage example:
 // filename: MySemaphoreFactory.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { semaphoreFactoryTestSuite } from "@daiso-tech/core/semaphore/test-utilities";
+import { semaphoreFactoryTestSuite } from "eridu-tech/semaphore/test-utilities";
 import { MySemaphoreFactory } from "./MySemaphoreFactory.js";
 
 describe("class: MySemaphoreFactory", () => {
@@ -110,4 +78,4 @@ describe("class: MySemaphoreFactory", () => {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/semaphore`](https://daiso-tech.github.io/daiso-core/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech/modules/Semaphore.html) API docs.

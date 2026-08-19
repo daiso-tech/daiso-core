@@ -2,17 +2,16 @@
  * @module Collection
  */
 
-import {
-    resolveAsyncIterableValue,
-    type AsyncIterableValue,
-} from "@/utilities/_module.js";
+import { resolveAsyncIterableValue } from "@/utilities/_module.js";
+
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class AsyncEntriesIterable<TInput>
-    implements AsyncIterable<[number, TInput]>
-{
+export class AsyncEntriesIterable<TInput> implements AsyncIterable<
+    [number, TInput]
+> {
     constructor(private iterable: AsyncIterableValue<TInput>) {}
 
     async *[Symbol.asyncIterator](): AsyncIterator<[number, TInput]> {

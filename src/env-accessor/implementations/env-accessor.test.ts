@@ -14,9 +14,7 @@ describe("class: EnvAccessor", () => {
                 sources: [{ b: "bar" }, { b: "123" }],
             });
 
-            await expect(accessor.init()).rejects.toBeInstanceOf(
-                ValidationError,
-            );
+            await expect(accessor.init()).rejects.toThrow(ValidationError);
         });
         test("Should merge overlapping fields", async () => {
             const schema = z.object({

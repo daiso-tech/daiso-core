@@ -2,21 +2,20 @@
  * @module Collection
  */
 
-import {
-    type AsyncPredicate,
-    type IAsyncCollection,
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    AsyncPredicate,
+    IAsyncCollection,
 } from "@/collection/contracts/_module.js";
-import {
-    resolveInvokable,
-    type AsyncIterableValue,
-} from "@/utilities/_module.js";
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class AsyncChunkWhileIterable<TInput>
-    implements AsyncIterable<IAsyncCollection<TInput>>
-{
+export class AsyncChunkWhileIterable<TInput> implements AsyncIterable<
+    IAsyncCollection<TInput>
+> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
@@ -32,7 +31,7 @@ export class AsyncChunkWhileIterable<TInput>
             if (index === 0) {
                 array.push(item);
             } else if (
-                await resolveInvokable(this.predicateFn)(
+                await resolveInvocable(this.predicateFn)(
                     item,
                     index,
                     this.makeCollection(array),

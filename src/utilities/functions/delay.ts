@@ -2,11 +2,12 @@
  * @module Utilities
  */
 
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
 
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Utilities
  */
 export async function delay(

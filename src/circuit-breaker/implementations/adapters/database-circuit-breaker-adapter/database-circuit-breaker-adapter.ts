@@ -2,29 +2,28 @@
  * @module CircuitBreaker
  */
 
-import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import { exponentialBackoff } from "@/backoff-policies/implementations/_module.js";
-import {
-    type ICircuitBreakerAdapter,
-    type ICircuitBreakerStorageAdapter,
-    type CircuitBreakerState,
-    type CircuitBreakerStateTransition,
-    type ICircuitBreakerPolicy,
-} from "@/circuit-breaker/contracts/_module.js";
 import { CircuitBreakerStateManager } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/circuit-breaker-state-manager.js";
 import { CircuitBreakerStorage } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/circuit-breaker-storage.js";
-import {
-    InternalCircuitBreakerPolicy,
-    type AllCircuitBreakerState,
-} from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
+import { InternalCircuitBreakerPolicy } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
 import { ConsecutiveBreaker } from "@/circuit-breaker/implementations/policies/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+
+import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
+import type {
+    ICircuitBreakerAdapter,
+    ICircuitBreakerStorageAdapter,
+    CircuitBreakerState,
+    CircuitBreakerStateTransition,
+    ICircuitBreakerPolicy,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { AllCircuitBreakerState } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * Configuration for `DatabaseCircuitBreakerAdapter`.
  * Wraps a {@link ICircuitBreakerStorageAdapter | `ICircuitBreakerStorageAdapter`} with circuit-breaker logic.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/database-circuit-breaker-adapter"`
  * @group Adapters
  */
 export type DatabaseCircuitBreakerAdapterSettings = {
@@ -37,7 +36,7 @@ export type DatabaseCircuitBreakerAdapterSettings = {
      * You can define your own {@link BackoffPolicy | `BackoffPolicy`}.
      * @default
      * ```ts
-     * import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
+     * import { exponentialBackoff } from "eridu-tech/backoff-policies";
      *
      * exponentialBackoff();
      * ```
@@ -48,7 +47,7 @@ export type DatabaseCircuitBreakerAdapterSettings = {
      * You can define your own {@link ICircuitBreakerPolicy | `ICircuitBreakerPolicy`}.
      * @default
      * ```ts
-     * import { ConsecutiveBreaker } from "@daiso-tech/core/circuit-breaker/policies";
+     * import { ConsecutiveBreaker } from "eridu-tech/circuit-breaker/policies";
      *
      * new ConsecutiveBreaker();
      * ```
@@ -57,20 +56,20 @@ export type DatabaseCircuitBreakerAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/database-circuit-breaker-adapter"`
  * @group Adapters
  */
-export class DatabaseCircuitBreakerAdapter<TMetrics = unknown>
-    implements ICircuitBreakerAdapter
-{
+export class DatabaseCircuitBreakerAdapter<
+    TMetrics = unknown,
+> implements ICircuitBreakerAdapter {
     private readonly circuitBreakerStorage: CircuitBreakerStorage<TMetrics>;
     private readonly circuitBreakerStateManager: CircuitBreakerStateManager<TMetrics>;
 
     /**
      * @example
      * ```ts
-     * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
-     * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
+     * import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+     * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
      *
      * const circuitBreakerStorageAdapter = new MemoryCircuitBreakerStorageAdapter();
      * const circuitBreakerAdapter = new DatabaseCircuitBreakerAdapter({
@@ -103,49 +102,49 @@ export class DatabaseCircuitBreakerAdapter<TMetrics = unknown>
     }
 
     async getState(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<CircuitBreakerState> {
-        const state = await this.circuitBreakerStorage.find(context, key);
+        const state = await this.circuitBreakerStorage.find(key, context);
         return state.type;
     }
 
     async updateState(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<CircuitBreakerStateTransition> {
         return await this.circuitBreakerStorage.atomicUpdate(
-            context,
             key,
             this.circuitBreakerStateManager.updateState,
+            context,
         );
     }
 
-    async trackFailure(context: IReadableContext, key: string): Promise<void> {
+    async trackFailure(key: string, context: IReadableContext): Promise<void> {
         await this.circuitBreakerStorage.atomicUpdate(
-            context,
             key,
             this.circuitBreakerStateManager.trackFailure,
+            context,
         );
     }
 
-    async trackSuccess(context: IReadableContext, key: string): Promise<void> {
+    async trackSuccess(key: string, context: IReadableContext): Promise<void> {
         await this.circuitBreakerStorage.atomicUpdate(
-            context,
             key,
             this.circuitBreakerStateManager.trackSuccess,
+            context,
         );
     }
 
-    async reset(context: IReadableContext, key: string): Promise<void> {
-        await this.circuitBreakerStorage.remove(context, key);
+    async reset(key: string, context: IReadableContext): Promise<void> {
+        await this.circuitBreakerStorage.remove(key, context);
     }
 
-    async isolate(context: IReadableContext, key: string): Promise<void> {
+    async isolate(key: string, context: IReadableContext): Promise<void> {
         await this.circuitBreakerStorage.atomicUpdate(
-            context,
             key,
             this.circuitBreakerStateManager.isolate,
+            context,
         );
     }
 }

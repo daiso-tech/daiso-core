@@ -2,20 +2,19 @@
  * @module SharedLock
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type ISharedLockState } from "@/shared-lock/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { ISharedLockState } from "@/shared-lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type AsyncLazy, type Invokable } from "@/utilities/_module.js";
+import type { AsyncLazy, Invocable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type IReaderSemaphore = {
     /**
-     * The `runReaderOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.
+     * The `runReaderOrFail` method wraps an {@link Invocable | `Invocable`} with the `acquireOrFail` and `release` method.
      * @throws {LimitReachedReaderSemaphoreError}
      */
     runReaderOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
@@ -72,12 +71,12 @@ export type IReaderSemaphore = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type IWriterLock = {
     /**
-     * The `runWriterOrFail` method wraps an {@link Invokable | `Invokable`} with the `acquireOrFail` and `release` method.
+     * The `runWriterOrFail` method wraps an {@link Invocable | `Invocable`} with the `acquireOrFail` and `release` method.
      * @throws {FailedAcquireWriterLockError}
      */
     runWriterOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
@@ -137,7 +136,7 @@ export type IWriterLock = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockStateMethods = {
@@ -146,7 +145,7 @@ export type ISharedLockStateMethods = {
     /**
      * The `key` of the `ISharedLock` instance.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * The `id` of the `ISharedLock` instance.
@@ -160,7 +159,7 @@ export type ISharedLockStateMethods = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLockBase = IReaderSemaphore &
@@ -169,7 +168,7 @@ export type ISharedLockBase = IReaderSemaphore &
     };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/contracts"`
  * @group Contracts
  */
 export type ISharedLock = ISharedLockBase & ISharedLockStateMethods;

@@ -2,35 +2,31 @@
  * @module Resilience
  */
 
-import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import { exponentialBackoff } from "@/backoff-policies/implementations/_module.js";
-import {
-    type IContext,
-    type IReadableContext,
-} from "@/execution-context/contracts/_module.js";
-import {
-    type MiddlewareFn,
-    type NextFn,
-} from "@/middleware/contracts/_module.js";
 import { RetryResilienceError } from "@/resilience/implementations/resilience.errors.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
-    type Invokable,
-    type ErrorPolicySettings,
-    callInvokable,
+    callInvocable,
     callErrorPolicyOnValue,
     delay,
     callErrorPolicyOnThrow,
     UnexpectedError,
-    type ErrorPolicy,
-    type Option,
     optionSome,
     optionNone,
 } from "@/utilities/_module.js";
 
+import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
+import type { MiddlewareFn, NextFn } from "@/middleware/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type {
+    Invocable,
+    ErrorPolicySettings,
+    ErrorPolicy,
+    Option,
+} from "@/utilities/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnRetryAttemptData<
@@ -38,19 +34,18 @@ export type OnRetryAttemptData<
 > = {
     attempt: number;
     args: TParameters;
-    context: IReadableContext;
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnExecutionAttempt<
     TParameters extends Array<unknown> = Array<unknown>,
-> = Invokable<[data: OnRetryAttemptData<TParameters>]>;
+> = Invocable<[data: OnRetryAttemptData<TParameters>]>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnRetryDelayData<
@@ -60,33 +55,32 @@ export type OnRetryDelayData<
     attempt: number;
     waitTime: TimeSpan;
     args: TParameters;
-    context: IReadableContext;
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnRetryDelay<TParameters extends Array<unknown> = Array<unknown>> =
-    Invokable<[data: OnRetryDelayData<TParameters>]>;
+    Invocable<[data: OnRetryDelayData<TParameters>]>;
 
 /**
  * Lifecycle callbacks for the `retry` middleware.
  * Invoked at key points during retry attempts: before execution and before the delay.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type RetryCallbacks<
     TParameters extends Array<unknown> = Array<unknown>,
 > = {
     /**
-     * Callback {@link Invokable | `Invokable`} that will be called before execution attempt.
+     * Callback {@link Invocable | `Invocable`} that will be called before execution attempt.
      */
     onExecutionAttempt?: OnExecutionAttempt<TParameters>;
 
     /**
-     * Callback {@link Invokable | `Invokable`} that will be called before the retry delay starts.
+     * Callback {@link Invocable | `Invocable`} that will be called before the retry delay starts.
      */
     onRetryDelay?: OnRetryDelay<TParameters>;
 };
@@ -96,7 +90,7 @@ export type RetryCallbacks<
  * Retries the wrapped function up to a maximum number of attempts.
  * Supports configurable backoff policies and lifecycle callbacks.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type RetrySettings<TParameters extends Array<unknown> = Array<unknown>> =
@@ -111,7 +105,7 @@ export type RetrySettings<TParameters extends Array<unknown> = Array<unknown>> =
             /**
              * @default
              * ```ts
-             * import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
+             * import { exponentialBackoff } from "eridu-tech/backoff-policies";
              *
              * exponentialBackoff();
              * ```
@@ -135,7 +129,6 @@ export type HandleOnExecutionAttemptSettings<
     onExecutionAttempt: OnExecutionAttempt<TParameters>;
     attempt: number;
     args: TParameters;
-    context: IContext;
 };
 
 /**
@@ -144,13 +137,12 @@ export type HandleOnExecutionAttemptSettings<
 export function handleOnExecutionAttempt<TParameters extends Array<unknown>>(
     settings: HandleOnExecutionAttemptSettings<TParameters>,
 ): void {
-    const { attempt, args, context, onExecutionAttempt } = settings;
+    const { attempt, args, onExecutionAttempt } = settings;
     void (async () => {
         try {
-            await callInvokable(onExecutionAttempt, {
+            await callInvocable(onExecutionAttempt, {
                 attempt,
                 args,
-                context,
             });
         } catch (error: unknown) {
             console.error(
@@ -170,7 +162,6 @@ export type HandleOnRetryDelaySettings<TParameters extends Array<unknown>> = {
     waitTime: ITimeSpan;
     attempt: number;
     args: TParameters;
-    context: IContext;
 };
 
 /**
@@ -179,15 +170,14 @@ export type HandleOnRetryDelaySettings<TParameters extends Array<unknown>> = {
 export function handleOnRetryDelay<TParameters extends Array<unknown>>(
     settings: HandleOnRetryDelaySettings<TParameters>,
 ): void {
-    const { onRetryDelay, error, waitTime, attempt, args, context } = settings;
+    const { onRetryDelay, error, waitTime, attempt, args } = settings;
     void (async () => {
         try {
-            await callInvokable(onRetryDelay, {
+            await callInvocable(onRetryDelay, {
                 error,
                 waitTime: TimeSpan.fromTimeSpan(waitTime),
                 attempt,
                 args,
-                context,
             });
         } catch (error_: unknown) {
             console.error("Error occurred in onRetryDelay callback:", error_);
@@ -202,7 +192,6 @@ type HandleWhenReturnSettings<TParameters extends Array<unknown>, TReturn> = {
     onExecutionAttempt: OnExecutionAttempt<TParameters>;
     attempt: number;
     args: TParameters;
-    context: IContext;
     next: NextFn<TParameters, TReturn>;
     errorPolicy: ErrorPolicy | undefined;
     maxAttempts: number;
@@ -221,7 +210,6 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
         onExecutionAttempt,
         attempt,
         args,
-        context,
         next,
         errorPolicy,
         maxAttempts,
@@ -234,7 +222,6 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
         onExecutionAttempt,
         attempt,
         args,
-        context,
     });
     const value = await next();
 
@@ -246,14 +233,13 @@ async function handleWhenReturn<TParameters extends Array<unknown>, TReturn>(
 
     // Only sleep if there will actually be a next attempt
     if (attempt < maxAttempts) {
-        const waitTime = callInvokable(backoffPolicy, attempt, value);
+        const waitTime = callInvocable(backoffPolicy, attempt, value);
         handleOnRetryDelay({
             onRetryDelay,
             error: value,
             waitTime,
             attempt,
             args,
-            context,
         });
         await delay(waitTime);
     }
@@ -272,7 +258,6 @@ type HandleWhenThrowSettings<TParameters extends Array<unknown>> = {
     backoffPolicy: BackoffPolicy;
     onRetryDelay: OnRetryDelay<TParameters>;
     args: TParameters;
-    context: IContext;
 };
 
 /**
@@ -290,7 +275,6 @@ async function handleWhenThrow<TParameters extends Array<unknown>>(
         onRetryDelay,
         errorPolicy,
         args,
-        context,
     } = settings;
     if (await callErrorPolicyOnThrow<any>(errorPolicy, error)) {
         allErrors.push(error);
@@ -300,7 +284,7 @@ async function handleWhenThrow<TParameters extends Array<unknown>>(
 
     // Only sleep if there will actually be a next attempt
     if (attempt < maxAttempts) {
-        const waitTime = callInvokable(backoffPolicy, attempt, error);
+        const waitTime = callInvocable(backoffPolicy, attempt, error);
 
         handleOnRetryDelay({
             onRetryDelay,
@@ -308,7 +292,6 @@ async function handleWhenThrow<TParameters extends Array<unknown>>(
             waitTime,
             attempt,
             args,
-            context,
         });
         await delay(waitTime);
     }
@@ -340,7 +323,7 @@ function throwErrors(settings: ThrowErrorsSettings): never {
 }
 
 /**
- * IMPORT_PATH: `@daiso-tech/core/resilience`
+ * IMPORT_PATH: `eridu-tech/resilience`
  * @group Middlewares
  * @throws {RetryResilienceError}
  */
@@ -361,7 +344,7 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
         );
     }
 
-    return async ({ args, next, context }) => {
+    return async ({ args, next }) => {
         const allErrors: Array<unknown> = [];
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
@@ -369,7 +352,6 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                     onExecutionAttempt,
                     attempt,
                     args,
-                    context,
                     next,
                     errorPolicy,
                     maxAttempts,
@@ -390,7 +372,6 @@ export function retry<TParameters extends Array<unknown>, TReturn>(
                     onRetryDelay,
                     errorPolicy,
                     args,
-                    context,
                 });
             }
         }

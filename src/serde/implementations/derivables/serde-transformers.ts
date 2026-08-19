@@ -3,8 +3,10 @@
  */
 import { Buffer } from "node:buffer";
 
-import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
-import { getConstructorName, type OneOrMore } from "@/utilities/_module.js";
+import { getConstructorName } from "@/utilities/_module.js";
+
+import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -17,9 +19,10 @@ type JSONBuffer = {
 /**
  * @internal
  */
-export class ArrayBufferSerdeTransformer
-    implements ISerdeTransformer<ArrayBuffer, JSONBuffer>
-{
+export class ArrayBufferSerdeTransformer implements ISerdeTransformer<
+    ArrayBuffer,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return ArrayBuffer.name;
     }
@@ -46,9 +49,10 @@ export class ArrayBufferSerdeTransformer
 /**
  * @internal
  */
-export class BufferSerdeTransformer
-    implements ISerdeTransformer<Buffer, JSONBuffer>
-{
+export class BufferSerdeTransformer implements ISerdeTransformer<
+    Buffer,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return Buffer.name;
     }
@@ -74,9 +78,10 @@ export class BufferSerdeTransformer
 /**
  * @internal
  */
-export class Uint8ArraySerdeTransformer
-    implements ISerdeTransformer<Uint8Array, JSONBuffer>
-{
+export class Uint8ArraySerdeTransformer implements ISerdeTransformer<
+    Uint8Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return Uint8Array.name;
     }
@@ -103,9 +108,10 @@ export class Uint8ArraySerdeTransformer
 /**
  * @internal
  */
-export class Int8ArraySerdeTransformer
-    implements ISerdeTransformer<Int8Array, JSONBuffer>
-{
+export class Int8ArraySerdeTransformer implements ISerdeTransformer<
+    Int8Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return Int8Array.name;
     }
@@ -132,9 +138,10 @@ export class Int8ArraySerdeTransformer
 /**
  * @internal
  */
-export class Uint16ArraySerdeTransformer
-    implements ISerdeTransformer<Uint16Array, JSONBuffer>
-{
+export class Uint16ArraySerdeTransformer implements ISerdeTransformer<
+    Uint16Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return Uint16Array.name;
     }
@@ -161,9 +168,10 @@ export class Uint16ArraySerdeTransformer
 /**
  * @internal
  */
-export class Int16ArraySerdeTransformer
-    implements ISerdeTransformer<Int16Array, JSONBuffer>
-{
+export class Int16ArraySerdeTransformer implements ISerdeTransformer<
+    Int16Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return Int16Array.name;
     }
@@ -190,9 +198,10 @@ export class Int16ArraySerdeTransformer
 /**
  * @internal
  */
-export class Uint32ArraySerdeTransformer
-    implements ISerdeTransformer<Uint32Array, JSONBuffer>
-{
+export class Uint32ArraySerdeTransformer implements ISerdeTransformer<
+    Uint32Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return Uint32Array.name;
     }
@@ -219,9 +228,10 @@ export class Uint32ArraySerdeTransformer
 /**
  * @internal
  */
-export class Int32ArraySerdeTransformer
-    implements ISerdeTransformer<Int32Array, JSONBuffer>
-{
+export class Int32ArraySerdeTransformer implements ISerdeTransformer<
+    Int32Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return Int32Array.name;
     }
@@ -248,9 +258,10 @@ export class Int32ArraySerdeTransformer
 /**
  * @internal
  */
-export class BigUint64ArraySerdeTransformer
-    implements ISerdeTransformer<BigUint64Array, JSONBuffer>
-{
+export class BigUint64ArraySerdeTransformer implements ISerdeTransformer<
+    BigUint64Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return BigUint64Array.name;
     }
@@ -279,9 +290,10 @@ export class BigUint64ArraySerdeTransformer
 /**
  * @internal
  */
-export class BigInt64ArraySerdeTransformer
-    implements ISerdeTransformer<BigInt64Array, JSONBuffer>
-{
+export class BigInt64ArraySerdeTransformer implements ISerdeTransformer<
+    BigInt64Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return BigInt64Array.name;
     }
@@ -310,9 +322,10 @@ export class BigInt64ArraySerdeTransformer
 /**
  * @internal
  */
-export class Float32ArraySerdeTransformer
-    implements ISerdeTransformer<Float32Array, JSONBuffer>
-{
+export class Float32ArraySerdeTransformer implements ISerdeTransformer<
+    Float32Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return Float32Array.name;
     }
@@ -339,9 +352,10 @@ export class Float32ArraySerdeTransformer
 /**
  * @internal
  */
-export class Float64ArraySerdeTransformer
-    implements ISerdeTransformer<Float64Array, JSONBuffer>
-{
+export class Float64ArraySerdeTransformer implements ISerdeTransformer<
+    Float64Array,
+    JSONBuffer
+> {
     get name(): OneOrMore<string> {
         return Float64Array.name;
     }
@@ -376,13 +390,10 @@ type SerializedValue<TValue> = {
 /**
  * @internal
  */
-export class MapSerdeTransformer
-    implements
-        ISerdeTransformer<
-            Map<unknown, unknown>,
-            SerializedValue<Array<[unknown, unknown]>>
-        >
-{
+export class MapSerdeTransformer implements ISerdeTransformer<
+    Map<unknown, unknown>,
+    SerializedValue<Array<[unknown, unknown]>>
+> {
     get name(): OneOrMore<string> {
         return Map.name;
     }
@@ -410,9 +421,10 @@ export class MapSerdeTransformer
 /**
  * @internal
  */
-export class SetSerdeTransformer
-    implements ISerdeTransformer<Set<unknown>, SerializedValue<Array<unknown>>>
-{
+export class SetSerdeTransformer implements ISerdeTransformer<
+    Set<unknown>,
+    SerializedValue<Array<unknown>>
+> {
     get name(): OneOrMore<string> {
         return Set.name;
     }
@@ -440,9 +452,10 @@ export class SetSerdeTransformer
 /**
  * @internal
  */
-export class BigIntSerdeTransformer
-    implements ISerdeTransformer<bigint, SerializedValue<string>>
-{
+export class BigIntSerdeTransformer implements ISerdeTransformer<
+    bigint,
+    SerializedValue<string>
+> {
     get name(): OneOrMore<string> {
         return BigInt.name;
     }
@@ -466,9 +479,10 @@ export class BigIntSerdeTransformer
 /**
  * @internal
  */
-export class NaNSerdeTransformer
-    implements ISerdeTransformer<number, SerializedValue<string>>
-{
+export class NaNSerdeTransformer implements ISerdeTransformer<
+    number,
+    SerializedValue<string>
+> {
     get name(): OneOrMore<string> {
         return NaN.toString();
     }
@@ -492,9 +506,10 @@ export class NaNSerdeTransformer
 /**
  * @internal
  */
-export class InfinitySerdeTransformer
-    implements ISerdeTransformer<number, SerializedValue<string>>
-{
+export class InfinitySerdeTransformer implements ISerdeTransformer<
+    number,
+    SerializedValue<string>
+> {
     get name(): OneOrMore<string> {
         return Infinity.toString();
     }
@@ -518,9 +533,10 @@ export class InfinitySerdeTransformer
 /**
  * @internal
  */
-export class UndefinedSerdeTransformer
-    implements ISerdeTransformer<undefined, SerializedValue<string>>
-{
+export class UndefinedSerdeTransformer implements ISerdeTransformer<
+    undefined,
+    SerializedValue<string>
+> {
     get name(): OneOrMore<string> {
         return "undefined";
     }
@@ -544,9 +560,10 @@ export class UndefinedSerdeTransformer
 /**
  * @internal
  */
-export class RegExpSerdeTransformer
-    implements ISerdeTransformer<RegExp, SerializedValue<string>>
-{
+export class RegExpSerdeTransformer implements ISerdeTransformer<
+    RegExp,
+    SerializedValue<string>
+> {
     get name(): OneOrMore<string> {
         return RegExp.name;
     }
@@ -579,9 +596,10 @@ export class RegExpSerdeTransformer
 /**
  * @internal
  */
-export class DateSerdeTransformer
-    implements ISerdeTransformer<Date, SerializedValue<number>>
-{
+export class DateSerdeTransformer implements ISerdeTransformer<
+    Date,
+    SerializedValue<number>
+> {
     get name(): OneOrMore<string> {
         return Date.name;
     }
@@ -605,9 +623,10 @@ export class DateSerdeTransformer
 /**
  * @internal
  */
-export class URLSerdeTransformer
-    implements ISerdeTransformer<URL, SerializedValue<string>>
-{
+export class URLSerdeTransformer implements ISerdeTransformer<
+    URL,
+    SerializedValue<string>
+> {
     get name(): OneOrMore<string> {
         return URL.name;
     }
@@ -631,13 +650,10 @@ export class URLSerdeTransformer
 /**
  * @internal
  */
-export class URLSearchParamsSerdeTransformer
-    implements
-        ISerdeTransformer<
-            URLSearchParams,
-            SerializedValue<Array<[string, string]>>
-        >
-{
+export class URLSearchParamsSerdeTransformer implements ISerdeTransformer<
+    URLSearchParams,
+    SerializedValue<Array<[string, string]>>
+> {
     get name(): OneOrMore<string> {
         return URLSearchParams.name;
     }

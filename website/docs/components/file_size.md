@@ -7,14 +7,14 @@ keywords:
 
 # FileSize
 
-The `@daiso-tech/core/file-size` component provides an easy way for defining, manipulating, and comparing file size. Furthermore, it is designed for easy integration with external file size libraries.
+The `eridu-tech/file-size` component provides an easy way for defining, manipulating, and comparing file size. Furthermore, it is designed for easy integration with external file-size libraries.
 
 ### Creating a FileSize
 
 Creating `FileSize` from bytes:
 
 ```ts
-import { FileSize } from "@daiso-tech/core/file-size";
+import { FileSize } from "eridu-tech/file-size";
 
 const fileSize = FileSize.fromBytes(100);
 ```
@@ -22,7 +22,7 @@ const fileSize = FileSize.fromBytes(100);
 Creating `FileSize` from kilo bytes:
 
 ```ts
-import { FileSize } from "@daiso-tech/core/file-size";
+import { FileSize } from "eridu-tech/file-size";
 
 const fileSize = FileSize.fromKiloBytes(100);
 ```
@@ -30,7 +30,7 @@ const fileSize = FileSize.fromKiloBytes(100);
 Creating `FileSize` from mega bytes:
 
 ```ts
-import { FileSize } from "@daiso-tech/core/file-size";
+import { FileSize } from "eridu-tech/file-size";
 
 const fileSize = FileSize.fromMegaBytes(100);
 ```
@@ -38,7 +38,7 @@ const fileSize = FileSize.fromMegaBytes(100);
 Creating `FileSize` from giga bytes:
 
 ```ts
-import { FileSize } from "@daiso-tech/core/file-size";
+import { FileSize } from "eridu-tech/file-size";
 
 const fileSize = FileSize.fromGigaBytes(100);
 ```
@@ -46,7 +46,7 @@ const fileSize = FileSize.fromGigaBytes(100);
 Creating `FileSize` from tera bytes:
 
 ```ts
-import { FileSize } from "@daiso-tech/core/file-size";
+import { FileSize } from "eridu-tech/file-size";
 
 const fileSize = FileSize.fromTeraBytes(1);
 ```
@@ -54,7 +54,7 @@ const fileSize = FileSize.fromTeraBytes(1);
 Creating `FileSize` from peta bytes:
 
 ```ts
-import { FileSize } from "@daiso-tech/core/file-size";
+import { FileSize } from "eridu-tech/file-size";
 
 const fileSize = FileSize.fromPetaBytes(1);
 ```
@@ -133,9 +133,9 @@ FileSize.fromPetaBytes(1000).toPetaBytes();
 The `FileSize` class supports serialization and deserialization, allowing you to easily convert instances to and from serialized formats. However, registration is required first:
 
 ```ts
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import { FileSize } from "@daiso-tech/core/file-size";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+import { FileSize } from "eridu-tech/file-size";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -151,21 +151,21 @@ console.log(serializedFileSize === deserializedFileSize);
 
 ## FileSize contract
 
-The `IFileSize` contract provides a standardized way to express a file size as bytes.
+The `IFileSize` contract provides a standardized way to express a file-size as bytes.
 
-Key components like `FileStorage`, rely on this contract, ensuring they are not tightly coupled to a specific file size implementation.
+Key components like `FileStorage`, rely on this contract, ensuring they are not tightly coupled to a specific file-size implementation.
 
-This decoupling is crucial for interoperability, allowing seamless integration with external file size libraries.
-To integrate a new library, its file size objects must simply implement the `IFileSize` contract.
+This decoupling is crucial for interoperability, allowing seamless integration with external file-size libraries.
+To integrate a new library, its file-size objects must simply implement the `IFileSize` contract.
 
 :::info
 Note `FileSize` class implements `IFileSize` contract.
 :::
 
-The `IFileSize` contract requires you to implement the `TO_MILLISECONDS` method on the file size object, which must return the file size in milliseconds.
+The `IFileSize` contract requires you to implement the `TO_MILLISECONDS` method on the file-size object, which must return the file-size in milliseconds.
 
 ```ts
-import { IFileSize, TO_BYTES } from "@daiso-tech/core/file-size/contracts";
+import { IFileSize, TO_BYTES } from "eridu-tech/file-size/contracts";
 
 export class MyFileSize implements IFileSize {
     constructor(private readonly fileSizeInBytes: number) {}
@@ -178,4 +178,4 @@ export class MyFileSize implements IFileSize {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/file-size`](https://daiso-tech.github.io/daiso-core/modules/FileSize.html) API docs.
+For further information refer to [`eridu-tech/file-size`](https://eridu-tech.github.io/eridu-tech/modules/FileSize.html) API docs.

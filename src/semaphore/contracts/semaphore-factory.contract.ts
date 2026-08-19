@@ -2,23 +2,13 @@
  * @module Semaphore
  */
 
-import { type IEventListenable } from "@/event-bus/contracts/_module.js";
-import { type ISemaphore } from "@/semaphore/contracts/semaphore.contract.js";
-import { type SemaphoreEventMap } from "@/semaphore/contracts/semaphore.events.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-
-/**
- * The `ISemaphoreListenable` contract defines a way for listening {@link ISemaphore | `ISemaphore`} operations.
- *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
- * @group Contracts
- */
-export type ISemaphoreListenable = IEventListenable<SemaphoreEventMap>;
+import type { ISemaphore } from "@/semaphore/contracts/semaphore.contract.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * Configuration settings for creating a semaphore instance through the factory.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type SemaphoreFactoryCreateSettings = {
@@ -45,23 +35,15 @@ export type SemaphoreFactoryCreateSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * The `ISemaphoreFactory` contract defines a way for managing semaphores independent of the underlying technology.
+ * It comes with more convenient methods compared to `ISemaphoreAdapter`.
+ *
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
-export type ISemaphoreFactoryBase = {
+export type ISemaphoreFactory = {
     /**
      * The `create` method is used to create an instance of {@link ISemaphore | `ISemaphore`}.
      */
     create(key: string, settings: SemaphoreFactoryCreateSettings): ISemaphore;
-};
-
-/**
- * The `ISemaphoreFactory` contract defines a way for managing semaphores independent of the underlying technology.
- * It comes with more convenient methods compared to `ISemaphoreAdapter`.
- *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
- * @group Contracts
- */
-export type ISemaphoreFactory = ISemaphoreFactoryBase & {
-    readonly events: ISemaphoreListenable;
 };

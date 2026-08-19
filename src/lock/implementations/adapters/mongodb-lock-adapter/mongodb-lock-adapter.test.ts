@@ -1,18 +1,16 @@
-import {
-    type StartedMongoDBContainer,
-    MongoDBContainer,
-} from "@testcontainers/mongodb";
+import { MongoDBContainer } from "@testcontainers/mongodb";
 import { MongoClient } from "mongodb";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    MongodbLockAdapter,
-    type MongodbLockDocument,
-} from "@/lock/implementations/adapters/mongodb-lock-adapter/mongodb-lock-adapter.js";
+import { MongodbLockAdapter } from "@/lock/implementations/adapters/mongodb-lock-adapter/mongodb-lock-adapter.js";
 import { lockAdapterTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
+
+import type { MongodbLockDocument } from "@/lock/implementations/adapters/mongodb-lock-adapter/mongodb-lock-adapter.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbLockAdapter", () => {
@@ -116,7 +114,7 @@ describe("class: MongodbLockAdapter", () => {
             const lockId = "1";
             const ttl = null;
 
-            await adapter.acquire(noOpContext, key, lockId, ttl);
+            await adapter.acquire(key, lockId, ttl, noOpContext);
 
             const doc = await collection.findOne({
                 key,
@@ -144,7 +142,7 @@ describe("class: MongodbLockAdapter", () => {
             const ttl = TimeSpan.fromMinutes(5);
             const expiration = ttl.toEndDate();
 
-            await adapter.acquire(noOpContext, key, lockId, ttl);
+            await adapter.acquire(key, lockId, ttl, noOpContext);
 
             const doc = await collection.findOne({
                 key,

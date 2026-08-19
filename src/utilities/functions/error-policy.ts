@@ -2,22 +2,26 @@
  * @module Utilities
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import {
-    callInvokable,
-    isInvokable,
-    type Invokable,
-} from "@/utilities/functions/invokable.js";
+import { callInvocable, isInvocable } from "@/utilities/functions/invocable.js";
 import { isStandardSchema } from "@/utilities/functions/is-standard-schema.js";
+<<<<<<< HEAD
 import {
     resolveOneOrMore,
     type OneOrMore,
 } from "@/utilities/functions/resolve-one-or-more.js";
 import { type Class } from "@/utilities/types/_module.js";
+=======
+import { resolveOneOrMore } from "@/utilities/functions/resolve-one-or-more.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type { Invocable } from "@/utilities/functions/invocable.js";
+import type { OneOrMore } from "@/utilities/functions/resolve-one-or-more.js";
+import type { AnyClass } from "@/utilities/types/_module.js";
+>>>>>>> main
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Utilities
  */
 export type ErrorPolicyBoolSetting = {
@@ -45,17 +49,17 @@ export function isErrorPolicyBoolSetting(
 /**
  * The `ErrorPolicy` can be a predicate function, {@link StandardSchemaV1 | `StandardSchemaV1`} and a class.
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Utilities
  */
 export type ErrorPolicy<TError = unknown> =
-    | Invokable<[error: TError], boolean>
+    | Invocable<[error: TError], boolean>
     | StandardSchemaV1<TError>
     | OneOrMore<Class>
     | ErrorPolicyBoolSetting;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Utilities
  */
 export type ErrorPolicySettings<TError = unknown> = {
@@ -93,8 +97,8 @@ export async function callErrorPolicyOnThrow<TError = unknown>(
     errorPolicy: ErrorPolicy<TError> = () => true,
     error: TError,
 ): Promise<boolean> {
-    if (isInvokable(errorPolicy)) {
-        return callInvokable(errorPolicy, error);
+    if (isInvocable(errorPolicy)) {
+        return callInvocable(errorPolicy, error);
     }
 
     if (isStandardSchema(errorPolicy)) {

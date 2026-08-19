@@ -2,21 +2,21 @@
  * @module Collection
  */
 
-import {
-    type AsyncMap,
-    type IAsyncCollection,
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    AsyncMap,
+    IAsyncCollection,
 } from "@/collection/contracts/_module.js";
-import {
-    resolveInvokable,
-    type AsyncIterableValue,
-} from "@/utilities/_module.js";
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class AsyncGroupByIterable<TInput, TOutput = TInput>
-    implements AsyncIterable<[TOutput, IAsyncCollection<TInput>]>
-{
+export class AsyncGroupByIterable<
+    TInput,
+    TOutput = TInput,
+> implements AsyncIterable<[TOutput, IAsyncCollection<TInput>]> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private selectFn: AsyncMap<
@@ -35,7 +35,7 @@ export class AsyncGroupByIterable<TInput, TOutput = TInput>
     > {
         const map = new Map<TOutput, Array<TInput>>();
         for await (const [index, item] of this.collection.entries()) {
-            const key = await resolveInvokable(this.selectFn)(
+            const key = await resolveInvocable(this.selectFn)(
                 item,
                 index,
                 this.collection,

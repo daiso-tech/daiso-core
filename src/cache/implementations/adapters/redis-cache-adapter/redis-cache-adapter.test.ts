@@ -1,7 +1,4 @@
-import {
-    RedisContainer,
-    type StartedRedisContainer,
-} from "@testcontainers/redis";
+import { RedisContainer } from "@testcontainers/redis";
 import { Redis } from "ioredis";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
@@ -10,6 +7,8 @@ import { cacheAdapterTestSuite } from "@/cache/implementations/test-utilities/_m
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedRedisContainer } from "@testcontainers/redis";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: RedisCacheAdapter", () => {

@@ -2,29 +2,29 @@
  * @module CircuitBreaker
  */
 
-import {
-    type ClientSession,
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type MongoClient,
-    type ObjectId,
+import type {
+    ClientSession,
+    Collection,
+    CollectionOptions,
+    Db,
+    MongoClient,
+    ObjectId,
 } from "mongodb";
 
-import {
-    type ICircuitBreakerStorageAdapter,
-    type ICircuitBreakerStorageAdapterTransaction,
+import type {
+    ICircuitBreakerStorageAdapter,
+    ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvokableFn,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type MongodbCircuitBreakerStorageDocument = {
@@ -37,7 +37,7 @@ export type MongodbCircuitBreakerStorageDocument = {
  * Configuration for `MongodbCircuitBreakerStorageAdapter`.
  * Requires a MongoDB `Db` instance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export type MongodbCircuitBreakerStorageAdapterSettings = {
@@ -62,13 +62,6 @@ export type MongodbCircuitBreakerStorageAdapterSettings = {
      * Serde instance for serializing and deserializing circuit-breaker state to and from strings.
      */
     serde: ISerde<string>;
-
-    /**
-     * When `true`, operations are wrapped in MongoDB transactions for atomicity.
-     * Requires a Replica Set or sharded cluster that supports transactions.
-     * @default true
-     */
-    enableTransactions?: boolean;
 };
 
 /**
@@ -76,7 +69,7 @@ export type MongodbCircuitBreakerStorageAdapterSettings = {
  *
  * Note in order to use `MongodbCircuitBreakerStorageAdapter` correctly, you need to use a database that has support for transactions.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/mongodb-circuit-breaker-storage-adapter"`
  * @group Adapters
  */
 export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
@@ -85,15 +78,14 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     private readonly collection: Collection<MongodbCircuitBreakerStorageDocument>;
     private readonly client: MongoClient;
     private readonly serde: ISerde<string>;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
      * ```ts
-     * import { MongodbCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/mongodb-circuit-breaker-storage-adapter";
+     * import { MongodbCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/mongodb-circuit-breaker-storage-adapter";
      * import { MongoClient } from "mongodb";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      *
      * const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
      * const database = client.db("database");
@@ -114,7 +106,6 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
             collectionSettings,
             database,
             serde,
-            enableTransactions = true,
         } = settings;
         this.client = client;
         this.collection = database.collection(
@@ -122,7 +113,6 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
             collectionSettings,
         );
         this.serde = serde;
-        this.enableTransactions = enableTransactions;
     }
 
     /**
@@ -166,9 +156,9 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     private async upsert<TType_>(
-        _context: IReadableContext,
         key: string,
         state: TType_,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.updateOne(
@@ -188,37 +178,34 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     private async _transaction<TValue>(
-        trxFn: InvokableFn<[session?: ClientSession], Promise<TValue>>,
+        trxFn: InvocableFn<[session?: ClientSession], Promise<TValue>>,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return await this.client.withSession(async (session) => {
-                return await session.withTransaction(async () => {
-                    return await trxFn(session);
-                });
+        return await this.client.withSession(async (session) => {
+            return await session.withTransaction(async () => {
+                return await trxFn(session);
             });
-        }
-        return trxFn();
+        });
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await this._transaction(async (session) => {
             return await fn({
-                upsert: (context, key, state) =>
-                    this.upsert(context, key, state, session),
-                find: (context, key) => this.find(context, key, session),
+                upsert: (key, state, context) =>
+                    this.upsert(key, state, context, session),
+                find: (key, context) => this.find(key, context, session),
             });
         });
     }
 
     async find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<TType | null> {
         const doc = await this.collection.findOne(
@@ -234,8 +221,8 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     }
 
     async remove(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.deleteOne(

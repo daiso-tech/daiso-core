@@ -2,35 +2,28 @@
  * @module CircuitBreaker
  */
 
-import {
-    type TestAPI,
-    type SuiteAPI,
-    type ExpectStatic,
-    type beforeEach,
-} from "vitest";
-
-import {
-    BACKOFFS,
-    type ConstantBackoffSettingsEnum,
-} from "@/backoff-policies/implementations/_module.js";
-import {
-    CIRCUIT_BREAKER_STATE,
-    type CircuitBreakerStateTransition,
-    type ICircuitBreakerAdapter,
-} from "@/circuit-breaker/contracts/_module.js";
-import {
-    BREAKER_POLICIES,
-    type ConsecutiveBreakerSettingsEnum,
-} from "@/circuit-breaker/implementations/policies/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import { BACKOFFS } from "@/backoff-policies/implementations/_module.js";
+import { CIRCUIT_BREAKER_STATE } from "@/circuit-breaker/contracts/_module.js";
+import { BREAKER_POLICIES } from "@/circuit-breaker/implementations/policies/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { delay, type Promisable } from "@/utilities/_module.js";
+import { delay } from "@/utilities/_module.js";
+
+import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
+
+import type { ConstantBackoffSettingsEnum } from "@/backoff-policies/implementations/_module.js";
+import type {
+    CircuitBreakerStateTransition,
+    ICircuitBreakerAdapter,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { ConsecutiveBreakerSettingsEnum } from "@/circuit-breaker/implementations/policies/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`
  * @group TestUtilities
  */
 export type ConsecutiveBreakerTestSuiteSettings = {
@@ -43,7 +36,7 @@ export type ConsecutiveBreakerTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(10)
      * ```
@@ -53,8 +46,8 @@ export type ConsecutiveBreakerTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -81,17 +74,17 @@ const backoffPolicySettings: Required<ConstantBackoffSettingsEnum> = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/test-utilities"`
  * @group TestUtilities
  *
  * @example
  * ```ts
  * import { beforeEach, describe, expect, test } from "vitest";
- * import { DatabaseCircuitBreakerAdapter } from "@daiso-tech/core/circuit-breaker/database-circuit-breaker-adapter";
- * import { ConsecutiveBreaker } from "@daiso-tech/core/circuit-breaker/policies";
- * import { consecutiveBreakerTestSuite } from "@daiso-tech/core/circuit-breaker/test-utilities";
- * import { constantBackoff } from "@daiso-tech/core/backoff-policies";
- * import { MemoryCircuitBreakerStorageAdapter } from "@daiso-tech/core/circuit-breaker/memory-circuit-breaker-storage-adapter";
+ * import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
+ * import { ConsecutiveBreaker } from "eridu-tech/circuit-breaker/policies";
+ * import { consecutiveBreakerTestSuite } from "eridu-tech/circuit-breaker/test-utilities";
+ * import { constantBackoff } from "eridu-tech/backoff-policies";
+ * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
  *
  * describe("consecutive-breaker class: DatabaseCircuitBreakerAdapter", () => {
  *     consecutiveBreakerTestSuite({
@@ -144,81 +137,81 @@ export function consecutiveBreakerTestSuite(
 
         describe("method: getState", () => {
             test("Should return CIRCUIT_BREAKER_STATE.CLOSED as initial state", async () => {
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
 
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.CLOSED);
             });
             test("Should return CIRCUIT_BREAKER_STATE.CLOSED when in ClosedState", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.CLOSED);
             });
             test("Should return CIRCUIT_BREAKER_STATE.OPEN when in OpenedState", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
 
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.OPEN);
             });
             test("Should return CIRCUIT_BREAKER_STATE.HALF_OPEN when in HalfOpenState", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime);
-                await adapter.updateState(context, KEY);
+                await adapter.updateState(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
 
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.HALF_OPEN);
             });
             test("Should return CIRCUIT_BREAKER_STATE.ISOLATED when in IsolatedState", async () => {
-                await adapter.isolate(context, KEY);
+                await adapter.isolate(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
 
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.ISOLATED);
             });
         });
         describe("method: updateState / trackFailure / trackSuccess", () => {
             test("Should transition ClosedState -> ClosedState when 1 failure has occurred", async () => {
-                await adapter.trackFailure(context, KEY);
-                const transition = await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -226,17 +219,17 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> ClosedState when 4 consecutive failures has occurred", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                const transition = await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -244,20 +237,20 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> OpenState when 5 consecutive failures has occurred", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                const transition = await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -265,23 +258,23 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> ClosedState when 4 consecutive failures, 1 success and 1 failure has occurred", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                const transition = await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.CLOSED,
@@ -289,23 +282,23 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> OpenState -> OpenState when 5 consecutive failures has occurred and wait time is not reached", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime.divide(2));
-                const transition = await adapter.updateState(context, KEY);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.OPEN,
@@ -313,23 +306,23 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> OpenState -> HalfOpenState when 5 consecutive failures has occurred and wait time is reached", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime);
-                const transition = await adapter.updateState(context, KEY);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.OPEN,
@@ -337,26 +330,26 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> OpenState -> HalfOpenState -> HalfOpenState when 5 consecutive failures, wait time is reached and 1 consecutive successes has occurred", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime);
-                await adapter.updateState(context, KEY);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                const transition = await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.HALF_OPEN,
@@ -364,35 +357,35 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> OpenState -> HalfOpenState -> HalfOpenState when 5 consecutive failures, wait time is reached and 4 consecutive successes has occurred", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime);
-                await adapter.updateState(context, KEY);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                const transition = await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.HALF_OPEN,
@@ -400,38 +393,38 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> OpenState -> HalfOpenState -> ClosedState when 5 consecutive failures, wait time is reached and 5 consecutive successes has occurred", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime);
-                await adapter.updateState(context, KEY);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                const transition = await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.HALF_OPEN,
@@ -439,26 +432,26 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> OpenState -> HalfOpenState -> OpenState when 5 consecutive failures, wait time is reached and 1 failure has occurred", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime);
-                await adapter.updateState(context, KEY);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                const transition = await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.HALF_OPEN,
@@ -466,38 +459,38 @@ export function consecutiveBreakerTestSuite(
                 } satisfies CircuitBreakerStateTransition);
             });
             test("Should transition ClosedState -> OpenState -> HalfOpenState -> OpenState when 5 consecutive failures, wait time is reached, 4 consecutive successes and 1 failure has occurred", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime);
-                await adapter.updateState(context, KEY);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackSuccess(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackSuccess(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                const transition = await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                const transition = await adapter.updateState(KEY, context);
 
                 expect(transition).toEqual({
                     from: CIRCUIT_BREAKER_STATE.HALF_OPEN,
@@ -507,154 +500,154 @@ export function consecutiveBreakerTestSuite(
         });
         describe("method: updateState / trackFailure / isolate / getState", () => {
             test("Should transition to IsolatedState when in ClosedState", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.isolate(context, KEY);
+                await adapter.isolate(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.ISOLATED);
             });
             test("Should transition to IsolatedState when in OpenedState", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.isolate(context, KEY);
+                await adapter.isolate(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
 
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.ISOLATED);
             });
             test("Should transition to IsolatedState when in HalfOpenState", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime);
-                await adapter.updateState(context, KEY);
+                await adapter.updateState(KEY, context);
 
-                await adapter.isolate(context, KEY);
+                await adapter.isolate(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
 
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.ISOLATED);
             });
         });
         describe("method: updateState / trackFailure / reset", () => {
             test("Should reset when in ClosedState", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.reset(context, KEY);
+                await adapter.reset(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.CLOSED);
             });
             test("Should reset when in OpenedState", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.reset(context, KEY);
+                await adapter.reset(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
 
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.CLOSED);
             });
             test("Should reset when in HalfOpenState", async () => {
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
-                await adapter.trackFailure(context, KEY);
-                await adapter.updateState(context, KEY);
+                await adapter.trackFailure(KEY, context);
+                await adapter.updateState(KEY, context);
 
                 await delayWithBuffer(waitTime);
-                await adapter.updateState(context, KEY);
+                await adapter.updateState(KEY, context);
 
-                await adapter.reset(context, KEY);
+                await adapter.reset(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
 
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.CLOSED);
             });
             test("Should reset when in IsolatedState", async () => {
-                await adapter.isolate(context, KEY);
+                await adapter.isolate(KEY, context);
 
-                await adapter.reset(context, KEY);
+                await adapter.reset(KEY, context);
 
-                const state = await adapter.getState(context, KEY);
+                const state = await adapter.getState(KEY, context);
 
                 expect(state).toBe(CIRCUIT_BREAKER_STATE.CLOSED);
             });
         });
 
         test.skip("TEST", async () => {
-            await adapter.trackFailure(context, KEY);
-            await adapter.updateState(context, KEY);
+            await adapter.trackFailure(KEY, context);
+            await adapter.updateState(KEY, context);
         });
     });
 }

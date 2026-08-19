@@ -1,15 +1,9 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { fallback } from "@/resilience/implementations/fallback/fallback.js";
 
 describe("function: fallback", () => {
-    let use: Use;
-    beforeEach(() => {
-        use = useFactory();
-    });
-
     describe("basic fallback behavior", () => {
         test("Should return original value when function succeeds", async () => {
             const fn = use(
@@ -69,8 +63,7 @@ describe("function: fallback", () => {
             await fn();
             // Allow the fire-and-forget async callback to complete
             await new Promise((resolve) => setTimeout(resolve, 0));
-            expect(onFallbackFn).toHaveBeenCalledOnce();
-            expect(onFallbackFn).toHaveBeenCalledWith(
+            expect(onFallbackFn).toHaveBeenCalledExactlyOnceWith(
                 expect.objectContaining({
                     error,
                     fallbackValue: "fallback",
@@ -92,8 +85,7 @@ describe("function: fallback", () => {
             );
             await fn();
             await new Promise((resolve) => setTimeout(resolve, 0));
-            expect(onFallbackFn).toHaveBeenCalledOnce();
-            expect(onFallbackFn).toHaveBeenCalledWith(
+            expect(onFallbackFn).toHaveBeenCalledExactlyOnceWith(
                 expect.objectContaining({
                     error: false,
                     fallbackValue: true,
@@ -299,7 +291,7 @@ describe("function: fallback", () => {
             await expect(fn()).rejects.toThrow("other-error");
         });
 
-        test("Should return fallback when errorPolicy is an IInvokableObject that returns true", async () => {
+        test("Should return fallback when errorPolicy is an IInvocableObject that returns true", async () => {
             const fn = use((): Promise<string> => {
                 return Promise.reject(new Error("fail"));
             }, [
@@ -313,7 +305,7 @@ describe("function: fallback", () => {
             expect(await fn()).toBe("fallback");
         });
 
-        test("Should rethrow when errorPolicy is an IInvokableObject that returns false", async () => {
+        test("Should rethrow when errorPolicy is an IInvocableObject that returns false", async () => {
             const fn = use((): Promise<string> => {
                 return Promise.reject(new Error("fail"));
             }, [

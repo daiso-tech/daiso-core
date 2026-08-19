@@ -3,7 +3,7 @@
  */
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Error thrown when attempting to access a context value that does not exist.
  *

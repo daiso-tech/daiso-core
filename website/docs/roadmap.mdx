@@ -1,0 +1,80 @@
+---
+sidebar_position: 100
+sidebar_label: Roadmap
+pagination_label: Roadmap
+tags:
+    - Roadmap
+    - Upcoming
+    - Future
+keywords:
+    - Roadmap
+    - Upcoming
+    - Future
+---
+
+# 🔮 Roadmap
+
+Everything planned and in progress for the Eridu-tech ecosystem.
+
+---
+
+### How to read this roadmap
+
+- **Available Today** — Ready, tested, documented components. Shown at the top of the page.
+- **Future sections** — Grouped by capability domain. Items are not tied to specific versions; they ship when ready.
+- **Stable** — Mature API with full adapter and test coverage. Committed to backward compatibility.
+- **Near-stable** — Full test and adapter coverage, same quality as Stable, but API may change based on valid user feedback.
+- **Experimental** — API in early preview. May change significantly. Not recommended for production use.
+
+Eridu-tech is pre-v1. Priorities may shift as the ecosystem is tested against real workloads.
+
+---
+
+import {
+    AvailableComponents,
+    FoundationRuntimeSection,
+    ReliabilityMessagingSection,
+    SecuritySection,
+    IntegrationsSection,
+    DevToolingSection,
+} from "../src/roadmap/RoadmapView";
+import { COMPONENT_COUNT } from "../utilities/package-json-data";
+
+## 🟢 Available Components
+
+The Eridu-tech ecosystem already ships **{COMPONENT_COUNT} ready components** —
+tested, fully documented, and available now.
+
+<AvailableComponents />
+
+## 🚀 Upcoming Components
+
+### Foundation & Runtime
+
+The core structural building blocks — DI, execution control, and transaction orchestration.
+
+<FoundationRuntimeSection />
+
+### Reliability & Messaging
+
+Guaranteed message delivery, job scheduling, and idempotency — built on Transaction Context.
+
+<ReliabilityMessagingSection />
+
+### Security
+
+Authentication, authorization, and session management — end-to-end security.
+
+<SecuritySection />
+
+### Integrations
+
+Connect Eridu-tech to the rest of your stack — search engines, ORMs, and API specifications.
+
+<IntegrationsSection />
+
+### Dev Tooling
+
+Plugins, autodiscovery, and runtime introspection — everything you need to build with Eridu-tech.
+
+<DevToolingSection />

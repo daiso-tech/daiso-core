@@ -2,7 +2,7 @@
  * @module RateLimiter
  */
 
-import { type IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
+import type { IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
 
 /**
  * Rate limiter factory resolver contract for dynamically selecting rate limiter factory implementations.
@@ -13,7 +13,7 @@ import { type IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-
  *
  * @template TAdapters - Union type of registered adapter names (e.g., "memory" | "database" | "redis")
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiterFactoryResolver<TAdapters extends string = string> = {

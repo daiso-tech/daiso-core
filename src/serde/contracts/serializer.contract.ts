@@ -19,7 +19,7 @@ import { SerializationSerdeError } from "@/serde/contracts/serde.errors.js";
  *
  * @template TSerializedValue - The serialized output format (usually JSON-compatible, defaults to unknown)
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export type ISerializer<TSerializedValue = unknown> = {

@@ -2,12 +2,12 @@
  * @module Codec
  */
 
-import { type InferInstance } from "@/utilities/_module.js";
+import type { InferInstance } from "@/utilities/_module.js";
 
 /**
  * The error occurs when a value is unable to be encoded.
  *
- * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
+ * IMPORT_PATH: `"eridu-tech/codec/contracts"`
  * @group Errors
  */
 export class EncodingError extends Error {
@@ -32,7 +32,7 @@ export class EncodingError extends Error {
 /**
  * The error occurs when a value is unable to be decoded.
  *
- * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
+ * IMPORT_PATH: `"eridu-tech/codec/contracts"`
  * @group Errors
  */
 export class DecodingError extends Error {
@@ -55,7 +55,7 @@ export class DecodingError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
+ * IMPORT_PATH: `"eridu-tech/codec/contracts"`
  * @group Errors
  */
 export const CODEC_ERRORS = {
@@ -64,7 +64,7 @@ export const CODEC_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
+ * IMPORT_PATH: `"eridu-tech/codec/contracts"`
  * @group Errors
  */
 export type AllCodecErrors = InferInstance<
@@ -72,7 +72,7 @@ export type AllCodecErrors = InferInstance<
 >;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/codec/contracts"`
+ * IMPORT_PATH: `"eridu-tech/codec/contracts"`
  * @group Errors
  */
 export function isCodecError(value: unknown): value is AllCodecErrors {

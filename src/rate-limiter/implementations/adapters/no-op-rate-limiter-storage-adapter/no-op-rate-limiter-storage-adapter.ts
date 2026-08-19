@@ -2,35 +2,35 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IRateLimiterFactory,
-    type IRateLimiterData,
-    type IRateLimiterStorageAdapter,
-    type IRateLimiterStorageAdapterTransaction,
+    IRateLimiterFactory,
+    IRateLimiterData,
+    IRateLimiterStorageAdapter,
+    IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
-import { type InvokableFn } from "@/utilities/_module.js";
+import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/no-op-rate-limiter-storage-adapter"`
  * @internal
  */
-class NoOpRateLimiterStorageAdapterTransaction<TType>
-    implements IRateLimiterStorageAdapterTransaction<TType>
-{
+class NoOpRateLimiterStorageAdapterTransaction<
+    TType,
+> implements IRateLimiterStorageAdapterTransaction<TType> {
     upsert(
-        _context: IReadableContext,
         _key: string,
         _state: TType,
         _expiration: Date,
+        _context: IReadableContext,
     ): Promise<void> {
         return Promise.resolve();
     }
 
     find(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         return Promise.resolve(null);
     }
@@ -39,18 +39,18 @@ class NoOpRateLimiterStorageAdapterTransaction<TType>
 /**
  * The `NoOpRateLimiterStorageAdapterTransaction` will do nothing and is used for easily mocking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/no-op-rate-limiter-storage-adapter"`
  * @group Adapters
  */
-export class NoOpRateLimiterStorageAdapter<TType>
-    implements IRateLimiterStorageAdapter<TType>
-{
+export class NoOpRateLimiterStorageAdapter<
+    TType,
+> implements IRateLimiterStorageAdapter<TType> {
     transaction<TValue>(
-        _context: IReadableContext,
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return Promise.resolve(
             fn(new NoOpRateLimiterStorageAdapterTransaction()),
@@ -58,13 +58,13 @@ export class NoOpRateLimiterStorageAdapter<TType>
     }
 
     find(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterData<TType> | null> {
         return Promise.resolve(null);
     }
 
-    remove(_context: IReadableContext, _key: string): Promise<void> {
+    remove(_key: string, _context: IReadableContext): Promise<void> {
         return Promise.resolve();
     }
 }

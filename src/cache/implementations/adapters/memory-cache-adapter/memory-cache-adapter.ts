@@ -2,23 +2,20 @@
  * @module Cache
  */
 
-import {
-    type ICacheAdapter,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ICache,
-} from "@/cache/contracts/_module.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * The `MemoryCacheAdapter` is used for easily faking{@link ICache | `ICache`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache/memory-cache-adapter"`
+ * IMPORT_PATH: `"eridu-tech/cache/memory-cache-adapter"`
  * @group Adapters
  */
-export class MemoryCacheAdapter<TType = unknown>
-    implements ICacheAdapter<TType>
-{
+export class MemoryCacheAdapter<
+    TType = unknown,
+> implements ICacheAdapter<TType> {
     private readonly timeoutMap = new Map<
         string,
         NodeJS.Timeout | string | number
@@ -28,7 +25,7 @@ export class MemoryCacheAdapter<TType = unknown>
      * You can provide an optional {@link Map | `Map`}, that will be used for storing the data.
      * @example
      * ```ts
-     * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+     * import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
      *
      * const map = new Map<any, any>();
      * const cacheAdapter = new MemoryCacheAdapter(map);
@@ -36,26 +33,56 @@ export class MemoryCacheAdapter<TType = unknown>
      */
     constructor(private readonly map: Map<string, unknown> = new Map()) {}
 
-    get(_context: IReadableContext, key: string): Promise<TType | null> {
+    get(key: string, context: IReadableContext): Promise<TType | null> {
+        return this._get(key, context);
+    }
+
+    add(
+        key: string,
+        value: TType,
+        ttl: TimeSpan | null,
+        context: IReadableContext,
+    ): Promise<boolean> {
+        return this._add(key, value, ttl, context);
+    }
+
+    async getOrAdd(
+        key: string,
+        valueToAdd: TType,
+        ttl: TimeSpan | null,
+        context: IReadableContext,
+    ): Promise<TType> {
+        const value = await this._get(key, context);
+        if (value === null) {
+            await this._add(key, valueToAdd, ttl, context);
+            return valueToAdd;
+        }
+        return value;
+    }
+
+    private _get(
+        key: string,
+        _context: IReadableContext,
+    ): Promise<TType | null> {
         return Promise.resolve(
             this.map.get(key) ?? null,
         ) as Promise<TType | null>;
     }
 
     async getAndRemove(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<TType | null> {
-        const value = await this.get(context, key);
-        await this.remove(key);
+        const value = await this._get(key, context);
+        await this._remove(key);
         return value;
     }
 
-    add(
-        _context: IReadableContext,
+    private _add(
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const hasNotKey = !this.map.has(key);
         if (hasNotKey) {
@@ -74,20 +101,20 @@ export class MemoryCacheAdapter<TType = unknown>
     }
 
     async put(
-        context: IReadableContext,
         key: string,
         value: TType,
         ttl: TimeSpan | null,
+        context: IReadableContext,
     ): Promise<boolean> {
-        const hasKey = await this.remove(key);
-        await this.add(context, key, value, ttl);
+        const hasKey = await this._remove(key);
+        await this._add(key, value, ttl, context);
         return hasKey;
     }
 
     update(
-        _context: IReadableContext,
         key: string,
         value: TType,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const hasKey = this.map.has(key);
         if (hasKey) {
@@ -97,9 +124,9 @@ export class MemoryCacheAdapter<TType = unknown>
     }
 
     async increment(
-        _context: IReadableContext,
         key: string,
         value: number,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const prevValue = this.map.get(key);
         const hasKey = prevValue !== undefined;
@@ -110,20 +137,20 @@ export class MemoryCacheAdapter<TType = unknown>
                 );
             }
             const newValue = prevValue + value;
-            this.map.set(key, newValue as TType);
+            this.map.set(key, newValue);
         }
         return Promise.resolve(hasKey);
     }
 
-    remove(key: string): Promise<boolean> {
+    private _remove(key: string): Promise<boolean> {
         clearTimeout(this.timeoutMap.get(key));
         this.timeoutMap.delete(key);
         return Promise.resolve(this.map.delete(key));
     }
 
     removeMany(
-        _context: IReadableContext,
         keys: Array<string>,
+        _context: IReadableContext,
     ): Promise<boolean> {
         let deleteCount = 0;
         for (const key of keys) {
@@ -137,16 +164,20 @@ export class MemoryCacheAdapter<TType = unknown>
         return Promise.resolve(deleteCount > 0);
     }
 
-    removeAll(): Promise<void> {
+    private removeAll(_context: IReadableContext): Promise<void> {
         this.map.clear();
         this.timeoutMap.clear();
         return Promise.resolve();
     }
 
-    removeByKeyPrefix(
-        _context: IReadableContext,
+    async removeByPrefix(
         prefix: string,
+        context: IReadableContext,
     ): Promise<void> {
+        if (prefix === "") {
+            await this.removeAll(context);
+            return;
+        }
         for (const key of this.map.keys()) {
             if (key.startsWith(prefix)) {
                 clearTimeout(this.timeoutMap.get(key));

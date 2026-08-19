@@ -2,17 +2,16 @@
  * @module Collection
  */
 
-import {
-    resolveAsyncIterableValue,
-    type AsyncIterableValue,
-} from "@/utilities/_module.js";
+import { resolveAsyncIterableValue } from "@/utilities/_module.js";
+
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class AsyncZipIterable<TInput, TExtended>
-    implements AsyncIterable<[TInput, TExtended]>
-{
+export class AsyncZipIterable<TInput, TExtended> implements AsyncIterable<
+    [TInput, TExtended]
+> {
     constructor(
         private iterableA: AsyncIterableValue<TInput>,
         private iterableB: AsyncIterableValue<TExtended>,

@@ -2,25 +2,21 @@
  * @module RateLimiter
  */
 
-import {
-    type TestAPI,
-    type SuiteAPI,
-    type ExpectStatic,
-    type beforeEach,
-} from "vitest";
-
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    type IRateLimiterData,
-    type IRateLimiterStorageAdapter,
-} from "@/rate-limiter/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
-import { type Promisable } from "@/utilities/_module.js";
+
+import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiterData,
+    IRateLimiterStorageAdapter,
+} from "@/rate-limiter/contracts/_module.js";
+import type { Promisable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/test-utilities"`
  * @group TestUtilities
  */
 export type RateLimiterStorageAdapterTestSuiteSettings = {
@@ -33,8 +29,8 @@ export type RateLimiterStorageAdapterTestSuiteSettings = {
     /**
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
@@ -45,16 +41,16 @@ export type RateLimiterStorageAdapterTestSuiteSettings = {
 /**
  * The `rateLimiterStorageAdapterTestSuite` function simplifies the process of testing your custom implementation of {@link IRateLimiterStorageAdapter | `IRateLimiterStorageAdapter`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/test-utilities"`
  * @group TestUtilities
  * @example
  * ```ts
  * import { afterEach, beforeEach, describe, expect, test } from "vitest";
- * import { rateLimiterStorageAdapterTestSuite } from "@daiso-tech/core/rate-limiter/test-utilities";
- * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storage-adapter";
- * import { TimeSpan } from "@daiso-tech/core/time-span";
- * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
- * import { Serde } from "@daiso-tech/core/serde";
+ * import { rateLimiterStorageAdapterTestSuite } from "eridu-tech/rate-limiter/test-utilities";
+ * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
+ * import { TimeSpan } from "eridu-tech/time-span";
+ * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+ * import { Serde } from "eridu-tech/serde";
  *
  * describe("class: MemoryRateLimiterStorageAdapter", () => {
  *     rateLimiterStorageAdapterTestSuite({
@@ -95,10 +91,10 @@ export function rateLimiterStorageAdapterTestSuite(
                     new Date("2026-01-01"),
                 );
 
-                const data = await adapter.transaction(context, async (trx) => {
-                    await trx.upsert(context, key, value, expiration);
-                    return await trx.find(context, key);
-                });
+                const data = await adapter.transaction(async (trx) => {
+                    await trx.upsert(key, value, expiration, context);
+                    return await trx.find(key, context);
+                }, context);
 
                 expect(data).toEqual({
                     state: value,
@@ -112,18 +108,18 @@ export function rateLimiterStorageAdapterTestSuite(
                     new Date("2026-01-01"),
                 );
 
-                const data = await adapter.transaction(context, async (trx) => {
+                const data = await adapter.transaction(async (trx) => {
                     await trx.upsert(
-                        context,
                         "a",
                         "b",
                         TimeSpan.fromMinutes(5).toEndDate(
                             new Date("2026-01-01"),
                         ),
+                        context,
                     );
-                    await trx.upsert(context, key, value, expiration);
-                    return await trx.find(context, key);
-                });
+                    await trx.upsert(key, value, expiration, context);
+                    return await trx.find(key, context);
+                }, context);
 
                 expect(data).toEqual({
                     state: value,
@@ -135,9 +131,9 @@ export function rateLimiterStorageAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const noneExistingKey = "a";
 
-                const data = await adapter.transaction(context, async (trx) => {
-                    return await trx.find(context, noneExistingKey);
-                });
+                const data = await adapter.transaction(async (trx) => {
+                    return await trx.find(noneExistingKey, context);
+                }, context);
 
                 expect(data).toBeNull();
             });
@@ -146,7 +142,7 @@ export function rateLimiterStorageAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const noneExistingKey = "a";
 
-                const data = await adapter.find(context, noneExistingKey);
+                const data = await adapter.find(noneExistingKey, context);
 
                 expect(data).toBeNull();
             });
@@ -159,11 +155,11 @@ export function rateLimiterStorageAdapterTestSuite(
                     new Date("2026-01-01"),
                 );
 
-                await adapter.transaction(context, async (trx) => {
-                    await trx.upsert(context, key, value, expiration);
-                });
-                await adapter.remove(context, key);
-                const item = await adapter.find(context, key);
+                await adapter.transaction(async (trx) => {
+                    await trx.upsert(key, value, expiration, context);
+                }, context);
+                await adapter.remove(key, context);
+                const item = await adapter.find(key, context);
 
                 expect(item).toBeNull();
             });

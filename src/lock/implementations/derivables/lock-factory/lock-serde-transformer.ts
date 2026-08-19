@@ -2,88 +2,53 @@
  * @module Lock
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ILockAdapter,
-    type LockAdapterVariants,
-    type LockEventMap,
-} from "@/lock/contracts/_module.js";
-import {
-    Lock,
-    type ISerializedLock,
-} from "@/lock/implementations/derivables/lock-factory/lock.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
+import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    getConstructorName,
-    type OneOrMore,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import { getConstructorName } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ILockAdapter } from "@/lock/contracts/_module.js";
+import type { ISerializedLock } from "@/lock/implementations/derivables/lock-factory/lock.js";
+import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type LockSerdeTransformerSettings = {
     adapter: ILockAdapter;
-    originalAdapter: LockAdapterVariants;
-    namespace: INamespace;
     defaultRefreshTime: TimeSpan;
-    eventBus: IEventBus<LockEventMap>;
     serdeTransformerName: string;
-    waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
-    use: Use;
+    context: IReadableContext;
 };
 
 /**
  * @internal
  */
-export class LockSerdeTransformer
-    implements ISerdeTransformer<Lock, ISerializedLock>
-{
+export class LockSerdeTransformer implements ISerdeTransformer<
+    Lock,
+    ISerializedLock
+> {
     private readonly adapter: ILockAdapter;
-    private readonly originalAdapter: LockAdapterVariants;
-    private readonly namespace: INamespace;
     private readonly defaultRefreshTime: TimeSpan;
-    private readonly eventBus: IEventBus<LockEventMap>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
-    private readonly use: Use;
+    private readonly context: IReadableContext;
 
     constructor(settings: LockSerdeTransformerSettings) {
-        const {
-            adapter,
-            originalAdapter,
-            namespace,
-            defaultRefreshTime,
-            eventBus,
-            serdeTransformerName,
-            waitUntil,
-            executionContext,
-            use,
-        } = settings;
+        const { adapter, defaultRefreshTime, serdeTransformerName, context } =
+            settings;
 
-        this.use = use;
-        this.executionContext = executionContext;
-        this.waitUntil = waitUntil;
+        this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this.originalAdapter = originalAdapter;
-        this.namespace = namespace;
         this.defaultRefreshTime = defaultRefreshTime;
-        this.eventBus = eventBus;
     }
 
     get name(): OneOrMore<string> {
         return [
             "lock",
             this.serdeTransformerName,
-            getConstructorName(this.originalAdapter),
-            this.namespace.toString(),
+            getConstructorName(this.adapter),
         ].filter((str) => str !== "");
     }
 
@@ -97,33 +62,20 @@ export class LockSerdeTransformer
         const isSerdTransformerNameMathcing =
             this.serdeTransformerName === value._getSerdeTransformerName();
 
-        const isNamespaceMatching =
-            this.namespace.toString() === value._getNamespace().toString();
-
         const isAdapterMatching =
-            getConstructorName(this.originalAdapter) ===
+            getConstructorName(this.adapter) ===
             getConstructorName(value._getAdapter());
 
-        return (
-            isSerdTransformerNameMathcing &&
-            isNamespaceMatching &&
-            isAdapterMatching
-        );
+        return isSerdTransformerNameMathcing && isAdapterMatching;
     }
 
     deserialize(serializedValue: ISerializedLock): Lock {
         const { key, ttlInMs, lockId } = serializedValue;
-        const keyObj = this.namespace.create(key);
 
         return new Lock({
-            use: this.use,
-            executionContext: this.executionContext,
-            waitUntil: this.waitUntil,
-            namespace: this.namespace,
+            context: this.context,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
-            eventDispatcher: this.eventBus,
-            key: keyObj,
+            key,
             lockId,
             serdeTransformerName: this.serdeTransformerName,
             ttl: ttlInMs === null ? null : TimeSpan.fromMilliseconds(ttlInMs),

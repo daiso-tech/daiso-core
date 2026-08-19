@@ -2,14 +2,14 @@
  * @module Lock
  */
 
-import { type ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
+import type { ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
 
 /**
  * Factory resolver contract for dynamically selecting lock factory implementations.
  * Enables seamless switching between different storage backends and adapters at runtime.
  * Implementations typically use adapter registration patterns to manage multiple implementations.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockFactoryResolver<TAdapters extends string = string> = {

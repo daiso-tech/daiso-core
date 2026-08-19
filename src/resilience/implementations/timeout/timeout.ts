@@ -2,43 +2,41 @@
  * @module Resilience
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import { type MiddlewareFn } from "@/middleware/contracts/_module.js";
 import { TimeoutResilienceError } from "@/resilience/implementations/resilience.errors.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/_module.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable, type Invokable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
+
+import type { MiddlewareFn } from "@/middleware/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Invocable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnTimeoutData<TParameters extends Array<unknown> = Array<unknown>> =
     {
         waitTime: TimeSpan;
         args: TParameters;
-        context: IReadableContext;
     };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type OnTimeout<TParameters extends Array<unknown> = Array<unknown>> =
-    Invokable<[data: OnTimeoutData<TParameters>]>;
+    Invocable<[data: OnTimeoutData<TParameters>]>;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type TimeoutCallbacks<
     TParameters extends Array<unknown> = Array<unknown>,
 > = {
     /**
-     * Callback {@link Invokable | `Invokable`} that will be called before the timeout occurs.
+     * Callback {@link Invocable | `Invocable`} that will be called before the timeout occurs.
      */
     onTimeout?: OnTimeout<TParameters>;
 };
@@ -47,7 +45,7 @@ export type TimeoutCallbacks<
  * Configuration for the `timeout` resilience middleware.
  * Rejects if the middleware result does not complete within the specified time; it does not cancel or abort next().
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  */
 export type TimeoutSettings<
@@ -58,7 +56,7 @@ export type TimeoutSettings<
      *
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(2)
      * ```
@@ -69,7 +67,7 @@ export type TimeoutSettings<
 /**
  * The `timeout` middleware automatically cancels functions after a specified time period, throwing an error when aborted.
  *
- * IMPORT_PATH: `"@daiso-tech/core/resilience"`
+ * IMPORT_PATH: `"eridu-tech/resilience"`
  * @group Middlewares
  * @throws {TimeoutResilienceError}
  */
@@ -78,7 +76,7 @@ export function timeout<TParameters extends Array<unknown>, TReturn>(
 ): MiddlewareFn<TParameters, Promise<TReturn>> {
     const { waitTime = TimeSpan.fromSeconds(2), onTimeout = () => {} } =
         settings;
-    return async ({ args, next, context }) => {
+    return async ({ args, next }) => {
         const timeoutError = TimeoutResilienceError.create(
             TimeSpan.fromTimeSpan(waitTime),
         );
@@ -102,9 +100,8 @@ export function timeout<TParameters extends Array<unknown>, TReturn>(
                 error === timeoutError
             ) {
                 try {
-                    await callInvokable(onTimeout, {
+                    await callInvocable(onTimeout, {
                         args,
-                        context,
                         waitTime: TimeSpan.fromTimeSpan(waitTime),
                     });
                 } catch {

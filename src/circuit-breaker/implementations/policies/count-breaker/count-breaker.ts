@@ -4,12 +4,15 @@
 
 import {
     HALF_OPEN_TRANSITIONS,
-    type HalfOpenTransitions,
-    type CircuitBreakerTrackSettings,
-    type CircuitBreakerTrackState,
-    type ICircuitBreakerPolicy,
     CLOSED_TRANSITIONS,
-    type ClosedTransitions,
+} from "@/circuit-breaker/contracts/_module.js";
+
+import type {
+    HalfOpenTransitions,
+    CircuitBreakerTrackSettings,
+    CircuitBreakerTrackState,
+    ICircuitBreakerPolicy,
+    ClosedTransitions,
 } from "@/circuit-breaker/contracts/_module.js";
 
 /**
@@ -17,7 +20,7 @@ import {
  * Tracks requests over a fixed-size window and opens the circuit when the failure
  * percentage exceeds `failureThreshold`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type CountBreakerSettings = {
@@ -153,7 +156,7 @@ export function resolveCountBreakerSettings(
  * In-memory sample window used by the count-based circuit breaker.
  * Each boolean entry represents whether a single call succeeded (`true`) or failed (`false`).
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type CountBreakerState = {
@@ -163,7 +166,7 @@ export type CountBreakerState = {
 /**
  * The `CountBreaker` breaks after a proportion of requests in a count based sliding window fail.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export class CountBreaker implements ICircuitBreakerPolicy<CountBreakerState> {

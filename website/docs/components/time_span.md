@@ -7,7 +7,7 @@ keywords:
 
 # TimeSpan
 
-The `@daiso-tech/core/time-span` component provides an easy way for defining, manipulating, and comparing durations. Furthermore, it is designed for easy integration with external time libraries like Luxon and Dayjs.
+The `eridu-tech/time-span` component provides an easy way for defining, manipulating, and comparing durations. Furthermore, it is designed for easy integration with external time libraries like Luxon and Dayjs.
 
 ## TimeSpan class
 
@@ -22,7 +22,7 @@ Note `TimeSpan` cannot be negative.
 Creating `TimeSpan` from milliseconds:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const timeSpan = TimeSpan.fromMilliseconds(100);
 ```
@@ -251,9 +251,9 @@ TimeSpan.fromDays(365).toStartDate(new Date("2001-01-01"));
 The `TimeSpan` class supports serialization and deserialization, allowing you to easily convert instances to and from serialized formats. However, registration is required first:
 
 ```ts
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
 
@@ -283,10 +283,7 @@ Note `TimeSpan` class implements `ITimeSpan` contract.
 The `ITimeSpan` contract requires you to implement the `TO_MILLISECONDS` method on the duration object, which must return the duration in milliseconds.
 
 ```ts
-import {
-    ITimeSpan,
-    TO_MILLISECONDS,
-} from "@daiso-tech/core/time-span/contracts";
+import { ITimeSpan, TO_MILLISECONDS } from "eridu-tech/time-span/contracts";
 
 export class Duration implements ITimeSpan {
     constructor(private readonly timeInMs: number) {}
@@ -299,4 +296,4 @@ export class Duration implements ITimeSpan {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/time-span`](https://daiso-tech.github.io/daiso-core/modules/TimeSpan.html) API docs.
+For further information refer to [`eridu-tech/time-span`](https://eridu-tech.github.io/eridu-tech/modules/TimeSpan.html) API docs.

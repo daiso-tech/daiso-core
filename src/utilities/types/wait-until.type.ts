@@ -1,9 +1,9 @@
 /**
  * @module Utilities
  */
-import { type Invokable } from "@/utilities/functions/invokable.js";
+import type { Invocable } from "@/utilities/functions/invocable.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  */
-export type WaitUntil = Invokable<[promise: PromiseLike<unknown>], void>;
+export type WaitUntil = Invocable<[promise: PromiseLike<unknown>], void>;

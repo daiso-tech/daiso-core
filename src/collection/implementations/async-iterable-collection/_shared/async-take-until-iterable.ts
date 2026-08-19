@@ -2,11 +2,12 @@
  * @module Collection
  */
 
-import {
-    type AsyncPredicate,
-    type IAsyncCollection,
+import { resolveInvocable } from "@/utilities/_module.js";
+
+import type {
+    AsyncPredicate,
+    IAsyncCollection,
 } from "@/collection/contracts/_module.js";
-import { resolveInvokable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -20,7 +21,7 @@ export class AsyncTakeUntilIterable<TInput> implements AsyncIterable<TInput> {
     async *[Symbol.asyncIterator](): AsyncIterator<TInput> {
         for await (const [index, item] of this.collection.entries()) {
             if (
-                await resolveInvokable(this.predicateFn)(
+                await resolveInvocable(this.predicateFn)(
                     item,
                     index,
                     this.collection,

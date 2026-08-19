@@ -2,36 +2,39 @@
  * @module SharedLock
  */
 
-import {
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type Document,
-    type ObjectId,
-} from "mongodb";
-
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ISharedLockAdapter,
-    type ISharedLockAdapterState,
-    type SharedLockAcquireSettings,
-} from "@/shared-lock/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     OPTION,
     optionNone,
     optionSome,
     UnexpectedError,
-    type IDeinitizable,
-    type IInitizable,
-    type Option,
+} from "@/utilities/_module.js";
+
+import type {
+    Collection,
+    CollectionOptions,
+    Db,
+    Document,
+    ObjectId,
+} from "mongodb";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISharedLockAdapter,
+    ISharedLockAdapterState,
+    SharedLockAcquireSettings,
+} from "@/shared-lock/contracts/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    Option,
 } from "@/utilities/_module.js";
 
 /**
  * Configuration for `MongodbSharedLockAdapter`.
  * Requires a MongoDB `Db` instance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/mongodb-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/mongodb-shared-lock-adapter"`
  * @group Adapters
  */
 export type MongodbSharedLockAdapterSettings = {
@@ -51,7 +54,7 @@ export type MongodbSharedLockAdapterSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/mongodb-shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/mongodb-shared-lock"`
  * @group Adapters
  */
 export type MongodbWriterLockSubDocument = {
@@ -60,7 +63,7 @@ export type MongodbWriterLockSubDocument = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-shared-lock"`
  * @group Adapters
  */
 export type MongodbReaderSemaphoreSlotSubDocument = {
@@ -69,7 +72,7 @@ export type MongodbReaderSemaphoreSlotSubDocument = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/mongodb-shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-shared-lock"`
  * @group Adapters
  */
 export type MongodbReaderSemaphoreDocument = {
@@ -78,7 +81,7 @@ export type MongodbReaderSemaphoreDocument = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/mongodb-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/mongodb-shared-lock-adapter"`
  * @group Adapters
  */
 export type MongodbSharedLockDocument = {
@@ -94,7 +97,7 @@ export type MongodbSharedLockDocument = {
  *
  * Note in order to use `MongodbSharedLockAdapter` correctly, ensure you use a single, consistent database across all server instances.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/mongodb-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/mongodb-shared-lock-adapter"`
  * @group Adapters
  */
 export class MongodbSharedLockAdapter
@@ -109,7 +112,7 @@ export class MongodbSharedLockAdapter
     /**
      * @example
      * ```ts
-     * import { MongodbSharedLockAdapter } from "@daiso-tech/core/shared-lock/mongodb-shared-lock-adapter";
+     * import { MongodbSharedLockAdapter } from "eridu-tech/shared-lock/mongodb-shared-lock-adapter";
      * import { MongoClient } from "mongodb";
      *
      * const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
@@ -268,10 +271,10 @@ export class MongodbSharedLockAdapter
     }
 
     async acquireWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl?.toEndDate() ?? null;
         const isExpiredQuery = {
@@ -365,9 +368,9 @@ export class MongodbSharedLockAdapter
     }
 
     async releaseWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const isWriterActive = {
             writer: {
@@ -427,8 +430,8 @@ export class MongodbSharedLockAdapter
     }
 
     async forceReleaseWriter(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = await this.collection.findOneAndDelete(
             {
@@ -469,10 +472,10 @@ export class MongodbSharedLockAdapter
     }
 
     async refreshWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const isUnexpiredQuery = {
             $and: [
@@ -753,9 +756,9 @@ export class MongodbSharedLockAdapter
     }
 
     async releaseReader(
-        _context: IReadableContext,
         key: string,
         slotId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = await this.collection.findOneAndUpdate(
             {
@@ -819,8 +822,8 @@ export class MongodbSharedLockAdapter
     }
 
     async forceReleaseAllReaders(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = await this.collection.findOneAndDelete(
             {
@@ -861,10 +864,10 @@ export class MongodbSharedLockAdapter
     }
 
     async refreshReader(
-        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const isExpireableQuery = {
             $ne: ["$$slot.expiration", null],
@@ -944,8 +947,8 @@ export class MongodbSharedLockAdapter
     }
 
     async forceRelease(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = await this.collection.findOneAndDelete({
             key,
@@ -1046,8 +1049,8 @@ export class MongodbSharedLockAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISharedLockAdapterState | null> {
         const sharedLock = await this.collection.findOne(
             { key },

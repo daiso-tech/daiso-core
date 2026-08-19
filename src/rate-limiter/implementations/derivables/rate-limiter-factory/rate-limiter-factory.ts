@@ -2,75 +2,35 @@
  * @module RateLimiter
  */
 
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
-import {
-    type IRateLimiter,
-    type IRateLimiterAdapter,
-    type IRateLimiterListenable,
-    type IRateLimiterFactory,
-    type RateLimiterEventMap,
-    type RateLimiterFactoryCreateSettings,
-} from "@/rate-limiter/contracts/_module.js";
 import { RateLimiterSerdeTransformer } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-serde-transformer.js";
 import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
-import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import {
     CORE,
     defaultWaitUntil,
     resolveOneOrMore,
-    type ErrorPolicy,
-    type OneOrMore,
-    type WaitUntil,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiter,
+    IRateLimiterAdapter,
+    IRateLimiterFactory,
+    RateLimiterFactoryCreateSettings,
+} from "@/rate-limiter/contracts/_module.js";
+import type { ISerderRegister } from "@/serde/contracts/_module.js";
+import type { ErrorPolicy, OneOrMore, WaitUntil } from "@/utilities/_module.js";
 
 /**
  * Base configuration shared by all `RateLimiterFactory` variants.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type RateLimiterFactorySettingsBase = {
-    /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
-
-    /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
-
     /**
      * You can set the default `ErrorPolicy`
      *
@@ -98,8 +58,8 @@ export type RateLimiterFactorySettingsBase = {
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link RateLimiterFactory | `RateLimiterFactory`} to register the rate limiter's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { NoOpSerdeAdapter } from "eridu-tech/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -117,29 +77,29 @@ export type RateLimiterFactorySettingsBase = {
      * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
      * @default
      * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
+     * import { defaultWaitUntil } from "eridu-tech/utilities"
      * ```
      */
     waitUntil?: WaitUntil;
 
     /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
+     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    executionContext?: IExecutionContext;
+    context?: IReadableContext;
 };
 
 /**
  * Configuration for `RateLimiterFactory`.
  * Extends {@link RateLimiterFactorySettingsBase | `RateLimiterFactorySettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type RateLimiterFactorySettings = RateLimiterFactorySettingsBase & {
@@ -152,12 +112,10 @@ export type RateLimiterFactorySettings = RateLimiterFactorySettingsBase & {
 /**
  * The `RateLimiterFactory` class can be derived from any {@link IRateLimiterAdapter | `IRateLimiterAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export class RateLimiterFactory implements IRateLimiterFactory {
-    private readonly namespace: INamespace;
-    private readonly eventBus: IEventBus<RateLimiterEventMap>;
     private readonly adapter: IRateLimiterAdapter;
     private readonly onlyError: boolean;
     private readonly defaultErrorPolicy: ErrorPolicy;
@@ -165,15 +123,15 @@ export class RateLimiterFactory implements IRateLimiterFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     /**
      * @example
      * ```ts
-     * import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storage-adapter";
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
@@ -201,25 +159,19 @@ export class RateLimiterFactory implements IRateLimiterFactory {
     constructor(settings: RateLimiterFactorySettings) {
         const {
             enableAsyncTracking = true,
-            namespace = new NoOpNamespace(),
-            eventBus = new NoOpEventBusAdapter(),
             adapter,
             onlyError = false,
             defaultErrorPolicy = () => true,
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
-            executionContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            ),
+            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.executionContext = executionContext;
+        this.context = context;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.enableAsyncTracking = enableAsyncTracking;
-        this.namespace = namespace;
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.adapter = adapter;
         this.onlyError = onlyError;
         this.defaultErrorPolicy = defaultErrorPolicy;
@@ -229,11 +181,9 @@ export class RateLimiterFactory implements IRateLimiterFactory {
 
     private registerToSerde(): void {
         const transformer = new RateLimiterSerdeTransformer({
-            executionContext: this.executionContext,
+            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
-            namespace: this.namespace,
-            eventBus: this.eventBus,
             adapter: this.adapter,
             onlyError: this.onlyError,
             errorPolicy: this.defaultErrorPolicy,
@@ -242,10 +192,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
         for (const serde of resolveOneOrMore(this.serde)) {
             serde.registerCustom(transformer, CORE);
         }
-    }
-
-    get events(): IRateLimiterListenable {
-        return this.eventBus;
     }
 
     create(
@@ -258,17 +204,15 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             limit,
         } = settings;
         return new RateLimiter({
-            executionContext: this.executionContext,
+            context: this.context,
             limit,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
-            eventDispatcher: this.eventBus,
             adapter: this.adapter,
-            key: this.namespace.create(key),
+            key,
             errorPolicy,
             onlyError,
             serdeTransformerName: this.serdeTransformerName,
-            namespace: this.namespace,
         });
     }
 }

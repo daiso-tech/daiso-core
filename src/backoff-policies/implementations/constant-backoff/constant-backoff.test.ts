@@ -6,7 +6,7 @@ import {
 } from "@/backoff-policies/implementations/constant-backoff/constant-backoff.js";
 import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
 
 describe("function: resolveConstantBackoffSettings", () => {
     test("Should use default values when no settings are provided", () => {
@@ -96,7 +96,7 @@ describe("function: constantBackoff", () => {
             jitter: null,
         });
 
-        const result = callInvokable(backoff, 1, undefined);
+        const result = callInvocable(backoff, 1, undefined);
 
         expect(result[TO_MILLISECONDS]()).toBe(500);
     });
@@ -107,9 +107,9 @@ describe("function: constantBackoff", () => {
             jitter: null,
         });
 
-        const result1 = callInvokable(backoff, 1, undefined);
-        const result2 = callInvokable(backoff, 5, undefined);
-        const result3 = callInvokable(backoff, 10, undefined);
+        const result1 = callInvocable(backoff, 1, undefined);
+        const result2 = callInvocable(backoff, 5, undefined);
+        const result3 = callInvocable(backoff, 10, undefined);
 
         expect(result1[TO_MILLISECONDS]()).toBe(500);
         expect(result2[TO_MILLISECONDS]()).toBe(500);
@@ -123,7 +123,7 @@ describe("function: constantBackoff", () => {
             _mathRandom: () => 0.5,
         });
 
-        const result = callInvokable(backoff, 1, undefined);
+        const result = callInvocable(backoff, 1, undefined);
 
         // (1 - 0.5 * 0.5) * 1000 = 750
         expect(result[TO_MILLISECONDS]()).toBe(750);

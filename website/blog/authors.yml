@@ -1,9 +1,10 @@
-yangshun:
-  name: Yangshun Tay
-  title: Front End Engineer @ Facebook
-  url: https://github.com/yangshun
-  image_url: https://github.com/yangshun.png
+yousif:
+  name: Yousif Abdulkarim
+  title: Creator of eridu-tech
+  url: https://www.linkedin.com/in/yousef-abdulkarim/
+  image_url: /portrait.jpg 
   page: true
   socials:
-    x: yangshunz
-    github: yangshun
+    github: yousif-khalil-abdulkarim
+    linkedin: https://www.linkedin.com/in/yousef-abdulkarim
+    portfolio: https://www.yousif-abdulkarim-portfolio.io/main

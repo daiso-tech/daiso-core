@@ -3,21 +3,23 @@
  */
 
 import {
-    type AsyncPredicate,
-    type IAsyncCollection,
-} from "@/collection/contracts/_module.js";
-import {
     resolveAsyncIterableValue,
-    resolveInvokable,
-    type AsyncIterableValue,
+    resolveInvocable,
 } from "@/utilities/_module.js";
+
+import type {
+    AsyncPredicate,
+    IAsyncCollection,
+} from "@/collection/contracts/_module.js";
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class AsyncInsertBeforeIterable<TInput, TExtended>
-    implements AsyncIterable<TInput | TExtended>
-{
+export class AsyncInsertBeforeIterable<
+    TInput,
+    TExtended,
+> implements AsyncIterable<TInput | TExtended> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
@@ -30,7 +32,7 @@ export class AsyncInsertBeforeIterable<TInput, TExtended>
         for await (const item of this.collection) {
             if (
                 !hasMatched &&
-                (await resolveInvokable(this.predicateFn)(
+                (await resolveInvocable(this.predicateFn)(
                     item,
                     index,
                     this.collection,

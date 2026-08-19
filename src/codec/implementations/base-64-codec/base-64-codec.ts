@@ -2,14 +2,12 @@
  * @module Codec
  */
 
-import {
-    type ICodec,
-    EncodingError,
-    DecodingError,
-} from "@/codec/contracts/_module.js";
+import { EncodingError, DecodingError } from "@/codec/contracts/_module.js";
+
+import type { ICodec } from "@/codec/contracts/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/codec/base-64-codec"`
+ * IMPORT_PATH: `"eridu-tech/codec/base-64-codec"`
  * @group Implementations
  */
 export class Base64Codec implements ICodec<string, string> {

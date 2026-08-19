@@ -1,23 +1,15 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
+import { use } from "@/middleware/implementations/_module.js";
 import { TimeoutResilienceError } from "@/resilience/implementations/resilience.errors.js";
 import { timeout } from "@/resilience/implementations/timeout/timeout.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/time-span.contract.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/time-span.contract.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay } from "@/utilities/functions/delay.js";
 
+import type { ITimeSpan } from "@/time-span/contracts/time-span.contract.js";
+
 describe("function: timeout", () => {
-    let use: Use;
-
-    beforeEach(() => {
-        use = useFactory();
-    });
-
     describe("basic timeout behavior", () => {
         test("Should return the result when function completes before timeout", async () => {
             const fn = use(
@@ -41,16 +33,14 @@ describe("function: timeout", () => {
                 await delay(TimeSpan.fromMilliseconds(200));
                 return "late";
             }, [timeout({ waitTime })]);
-            try {
-                await fn();
-                expect.unreachable();
-            } catch (error: unknown) {
+            await expect(fn()).rejects.toSatisfy((error: unknown) => {
                 expect(error).toBeInstanceOf(TimeoutResilienceError);
                 const timeoutError = error as TimeoutResilienceError;
                 expect(timeoutError.waitTime.toMilliseconds()).toBe(
                     waitTime.toMilliseconds(),
                 );
-            }
+                return true;
+            });
         });
 
         test("Should rethrow non-timeout errors from the function", async () => {

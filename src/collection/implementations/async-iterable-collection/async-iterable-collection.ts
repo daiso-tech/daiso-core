@@ -2,25 +2,10 @@
  * @module Collection
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
 import {
-    type AsyncCollapse,
-    type AsyncPredicate,
-    type AsyncForEach,
-    type AsyncMap,
-    type AsyncModifier,
-    type AsyncTap,
-    type AsyncTransform,
-    type Comparator,
-    type IAsyncCollection,
     ItemNotFoundCollectionError,
     MultipleItemsFoundCollectionError,
-    type AsyncReduce,
     EmptyCollectionError,
-    type CrossJoinResult,
-    type EnsureMap,
-    type EnsureRecord,
 } from "@/collection/contracts/_module.js";
 import {
     AsyncCrossJoinIterable,
@@ -58,34 +43,54 @@ import {
     AsyncValidateIterable,
 } from "@/collection/implementations/async-iterable-collection/_shared/_module.js";
 import {
-    isInvokable,
+    isInvocable,
     resolveAsyncIterableValue,
-    resolveInvokable,
-    type AsyncIterableValue,
-    type AsyncLazyable,
+    resolveInvocable,
     resolveAsyncLazyable,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnexpectedError,
-    type Option,
     OPTION,
     optionSome,
     optionNone,
 } from "@/utilities/_module.js";
 
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+import type {
+    AsyncCollapse,
+    AsyncPredicate,
+    AsyncForEach,
+    AsyncMap,
+    AsyncModifier,
+    AsyncTap,
+    AsyncTransform,
+    Comparator,
+    IAsyncCollection,
+    AsyncReduce,
+    CrossJoinResult,
+    EnsureMap,
+    EnsureRecord,
+} from "@/collection/contracts/_module.js";
+import type {
+    AsyncIterableValue,
+    AsyncLazyable,
+    Option,
+} from "@/utilities/_module.js";
+
 /**
  * All methods that return {@link IAsyncCollection | `IAsyncCollection`} are executed lazly, meaning the execution will occur iterating the items withthe `forEach` method or `for await` loop.
  *
- * IMPORT_PATH: `"@daiso-tech/core/collection"`
+ * IMPORT_PATH: `"eridu-tech/collection"`
  * @group Implementations
  */
-export class AsyncIterableCollection<TInput = unknown>
-    implements IAsyncCollection<TInput>
-{
+export class AsyncIterableCollection<
+    TInput = unknown,
+> implements IAsyncCollection<TInput> {
     /**
      * The `concat` static method is a convenient utility for easily concatenating multiple {@link Iterable | `Iterable`} or {@link AsyncIterable | `AsyncIterable`}.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * class MyAsyncIterable implements AsyncIterable<number> {
      *   async *[Symbol.iterator](): Iterator<number> {
@@ -124,7 +129,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * The `difference` static method is used to compute the difference between two {@link Iterable | `Iterable`} instances. By default, the equality check is performed on each item.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.difference(
      *   [1, 2, 2, 3, 4, 5],
@@ -135,7 +140,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.difference(
      *   [
@@ -174,7 +179,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * The returned collection has size of the shortest collection.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.zip(["Chair", "Desk"], [100, 200]);
      * await collection.toArray();
@@ -182,7 +187,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.zip(["Chair", "Desk", "Couch"], [100, 200]);
      * await collection.toArray();
@@ -190,7 +195,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * ```
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = AsyncIterableCollection.zip(["Chair", "Desk"], [100, 200, 300]);
      * await collection.toArray();
@@ -220,7 +225,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * Works with `Array`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = new AsyncIterableCollection([1, 2, 3, 4]);
      * ```
@@ -228,7 +233,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * Works with `String`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = new AsyncIterableCollection("ABCDE");
      * ```
@@ -236,7 +241,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * Works with `Set`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = new AsyncIterableCollection(new Set([1, 2, 2 4]));
      * ```
@@ -244,7 +249,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * Works with `Map`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * const collection = new AsyncIterableCollection(new Map([["a", 1], ["b", 2]]));
      * ```
@@ -252,7 +257,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * Works with any `Iterable`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * class MyIterable implements Iterable<number> {
      *   *[Symbol.iterator](): Iterator<number> {
@@ -267,7 +272,7 @@ export class AsyncIterableCollection<TInput = unknown>
      * Works with any `AsyncIterable`.
      * @example
      * ```ts
-     * import { AsyncIterableCollection } from "@daiso-tech/core/collection";
+     * import { AsyncIterableCollection } from "eridu-tech/collection";
      *
      * class MyIterable implements AsyncIterable<number> {
      *   async *[Symbol.iterator](): Iterator<number> {
@@ -324,7 +329,7 @@ export class AsyncIterableCollection<TInput = unknown>
     ): IAsyncCollection<Exclude<TInput, TOutput>> {
         return this.filter(
             async (...arguments_) =>
-                !(await resolveInvokable(predicateFn)(...arguments_)),
+                !(await resolveInvocable(predicateFn)(...arguments_)),
         );
     }
 
@@ -360,7 +365,7 @@ export class AsyncIterableCollection<TInput = unknown>
             let output = initialValue as TOutput;
 
             for await (const [index, item] of this.entries()) {
-                output = await resolveInvokable(reduceFn)(
+                output = await resolveInvocable(reduceFn)(
                     output,
                     item,
                     index,
@@ -375,7 +380,7 @@ export class AsyncIterableCollection<TInput = unknown>
         let isFirstIteration = true;
         for await (const item of this) {
             if (!isFirstIteration) {
-                output = await resolveInvokable(reduceFn)(
+                output = await resolveInvocable(reduceFn)(
                     output,
                     item,
                     index,
@@ -439,7 +444,7 @@ export class AsyncIterableCollection<TInput = unknown>
             return this;
         }
         let fn: AsyncMap<TInput, IAsyncCollection<TInput>, TInput>;
-        if (isInvokable(value)) {
+        if (isInvocable(value)) {
             fn = value;
         } else {
             fn = () => value;
@@ -579,7 +584,7 @@ export class AsyncIterableCollection<TInput = unknown>
         let part = 0,
             total = 0;
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, total, this)) {
+            if (await resolveInvocable(predicateFn)(item, total, this)) {
                 part++;
             }
             total++;
@@ -591,7 +596,7 @@ export class AsyncIterableCollection<TInput = unknown>
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>, TOutput>,
     ): Promise<boolean> {
         for await (const [index, item] of this.entries()) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 return true;
             }
         }
@@ -603,7 +608,7 @@ export class AsyncIterableCollection<TInput = unknown>
     ): Promise<boolean> {
         let isTrue = true;
         for await (const [index, item] of this.entries()) {
-            isTrue &&= await resolveInvokable(predicateFn)(item, index, this);
+            isTrue &&= await resolveInvocable(predicateFn)(item, index, this);
             if (!isTrue) {
                 break;
             }
@@ -628,7 +633,7 @@ export class AsyncIterableCollection<TInput = unknown>
     ): IAsyncCollection<TInput> {
         return this.takeUntil(
             async (...arguments_) =>
-                !(await resolveInvokable(predicateFn)(...arguments_)),
+                !(await resolveInvocable(predicateFn)(...arguments_)),
         );
     }
 
@@ -649,7 +654,7 @@ export class AsyncIterableCollection<TInput = unknown>
     ): IAsyncCollection<TInput> {
         return this.skipUntil(
             async (...arguments_) =>
-                !(await resolveInvokable(predicateFn)(...arguments_)),
+                !(await resolveInvocable(predicateFn)(...arguments_)),
         );
     }
 
@@ -702,7 +707,7 @@ export class AsyncIterableCollection<TInput = unknown>
     async pipe<TOutput = TInput>(
         callback: AsyncTransform<IAsyncCollection<TInput>, TOutput>,
     ): Promise<TOutput> {
-        return resolveInvokable(callback)(this);
+        return resolveInvocable(callback)(this);
     }
 
     tap(
@@ -805,12 +810,12 @@ export class AsyncIterableCollection<TInput = unknown>
             return !(await differenceCollection.some(
                 async (matchItem, matchIndex, matchCollection) => {
                     return (
-                        (await resolveInvokable(selectFn)(
+                        (await resolveInvocable(selectFn)(
                             item,
                             index,
                             collection,
                         )) ===
-                        (await resolveInvokable(selectFn)(
+                        (await resolveInvocable(selectFn)(
                             matchItem,
                             matchIndex,
                             matchCollection,
@@ -950,7 +955,7 @@ export class AsyncIterableCollection<TInput = unknown>
     ): Promise<Option<TOutput>> {
         let index = 0;
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 return optionSome(item as TOutput);
             }
             index++;
@@ -1003,7 +1008,7 @@ export class AsyncIterableCollection<TInput = unknown>
         let index = 0;
         let matchedItem: TOutput | null = null;
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 matchedItem = item as TOutput;
             }
             index++;
@@ -1060,7 +1065,7 @@ export class AsyncIterableCollection<TInput = unknown>
             index = 0;
         for await (const item of this) {
             if (
-                (await resolveInvokable(predicateFn)(item, index, this)) &&
+                (await resolveInvocable(predicateFn)(item, index, this)) &&
                 beforeItem !== null
             ) {
                 return optionSome(beforeItem as TOutput);
@@ -1119,7 +1124,7 @@ export class AsyncIterableCollection<TInput = unknown>
             if (hasMatched) {
                 return optionSome(item as TOutput);
             }
-            hasMatched = await resolveInvokable(predicateFn)(item, index, this);
+            hasMatched = await resolveInvocable(predicateFn)(item, index, this);
             index++;
         }
         return optionNone();
@@ -1166,7 +1171,7 @@ export class AsyncIterableCollection<TInput = unknown>
         let index = 0,
             matchedItem: Option<TOutput> = optionNone();
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 if (matchedItem.type === OPTION.SOME) {
                     throw MultipleItemsFoundCollectionError.create();
                 }
@@ -1191,7 +1196,7 @@ export class AsyncIterableCollection<TInput = unknown>
         let index = 0;
 
         for await (const item of this) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 size++;
             }
             index++;
@@ -1218,7 +1223,7 @@ export class AsyncIterableCollection<TInput = unknown>
         predicateFn: AsyncPredicate<TInput, IAsyncCollection<TInput>>,
     ): Promise<number> {
         for await (const [index, item] of this.entries()) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 return index;
             }
         }
@@ -1230,7 +1235,7 @@ export class AsyncIterableCollection<TInput = unknown>
     ): Promise<number> {
         let matchedIndex = -1;
         for await (const [index, item] of this.entries()) {
-            if (await resolveInvokable(predicateFn)(item, index, this)) {
+            if (await resolveInvocable(predicateFn)(item, index, this)) {
                 matchedIndex = index;
             }
         }
@@ -1241,7 +1246,7 @@ export class AsyncIterableCollection<TInput = unknown>
         callback: AsyncForEach<TInput, IAsyncCollection<TInput>>,
     ): Promise<void> {
         for await (const [index, item] of this.entries()) {
-            await resolveInvokable(callback)(item, index, this);
+            await resolveInvocable(callback)(item, index, this);
         }
     }
 
@@ -1267,13 +1272,11 @@ export class AsyncIterableCollection<TInput = unknown>
                 );
             }
             const [key, value] = item;
-            if (
-                !(
-                    typeof key === "string" ||
-                    typeof key === "number" ||
-                    typeof key === "symbol"
-                )
-            ) {
+            if (!(
+                typeof key === "string" ||
+                typeof key === "number" ||
+                typeof key === "symbol"
+            )) {
                 throw new TypeError(
                     "Item type is invalid must be a tuple of size 2 where first tuple item is a string or number or symbol",
                 );

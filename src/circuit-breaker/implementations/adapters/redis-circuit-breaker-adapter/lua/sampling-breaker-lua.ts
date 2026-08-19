@@ -40,7 +40,7 @@ local function SamplingBreaker(settings)
     end
 
     -- @param currentDate number
-    -- @return InvokableFn<[sample: Sample], boolean>
+    -- @return InvocableFn<[sample: Sample], boolean>
     local function isNotOverLapping(currentDate)
         return function(sample)
             local windowStart = currentDate - settings.timeSpan

@@ -2,26 +2,26 @@
  * @module SharedLock
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISharedLockFactory,
-    type ISharedLockAdapter,
-    type ISharedLockAdapterState,
-    type SharedLockAcquireSettings,
-} from "@/shared-lock/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     OPTION,
     optionNone,
     optionSome,
     UnexpectedError,
-    type IDeinitizable,
-    type Option,
 } from "@/utilities/_module.js";
 
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ISharedLockFactory,
+    ISharedLockAdapter,
+    ISharedLockAdapterState,
+    SharedLockAcquireSettings,
+} from "@/shared-lock/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IDeinitizable, Option } from "@/utilities/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/memory-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/memory-shared-lock-adapter"`
  * @group Adapters
  */
 export type MemorySharedWriterLockData =
@@ -37,7 +37,7 @@ export type MemorySharedWriterLockData =
       };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/memory-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/memory-shared-lock-adapter"`
  * @group Adapters
  */
 export type MemorySharedReaderSemaphoreData = {
@@ -52,7 +52,7 @@ export type MemorySharedReaderSemaphoreData = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/memory-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/memory-shared-lock-adapter"`
  * @group Adapters
  */
 export type MemorySharedLockData = {
@@ -64,7 +64,7 @@ export type MemorySharedLockData = {
  * Note the `MemorySharedLockAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
  * This adapter is meant for easily faking{@link ISharedLockFactory | `ISharedLockFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock/memory-shared-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock/memory-shared-lock-adapter"`
  * @group Adapters
  */
 export class MemorySharedLockAdapter
@@ -73,14 +73,14 @@ export class MemorySharedLockAdapter
     /**
      *  @example
      * ```ts
-     * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
+     * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
      *
      * const sharedLockAdapter = new MemorySharedLockAdapter();
      * ```
      * You can also provide an `Map`.
      * @example
      * ```ts
-     * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
+     * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
      *
      * const map = new Map<any, any>();
      * const sharedLockAdapter = new MemorySharedLockAdapter(map);
@@ -115,10 +115,10 @@ export class MemorySharedLockAdapter
     }
 
     async acquireWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
@@ -160,9 +160,9 @@ export class MemorySharedLockAdapter
     }
 
     async releaseWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
@@ -190,9 +190,9 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    async forceReleaseWriter(
-        _context: IReadableContext,
+    private async _forceReleaseWriter(
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
@@ -218,11 +218,18 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
+    forceReleaseWriter(
+        key: string,
+        context: IReadableContext,
+    ): Promise<boolean> {
+        return this._forceReleaseWriter(key, context);
+    }
+
     async refreshWriter(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const readerSemaphore = sharedLock?.readerSemaphore ?? null;
@@ -313,9 +320,9 @@ export class MemorySharedLockAdapter
     }
 
     async releaseReader(
-        _context: IReadableContext,
         key: string,
         lockId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const writerLock = sharedLock?.writerLock ?? null;
@@ -354,9 +361,9 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    async forceReleaseAllReaders(
-        _context: IReadableContext,
+    private async _forceReleaseAllReaders(
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const writerLock = sharedLock?.writerLock ?? null;
@@ -381,11 +388,18 @@ export class MemorySharedLockAdapter
         return Promise.resolve(hasSlots);
     }
 
+    forceReleaseAllReaders(
+        key: string,
+        context: IReadableContext,
+    ): Promise<boolean> {
+        return this._forceReleaseAllReaders(key, context);
+    }
+
     async refreshReader(
-        _context: IReadableContext,
         key: string,
         lockId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const sharedLock = this.map.get(key);
         const writerLock = sharedLock?.writerLock ?? null;
@@ -431,14 +445,14 @@ export class MemorySharedLockAdapter
     }
 
     async forceRelease(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<boolean> {
-        const hasReleasedAllReaders = await this.forceReleaseAllReaders(
-            context,
+        const hasReleasedAllReaders = await this._forceReleaseAllReaders(
             key,
+            context,
         );
-        const hasReleasedWriter = await this.forceReleaseWriter(context, key);
+        const hasReleasedWriter = await this._forceReleaseWriter(key, context);
         return hasReleasedAllReaders || hasReleasedWriter;
     }
 
@@ -535,8 +549,8 @@ export class MemorySharedLockAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISharedLockAdapterState | null> {
         const sharedLock = this.map.get(key);
 

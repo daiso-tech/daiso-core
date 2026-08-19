@@ -2,15 +2,15 @@
  * @module Collection
  */
 
-import { type IAsyncCollection } from "@/collection/contracts/_module.js";
-import { type AsyncIterableValue } from "@/utilities/_module.js";
+import type { IAsyncCollection } from "@/collection/contracts/_module.js";
+import type { AsyncIterableValue } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
-export class AsyncSplitIterable<TInput>
-    implements AsyncIterable<IAsyncCollection<TInput>>
-{
+export class AsyncSplitIterable<TInput> implements AsyncIterable<
+    IAsyncCollection<TInput>
+> {
     constructor(
         private collection: IAsyncCollection<TInput>,
         private chunkAmount: number,

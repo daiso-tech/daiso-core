@@ -1,26 +1,21 @@
-import {
-    type StartedMySqlContainer,
-    MySqlContainer,
-} from "@testcontainers/mysql";
-import {
-    Kysely,
-    MysqlDialect,
-    type ColumnMetadata,
-    type TableMetadata,
-} from "kysely";
-import { createPool, type Pool } from "mysql2";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { MySqlContainer } from "@testcontainers/mysql";
+import { Kysely, MysqlDialect } from "kysely";
+import { createPool } from "mysql2";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    KyselyRateLimiterStorageAdapter,
-    type KyselyRateLimiterStorageTables,
-} from "@/rate-limiter/implementations/adapters/kysely-rate-limiter-storage-adapter/_module.js";
+import { KyselyRateLimiterStorageAdapter } from "@/rate-limiter/implementations/adapters/kysely-rate-limiter-storage-adapter/_module.js";
 import { rateLimiterStorageAdapterTestSuite } from "@/rate-limiter/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMySqlContainer } from "@testcontainers/mysql";
+import type { ColumnMetadata, TableMetadata } from "kysely";
+import type { Pool } from "mysql2";
+
+import type { KyselyRateLimiterStorageTables } from "@/rate-limiter/implementations/adapters/kysely-rate-limiter-storage-adapter/_module.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
@@ -61,7 +56,6 @@ describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
         createAdapter: async () => {
             const adapter = new KyselyRateLimiterStorageAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
             await adapter.init();
@@ -76,44 +70,42 @@ describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
         test("Should remove all expired keys", async () => {
             const adapter = new KyselyRateLimiterStorageAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
             await adapter.init();
 
-            await adapter.transaction(noOpContext, async (trx) => {
+            await adapter.transaction(async (trx) => {
                 await trx.upsert(
-                    noOpContext,
                     "a",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toStartDate(),
+                    noOpContext,
                 );
                 await trx.upsert(
-                    noOpContext,
                     "b",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toStartDate(),
+                    noOpContext,
                 );
                 await trx.upsert(
-                    noOpContext,
                     "c",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toEndDate(),
+                    noOpContext,
                 );
-            });
+            }, noOpContext);
 
             await adapter.removeAllExpired();
 
-            expect(await adapter.find(noOpContext, "a")).toBeNull();
-            expect(await adapter.find(noOpContext, "b")).toBeNull();
-            expect(await adapter.find(noOpContext, "c")).not.toBeNull();
+            expect(await adapter.find("a", noOpContext)).toBeNull();
+            expect(await adapter.find("b", noOpContext)).toBeNull();
+            expect(await adapter.find("c", noOpContext)).not.toBeNull();
         });
     });
     describe("method: init", () => {
         test("Should create rateLimiter table", async () => {
             const adapter = new KyselyRateLimiterStorageAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
             await adapter.init();
@@ -150,7 +142,6 @@ describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
         test("Should not throw error when called multiple times", async () => {
             const adapter = new KyselyRateLimiterStorageAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
             await adapter.init();
@@ -159,37 +150,11 @@ describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
 
             await expect(promise).resolves.toBeUndefined();
         });
-        test("Should call not setInterval when shouldRemoveExpiredKeys is false", async () => {
-            const intervalFn = vi.spyOn(globalThis, "setInterval");
-
-            const adapter = new KyselyRateLimiterStorageAdapter({
-                kysely,
-                shouldRemoveExpiredKeys: false,
-                serde: new Serde(new SuperJsonSerdeAdapter()),
-            });
-            await adapter.init();
-
-            expect(intervalFn).not.toHaveBeenCalledTimes(1);
-        });
-        test("Should call setInterval when shouldRemoveExpiredKeys is true", async () => {
-            const intervalFn = vi.spyOn(globalThis, "setInterval");
-
-            const adapter = new KyselyRateLimiterStorageAdapter({
-                kysely,
-                shouldRemoveExpiredKeys: true,
-                serde: new Serde(new SuperJsonSerdeAdapter()),
-            });
-            await adapter.init();
-
-            expect(intervalFn).toHaveBeenCalledTimes(1);
-            await adapter.deInit();
-        });
     });
     describe("method: deInit", () => {
         test("Should remove rateLimiter table", async () => {
             const adapter = new KyselyRateLimiterStorageAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
             await adapter.init();
@@ -206,7 +171,6 @@ describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
         test("Should not throw error when called multiple times", async () => {
             const adapter = new KyselyRateLimiterStorageAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
             await adapter.init();
@@ -219,41 +183,12 @@ describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
         test("Should not throw error when called before init", async () => {
             const adapter = new KyselyRateLimiterStorageAdapter({
                 kysely,
-                shouldRemoveExpiredKeys: false,
                 serde: new Serde(new SuperJsonSerdeAdapter()),
             });
 
             const promise = adapter.deInit();
 
             await expect(promise).resolves.toBeUndefined();
-        });
-        test("Should call not clearInterval when shouldRemoveExpiredKeys is false", async () => {
-            const intervalFn = vi.spyOn(globalThis, "clearInterval");
-
-            const adapter = new KyselyRateLimiterStorageAdapter({
-                kysely,
-                shouldRemoveExpiredKeys: false,
-                serde: new Serde(new SuperJsonSerdeAdapter()),
-            });
-            await adapter.init();
-            await adapter.deInit();
-
-            expect(intervalFn).not.toHaveBeenCalledTimes(1);
-        });
-        test("Should call clearInterval when shouldRemoveExpiredKeys is true", async () => {
-            vi.useFakeTimers();
-            const intervalFn = vi.spyOn(globalThis, "clearInterval");
-
-            const adapter = new KyselyRateLimiterStorageAdapter({
-                kysely,
-                shouldRemoveExpiredKeys: true,
-                serde: new Serde(new SuperJsonSerdeAdapter()),
-            });
-            await adapter.init();
-            await adapter.deInit();
-
-            expect(intervalFn).toHaveBeenCalledTimes(1);
-            await adapter.deInit();
         });
     });
 });

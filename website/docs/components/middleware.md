@@ -1,81 +1,29 @@
 ---
-pagination_label: Middleware usage
+sidebar_label: Middleware
+pagination_label: Middleware
 tags:
-    - Middleware
-    - Utilities
+    - Middleware - Utilities
 keywords:
-    - Middleware
-    - Function Interception
-    - Middleware Pipeline
+    - Middleware - Function Interception - Middleware Pipeline
 ---
 
 # Middleware
 
-The `@daiso-tech/core/middleware` module provides a flexible middleware system for intercepting and composing function calls. It enables you to wrap functions with pre-processing and post-processing logic, similar to middleware patterns found in web frameworks like Express.js.
-
-## UseFactory configuration
-
-## Initial configuration
-
-To begin using middleware, create a middleware application function using the factory:
-
-```ts
-import { useFactory } from "@daiso-tech/core/middleware";
-import { ExecutionContext } from "@daiso-tech/core/execution-context";
-import { AlsExecutionContextAdapter } from "@daiso-tech/core/execution-context/als-execution-context-adapter";
-
-// Create a middleware function with a specific execution context
-const use = useFactory({
-    executionContext: new ExecutionContext(new AlsExecutionContextAdapter()),
-    defaultPriority: 0,
-});
-```
-
-Or use the default configuration:
-
-```ts
-import { useFactory } from "@daiso-tech/core/middleware";
-
-const use = useFactory();
-```
-
-Configure the middleware factory with custom settings:
-
-```ts
-type UseFactorySettings = {
-    /**
-     * The execution context to use for all middleware invocations.
-     * Defaults to a new ExecutionContext with NoOpExecutionContextAdapter
-     */
-    executionContext?: IExecutionContext;
-
-    /**
-     * Default priority for middleware without an explicit priority.
-     * Defaults to 0
-     */
-    defaultPriority?: number;
-};
-
-const use = useFactory({
-    executionContext: customContext,
-    defaultPriority: 50,
-});
-```
+The `eridu-tech/middleware` module provides a flexible middleware system for intercepting and composing function calls. It enables you to wrap functions with pre-processing and post-processing logic, similar to middleware patterns found in web frameworks like Express.js.
 
 ## Middleware basics
 
 ### Creating a simple middleware
 
-A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the execution context) and returns the result:
+A middleware is a function that receives middleware arguments (containing the original arguments, a next function, and the name of the function) and returns the result:
 
 ```ts
-import { type MiddlewareArgs } from "@daiso-tech/core/middleware";
-import { type MiddlewareFn } from "@daiso-tech/core/middleware/contracts";
+import { type MiddlewareArgs, type MiddlewareFn } from "eridu-tech/middleware";
 
 const createLoggingMiddleware = <TParameters extends Array<unknown>, TReturn>(
     prefix: string = "LOG",
 ): MiddlewareFn<TParameters, TReturn> => {
-    return ({ args, next, context }: MiddlewareArgs<unknown[], unknown>) => {
+    return ({ args, next }: MiddlewareArgs<unknown[], unknown>) => {
         console.log(`${prefix} - Before invocation with args:`, args);
         const result = next(args);
         console.log(`${prefix} - After invocation, result:`, result);
@@ -112,11 +60,7 @@ const createValidationMiddleware = (): MiddlewareFn<
     [string, number],
     string
 > => {
-    return ({
-        args,
-        next,
-        context,
-    }: MiddlewareArgs<[string, number], string>) => {
+    return ({ args, next }: MiddlewareArgs<[string, number], string>) => {
         const [name, age] = args;
         if (age < 0) throw new Error("Age cannot be negative");
         return next(args);
@@ -124,11 +68,7 @@ const createValidationMiddleware = (): MiddlewareFn<
 };
 
 const createAuthMiddleware = (): MiddlewareFn<[string, number], string> => {
-    return ({
-        args,
-        next,
-        context,
-    }: MiddlewareArgs<[string, number], string>) => {
+    return ({ args, next }: MiddlewareArgs<[string, number], string>) => {
         console.log("Checking authorization...");
         return next(args);
     };
@@ -164,11 +104,7 @@ A middleware object with an optional priority property:
 class AuthMiddleware implements IMiddlewareObject<[string, number], string> {
     constructor(public readonly priority: number = 100) {}
 
-    invoke({
-        args,
-        next,
-        context,
-    }: MiddlewareArgs<[string, number], string>): string {
+    invoke({ args, next }: MiddlewareArgs<[string, number], string>): string {
         // Authentication logic
         return next(args);
     }
@@ -188,9 +124,26 @@ type MiddlewareArgs<TParameters, TReturn> = {
     args: TParameters;
     // Function to invoke next middleware or original function
     next: NextFn<TParameters, TReturn>;
-    // Execution context for storing request-scoped data
-    context: IContext;
+    // Name of the function/method
+    name: string;
 };
+```
+
+### defineMiddleware
+
+A helper function for defining middleware with accurate type inference. It ensures the provided handler conforms to the `MiddlewareFn` signature while preserving exact parameter and return types, without needing explicit generic annotations:
+
+```ts
+import { defineMiddleware, type MiddlewareFn } from "eridu-tech/middleware";
+
+const loggingMiddleware = defineMiddleware(
+    <T extends unknown[], R>({ args, next }: MiddlewareArgs<T, R>): R => {
+        console.log("Before:", args);
+        const result = next(args);
+        console.log("After:", result);
+        return result;
+    },
+);
 ```
 
 ## Patterns
@@ -223,40 +176,6 @@ const wrappedFn = use(
 // Executes in order: Auth -> Validation -> Logging -> Original function
 ```
 
-### Using execution context
-
-Access and modify the execution context within middleware. For more details about the execution context module, see [Execution Context](./execution_context.md).
-
-```ts
-import { contextToken } from "@daiso-tech/core/execution-context";
-import { Namespace } from "@daiso-tech/core/namespace";
-import { type MiddlewareFn } from "@daiso-tech/core/middleware/contracts";
-
-const namespace = new Namespace("myapp");
-type UserData = { id: string; name: string };
-const userToken = contextToken<UserData>(namespace.create("user").toString());
-
-const createContextAwareMiddleware = (
-    defaultUser: UserData,
-): MiddlewareFn<[string, number], string> => {
-    return ({
-        args,
-        next,
-        context,
-    }: MiddlewareArgs<[string, number], string>) => {
-        const user = context.getOr(userToken, defaultUser);
-        console.log("Executing as:", user.name);
-        return next(args);
-    };
-};
-
-const contextAwareMiddleware = createContextAwareMiddleware({
-    id: "anonymous",
-    name: "Guest",
-});
-const wrappedFn = use(originalFn, contextAwareMiddleware);
-```
-
 ### Async middleware
 
 Middleware can be asynchronous:
@@ -268,7 +187,6 @@ const createAsyncValidationMiddleware = (
     return async ({
         args,
         next,
-        context,
     }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
         // Perform async validation
         const isValid = await validator(args);
@@ -290,7 +208,7 @@ Skip calling `next()` to bypass subsequent middleware and the original function:
 const createCachingMiddleware = <T extends unknown[]>(
     cacheStore: Map<string, unknown> = new Map(),
 ): MiddlewareFn<T, unknown> => {
-    return ({ args, next, context }: MiddlewareArgs<T, unknown>) => {
+    return ({ args, next }: MiddlewareArgs<T, unknown>) => {
         const cacheKey: string = JSON.stringify(args);
 
         if (cacheStore.has(cacheKey)) {
@@ -319,7 +237,6 @@ const createErrorHandlingMiddleware = (
     return async ({
         args,
         next,
-        context,
     }: MiddlewareArgs<[string, number], Promise<string>>): Promise<string> => {
         try {
             return await next(args);
@@ -338,28 +255,14 @@ const errorHandlingMiddleware = createErrorHandlingMiddleware((error) =>
 );
 ```
 
-### Enhancing Methods with `enhanceFactory`
+## Enhancing Methods with `enhance`
 
-The `enhanceFactory` function provides a convenient way to apply middleware to methods of class instances, enabling interception and augmentation of method calls without manually wrapping each function.
+The `enhance` function provides a convenient way to apply middleware to methods of class instances, enabling interception and augmentation of method calls without manually wrapping each function.
 
-#### Purpose
-
-`enhanceFactory` is a higher-order factory that, given a `use` function (created by `useFactory`), returns an `enhance` function. This `enhance` function can be used to dynamically enhance (wrap) a method of an object with one or more middlewares.
-
-#### Signature
+### Usage Example
 
 ```ts
-function enhanceFactory(use: Use): Enhance;
-```
-
-#### Usage Example
-
-```ts
-import { useFactory, enhanceFactory } from "@daiso-tech/core/middleware";
-
-// Create a middleware application function
-const use = useFactory();
-const enhance = enhanceFactory(use);
+import { enhance } from "eridu-tech/middleware";
 
 class Greeter {
     greet(name: string): string {
@@ -391,7 +294,7 @@ greeter.greet("Alice");
 // Result: Hello, Alice!
 ```
 
-#### Enhancing Object Literal Methods
+### Enhancing Object Literal Methods
 
 You can enhance methods on plain object literals as well:
 
@@ -409,7 +312,7 @@ obj.add(2, 3);
 // Result: 5
 ```
 
-#### Enhancing Static Methods
+### Enhancing Static Methods
 
 Static methods on classes can also be enhanced:
 
@@ -427,7 +330,7 @@ MathUtils.multiply(4, 5);
 // Result: 20
 ```
 
-#### Enhancing Class Prototype Methods
+### Enhancing Class Prototype Methods
 
 You can enhance all instances of a class by enhancing its prototype:
 
@@ -447,18 +350,168 @@ alice.say("Hello!");
 // Result: Person says: Hello!
 ```
 
-#### How it Works
+### How it Works
 
 - The `enhance` function replaces the specified method on the object with a wrapped version that runs the provided middleware pipeline.
 - If the target property is not a function, a `TypeError` is thrown.
 - Multiple middlewares can be provided (as an array or single value).
 
+:::danger
+Because `enhance` mutates the object **in-place**, when one enhanced method internally calls another enhanced method via `this`, the internal call goes through the already-enhanced wrapper again, causing the middleware to apply **twice**. Be mindful of inter-method calls when using `enhance` on multiple methods of the same instance.
+:::
+
 This pattern is useful for adding cross-cutting concerns (logging, validation, authorization, etc.) to class methods in a reusable and declarative way.
 
----
+## Applying Plugins with `withPlugin` {#plugin}
 
-## UseFactory configuration
+The `withPlugin` function provides a way to apply one or more plugins to a class instance or object literal, where each plugin can use the `enhance` function to wrap methods with middleware. This is useful for encapsulating cross-cutting concerns into reusable plugin units.
+
+### Usage with Class Instances
+
+```ts
+import {
+    withPlugin,
+    type PluginFn,
+    type MiddlewareFn,
+} from "eridu-tech/middleware";
+
+class UserService {
+    async getUser(id: string): Promise<{ name: string }> {
+        return { name: "Alice" };
+    }
+
+    async deleteUser(id: string): Promise<void> {
+        // Deletion logic
+    }
+}
+
+function withPerformanceLogging<
+    TParameters extends Array<unknown>,
+    TReturn,
+>(): MiddlewareFn<TParameters, Promise<TReturn>> {
+    return async ({ args, next, name }) => {
+        const start = performance.now();
+        const returnValue = await next(args);
+        const end = performance.now();
+        const timeInMs = end - start;
+        console.log(`function/method ${name} took ${timeInMs}ms`);
+        return returnValue;
+    };
+}
+
+// Define a logging plugin
+const loggingPlugin: PluginFn<UserService> = (service, enhance) => {
+    enhance(service, "getUser", withPerformanceLogging());
+
+    enhance(service, "deleteUser", withPerformanceLogging());
+};
+
+// Apply the plugin to a class instance
+const service = new UserService();
+const enhancedService = withPlugin(service, loggingPlugin);
+
+await enhancedService.getUser("123");
+// Logs:
+// getUser called with: ["123"]
+// getUser returned: { name: "Alice" }
+
+// The original service is NOT modified — a copy is returned instead
+```
+
+### Usage with Object Literals
+
+`withPlugin` also works with plain object literals:
+
+```ts
+const calculator = {
+    add(a: number, b: number): number {
+        return a + b;
+    },
+    subtract(a: number, b: number): number {
+        return a - b;
+    },
+};
+
+const loggingPlugin: PluginFn<typeof calculator> = (obj, enhance) => {
+    enhance(obj, "add", withPerformanceLogging());
+
+    enhance(obj, "subtract", withPerformanceLogging());
+};
+
+const enhancedCalc = withPlugin(calculator, loggingPlugin);
+
+enhancedCalc.add(2, 3);
+// Logs: add called with: [2, 3]
+
+// The original calculator object is NOT modified — a copy is returned instead
+```
+
+### Applying Multiple Plugins
+
+You can apply multiple plugins at once by passing an array:
+
+```ts
+const monitoringPlugin: PluginFn<UserService> = (service, enhance) => {
+    // Monitor methods...
+};
+
+const validationPlugin: PluginFn<UserService> = (service, enhance) => {
+    // Validate methods...
+};
+
+const service = new UserService();
+const enhancedService = withPlugin(service, [
+    loggingPlugin,
+    monitoringPlugin,
+    validationPlugin,
+]);
+```
+
+### Object-based Plugins
+
+For plugins with state or configuration, use the object form:
+
+```ts
+import { type IPluginObject, type MiddlewareFn } from "eridu-tech/middleware";
+
+class MetricsPlugin implements IPluginObject<UserService> {
+    constructor(private readonly metricsClient: MetricsClient) {}
+
+    invoke(service: UserService, enhance: Enhance): void {
+        const metricsMiddleware: MiddlewareFn<
+            [string],
+            Promise<{ name: string }>
+        > = async ({ args, next }) => {
+            const start = performance.now();
+            const result = await next(args);
+            const duration = performance.now() - start;
+            this.metricsClient.record("getUser", duration);
+            return result;
+        };
+
+        enhance(service, "getUser", metricsMiddleware);
+    }
+}
+
+const service = new UserService();
+const enhancedService = withPlugin(service, new MetricsPlugin(client));
+```
+
+### How it Works
+
+- `withPlugin` **always** creates a copy of the target (whether a class instance or object literal), preserving the original unchanged.
+- Each plugin is invoked in order, receiving the copied target and the `enhance` function.
+- The `enhance` function wraps the specified method with a middleware pipeline in-place on the copy.
+- The enhanced copy is returned, leaving the original untouched.
+
+:::danger
+Because `withPlugin` uses `enhance` under the hood, the same edge case applies: if one enhanced method internally calls another enhanced method via `this`, the middleware will apply **twice**. Be mindful of inter-method calls when applying plugins that enhance multiple methods on the same instance.
+:::
+
+:::info
+This pattern is ideal for building reusable feature packs (logging, monitoring) that can be composed and applied to any class instance or object literal.
+:::
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/middleware`](https://daiso-tech.github.io/daiso-core/modules/Middleware.html) API docs.
+For further information refer to [`eridu-tech/middleware`](https://eridu-tech.github.io/eridu-tech/modules/Middleware.html) API docs.

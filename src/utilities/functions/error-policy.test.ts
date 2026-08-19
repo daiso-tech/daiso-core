@@ -5,9 +5,10 @@ import {
     callErrorPolicyOnThrow,
     callErrorPolicyOnValue,
     isErrorPolicyBoolSetting,
-    type ErrorPolicyBoolSetting,
 } from "@/utilities/functions/error-policy.js";
-import { type IInvokableObject } from "@/utilities/functions/invokable.js";
+
+import type { ErrorPolicyBoolSetting } from "@/utilities/functions/error-policy.js";
+import type { IInvocableObject } from "@/utilities/functions/invocable.js";
 
 describe("file: error-policy.ts", () => {
     describe("function: isErrorPolicyBoolSetting", () => {
@@ -19,17 +20,17 @@ describe("file: error-policy.ts", () => {
         test("Should return false when given standard schema", () => {
             expect(isErrorPolicyBoolSetting(z.string())).toBe(false);
         });
-        test("Should return false when given IInvokableObject", () => {
-            const invokable: IInvokableObject<[error: unknown], boolean> = {
+        test("Should return false when given IInvocableObject", () => {
+            const invocable: IInvocableObject<[error: unknown], boolean> = {
                 invoke(_error: unknown): boolean {
                     return true;
                 },
             };
-            expect(isErrorPolicyBoolSetting(invokable)).toBe(false);
+            expect(isErrorPolicyBoolSetting(invocable)).toBe(false);
         });
-        test("Should return false when given InvokableFn", () => {
-            const invokable = (_error: unknown) => false;
-            expect(isErrorPolicyBoolSetting(invokable)).toBe(false);
+        test("Should return false when given InvocableFn", () => {
+            const invocable = (_error: unknown) => false;
+            expect(isErrorPolicyBoolSetting(invocable)).toBe(false);
         });
         test("Should return true when given ErrorPolicyBoolSetting", () => {
             const errorPolicy1: ErrorPolicyBoolSetting = {

@@ -2,32 +2,28 @@
  * @module RateLimiter
  */
 
-import { type BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import {
-    type IRateLimiterFactoryResolver,
-    type IRateLimiterFactory,
-    type IRateLimiterStorageAdapter,
-    type IRateLimiterPolicy,
-} from "@/rate-limiter/contracts/_module.js";
 import { DatabaseRateLimiterAdapter } from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/_module.js";
-import {
-    RateLimiterFactory,
-    type RateLimiterFactorySettingsBase,
-} from "@/rate-limiter/implementations/derivables/rate-limiter-factory/_module.js";
+import { RateLimiterFactory } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/_module.js";
 import {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     UnregisteredAdapterError,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     DefaultAdapterNotDefinedError,
-    type ErrorPolicy,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
+import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiterFactoryResolver,
+    IRateLimiterFactory,
+    IRateLimiterStorageAdapter,
+    IRateLimiterPolicy,
+} from "@/rate-limiter/contracts/_module.js";
+import type { RateLimiterFactorySettingsBase } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/_module.js";
+import type { ErrorPolicy, WaitUntil } from "@/utilities/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type DatabaseRateLimiterAdapters<TAdapters extends string> = Partial<
@@ -39,7 +35,7 @@ export type DatabaseRateLimiterAdapters<TAdapters extends string> = Partial<
  * Convenience resolver that wires named {@link IRateLimiterStorageAdapter | `IRateLimiterStorageAdapter`} database adapters
  * into rate-limiter logic.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
 export type DatabaseRateLimiterFactoryResolverSettings<
@@ -58,7 +54,7 @@ export type DatabaseRateLimiterFactoryResolverSettings<
     /**
      * @default
      * ```ts
-     * import { exponentialBackoff } from "@daiso-tech/core/backoff-policies";
+     * import { exponentialBackoff } from "eridu-tech/backoff-policies";
      *
      * exponentialBackoff();
      * ```
@@ -68,7 +64,7 @@ export type DatabaseRateLimiterFactoryResolverSettings<
     /**
      * @default
      * ```ts
-     * import { ConsecutiveBreaker } from "@daiso-tech/core/rate-limiter/policies";
+     * import { ConsecutiveBreaker } from "eridu-tech/rate-limiter/policies";
      *
      * new ConsecutiveBreaker({ failureThreshold: 5 });
      * ```
@@ -79,21 +75,21 @@ export type DatabaseRateLimiterFactoryResolverSettings<
 /**
  * The `DatabaseRateLimiterFactoryResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter"`
  * @group Derivables
  */
-export class DatabaseRateLimiterFactoryResolver<TAdapters extends string>
-    implements IRateLimiterFactoryResolver<TAdapters>
-{
+export class DatabaseRateLimiterFactoryResolver<
+    TAdapters extends string,
+> implements IRateLimiterFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts
-     * import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
-     * import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storate-adapter";
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { RateLimiterFactoryResolver } from "eridu-tech/rate-limiter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storate-adapter";
+     * import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storate-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
@@ -118,24 +114,6 @@ export class DatabaseRateLimiterFactoryResolver<TAdapters extends string>
     constructor(
         private readonly settings: DatabaseRateLimiterFactoryResolverSettings<TAdapters>,
     ) {}
-
-    setNamespace(
-        namespace: INamespace,
-    ): DatabaseRateLimiterFactoryResolver<TAdapters> {
-        return new DatabaseRateLimiterFactoryResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
-
-    setEventBus(
-        eventBus: EventBusInput,
-    ): DatabaseRateLimiterFactoryResolver<TAdapters> {
-        return new DatabaseRateLimiterFactoryResolver({
-            ...this.settings,
-            eventBus,
-        });
-    }
 
     setOnlyError(
         onlyError?: boolean,
@@ -183,23 +161,23 @@ export class DatabaseRateLimiterFactoryResolver<TAdapters extends string>
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): DatabaseRateLimiterFactoryResolver<TAdapters> {
         return new DatabaseRateLimiterFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 
     /**
      * @example
      * ```ts
-     * import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
-     * import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
-     * import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storate-adapter";
-     * import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { RateLimiterFactoryResolver } from "eridu-tech/rate-limiter";
+     * import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storate-adapter";
+     * import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storate-adapter";
+     * import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *

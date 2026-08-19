@@ -6,7 +6,11 @@
  * @module Utilities
  */
 
+<<<<<<< HEAD
 import  { type Class } from "@/utilities/types/_module.js";
+=======
+import type {AnyClass} from "@/utilities/types/_module.js";
+>>>>>>> main
 
 /**
  * 

@@ -2,21 +2,19 @@
  * @module ExecutionContext
  */
 
-import {
-    type ContextToken,
-    type DecrementSettings,
-    type IContext,
-    type ICopyableContext,
-    type IncrementSettings,
-    type PutDecrementSettings,
-    type PutIncrementSettings,
-} from "@/execution-context/contracts/_module.js";
 import { NotFoundExecutionContextError } from "@/execution-context/contracts/execution-context.errors.js";
-import {
-    resolveLazyable,
-    type Invokable,
-    type Lazyable,
-} from "@/utilities/_module.js";
+import { resolveLazyable } from "@/utilities/_module.js";
+
+import type {
+    ContextToken,
+    DecrementSettings,
+    IContext,
+    ICopyableContext,
+    IncrementSettings,
+    PutDecrementSettings,
+    PutIncrementSettings,
+} from "@/execution-context/contracts/_module.js";
+import type { Invocable, Lazyable } from "@/utilities/_module.js";
 
 /**
  * @internal
@@ -29,8 +27,7 @@ export class NoOpContext implements ICopyableContext {
     contains<TValue>(
         _token: ContextToken<Array<TValue>>,
         _matchValue:
-            | NoInfer<TValue>
-            | Invokable<[value: NoInfer<TValue>], boolean>,
+            NoInfer<TValue> | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean {
         return false;
     }
@@ -129,7 +126,7 @@ export class NoOpContext implements ICopyableContext {
 
     when(
         _condition: Lazyable<boolean>,
-        ..._invokables: Array<Invokable<[context: IContext], IContext>>
+        ..._invocables: Array<Invocable<[context: IContext], IContext>>
     ): IContext {
         return this;
     }

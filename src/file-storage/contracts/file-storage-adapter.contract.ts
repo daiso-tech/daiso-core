@@ -2,13 +2,13 @@
  * @module FileStorage
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * Configuration for generating temporary signed download URLs for files.
  * These settings control how the presigned download URL behaves when accessed.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileAdapterSignedDownloadUrlSettings = {
@@ -37,7 +37,7 @@ export type FileAdapterSignedDownloadUrlSettings = {
  * Configuration for generating temporary signed upload URLs for files.
  * These settings control how the presigned upload URL behaves and what files can be uploaded.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileAdapterSignedUploadUrlSettings = {
@@ -67,7 +67,7 @@ export type FileAdapterSignedUploadUrlSettings = {
  *
  * All methods operate on files via `key` identifier and use `IReadableContext` for audit logging.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type IFileUrlAdapter = {
@@ -75,13 +75,14 @@ export type IFileUrlAdapter = {
      * Generates a public, permanently-accessible URL for a file.
      * Returns null if the file does not exist or public access is not supported by the adapter.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path
+     * @param context - Readable execution context for the operation
+     *
      * @returns The public URL or null if unavailable
      */
     getPublicUrl(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<string | null>;
 
     /**
@@ -90,15 +91,16 @@ export type IFileUrlAdapter = {
      * Returns null when the adapter verifies that the file does not exist.
      * Some backends may return a signed URL that fails when accessed if existence checks are disabled.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path
      * @param settings - Configuration for the signed URL (expiration, content type, disposition)
+     * @param context - Readable execution context for the operation
+     *
      * @returns The signed download URL, or null when the adapter verifies the file is unavailable
      */
     getSignedDownloadUrl(
-        context: IReadableContext,
         key: string,
         settings: FileAdapterSignedDownloadUrlSettings,
+        context: IReadableContext,
     ): Promise<string | null>;
 
     /**
@@ -106,16 +108,17 @@ export type IFileUrlAdapter = {
      * The URL expires after the configured duration and becomes invalid.
      * Throws if URL generation fails (storage system misconfiguration).
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path where upload will be stored
      * @param settings - Configuration for the signed URL (expiration, expected content type)
+     * @param context - Readable execution context for the operation
+     *
      * @returns The signed upload URL (must always return a valid URL)
      * @throws Error if signed URL generation fails
      */
     getSignedUploadUrl(
-        context: IReadableContext,
         key: string,
         settings: FileAdapterSignedUploadUrlSettings,
+        context: IReadableContext,
     ): Promise<string>;
 };
 
@@ -124,7 +127,7 @@ export type IFileUrlAdapter = {
  * Contains properties describing file state, size, and modification times.
  * Immutable snapshot used for cache validation and file information endpoints.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileAdapterMetadata = {
@@ -139,7 +142,7 @@ export type FileAdapterMetadata = {
      * MIME type of the file content.
      * Determines how browsers/clients should handle the file (e.g., display vs. download).
      */
-    contentType: string;
+    contentType: string | null;
 
     /**
      * Size of the file in bytes.
@@ -163,7 +166,7 @@ export type FileAdapterMetadata = {
  * Used for both reading (download) and writing (upload) operations.
  * Iterating the stream will fetch/produce chunks sequentially.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileAdapterStream = AsyncIterable<Uint8Array>;
@@ -174,7 +177,7 @@ export type FileAdapterStream = AsyncIterable<Uint8Array>;
  *
  * Shared between content (bytes) and stream write operations.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type WritableFileAdapterCommonSettings = {
@@ -221,7 +224,7 @@ export type WritableFileAdapterCommonSettings = {
  * Used when entire file content is available in memory (smaller files).
  * All content is provided upfront before write operation.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type WritableFileAdapterContent = WritableFileAdapterCommonSettings & {
@@ -247,7 +250,7 @@ export type WritableFileAdapterContent = WritableFileAdapterCommonSettings & {
  * Used when file content is too large for memory or comes from a streaming source.
  * Content is transmitted in chunks, allowing memory-efficient processing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type WritableFileAdapterStream = WritableFileAdapterCommonSettings & {
@@ -271,7 +274,7 @@ export type WritableFileAdapterStream = WritableFileAdapterCommonSettings & {
  * Enumeration defining the possible outcomes of write operations.
  * Used by copy and move operations that respect existing key constraints.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export const FILE_WRITE_ENUM = {
@@ -299,7 +302,7 @@ export const FILE_WRITE_ENUM = {
  * Type definition for FileWriteEnum string values.
  * Represents one of the possible outcomes from copy/move operations.
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type FileWriteEnum =
@@ -309,31 +312,33 @@ export type FileWriteEnum =
  * File storage adapter contract defining complete file operations.
  * Abstracts storage backend implementation (local filesystem, S3, database, memory, etc).
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type IFileStorageAdapter = {
     /**
      * Checks whether a file exists at the given key.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path to check
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if file exists, false otherwise
      */
-    exists(context: IReadableContext, key: string): Promise<boolean>;
+    exists(key: string, context: IReadableContext): Promise<boolean>;
 
     /**
      * Retrieves file content as an async stream of byte chunks.
      * Memory-efficient for large files - content is streamed rather than loaded entirely.
      * Returns null if the file does not exist.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path
+     * @param context - Readable execution context for the operation
+     *
      * @returns Async iterable of Uint8Array chunks, or null if file not found
      */
     getStream(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<FileAdapterStream | null>;
 
     /**
@@ -341,13 +346,14 @@ export type IFileStorageAdapter = {
      * The entire file must fit in memory - use getStream for large files.
      * Returns null if the file does not exist.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path
+     * @param context - Readable execution context for the operation
+     *
      * @returns Complete file bytes as Uint8Array, or null if file not found
      */
     getBytes(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<Uint8Array | null>;
 
     /**
@@ -355,13 +361,14 @@ export type IFileStorageAdapter = {
      * Returns null if the file does not exist.
      * Useful for cache validation and file information endpoints.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path
+     * @param context - Readable execution context for the operation
+     *
      * @returns File metadata object, or null if file not found
      */
     getMetaData(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<FileAdapterMetadata | null>;
 
     /**
@@ -369,15 +376,16 @@ export type IFileStorageAdapter = {
      * Fails if key already exists (use put for upsert or update for existing files).
      * Content is loaded entirely in memory - use addStream for large files.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path where file will be created
      * @param content - File content with HTTP headers configuration
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if file was created, false if key already exists
      */
     add(
-        context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -385,15 +393,16 @@ export type IFileStorageAdapter = {
      * Fails if key already exists (use putStream for upsert or updateStream for existing files).
      * Content is streamed - efficient for large files or continuous data sources.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path where file will be created
      * @param stream - File content stream with HTTP headers configuration
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if file was created, false if key already exists
      */
     addStream(
-        context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -401,15 +410,16 @@ export type IFileStorageAdapter = {
      * Fails if key doesn't exist (use put for upsert or add for new files).
      * Content is loaded entirely in memory - use updateStream for large files.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path to update
      * @param content - New file content with HTTP headers configuration
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if file was updated, false if key doesn't exist
      */
     update(
-        context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -417,15 +427,16 @@ export type IFileStorageAdapter = {
      * Fails if key doesn't exist (use putStream for upsert or addStream for new files).
      * Content is streamed - efficient for large files or continuous data sources.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path to update
      * @param stream - New file content stream with HTTP headers configuration
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if file was updated, false if key doesn't exist
      */
     updateStream(
-        context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -433,15 +444,16 @@ export type IFileStorageAdapter = {
      * Always succeeds: creates file if doesn't exist, overwrites if exists.
      * Content is loaded entirely in memory - use putStream for large files.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path to create or update
      * @param content - File content with HTTP headers configuration
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if file was updated (already existed), false if newly created
      */
     put(
-        context: IReadableContext,
         key: string,
         content: WritableFileAdapterContent,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -449,45 +461,48 @@ export type IFileStorageAdapter = {
      * Always succeeds: creates file if doesn't exist, overwrites if exists.
      * Content is streamed - efficient for large files or continuous data sources.
      *
-     * @param context - Readable execution context for the operation
      * @param key - The file identifier/path to create or update
      * @param stream - File content stream with HTTP headers configuration
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if file was updated (already existed), false if newly created
      */
     putStream(
-        context: IReadableContext,
         key: string,
         stream: WritableFileAdapterStream,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
      * Copies source file to destination path if destination doesn't exist.
      * Destination is left unchanged if source not found or destination already exists.
      *
-     * @param context - Readable execution context for the operation
      * @param source - Source file identifier/path to copy from
      * @param destination - Destination file identifier/path to copy to
+     * @param context - Readable execution context for the operation
+     *
      * @returns `FileWriteEnum` indicating: SUCCESS (copied), NOT_FOUND (source missing), or KEY_EXISTS (destination exists)
      */
     copy(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<FileWriteEnum>;
 
     /**
      * Copies source file to destination path, overwriting destination if it exists.
      * Returns false if source doesn't exist; destination remains unchanged.
      *
-     * @param context - Readable execution context for the operation
      * @param source - Source file identifier/path to copy from
      * @param destination - Destination file identifier/path to copy to (will be overwritten)
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if source was found and copied, false if source doesn't exist
      */
     copyAndReplace(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -495,15 +510,16 @@ export type IFileStorageAdapter = {
      * Destination is left unchanged if source not found or destination already exists.
      * Effectively deletes the source file after successful copy.
      *
-     * @param context - Readable execution context for the operation
      * @param source - Source file identifier/path to move from
      * @param destination - Destination file identifier/path to move to
+     * @param context - Readable execution context for the operation
+     *
      * @returns `FileWriteEnum` indicating: SUCCESS (moved), NOT_FOUND (source missing), or KEY_EXISTS (destination exists)
      */
     move(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<FileWriteEnum>;
 
     /**
@@ -511,27 +527,29 @@ export type IFileStorageAdapter = {
      * Returns false if source doesn't exist; destination remains unchanged.
      * Effectively deletes the source file after successful copy.
      *
-     * @param context - Readable execution context for the operation
      * @param source - Source file identifier/path to move from
      * @param destination - Destination file identifier/path to move to (will be overwritten)
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if source was found and moved, false if source doesn't exist
      */
     moveAndReplace(
-        context: IReadableContext,
         source: string,
         destination: string,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
      * Removes multiple specific files by key.
      *
-     * @param context - Readable execution context for the operation
      * @param keys - Array of file identifiers/paths to delete
+     * @param context - Readable execution context for the operation
+     *
      * @returns True if at least one key was deleted, false if no keys were found
      */
     removeMany(
-        context: IReadableContext,
         keys: Array<string>,
+        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -539,11 +557,12 @@ export type IFileStorageAdapter = {
      * Useful for batch deletion by directory or namespace.
      * Silently succeeds if no keys match the prefix.
      *
-     * @param context - Readable execution context for the operation
      * @param prefix - Key prefix to match (e.g., "uploads/2024-01/" for all January uploads)
+     * @param context - Readable execution context for the operation
+     *
      * @returns Void (always succeeds)
      */
-    removeByPrefix(context: IReadableContext, prefix: string): Promise<void>;
+    removeByPrefix(prefix: string, context: IReadableContext): Promise<void>;
 };
 
 /**
@@ -556,7 +575,7 @@ export type IFileStorageAdapter = {
  * - Public URL generation for direct browser access
  * - Temporary signed URLs for secure download/upload without client credentials
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type ISignedFileStorageAdapter = IFileUrlAdapter & IFileStorageAdapter;

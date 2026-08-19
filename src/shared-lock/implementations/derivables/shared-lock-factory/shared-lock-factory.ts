@@ -4,75 +4,39 @@
 
 import { v4 } from "uuid";
 
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
-import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
-import {
-    type ISharedLock,
-    type ISharedLockAdapter,
-    type SharedLockEventMap,
-    type SharedLockFactoryCreateSettings,
-    type ISharedLockFactory,
-    type SharedLockAdapterVariants,
-    type ISharedLockListenable,
-} from "@/shared-lock/contracts/_module.js";
-import { resolveSharedLockAdapter } from "@/shared-lock/implementations/derivables/shared-lock-factory/resolve-shared-lock-adapter.js";
 import { SharedLockSerdeTransformer } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock-serde-transformer.js";
 import { SharedLock } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    CORE,
-    resolveOneOrMore,
-    type Invokable,
-    callInvokable,
-    type OneOrMore,
-    type WaitUntil,
-    defaultWaitUntil,
-} from "@/utilities/_module.js";
+import { CORE, resolveOneOrMore, callInvocable } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerderRegister } from "@/serde/contracts/_module.js";
+import type {
+    ISharedLock,
+    ISharedLockAdapter,
+    SharedLockFactoryCreateSettings,
+    ISharedLockFactory,
+} from "@/shared-lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Invocable, OneOrMore } from "@/utilities/_module.js";
 
 /**
  * Base configuration shared by all `SharedLockFactory` variants.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export type SharedLockFactorySettingsBase = {
     /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
-
-    /**
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link SharedLockFactory | `SharedLockFactory`} to register the shared lock's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { NoOpSerdeAdapter } from "eridu-tech/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -93,26 +57,13 @@ export type SharedLockFactorySettingsBase = {
      *
      * () => v4()
      */
-    createLockId?: Invokable<[], string>;
-
-    /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
+    createLockId?: Invocable<[], string>;
 
     /**
      * You can decide the default ttl value for {@link ISharedLock | `ISharedLock`} expiration. If null is passed then no ttl will be used by default.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(5);
      * ```
@@ -122,7 +73,7 @@ export type SharedLockFactorySettingsBase = {
     /**
      * The default refresh time used in the {@link ISharedLock | `ISharedLock`} `refresh` method.
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(5);
      * ```
@@ -130,73 +81,58 @@ export type SharedLockFactorySettingsBase = {
     defaultRefreshTime?: ITimeSpan;
 
     /**
-     * You can pass the `waitUntil` function to handle background promises.
-     * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
+     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
-     * ```
-     */
-    waitUntil?: WaitUntil;
-
-    /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    executionContext?: IExecutionContext;
+    context?: IReadableContext;
 };
 
 /**
  * Configuration for `SharedLockFactory`.
  * Extends {@link SharedLockFactorySettingsBase | `SharedLockFactorySettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export type SharedLockFactorySettings = SharedLockFactorySettingsBase & {
     /**
      * The underlying shared-lock adapter that handles the actual locking operations.
      */
-    adapter: SharedLockAdapterVariants;
+    adapter: ISharedLockAdapter;
 };
 
 /**
- * `SharedLockFactory` class can be derived from any {@link ISharedLockAdapter | `ISharedLockAdapter`} or {@link IDatabaseSharedLockAdapter | `IDatabaseSharedLockAdapter`}.
+ * `SharedLockFactory` class can be derived from any {@link ISharedLockAdapter | `ISharedLockAdapter`}.
  *
  * Note the {@link ISharedLock | `ISharedLock`} instances created by the `SharedLockFactory` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
- * IMPORT_PATH: `"@daiso-tech/core/shared-lock"`
+ * IMPORT_PATH: `"eridu-tech/shared-lock"`
  * @group Derivables
  */
 export class SharedLockFactory implements ISharedLockFactory {
-    private readonly eventBus: IEventBus<SharedLockEventMap>;
-    private readonly originalAdapter: SharedLockAdapterVariants;
     private readonly adapter: ISharedLockAdapter;
-    private readonly namespace: INamespace;
-    private readonly creatLockId: Invokable<[], string>;
+    private readonly creatLockId: Invocable<[], string>;
     private readonly defaultTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
-    private readonly use: Use;
+    private readonly context: IReadableContext;
 
     /**
      * @example
      * ```ts
-     * import { KyselySharedLockAdapter } from "@daiso-tech/core/shared-lock/kysely-shared-lock-adapter";
-     * import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { KyselySharedLockAdapter } from "eridu-tech/shared-lock/kysely-shared-lock-adapter";
+     * import { SharedLockFactory } from "eridu-tech/shared-lock";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
@@ -223,43 +159,28 @@ export class SharedLockFactory implements ISharedLockFactory {
             defaultRefreshTime = TimeSpan.fromMinutes(5),
             createLockId = () => v4(),
             serde = new Serde(new NoOpSerdeAdapter()),
-            namespace = new NoOpNamespace(),
             adapter,
-            eventBus = new NoOpEventBusAdapter(),
             serdeTransformerName = "",
-            waitUntil = defaultWaitUntil,
-            executionContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            ),
+            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.use = useFactory({ executionContext });
-        this.executionContext = executionContext;
-        this.waitUntil = waitUntil;
+        this.context = context;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
         this.creatLockId = createLockId;
-        this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serdeTransformerName = serdeTransformerName;
 
-        this.originalAdapter = adapter;
-        this.adapter = resolveSharedLockAdapter(adapter);
+        this.adapter = adapter;
         this.registerToSerde();
     }
 
     private registerToSerde(): void {
         const transformer = new SharedLockSerdeTransformer({
-            use: this.use,
-            executionContext: this.executionContext,
-            waitUntil: this.waitUntil,
-            originalAdapter: this.originalAdapter,
+            context: this.context,
             adapter: this.adapter,
             defaultRefreshTime: this.defaultRefreshTime,
-            eventBus: this.eventBus,
-            namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
@@ -267,18 +188,14 @@ export class SharedLockFactory implements ISharedLockFactory {
         }
     }
 
-    get events(): ISharedLockListenable {
-        return this.eventBus;
-    }
-
     /**
      * @example
      * ```ts
-     * import { SharedLockFactory } from "@daiso-tech/core/shared-lock";
-     * import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-     * import { Namespace } from "@daiso-tech/core/namespace";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { SharedLockFactory } from "eridu-tech/shared-lock";
+     * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+     * import { Namespace } from "eridu-tech/namespace";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      *
      * const lockFactory = new SharedLockFactory({
      *   adapter: new MemorySharedLockAdapter(),
@@ -295,22 +212,15 @@ export class SharedLockFactory implements ISharedLockFactory {
     ): ISharedLock {
         const {
             ttl = this.defaultTtl,
-            lockId = callInvokable(this.creatLockId),
+            lockId = callInvocable(this.creatLockId),
             limit,
         } = settings;
 
-        const keyObj = this.namespace.create(key);
-
         return new SharedLock({
-            use: this.use,
-            executionContext: this.executionContext,
-            waitUntil: this.waitUntil,
+            context: this.context,
             limit,
-            namespace: this.namespace,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
-            eventDispatcher: this.eventBus,
-            key: keyObj,
+            key,
             lockId,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
             serdeTransformerName: this.serdeTransformerName,

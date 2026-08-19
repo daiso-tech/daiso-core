@@ -2,18 +2,19 @@
  * @module Collection
  */
 
-import {
-    type CrossJoinResult,
-    type ICollection,
-} from "@/collection/contracts/_module.js";
 import { isIterable } from "@/utilities/_module.js";
+
+import type {
+    CrossJoinResult,
+    ICollection,
+} from "@/collection/contracts/_module.js";
 
 /**
  * @internal
  */
-export class CrossJoinIterable<TInput, TExtended = TInput>
-    implements Iterable<CrossJoinResult<TInput, TExtended>>
-{
+export class CrossJoinIterable<TInput, TExtended = TInput> implements Iterable<
+    CrossJoinResult<TInput, TExtended>
+> {
     constructor(
         private readonly collection: ICollection<TInput>,
         private readonly iterable: Iterable<TExtended>,

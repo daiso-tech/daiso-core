@@ -7,9 +7,10 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type FileAdapterMetadata } from "@/file-storage/contracts/file-storage-adapter.contract.js";
 import { FsFileStorageAdapter } from "@/file-storage/implementations/adapters/fs-file-storage-adapter/_module.js";
 import { fileStorageAdapterTestSuite } from "@/file-storage/implementations/test-utilities/_module.js";
+
+import type { FileAdapterMetadata } from "@/file-storage/contracts/file-storage-adapter.contract.js";
 
 describe("class: FsFileStorageAdapter", () => {
     let adapter_: FsFileStorageAdapter;
@@ -40,77 +41,89 @@ describe("class: FsFileStorageAdapter", () => {
             const noneExistingKey = "a";
 
             const result = await adapter_.getMetaData(
-                noOpContext,
                 noneExistingKey,
+                noOpContext,
             );
 
             expect(result).toBeNull();
         });
-        test("Should return content-type application/json when file name contains json extension", async () => {
+        test("Should return content-type null when file name contains json extension", async () => {
             const key = "a.json";
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
-            const contentType = "text/plain";
-            await adapter_.add(noOpContext, key, {
-                data,
-                cacheControl: null,
-                contentDisposition: null,
-                contentEncoding: null,
-                contentLanguage: null,
-                contentType,
-                fileSizeInBytes: data.length,
-            });
-            const result = await adapter_.getMetaData(noOpContext, key);
+            const contentType = "application/json";
+            await adapter_.add(
+                key,
+                {
+                    data,
+                    cacheControl: null,
+                    contentDisposition: null,
+                    contentEncoding: null,
+                    contentLanguage: null,
+                    contentType,
+                    fileSizeInBytes: data.length,
+                },
+                noOpContext,
+            );
+            const result = await adapter_.getMetaData(key, noOpContext);
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
-                contentType: "application/json",
+                contentType: null,
                 fileSizeInBytes: data.byteLength,
                 updatedAt: expect.any(Date) as Date,
             } satisfies FileAdapterMetadata);
         });
-        test("Should return content-type text/plain when file name contains txt extension", async () => {
+        test("Should return content-type null when file name contains txt extension", async () => {
             const key = "a.txt";
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/json";
-            await adapter_.add(noOpContext, key, {
-                data,
-                cacheControl: null,
-                contentDisposition: null,
-                contentEncoding: null,
-                contentLanguage: null,
-                contentType,
-                fileSizeInBytes: data.length,
-            });
-            const result = await adapter_.getMetaData(noOpContext, key);
+            await adapter_.add(
+                key,
+                {
+                    data,
+                    cacheControl: null,
+                    contentDisposition: null,
+                    contentEncoding: null,
+                    contentLanguage: null,
+                    contentType,
+                    fileSizeInBytes: data.length,
+                },
+                noOpContext,
+            );
+            const result = await adapter_.getMetaData(key, noOpContext);
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
-                contentType: "text/plain",
+                contentType: null,
                 fileSizeInBytes: data.byteLength,
                 updatedAt: expect.any(Date) as Date,
             } satisfies FileAdapterMetadata);
         });
-        test("Should return content-type application/octet stream when file name contains unknown extension", async () => {
+        test("Should return content-type null when file name contains unknown extension", async () => {
             const key = "a.unknown";
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/json";
-            await adapter_.add(noOpContext, key, {
-                data,
-                cacheControl: null,
-                contentDisposition: null,
-                contentEncoding: null,
-                contentLanguage: null,
-                contentType,
-                fileSizeInBytes: data.length,
-            });
-            const result = await adapter_.getMetaData(noOpContext, key);
+            await adapter_.add(
+                key,
+                {
+                    data,
+                    cacheControl: null,
+                    contentDisposition: null,
+                    contentEncoding: null,
+                    contentLanguage: null,
+                    contentType,
+                    fileSizeInBytes: data.length,
+                },
+                noOpContext,
+            );
+            const result = await adapter_.getMetaData(key, noOpContext);
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
-                contentType: "application/octet-stream",
+                contentType: null,
                 fileSizeInBytes: data.byteLength,
                 updatedAt: expect.any(Date) as Date,
             } satisfies FileAdapterMetadata);

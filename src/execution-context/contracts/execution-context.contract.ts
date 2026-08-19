@@ -2,14 +2,10 @@
  * @module ExecutionContext
  */
 
-import {
-    type Invokable,
-    type InvokableFn,
-    type Lazyable,
-} from "@/utilities/_module.js";
+import type { Invocable, InvocableFn, Lazyable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Type-safe token for storing and retrieving execution context values.
  *
@@ -35,7 +31,7 @@ export type ContextToken<TValue> = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Factory function that creates a type-safe context token.
  *
@@ -48,7 +44,7 @@ export type ContextToken<TValue> = {
  * @returns A new contextToken with the specified ID and type
  *
  * @example
- * import { contextToken } from "@daiso-tech/core/execution-context/contracts";
+ * import { contextToken } from "eridu-tech/execution-context/contracts";
  *
  * const userToken = contextToken<User>("user");
  * const requestIdToken = contextToken<string>("requestId");
@@ -60,7 +56,7 @@ export function contextToken<TValue>(id: string): ContextToken<TValue> {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Configuration for incrementing a numeric context value.
  * Used when updating an existing context value.
@@ -80,7 +76,7 @@ export type IncrementSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Configuration for putting (creating or overwriting) and incrementing a numeric context value.
  * Extends IncrementSettings to allow specifying an initial value if the key doesn't exist.
@@ -94,7 +90,7 @@ export type PutIncrementSettings = IncrementSettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Configuration for decrementing a numeric context value.
  * Used when updating an existing context value.
@@ -114,7 +110,7 @@ export type DecrementSettings = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Configuration for putting (creating or overwriting) and decrementing a numeric context value.
  * Extends DecrementSettings to allow specifying an initial value if the key doesn't exist.
@@ -128,7 +124,7 @@ export type PutDecrementSettings = DecrementSettings & {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Read-only contract for accessing execution context values.
  *
@@ -148,8 +144,7 @@ export type IReadableContext = {
     contains<TValue>(
         token: ContextToken<Array<TValue>>,
         matchValue:
-            | NoInfer<TValue>
-            | Invokable<[value: NoInfer<TValue>], boolean>,
+            NoInfer<TValue> | Invocable<[value: NoInfer<TValue>], boolean>,
     ): boolean;
 
     /**
@@ -210,7 +205,7 @@ export type IReadableContext = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Read-write contract for managing execution context values.
  *
@@ -372,22 +367,22 @@ export type IContext = IReadableContext & {
     /**
      * Conditionally applies one or more operations to the context.
      *
-     * If the condition evaluates to true, executes all provided invokable functions
+     * If the condition evaluates to true, executes all provided invocable functions
      * with this context. The condition can be a direct boolean or a lazy-evaluated function.
      * Useful for conditional context modifications.
      *
      * @param condition - Boolean condition or function that returns a condition
-     * @param invokables - Functions to execute if condition is true, each receives this context
+     * @param invocables - Functions to execute if condition is true, each receives this context
      * @returns This context instance for method chaining
      */
     when(
         condition: Lazyable<boolean>,
-        ...invokables: Array<Invokable<[context: IContext], IContext>>
+        ...invocables: Array<Invocable<[context: IContext], IContext>>
     ): IContext;
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Base contract for execution context operations.
  *
@@ -402,10 +397,10 @@ export type IExecutionContextBase = {
      * accessible to the function and any functions it calls.
      *
      * @template TValue - The return type of the function
-     * @param invokable - The function to execute within this context
+     * @param invocable - The function to execute within this context
      * @returns The return value of the executed function
      */
-    run<TValue>(invokable: Invokable<[], TValue>): TValue;
+    run<TValue>(invocable: Invocable<[], TValue>): TValue;
 
     /**
      * Binds a function to this execution context.
@@ -420,12 +415,12 @@ export type IExecutionContextBase = {
      * @returns A new function that accepts the same arguments and runs within this context
      */
     bind<TArgs extends Array<unknown>, TReturn>(
-        fn: Invokable<[...args: TArgs], TReturn>,
-    ): InvokableFn<[...args: TArgs], TReturn>;
+        fn: Invocable<[...args: TArgs], TReturn>,
+    ): InvocableFn<[...args: TArgs], TReturn>;
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/execution-context/contracts"`
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
  *
  * Complete execution context contract combining execution capabilities with context management.
  *

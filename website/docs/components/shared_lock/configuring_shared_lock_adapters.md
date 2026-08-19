@@ -1,9 +1,9 @@
 ---
 sidebar_position: 3
 sidebar_label: Configuring adapters
-pagination_label: Configuring shared-lock adapters
+pagination_label: Configuring SharedLock adapters
 tags:
-    - Shared-lock
+    - SharedLock
     - Configuring adapters
     - In-memory
     - Mongodb
@@ -16,7 +16,7 @@ tags:
     - Libsql
     - NoOp
 keywords:
-    - Shared-lock
+    - SharedLock
     - Configuring adapters
     - In-memory
     - Mongodb
@@ -30,14 +30,14 @@ keywords:
     - NoOp
 ---
 
-# Configuring shared-lock adapters
+# Configuring SharedLock adapters
 
 ## MemorySharedLockAdapter
 
 To use the `MemorySharedLockAdapter` you only need to create instance of it:
 
 ```ts
-import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
+import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
 
 const memorySharedLockAdapter = new MemorySharedLockAdapter();
 ```
@@ -45,7 +45,7 @@ const memorySharedLockAdapter = new MemorySharedLockAdapter();
 You can also provide an `Map` that will be used for storing the data in memory:
 
 ```ts
-import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
+import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
 
 const map = new Map<any, any>();
 const memorySharedLockAdapter = new MemorySharedLockAdapter(map);
@@ -66,7 +66,7 @@ To use the `MongodbSharedLockAdapter`, you'll need to:
 1. Install the required dependency: [`mongodb`](https://www.npmjs.com/package/mongodb) package:
 
 ```ts
-import { MongodbSharedLockAdapter } from "@daiso-tech/core/shared-lock/mongodb-shared-lock-adapter";
+import { MongodbSharedLockAdapter } from "eridu-tech/shared-lock/mongodb-shared-lock-adapter";
 import { MongoClient } from "mongodb";
 
 const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
@@ -124,7 +124,7 @@ To use the `RedisSharedLockAdapter`, you'll need to:
 1. Install the required dependency: [`ioredis`](https://www.npmjs.com/package/ioredis) package:
 
 ```ts
-import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
+import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
 import Redis from "ioredis";
 
 const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -148,8 +148,8 @@ To use the `KyselySharedLockAdapter`, you'll need to:
 You will need to install [`better-sqlite3`](https://www.npmjs.com/package/better-sqlite3) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselySharedLockAdapter } from "@daiso-tech/core/shared-lock/kysely-shared-lock-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselySharedLockAdapter } from "eridu-tech/shared-lock/kysely-shared-lock-adapter";
 import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 
@@ -177,8 +177,8 @@ Note using `KyselySharedLockAdapter` with `sqlite` is limited to single server u
 You will need to install [`pg`](https://www.npmjs.com/package/pg) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselySharedLockAdapter } from "@daiso-tech/core/shared-lock/kysely-shared-lock-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselySharedLockAdapter } from "eridu-tech/shared-lock/kysely-shared-lock-adapter";
 import { Pool } from "pg";
 import { Kysely, PostgresDialect } from "kysely";
 
@@ -214,8 +214,8 @@ Note in order to use `KyselySharedLockAdapter` with `postgres` correctly, ensure
 You will need to install [`mysql2`](https://www.npmjs.com/package/mysql2) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselySharedLockAdapter } from "@daiso-tech/core/shared-lock/kysely-shared-lock-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselySharedLockAdapter } from "eridu-tech/shared-lock/kysely-shared-lock-adapter";
 import { createPool } from "mysql2";
 import { Kysely, MysqlDialect } from "kysely";
 
@@ -251,8 +251,8 @@ Note in order to use `KyselySharedLockAdapter` with `mysql` correctly, ensure yo
 You will need to install `@libsql/kysely-libsql` package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselySharedLockAdapter } from "@daiso-tech/core/shared-lock/kysely-shared-lock-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselySharedLockAdapter } from "eridu-tech/shared-lock/kysely-shared-lock-adapter";
 import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { Kysely } from "kysely";
 
@@ -276,33 +276,16 @@ Note in order to use `KyselySharedLockAdapter` with `libsql` correctly, ensure y
 
 ### Settings
 
-Expired keys are cleared at regular intervals and you can change the interval time:
+To clean up expired shared-lock keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
 const kyselySharedLockAdapter = new KyselySharedLockAdapter({
     database,
-    // By default, the interval is 1 minute
-    expiredKeysRemovalInterval: TimeSpan.fromSeconds(10),
-});
-
-await kyselySharedLockAdapter.init();
-```
-
-Disabling scheduled interval cleanup of expired keys:
-
-```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const kyselySharedLockAdapter = new KyselySharedLockAdapter({
-    database,
-    shouldRemoveExpiredKeys: false,
 });
 
 await kyselySharedLockAdapter.init();
 
-// You can remove all expired keys manually.
+// Remove all expired shared-lock keys manually.
 await kyselySharedLockAdapter.removeAllExpired();
 ```
 
@@ -320,15 +303,15 @@ await kyselySharedLockAdapter.deInit();
 The `NoOpSharedLockAdapter` is a no-operation implementation, it performs no actions when called:
 
 ```ts
-import { NoOpSharedLockAdapter } from "@daiso-tech/core/shared-lock/no-op-shared-lock-adapter";
+import { NoOpSharedLockAdapter } from "eridu-tech/shared-lock/no-op-shared-lock-adapter";
 
 const noOpSharedLockAdapter = new NoOpSharedLockAdapter();
 ```
 
 :::info
-The `NoOpSharedLockAdapter` is useful when you want to mock out or disable your [`SharedLockFactory`](https://daiso-tech.github.io/daiso-core/classes/SharedLock.SharedLockFactory.html) instance.
+The `NoOpSharedLockAdapter` is useful when you want to mock out or disable your [`SharedLockFactory`](https://eridu-tech.github.io/eridu-tech/classes/SharedLock.SharedLockFactory.html) instance.
 :::
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://eridu-tech.github.io/eridu-tech/modules/SharedLock.html) API docs.

@@ -2,14 +2,14 @@
  * @module CircuitBreaker
  */
 
-import { type CIRCUIT_BREAKER_STATE } from "@/circuit-breaker/contracts/circuit-breaker-state.contract.js";
+import type { CIRCUIT_BREAKER_STATE } from "@/circuit-breaker/contracts/circuit-breaker-state.contract.js";
 
 /**
  * Represents circuit breaker metrics during HALF_OPEN state.
  * Tracks diagnostic data for determining if the service has recovered.
  *
  * @template TMetrics - The type of metrics being tracked
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type CircuitBreakerHalfOpenState<TMetrics = unknown> = {
@@ -29,7 +29,7 @@ export type CircuitBreakerHalfOpenState<TMetrics = unknown> = {
  * Tracks performance data for determining if failures warrant opening the circuit.
  *
  * @template TMetrics - The type of metrics being tracked
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type CircuitBreakerClosedState<TMetrics = unknown> = {
@@ -49,18 +49,17 @@ export type CircuitBreakerClosedState<TMetrics = unknown> = {
  * Represents states where metrics are actively being accumulated.
  *
  * @template TMetrics - The type of metrics being tracked
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type CircuitBreakerTrackState<TMetrics = unknown> =
-    | CircuitBreakerClosedState<TMetrics>
-    | CircuitBreakerHalfOpenState<TMetrics>;
+    CircuitBreakerClosedState<TMetrics> | CircuitBreakerHalfOpenState<TMetrics>;
 
 /**
  * Enumerated state transitions when circuit breaker is in CLOSED state.
  * Determines whether to transition to OPEN or remain CLOSED.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export const CLOSED_TRANSITIONS = {
@@ -78,7 +77,7 @@ export const CLOSED_TRANSITIONS = {
 /**
  * Union type of all possible state transitions when in CLOSED state.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type ClosedTransitions =
@@ -88,7 +87,7 @@ export type ClosedTransitions =
  * Enumerated state transitions when circuit breaker is in HALF_OPEN state.
  * Determines recovery (transition to CLOSED), continued failure (transition to OPEN), or hold (remain HALF_OPEN).
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export const HALF_OPEN_TRANSITIONS = {
@@ -111,7 +110,7 @@ export const HALF_OPEN_TRANSITIONS = {
 /**
  * Union type of all possible state transitions when in HALF_OPEN state.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type HalfOpenTransitions =
@@ -121,7 +120,7 @@ export type HalfOpenTransitions =
  * Initial settings for circuit breaker tracking configuration.
  *
  * @template TMetrics - The type of metrics to track
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type CircuitBreakerTrackSettings<TMetrics = unknown> = {
@@ -142,7 +141,7 @@ export type CircuitBreakerTrackSettings<TMetrics = unknown> = {
  * **Important:** All methods must be pure functions and should return new metrics objects without mutating input data.
  *
  * @template TMetrics - Custom metrics type for tracking failures, successes, and diagnostics
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/contracts"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/contracts"`
  * @group Contracts
  */
 export type ICircuitBreakerPolicy<TMetrics = unknown> = {

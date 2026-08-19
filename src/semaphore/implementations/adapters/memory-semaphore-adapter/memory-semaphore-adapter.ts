@@ -2,19 +2,19 @@
  * @module Semaphore
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type ISemaphoreFactory,
-    type ISemaphoreAdapter,
-    type ISemaphoreAdapterState,
-    type SemaphoreAcquireSettings,
+    ISemaphoreFactory,
+    ISemaphoreAdapter,
+    ISemaphoreAdapterState,
+    SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type IDeinitizable } from "@/utilities/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IDeinitizable } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/memory-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/memory-semaphore-adapter"`
  * @group Adapters
  */
 export type MemorySemaphoreAdapterData = {
@@ -32,7 +32,7 @@ export type MemorySemaphoreAdapterData = {
  * Note the `MemorySemaphoreAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
  * This adapter is meant for easily faking{@link ISemaphoreFactory | `ISemaphoreFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/memory-semaphore-adapter"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/memory-semaphore-adapter"`
  * @group Adapters
  */
 export class MemorySemaphoreAdapter
@@ -41,14 +41,14 @@ export class MemorySemaphoreAdapter
     /**
      *  @example
      * ```ts
-     * import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
+     * import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
      *
      * const semaphoreAdapter = new MemorySemaphoreAdapter();
      * ```
      * You can also provide an `Map`.
      * @example
      * ```ts
-     * import { MemorySemaphoreAdapter } from "@daiso-tech/core/semaphore/memory-semaphore-adapter";
+     * import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
      *
      * const map = new Map<any, any>();
      * const semaphoreAdapter = new MemorySemaphoreAdapter(map);
@@ -115,9 +115,9 @@ export class MemorySemaphoreAdapter
         return Promise.resolve(true);
     }
     async release(
-        _context: IReadableContext,
         key: string,
         slotId: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (!semaphore) {
@@ -147,8 +147,8 @@ export class MemorySemaphoreAdapter
         return Promise.resolve(true);
     }
     async forceReleaseAll(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (semaphore === undefined) {
@@ -168,10 +168,10 @@ export class MemorySemaphoreAdapter
     }
 
     async refresh(
-        _context: IReadableContext,
         key: string,
         slotId: string,
         ttl: TimeSpan,
+        _context: IReadableContext,
     ): Promise<boolean> {
         const semaphore = this.map.get(key);
         if (!semaphore) {
@@ -205,8 +205,8 @@ export class MemorySemaphoreAdapter
     }
 
     async getState(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
         const semaphore = this.map.get(key);
         if (semaphore === undefined) {

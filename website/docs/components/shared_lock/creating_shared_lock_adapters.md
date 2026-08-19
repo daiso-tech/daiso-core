@@ -1,29 +1,28 @@
 ---
 sidebar_position: 4
 sidebar_label: Creating adapters
-pagination_label: Creating shared-lock adapters
+pagination_label: Creating SharedLock adapters
 tags:
-    - Shared-lock
+    - SharedLock
     - Creating adapters
-    - Creating database adapters
 keywords:
-    - Shared-lock
+    - SharedLock
     - Creating adapters
-    - Creating database adapters
 ---
 
-# Creating shared-lock adapters
+# Creating SharedLock adapters
 
 ## Implementing your custom ISharedLockAdapter
 
-In order to create an adapter you need to implement the [`ISharedLockAdapter`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockAdapter.html) contract.
+In order to create an adapter you need to implement the [`ISharedLockAdapter`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.ISharedLockAdapter.html) contract.
 
 ## Testing your custom ISharedLockAdapter
 
-We provide a complete test suite to test your shared-lock adapter implementation. Simply use the [`sharedLockAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/Lock.lockAdapterTestSuite.html) function:
+We provide a complete test suite to test your shared-lock adapter implementation. Simply use the [`sharedLockAdapterTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Lock.lockAdapterTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized shared-lock adapter contract conformance
+testing.
 
 Usage example:
 
@@ -31,7 +30,7 @@ Usage example:
 // filename: MySharedLockAdapter.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { sharedLockAdapterTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
+import { sharedLockAdapterTestSuite } from "eridu-tech/shared-lock/test-utilities";
 import { MemorySharedLockAdapter } from "./MemorySharedLockAdapter.js";
 
 describe("class: MySharedLockAdapter", () => {
@@ -45,48 +44,17 @@ describe("class: MySharedLockAdapter", () => {
 });
 ```
 
-## Implementing your custom IDatabaseSharedLockAdapter
-
-We provide an additional contract [`IDatabaseSharedLockAdapter`](https://daiso-tech.github.io/daiso-core/types/SharedLock.IDatabaseSharedLockAdapter.html) for building custom shared-lock adapters tailored to databases.
-
-## Testing your custom IDatabaseSharedLockAdapter
-
-We provide a complete test suite to test your database shared-lock adapter implementation. Simply use the [`databaseSharedLockAdapterTestSuite`](https://daiso-tech.github.io/daiso-core/functions/SharedLock.databaseSharedLockAdapterTestSuite.html) function:
-
-- Preconfigured Vitest test cases
-- Common edge case coverage
-
-Usage example:
-
-```ts
-import { beforeEach, describe, expect, test } from "vitest";
-import { databaseSharedLockAdapterTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
-import { MyDatabaseSharedLockAdapter } from "./MyDatabaseSharedLockAdapter.js";
-
-describe("class: MyDatabaseSharedLockAdapter", () => {
-    databaseSharedLockAdapterTestSuite({
-        createAdapter: async () => {
-            return new MyDatabaseSharedLockAdapter(),
-        },
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
-```
-
 ## Implementing your custom ISharedLockFactory class
 
-In some cases, you may need to implement a custom [`SharedLockFactory`](https://daiso-tech.github.io/daiso-core/classes/SharedLock.SharedLockFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ISharedLockFactory`](https://daiso-tech.github.io/daiso-core/types/SharedLock.ISharedLockFactory.html) contract.
+In some cases, you may need to implement a custom [`SharedLockFactory`](https://eridu-tech.github.io/eridu-tech/classes/SharedLock.SharedLockFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ISharedLockFactory`](https://eridu-tech.github.io/eridu-tech/types/SharedLock.ISharedLockFactory.html) contract.
 
 ## Testing your custom ISharedLockFactory class
 
-We provide a complete test suite to verify your custom event bus class implementation. Simply use the [`sharedLockProviderTestSuite`](https://daiso-tech.github.io/daiso-core/functions/SharedLock.sharedLockProviderTestSuite.html) function:
+We provide a complete test suite to verify your custom event-bus class implementation. Simply use the [`sharedLockProviderTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/SharedLock.sharedLockProviderTestSuite.html) function:
 
-- Preconfigured Vitest test cases
-- Standardized event bus behavior validation
-- Common edge case coverage
+The suite provides preconfigured Vitest test cases with common edge
+case coverage and standardized shared-lock factory contract conformance
+testing.
 
 Usage example:
 
@@ -94,7 +62,7 @@ Usage example:
 // filename: MySharedLockFactory.test.ts
 
 import { beforeEach, describe, expect, test } from "vitest";
-import { sharedLockProviderTestSuite } from "@daiso-tech/core/shared-lock/test-utilities";
+import { sharedLockProviderTestSuite } from "eridu-tech/shared-lock/test-utilities";
 import { MySharedLockFactory } from "./MySharedLockFactory.js";
 
 describe("class: MySharedLockFactory", () => {
@@ -110,4 +78,4 @@ describe("class: MySharedLockFactory", () => {
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://eridu-tech.github.io/eridu-tech/modules/SharedLock.html) API docs.

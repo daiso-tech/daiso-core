@@ -2,16 +2,16 @@
  * @module CircuitBreaker
  */
 
-import {
-    type ICircuitBreakerStorageAdapter,
-    type CircuitBreakerStateTransition,
+import type {
+    ICircuitBreakerStorageAdapter,
+    CircuitBreakerStateTransition,
 } from "@/circuit-breaker/contracts/_module.js";
-import {
-    type AllCircuitBreakerState,
-    type InternalCircuitBreakerPolicy,
+import type {
+    AllCircuitBreakerState,
+    InternalCircuitBreakerPolicy,
 } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
-import { type DatabaseCircuitBreakerUpdateStateFn } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/types.js";
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { DatabaseCircuitBreakerUpdateStateFn } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/types.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * @internal
@@ -25,40 +25,40 @@ export class CircuitBreakerStorage<TMetrics = unknown> {
     ) {}
 
     async atomicUpdate(
-        context: IReadableContext,
         key: string,
         update: DatabaseCircuitBreakerUpdateStateFn<TMetrics>,
+        context: IReadableContext,
     ): Promise<CircuitBreakerStateTransition> {
         const currentDate = new Date();
-        return await this.adapter.transaction(context, async (trx) => {
+        return await this.adapter.transaction(async (trx) => {
             const currentState =
-                (await trx.find(context, key)) ??
+                (await trx.find(key, context)) ??
                 this.circuitBreakerPolicy.initialState();
 
             const newState = update(currentState, currentDate);
 
             if (!this.circuitBreakerPolicy.isEqual(currentState, newState)) {
-                await trx.upsert(context, key, newState);
+                await trx.upsert(key, newState, context);
             }
 
             return {
                 from: currentState.type,
                 to: newState.type,
             };
-        });
+        }, context);
     }
 
     async find(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<AllCircuitBreakerState<TMetrics>> {
         return (
-            (await this.adapter.find(context, key)) ??
+            (await this.adapter.find(key, context)) ??
             this.circuitBreakerPolicy.initialState()
         );
     }
 
-    async remove(context: IReadableContext, key: string): Promise<void> {
-        await this.adapter.remove(context, key);
+    async remove(key: string, context: IReadableContext): Promise<void> {
+        await this.adapter.remove(key, context);
     }
 }

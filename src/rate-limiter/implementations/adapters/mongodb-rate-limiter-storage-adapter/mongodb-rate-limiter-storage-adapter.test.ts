@@ -1,18 +1,18 @@
-import { type StartedMongoDBContainer } from "@testcontainers/mongodb";
 import { MongoClient } from "mongodb";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    MongodbRateLimiterStorageAdapter,
-    type MongodbRateLimiterDocument,
-} from "@/rate-limiter/implementations/adapters/mongodb-rate-limiter-storage-adapter/_module.js";
+import { MongodbRateLimiterStorageAdapter } from "@/rate-limiter/implementations/adapters/mongodb-rate-limiter-storage-adapter/_module.js";
 import { rateLimiterStorageAdapterTestSuite } from "@/rate-limiter/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { startMongoReplicaSet } from "@/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
+
+import type { MongodbRateLimiterDocument } from "@/rate-limiter/implementations/adapters/mongodb-rate-limiter-storage-adapter/_module.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbRateLimiterStorageAdapter", () => {
@@ -129,9 +129,9 @@ describe("class: MongodbRateLimiterStorageAdapter", () => {
             const state = "1";
             const ttl = TimeSpan.fromSeconds(1).toEndDate();
 
-            await adapter.transaction(noOpContext, async (trx) => {
-                await trx.upsert(noOpContext, key, state, ttl);
-            });
+            await adapter.transaction(async (trx) => {
+                await trx.upsert(key, state, ttl, noOpContext);
+            }, noOpContext);
 
             const doc = await collection.findOne({
                 key,
@@ -161,9 +161,9 @@ describe("class: MongodbRateLimiterStorageAdapter", () => {
             const ttl = TimeSpan.fromMinutes(5);
             const expiration = ttl.toEndDate();
 
-            await adapter.transaction(noOpContext, async (trx) => {
-                await trx.upsert(noOpContext, key, state, expiration);
-            });
+            await adapter.transaction(async (trx) => {
+                await trx.upsert(key, state, expiration, noOpContext);
+            }, noOpContext);
 
             const doc = await collection.findOne({
                 key,

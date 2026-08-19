@@ -2,26 +2,25 @@
  * @module Lock
  */
 
-import { MysqlAdapter, Transaction, type Kysely } from "kysely";
+import { MysqlAdapter } from "kysely";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type IDatabaseLockAdapter,
-    type IDatabaseLockTransaction,
-    type ILockData,
-    type ILockExpirationData,
+import type { Kysely } from "kysely";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ILockAdapter,
+    ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvokableFn,
-    type IPrunable,
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
+    IPrunable,
 } from "@/utilities/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/kysely-lock-adapter"`
  * @group Adapters
  */
 export type KyselyLockTable = {
@@ -34,7 +33,7 @@ export type KyselyLockTable = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/kysely-lock-adapter"`
  * @group Adapters
  */
 export type KyselyLockTables = {
@@ -45,7 +44,7 @@ export type KyselyLockTables = {
  * Configuration for `KyselyLockAdapter`.
  * Requires a Kysely database instance with the lock schema applied.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/kysely-lock-adapter"`
  * @group Adapters
  */
 export type KyselyLockAdapterSettings = {
@@ -53,110 +52,7 @@ export type KyselyLockAdapterSettings = {
      * The Kysely database instance typed with the required lock table.
      */
     kysely: Kysely<KyselyLockTables>;
-
-    /**
-     * @default
-     * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
-     *
-     * TimeSpan.fromMinutes(1)
-     * ```
-     */
-    expiredKeysRemovalInterval?: ITimeSpan;
-
-    /**
-     * When `true`, a background task periodically removes expired lock records.
-     * Set to `false` to disable automatic cleanup.
-     * @default true
-     */
-    shouldRemoveExpiredKeys?: boolean;
-
-    /**
-     * @default
-     * ```ts
-     * import { Transaction } from "kysely"
-     *
-     * !(settings.kysely instanceof Transaction)
-     * ```
-     */
-    enableTransactions?: boolean;
 };
-
-async function find(
-    kysely: Kysely<KyselyLockTables>,
-    key: string,
-): Promise<ILockData | null> {
-    const row = await kysely
-        .selectFrom("lock")
-        .where("lock.key", "=", key)
-        .select(["lock.owner", "lock.expiration"])
-        .executeTakeFirst();
-    if (row === undefined) {
-        return null;
-    }
-    if (row.expiration === null) {
-        return {
-            owner: row.owner,
-            expiration: null,
-        };
-    }
-    return {
-        owner: row.owner,
-        expiration: new Date(Number(row.expiration)),
-    };
-}
-
-/**
- * @internal
- */
-class DatabaseLockTransaction implements IDatabaseLockTransaction {
-    private readonly isMysql: boolean;
-
-    constructor(private readonly kysely: Kysely<KyselyLockTables>) {
-        this.isMysql =
-            this.kysely.getExecutor().adapter instanceof MysqlAdapter;
-    }
-
-    async find(
-        _context: IReadableContext,
-        key: string,
-    ): Promise<ILockData | null> {
-        return await find(this.kysely, key);
-    }
-
-    async upsert(
-        _context: IReadableContext,
-        key: string,
-        lockId: string,
-        expiration: Date | null,
-    ): Promise<void> {
-        const expirationAsMs = expiration?.getTime() ?? null;
-        await this.kysely
-            .insertInto("lock")
-            .values({
-                key,
-                owner: lockId,
-                expiration: expirationAsMs,
-            })
-            .$if(!this.isMysql, (eb) =>
-                eb.onConflict((eb_) =>
-                    eb_.column("key").doUpdateSet({
-                        key,
-                        owner: lockId,
-                        expiration: expirationAsMs,
-                    }),
-                ),
-            )
-            .$if(this.isMysql, (eb) =>
-                eb.onDuplicateKeyUpdate({
-                    key,
-                    owner: lockId,
-                    expiration: expirationAsMs,
-                }),
-            )
-            .execute();
-    }
-}
 
 /**
  * To utilize the `KyselyLockAdapter`, you must install the [`"kysely"`](https://www.npmjs.com/package/kysely) package and configure a `Kysely` class instance.
@@ -164,24 +60,19 @@ class DatabaseLockTransaction implements IDatabaseLockTransaction {
  * Note in order to use `KyselyLockAdapter` correctly, ensure you use a single, consistent database across all server instances and use a database that has support for transactions.
  * The adapter have been tested with `sqlite`, `postgres` and `mysql` databases.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/kysely-lock-adapter"`
+ * IMPORT_PATH: `"eridu-tech/lock/kysely-lock-adapter"`
  * @group Adapters
  */
 export class KyselyLockAdapter
-    implements IDatabaseLockAdapter, IDeinitizable, IInitizable, IPrunable
+    implements ILockAdapter, IDeinitizable, IInitizable, IPrunable
 {
     private readonly kysely: Kysely<KyselyLockTables>;
-    private readonly expiredKeysRemovalInterval: TimeSpan;
-    private readonly shouldRemoveExpiredKeys: boolean;
-    private intervalId: string | number | NodeJS.Timeout | undefined | null =
-        null;
     private readonly isMysql: boolean;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
      * ```ts
-     * import { KyselyLockAdapter } from "@daiso-tech/core/lock/kysely-lock-adapter";
+     * import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
@@ -197,34 +88,21 @@ export class KyselyLockAdapter
      * ```
      */
     constructor(settings: KyselyLockAdapterSettings) {
-        const {
-            kysely,
-            expiredKeysRemovalInterval = TimeSpan.fromMinutes(1),
-            shouldRemoveExpiredKeys = true,
-            enableTransactions = !(settings.kysely instanceof Transaction),
-        } = settings;
-        this.expiredKeysRemovalInterval = TimeSpan.fromTimeSpan(
-            expiredKeysRemovalInterval,
-        );
-        this.shouldRemoveExpiredKeys = shouldRemoveExpiredKeys;
+        const { kysely } = settings;
         this.kysely = kysely;
         this.isMysql =
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
-        this.enableTransactions = enableTransactions;
     }
 
     private _transaction<TValue>(
-        trxFn: InvokableFn<[trx: Kysely<KyselyLockTables>], Promise<TValue>>,
+        trxFn: InvocableFn<[trx: Kysely<KyselyLockTables>], Promise<TValue>>,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return this.kysely
-                .transaction()
-                .setIsolationLevel("serializable")
-                .execute(async (trx) => {
-                    return await trxFn(trx);
-                });
-        }
-        return trxFn(this.kysely);
+        return this.kysely
+            .transaction()
+            .setIsolationLevel("serializable")
+            .execute(async (trx) => {
+                return await trxFn(trx);
+            });
     }
 
     /**
@@ -232,10 +110,6 @@ export class KyselyLockAdapter
      * Note all lock data will be removed.
      */
     async deInit(): Promise<void> {
-        if (this.shouldRemoveExpiredKeys && this.intervalId !== null) {
-            clearInterval(this.intervalId);
-        }
-
         // Should throw if the index does not exists thats why the try catch is used.
         try {
             await this.kysely.schema
@@ -283,12 +157,6 @@ export class KyselyLockAdapter
         } catch {
             /* EMPTY */
         }
-
-        if (this.shouldRemoveExpiredKeys) {
-            this.intervalId = setInterval(() => {
-                void this.removeAllExpired();
-            }, this.expiredKeysRemovalInterval.toMilliseconds());
-        }
     }
 
     async removeAllExpired(): Promise<void> {
@@ -298,110 +166,183 @@ export class KyselyLockAdapter
             .execute();
     }
 
-    async transaction<TReturn>(
-        _context: IReadableContext,
-        fn: InvokableFn<
-            [transaction: IDatabaseLockTransaction],
-            Promise<TReturn>
-        >,
-    ): Promise<TReturn> {
-        return await this._transaction(async (trx) => {
-            return await fn(new DatabaseLockTransaction(trx));
-        });
-    }
-
-    async remove(
-        _context: IReadableContext,
-        key: string,
-    ): Promise<ILockExpirationData | null> {
-        let result: Pick<KyselyLockTable, "expiration"> | undefined;
-        if (this.isMysql) {
-            result = await this._transaction(async (trx) => {
-                const row = await trx
-                    .selectFrom("lock")
-                    .where("lock.key", "=", key)
-                    .select("lock.expiration")
-                    .executeTakeFirst();
-                await trx
-                    .deleteFrom("lock")
-                    .where("lock.key", "=", key)
-                    .executeTakeFirst();
-                return row;
-            });
-        } else {
-            result = await this.kysely
-                .deleteFrom("lock")
-                .where("lock.key", "=", key)
-                .returning(["lock.expiration"])
-                .executeTakeFirst();
-        }
-        if (result === undefined) {
-            return null;
-        }
-        if (result.expiration === null) {
-            return {
-                expiration: null,
-            };
-        }
-        return {
-            expiration: new Date(Number(result.expiration)),
-        };
-    }
-
-    async removeIfOwner(
-        _context: IReadableContext,
-        key: string,
-        lockId: string,
-    ): Promise<ILockData | null> {
-        let row: Pick<KyselyLockTable, "owner" | "expiration"> | undefined;
-        if (this.isMysql) {
-            row = await this._transaction(async (trx) => {
-                const row_ = await trx
-                    .selectFrom("lock")
-                    .where("lock.key", "=", key)
-                    .where("lock.owner", "=", lockId)
-                    .select(["lock.expiration", "lock.owner"])
-                    .executeTakeFirst();
-                await trx
-                    .deleteFrom("lock")
-                    .where("lock.key", "=", key)
-                    .where("lock.owner", "=", lockId)
-                    .execute();
-                return row_;
-            });
-        } else {
-            row = await this.kysely
-                .deleteFrom("lock")
-                .where("lock.key", "=", key)
-                .where("lock.owner", "=", lockId)
-                .returning(["lock.expiration", "lock.owner"])
-                .executeTakeFirst();
-        }
+    private async _find(key: string): Promise<ILockAdapterState | null> {
+        const row = await this.kysely
+            .selectFrom("lock")
+            .where("lock.key", "=", key)
+            .select(["lock.owner", "lock.expiration"])
+            .executeTakeFirst();
 
         if (row === undefined) {
             return null;
         }
 
-        const { expiration } = row;
-        if (expiration === null) {
-            return {
-                owner: row.owner,
-                expiration: null,
-            };
+        if (row.expiration !== null && Number(row.expiration) <= Date.now()) {
+            return null;
         }
 
         return {
             owner: row.owner,
-            expiration: new Date(Number(expiration)),
+            expiration:
+                row.expiration === null
+                    ? null
+                    : new Date(Number(row.expiration)),
         };
     }
 
-    async updateExpiration(
-        _context: IReadableContext,
+    async acquire(
         key: string,
         lockId: string,
-        expiration: Date,
-    ): Promise<number> {
+        ttl: TimeSpan | null,
+        _context: IReadableContext,
+    ): Promise<boolean> {
+        return await this._transaction(async (trx) => {
+            const existing = await trx
+                .selectFrom("lock")
+                .where("lock.key", "=", key)
+                .select(["lock.owner", "lock.expiration"])
+                .executeTakeFirst();
+
+            if (existing) {
+                const isExpired =
+                    existing.expiration !== null &&
+                    Number(existing.expiration) <= Date.now();
+
+                if (!isExpired && existing.owner !== lockId) {
+                    return false;
+                }
+            }
+
+            const expiration = ttl?.toEndDate().getTime() ?? null;
+
+            await trx
+                .insertInto("lock")
+                .values({ key, owner: lockId, expiration })
+                .$if(!this.isMysql, (eb) =>
+                    eb.onConflict((oc) =>
+                        oc.column("key").doUpdateSet({
+                            key,
+                            owner: lockId,
+                            expiration,
+                        }),
+                    ),
+                )
+                .$if(this.isMysql, (eb) =>
+                    eb.onDuplicateKeyUpdate({
+                        key,
+                        owner: lockId,
+                        expiration,
+                    }),
+                )
+                .execute();
+
+            return true;
+        });
+    }
+
+    async release(
+        key: string,
+        lockId: string,
+        _context: IReadableContext,
+    ): Promise<boolean> {
+        if (this.isMysql) {
+            return await this._transaction(async (trx) => {
+                const existing = await trx
+                    .selectFrom("lock")
+                    .where("lock.key", "=", key)
+                    .where("lock.owner", "=", lockId)
+                    .where((eb) =>
+                        eb.or([
+                            eb("lock.expiration", "is", null),
+                            eb("lock.expiration", ">", Date.now()),
+                        ]),
+                    )
+                    .select("lock.key")
+                    .executeTakeFirst();
+
+                if (!existing) {
+                    return false;
+                }
+
+                await trx
+                    .deleteFrom("lock")
+                    .where("lock.key", "=", key)
+                    .where("lock.owner", "=", lockId)
+                    .execute();
+
+                return true;
+            });
+        }
+
+        const result = await this.kysely
+            .deleteFrom("lock")
+            .where("lock.key", "=", key)
+            .where("lock.owner", "=", lockId)
+            .where((eb) =>
+                eb.or([
+                    eb("lock.expiration", "is", null),
+                    eb("lock.expiration", ">", Date.now()),
+                ]),
+            )
+            .returning("lock.key")
+            .executeTakeFirst();
+
+        return result !== undefined;
+    }
+
+    async forceRelease(
+        key: string,
+        _context: IReadableContext,
+    ): Promise<boolean> {
+        if (this.isMysql) {
+            return await this._transaction(async (trx) => {
+                const existing = await trx
+                    .selectFrom("lock")
+                    .where("lock.key", "=", key)
+                    .where((eb) =>
+                        eb.or([
+                            eb("lock.expiration", "is", null),
+                            eb("lock.expiration", ">", Date.now()),
+                        ]),
+                    )
+                    .select("lock.key")
+                    .executeTakeFirst();
+
+                if (!existing) {
+                    return false;
+                }
+
+                await trx
+                    .deleteFrom("lock")
+                    .where("lock.key", "=", key)
+                    .execute();
+
+                return true;
+            });
+        }
+
+        const result = await this.kysely
+            .deleteFrom("lock")
+            .where("lock.key", "=", key)
+            .where((eb) =>
+                eb.or([
+                    eb("lock.expiration", "is", null),
+                    eb("lock.expiration", ">", Date.now()),
+                ]),
+            )
+            .returning("lock.key")
+            .executeTakeFirst();
+
+        return result !== undefined;
+    }
+
+    async refresh(
+        key: string,
+        lockId: string,
+        ttl: TimeSpan,
+        _context: IReadableContext,
+    ): Promise<boolean> {
+        const expiration = ttl.toEndDate().getTime();
         const result = await this.kysely
             .updateTable("lock")
             .where("lock.key", "=", key)
@@ -412,17 +353,16 @@ export class KyselyLockAdapter
                     eb("lock.expiration", ">", Date.now()),
                 ]),
             )
-            .set({
-                expiration: expiration.getTime(),
-            })
-            .executeTakeFirst();
-        return Number(result.numUpdatedRows);
+            .set({ expiration })
+            .execute();
+
+        return Number(result[0]?.numUpdatedRows ?? 0n) > 0;
     }
 
-    async find(
-        _context: IReadableContext,
+    async getState(
         key: string,
-    ): Promise<ILockData | null> {
-        return await find(this.kysely, key);
+        _context: IReadableContext,
+    ): Promise<ILockAdapterState | null> {
+        return await this._find(key);
     }
 }

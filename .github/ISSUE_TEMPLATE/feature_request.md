@@ -8,10 +8,10 @@ type: Feature
 ---
 
 **Is your new component request related to a problem? Please describe.**
-Describe the problem or use case that cannot be solved with any existing @daiso-tech/core component. For example, do you need a job queue, workflow engine, or another major building block that does not exist in the library?
+Describe the problem or use case that cannot be solved with any existing eridu-tech component. For example, do you need a job queue, workflow engine, or another major building block that does not exist in the library?
 
 **Describe the new component you'd like**
-Describe the new component you want to see added to @daiso-tech/core. Focus only on entirely new primitives or modules (e.g., TextSearch, WorkflowEngine, etc.), not enhancements, adapters, or features for existing components.
+Describe the new component you want to see added to eridu-tech. Focus only on entirely new primitives or modules (e.g., TextSearch, WorkflowEngine, etc.), not enhancements, adapters, or features for existing components.
 
 **Describe alternatives you've considered**
 List any workarounds, third-party libraries, or manual solutions you have tried. Why are they not sufficient for your needs?

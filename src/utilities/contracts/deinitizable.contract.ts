@@ -19,7 +19,7 @@
  * Typically called once during application shutdown, before process exit.
  * Should be idempotent when possible (calling deInit() multiple times is safe).
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type IDeinitizable = {

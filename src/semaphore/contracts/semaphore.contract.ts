@@ -2,17 +2,16 @@
  * @module Semaphore
  */
 
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type ISemaphoreState } from "@/semaphore/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type AsyncLazy } from "@/utilities/_module.js";
+import type { ISemaphoreState } from "@/semaphore/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * State and metadata methods for a semaphore instance.
  * Provides read-only access to semaphore state and configuration properties.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreStateMethods = {
@@ -27,7 +26,7 @@ export type ISemaphoreStateMethods = {
      * The unique identifier for this semaphore instance.
      * Multiple semaphore instances with the same key share the same slot pool.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * The unique identifier for the slot holder (semaphore instance).
@@ -46,7 +45,7 @@ export type ISemaphoreStateMethods = {
  * Base operations for managing semaphore slot acquisition, release, and refresh cycles.
  * Provides both safe (boolean-returning) and strict (error-throwing) versions of slot operations.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphoreBase = {
@@ -123,7 +122,7 @@ export type ISemaphoreBase = {
  * High-level semaphore interface combining state methods and base operations.
  * Provides a complete counting semaphore API for managing concurrent resource access.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore/contracts"`
+ * IMPORT_PATH: `"eridu-tech/semaphore/contracts"`
  * @group Contracts
  */
 export type ISemaphore = ISemaphoreStateMethods & ISemaphoreBase;

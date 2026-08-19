@@ -2,8 +2,8 @@
  * @module Serde
  */
 
-import { type IDeserializer } from "@/serde/contracts/deserializer.contract.js";
-import { type ISerializer } from "@/serde/contracts/serializer.contract.js";
+import type { IDeserializer } from "@/serde/contracts/deserializer.contract.js";
+import type { ISerializer } from "@/serde/contracts/serializer.contract.js";
 
 /**
  * Complete serde (serialization/deserialization) contract for bidirectional data transformation.
@@ -19,7 +19,7 @@ import { type ISerializer } from "@/serde/contracts/serializer.contract.js";
  *
  * @template TSerializedValue - The serialized format (JSON string, binary, etc., defaults to unknown)
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Contracts
  */
 export type ISerde<TSerializedValue = unknown> = ISerializer<TSerializedValue> &

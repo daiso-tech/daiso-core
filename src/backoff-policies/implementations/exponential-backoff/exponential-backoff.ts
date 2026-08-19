@@ -2,16 +2,15 @@
  * @module BackoffPolicy
  */
 
-import {
-    type BackoffPolicy,
-    type DynamicBackoffPolicy,
-} from "@/backoff-policies/contracts/_module.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/_module.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { callInvokable, isInvokable, withJitter } from "@/utilities/_module.js";
+import { callInvocable, isInvocable, withJitter } from "@/utilities/_module.js";
+
+import type {
+    BackoffPolicy,
+    DynamicBackoffPolicy,
+} from "@/backoff-policies/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * Configuration for the exponential backoff policy.
@@ -19,7 +18,7 @@ import { callInvokable, isInvokable, withJitter } from "@/utilities/_module.js";
  * `maxDelay`. An optional `jitter` factor randomises the delay to
  * avoid thundering-herd effects when multiple clients retry simultaneously.
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export type ExponentialBackoffSettings = {
@@ -27,7 +26,7 @@ export type ExponentialBackoffSettings = {
      * Upper bound on the computed delay. The wait time will never exceed this value.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromSeconds(60)
      * ```
@@ -38,7 +37,7 @@ export type ExponentialBackoffSettings = {
      * Starting delay for the first retry. Subsequent delays grow from this base.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMilliseconds(500)
      * ```
@@ -107,15 +106,15 @@ export function resolveExponentialBackoffSettings(
 /**
  * Exponential backoff policy with jitter
  *
- * IMPORT_PATH: `"@daiso-tech/core/backoff-policies"`
+ * IMPORT_PATH: `"eridu-tech/backoff-policies"`
  * @group Implementations
  */
 export function exponentialBackoff(
     settings: DynamicBackoffPolicy<ExponentialBackoffSettings> = {},
 ): BackoffPolicy {
     return (attempt, error) => {
-        if (isInvokable(settings)) {
-            const dynamicSettings = callInvokable(settings, error);
+        if (isInvocable(settings)) {
+            const dynamicSettings = callInvocable(settings, error);
             if (dynamicSettings === undefined) {
                 settings = {};
             } else {

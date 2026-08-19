@@ -2,161 +2,107 @@
  * @module EventBus
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import {
-    type IEventBus,
-    type IEventBusAdapter,
-    type BaseEvent,
-    type BaseEventMap,
-    type EventListener,
-    type EventListenerFn,
-    type Unsubscribe,
-    type InferEvent,
-} from "@/event-bus/contracts/_module.js";
 import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/listener-store.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
-import {
-    validate,
-    resolveInvokable,
-    type OneOrArray,
-    type InvokableFn,
-    resolveOneOrMore,
-} from "@/utilities/_module.js";
+import { resolveInvocable, resolveOneOrMore } from "@/utilities/_module.js";
 
-/**
- * Maps each event name in `TEventMap` to a [standard schema](https://standardschema.dev/)
- * validator for its payload type. Used to validate event data at runtime.
- *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
- * @group Derivables
- */
-export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
-    [TEventName in keyof TEventMap]: StandardSchemaV1<TEventMap[TEventName]>;
-};
+import type {
+    IEventBus,
+    IEventBusAdapter,
+    BaseEvent,
+    BaseEventMap,
+    EventListener,
+    EventListenerFn,
+    Unsubscribe,
+    InferEvent,
+} from "@/event-bus/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { OneOrArray, InvocableFn } from "@/utilities/_module.js";
 
 /**
  * Base configuration shared by all `EventBus` variants.
  * Supports optional schema-based validation for event maps.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
-export type EventBusSettingsBase<
-    TEventMap extends BaseEventMap = BaseEventMap,
-> = {
+export type EventBusSettingsBase = {
     /**
-     * You can provide any [standard schema](https://standardschema.dev/) compliant object to validate all input and output data to ensure runtime type safety.
-     */
-    eventMapSchema?: EventMapSchema<TEventMap>;
-
-    /**
-     * You can enable validating events in listeners.
-     * @default true
-     */
-    shouldValidateOutput?: boolean;
-
-    /**
+     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
-
-    /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    executionContext?: IExecutionContext;
+    context?: IReadableContext;
 };
 
 /**
  * Configuration for the `EventBus` class.
  * Extends {@link EventBusSettingsBase | `EventBusSettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
-export type EventBusSettings<TEventMap extends BaseEventMap = BaseEventMap> =
-    EventBusSettingsBase<TEventMap> & {
-        /**
-         * The underlying event-bus adapter that handles message dispatching and subscription.
-         */
-        adapter: IEventBusAdapter;
+export type EventBusSettings = EventBusSettingsBase & {
+    /**
+     * The underlying event-bus adapter that handles message dispatching and subscription.
+     */
+    adapter: IEventBusAdapter;
 
-        /**
-         * Thist settings is only used for testing, dont use it in your code !
-         * @internal
-         */
-        _onUncaughtRejection?: (error: unknown) => void;
-    };
+    /**
+     * Thist settings is only used for testing, dont use it in your code !
+     * @internal
+     */
+    _onUncaughtRejection?: (error: unknown) => void;
+};
 
 /**
  * `EventBus` class can be derived from any {@link IEventBusAdapter | `IEventBusAdapter`}.
  *
- * IMPORT_PATH: `"@daiso-tech/core/event-bus"`
+ * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
-export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
-    implements IEventBus<TEventMap>
-{
-    private readonly shouldValidateOutput: boolean;
+export class EventBus<
+    TEventMap extends BaseEventMap = BaseEventMap,
+> implements IEventBus<TEventMap> {
     private readonly store = new ListenerStore();
     private readonly adapter: IEventBusAdapter;
-    private readonly namespace: INamespace;
-    private readonly eventMapSchema: EventMapSchema<TEventMap> | undefined;
-    private readonly executionContext: IExecutionContext;
+    private readonly context: IReadableContext;
 
     /**
      * Thist instance variable is only used for testing!
      */
-    private readonly _onUncaughtRejection: InvokableFn<[error: unknown], void>;
+    private readonly _onUncaughtRejection: InvocableFn<[error: unknown], void>;
 
     /**
      * @example
      * ```ts
-     * import { MemoryEventBusAdapter } from "@daiso-tech/core/event-bus/memory-event-bus-adapter";
-     * import { EventBus } from "@daiso-tech/core/event-bus";
+     * import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+     * import { EventBus } from "eridu-tech/event-bus";
      *
      * const eventBus = new EventBus({
      *   adapter: new MemoryEventBusAdapter()
      * });
      * ```
      */
-    constructor(settings: EventBusSettings<TEventMap>) {
+    constructor(settings: EventBusSettings) {
         const {
             _onUncaughtRejection = (error) => {
                 console.error(
                     `An error of type "${String(error)}" occurred in event listener`,
                 );
             },
-            shouldValidateOutput = true,
-            eventMapSchema,
-            namespace = new NoOpNamespace(),
             adapter,
-            executionContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            ),
+            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.executionContext = executionContext;
-        this.shouldValidateOutput = shouldValidateOutput;
-        this.eventMapSchema = eventMapSchema;
+        this.context = context;
         this.adapter = adapter;
-        this.namespace = namespace;
         this._onUncaughtRejection = _onUncaughtRejection;
     }
 
@@ -166,16 +112,7 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
     ) {
         return async (event: InferEvent<TEventMap, TEventName>) => {
             try {
-                if (
-                    this.shouldValidateOutput &&
-                    this.eventMapSchema !== undefined
-                ) {
-                    event = (await validate(
-                        this.eventMapSchema[eventName],
-                        event,
-                    )) as InferEvent<TEventMap, TEventName>;
-                }
-                await resolveInvokable(listener)({
+                await resolveInvocable(listener)({
                     ...event,
                     type: eventName,
                 });
@@ -189,20 +126,22 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
-        const key = this.namespace.create(String(eventName));
+        if (typeof eventName !== "string") {
+            throw new TypeError("!!__MESSAGE__!!");
+        }
         const resolvedListener = this.store.getOrAdd(
-            key.toString(),
+            eventName,
             listener,
             this.createWrappedListener(eventName, listener),
         );
         try {
             await this.adapter.addListener(
-                this.executionContext,
-                key.toString(),
+                eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
+                this.context,
             );
         } catch (error: unknown) {
-            this.store.getAndRemove(key.toString(), listener);
+            this.store.getAndRemove(eventName, listener);
             throw error;
         }
     }
@@ -220,22 +159,21 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
-        const key = this.namespace.create(String(eventName));
-        const resolvedListener = this.store.getAndRemove(
-            key.toString(),
-            listener,
-        );
+        if (typeof eventName !== "string") {
+            throw new TypeError("!!__MESSAGE__!!");
+        }
+        const resolvedListener = this.store.getAndRemove(eventName, listener);
         if (resolvedListener === null) {
             return;
         }
         try {
             await this.adapter.removeListener(
-                this.executionContext,
-                key.toString(),
+                eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
+                this.context,
             );
         } catch (error: unknown) {
-            this.store.getOrAdd(key.toString(), listener, resolvedListener);
+            this.store.getOrAdd(eventName, listener, resolvedListener);
             throw error;
         }
     }
@@ -253,20 +191,14 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         eventName: TEventName,
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
+        if (typeof eventName !== "string") {
+            throw new TypeError("!!__MESSAGE__!!");
+        }
         const wrappedListener = async (
             event_: InferEvent<TEventMap, TEventName>,
         ) => {
             try {
-                if (
-                    this.shouldValidateOutput &&
-                    this.eventMapSchema !== undefined
-                ) {
-                    event_ = (await validate(
-                        this.eventMapSchema[eventName],
-                        event_,
-                    )) as InferEvent<TEventMap, TEventName>;
-                }
-                const resolvedListener = resolveInvokable(listener);
+                const resolvedListener = resolveInvocable(listener);
                 await resolvedListener(event_);
             } catch (error: unknown) {
                 this._onUncaughtRejection(error);
@@ -275,20 +207,19 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
             }
         };
 
-        const key = this.namespace.create(String(eventName));
         const resolvedListener = this.store.getOrAdd(
-            key.toString(),
+            eventName,
             listener,
             wrappedListener,
         );
         try {
             await this.adapter.addListener(
-                this.executionContext,
-                key.toString(),
+                eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
+                this.context,
             );
         } catch (error: unknown) {
-            this.store.getAndRemove(key.toString(), listener);
+            this.store.getAndRemove(eventName, listener);
             throw error;
         }
     }
@@ -345,13 +276,9 @@ export class EventBus<TEventMap extends BaseEventMap = BaseEventMap>
         eventName: TEventName,
         event: TEventMap[TEventName],
     ): Promise<void> {
-        if (this.eventMapSchema !== undefined) {
-            event = await validate(this.eventMapSchema[eventName], event);
+        if (typeof eventName !== "string") {
+            throw new TypeError("!!__MESSAGE__!!");
         }
-        await this.adapter.dispatch(
-            this.executionContext,
-            this.namespace.create(String(eventName)).toString(),
-            event,
-        );
+        await this.adapter.dispatch(eventName, event, this.context);
     }
 }

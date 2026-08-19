@@ -1,18 +1,16 @@
-import {
-    type StartedMongoDBContainer,
-    MongoDBContainer,
-} from "@testcontainers/mongodb";
+import { MongoDBContainer } from "@testcontainers/mongodb";
 import { MongoClient } from "mongodb";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import {
-    MongodbSemaphoreAdapter,
-    type MongodbSemaphoreDocument,
-} from "@/semaphore/implementations/adapters/mongodb-semaphore-adapter/mongodb-semaphore-adapter.js";
+import { MongodbSemaphoreAdapter } from "@/semaphore/implementations/adapters/mongodb-semaphore-adapter/mongodb-semaphore-adapter.js";
 import { semaphoreAdapterTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
+
+import type { MongodbSemaphoreDocument } from "@/semaphore/implementations/adapters/mongodb-semaphore-adapter/mongodb-semaphore-adapter.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbSemaphoreAdapter", () => {
@@ -365,8 +363,8 @@ describe("class: MongodbSemaphoreAdapter", () => {
                 limit,
             });
 
-            await adapter.release(noOpContext, key, slotId1);
-            await adapter.release(noOpContext, key, slotId2);
+            await adapter.release(key, slotId1, noOpContext);
+            await adapter.release(key, slotId2, noOpContext);
 
             const doc = await collection.findOne({ key });
 

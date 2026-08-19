@@ -15,7 +15,7 @@
  * Typically called once during application startup.
  * Should be idempotent when possible (calling init() multiple times is safe).
  *
- * IMPORT_PATH: `"@daiso-tech/core/utilities"`
+ * IMPORT_PATH: `"eridu-tech/utilities"`
  * @group Contracts
  */
 export type IInitizable = {

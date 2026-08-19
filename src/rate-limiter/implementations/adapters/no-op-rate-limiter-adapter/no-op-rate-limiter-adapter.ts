@@ -2,25 +2,26 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IRateLimiterFactory,
-    type IRateLimiterAdapter,
-    type IRateLimiterAdapterState,
-} from "@/rate-limiter/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    IRateLimiterFactory,
+    IRateLimiterAdapter,
+    IRateLimiterAdapterState,
+} from "@/rate-limiter/contracts/_module.js";
 
 /**
  * The `NoOpRateLimiterAdapter` will do nothing and is used for easily mocking {@link IRateLimiterFactory | `IRateLimiterFactory`} for testing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/no-op-rate-limiter-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/no-op-rate-limiter-adapter"`
  * @group Adapters
  */
 export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
     getState(
-        _context: IReadableContext,
         _key: string,
+        _context: IReadableContext,
     ): Promise<IRateLimiterAdapterState> {
         return Promise.resolve({
             success: true,
@@ -30,9 +31,9 @@ export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
     }
 
     updateState(
-        _context: IReadableContext,
         _key: string,
         limit: number,
+        _context: IReadableContext,
     ): Promise<IRateLimiterAdapterState> {
         return Promise.resolve({
             success: true,
@@ -42,7 +43,7 @@ export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
         });
     }
 
-    reset(_context: IReadableContext, _key: string): Promise<void> {
+    reset(_key: string, _context: IReadableContext): Promise<void> {
         return Promise.resolve();
     }
 }

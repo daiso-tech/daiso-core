@@ -2,14 +2,14 @@
  * @module Collection
  */
 
-import { type ICollection } from "@/collection/contracts/_module.js";
+import type { ICollection } from "@/collection/contracts/_module.js";
 
 /**
  * @internal
  */
-export class PadEndIterable<TInput, TExtended>
-    implements Iterable<TInput | TExtended>
-{
+export class PadEndIterable<TInput, TExtended> implements Iterable<
+    TInput | TExtended
+> {
     constructor(
         private collection: ICollection<TInput>,
         private maxLength: number,

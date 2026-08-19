@@ -1,40 +1,32 @@
-import { SiTypescript, SiVitest } from "@icons-pack/react-simple-icons";
 import {
-    Package,
-    ShieldCheck,
-    Lock,
-    Database,
-    HardDrive,
-    Radio,
-    Layers,
-    Users,
-    Webhook,
-    CircuitBoard,
-    ArrowLeftRight,
-    List,
-    ArrowRight,
-    Zap,
-    Plug,
-    Share2,
-    Copy,
-    Check,
-    Star,
-    Clock,
-    Bell,
-    Box,
-    Search,
-    Globe,
-    GitBranch,
-    Lightbulb,
-    Server,
-    Key,
-} from "lucide-react";
+    UPCOMING_ITEMS,
+    FOUNDATION_EXISTING_ITEMS,
+    STORAGE_EXISTING_ITEMS,
+    RELIABILITY_EXISTING_ITEMS,
+    CONCURRENCY_EXISTING_ITEMS,
+    MESSAGING_EXISTING_ITEMS,
+    WEB_EXISTING_ITEMS,
+    FEATURE_ITEMS,
+    PERFECT_FOR,
+    NOT_IDEAL_FOR,
+    CODE_EXAMPLES,
+    COMPARISONS,
+    INSTALL_CMD,
+    GITHUB_REPO_URL,
+} from "../data/data";
+import type { FeatureItemProps } from "../data/types";
+import { AvailableCategory } from "../roadmap/components/AvailableCategory";
+import { PlannedCardGrid } from "../roadmap/components/PlannedCardGrid";
+import { FeatureItem } from "../components/FeatureItem";
+import { ArrowRight, Copy, Check, Star } from "lucide-react";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { type ReactNode, useState, useCallback } from "react";
 import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
-
-const INSTALL_CMD = "npm install @daiso-tech/core";
+import CodeBlock from "@theme/CodeBlock";
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import { COMPONENT_COUNT } from "../../utilities/package-json-data";
 
 function InstallCommand() {
     const [copied, setCopied] = useState(false);
@@ -79,33 +71,164 @@ function StatsBar() {
         <div className="daiso-stats-bar">
             <div className="container">
                 <div className="daiso-stats-inner">
-                    <StatItem value="10+" label="Battle-tested components" />
-                    <StatItem value="100%" label="TypeScript" />
-                    <StatItem value="4+" label="Adapters per component" />
-                    <StatItem value="0" label="Docker needed for tests" />
+                    <StatItem
+                        value={String(COMPONENT_COUNT)}
+                        label="Officially maintained components"
+                    />
+                    <StatItem value="45" label="Adapters" />
+                    <StatItem
+                        value="16"
+                        label="Adapter plugins"
+                    />
+                    <StatItem value="6" label="AOP-style Middlewares" />
+                    <StatItem
+                        value="4,640+"
+                        label="Integration & conformance tests"
+                    />
                 </div>
             </div>
         </div>
     );
 }
 
-// --- Features ---
-
-type FeatureItemProps = {
-    icon?: ReactNode;
-    title: ReactNode;
-    description: ReactNode;
-};
-
-function FeatureItem(props: FeatureItemProps) {
+function CodeShowcaseActions() {
     return (
-        <div className="col col--6 margin-bottom--lg">
-            <div className="daiso-feature-card">
-                <div className="daiso-feature-icon">{props.icon}</div>
-                <h3>{props.title}</h3>
-                <p>{props.description}</p>
+        <div className="daiso-showcase-actions">
+            <InstallCommand />
+            <div className="daiso-showcase-ctas">
+                <Link
+                    className="button button--secondary button--lg"
+                    to="./docs/getting_started"
+                >
+                    Get started{" "}
+                    <ArrowRight
+                        size="1rem"
+                        style={{
+                            marginLeft: "0.4rem",
+                            verticalAlign: "middle",
+                        }}
+                    />
+                </Link>
+                <Link
+                    className="button button--outline button--secondary button--lg"
+                    href={GITHUB_REPO_URL}
+                >
+                    View on GitHub
+                </Link>
             </div>
         </div>
+    );
+}
+
+function CodeShowcase() {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [fading, setFading] = useState(false);
+    const codeExamples = Object.values(CODE_EXAMPLES);
+
+    const goTo = useCallback(
+        (index: number) => {
+            if (index === activeIndex) return;
+            setFading(true);
+            setTimeout(() => {
+                setActiveIndex(index);
+                setFading(false);
+            }, 180);
+        },
+        [activeIndex],
+    );
+
+    return (
+        <section className="padding-vert--xl">
+            <div className="container">
+                <div className="daiso-section-header daiso-section-header--split">
+                    <h2 className="daiso-section-title">
+                        Unified foundation
+                    </h2>
+                    <div className="daiso-segmented-control">
+                        {codeExamples.map((ex, i) => (
+                            <button
+                                key={i}
+                                className={`daiso-segmented-option${i === activeIndex ? " daiso-segmented-option--active" : ""}`}
+                                onClick={() => goTo(i)}
+                            >
+                                {ex.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col col--5 daiso-showcase-text-col">
+                        <div
+                            className={`daiso-carousel-text${fading ? " daiso-carousel-text--fading" : ""}`}
+                        >
+                            <h3
+                                className="daiso-section-subtitle"
+                                style={{
+                                    textAlign: "left",
+                                    fontWeight: 700,
+                                    color: "var(--ifm-color-emphasis-900)",
+                                    fontSize: "1.25rem",
+                                }}
+                            >
+                                {codeExamples[activeIndex].heading}
+                            </h3>
+                            <p
+                                className="daiso-section-subtitle"
+                                style={{
+                                    margin: "0 0 1.25rem",
+                                    textAlign: "left",
+                                }}
+                            >
+                                {codeExamples[activeIndex].description}
+                            </p>
+                            <ul className="daiso-check-list">
+                                {codeExamples[activeIndex].bullets.map(
+                                    (b, i) => (
+                                        <li key={i}>
+                                            <Check
+                                                size="1rem"
+                                                strokeWidth={2.5}
+                                            />{" "}
+                                            {b}
+                                        </li>
+                                    ),
+                                )}
+                            </ul>
+                        </div>
+
+                        <CodeShowcaseActions />
+                    </div>
+                    <div className="col col--7 daiso-showcase-code-col">
+                        {codeExamples[activeIndex].codeBlockDescription && (
+                            <p className="daiso-carousel-description">
+                                {codeExamples[activeIndex].codeBlockDescription}
+                            </p>
+                        )}
+                        <div className="daiso-carousel">
+                            <div
+                                className={`daiso-carousel-body${fading ? " daiso-carousel-body--fading" : ""}`}
+                            >
+                                <Tabs key={activeIndex}>
+                                    {codeExamples[activeIndex].files.map(
+                                        (file, i) => (
+                                            <TabItem
+                                                key={i}
+                                                value={file.name}
+                                                label={file.name}
+                                            >
+                                                <CodeBlock language="typescript">
+                                                    {file.code}
+                                                </CodeBlock>
+                                            </TabItem>
+                                        ),
+                                    )}
+                                </Tabs>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     );
 }
 
@@ -113,18 +236,20 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
     return (
         <section className="padding-vert--xl daiso-section-alt">
             <div className="container">
-                <div className="text--center margin-bottom--xl">
-                    <h2 className="daiso-section-title">
-                        Why @daiso-tech/core?
-                    </h2>
+                <div className="margin-bottom--xl">
+                    <h2 className="daiso-section-title">Why eridu-tech?</h2>
                     <p className="daiso-section-subtitle">
                         Designed from the ground up for real-world backend
-                        challenges.
+                        challenges — vendor-agnostic, composable and extendable,
+                        built on a unified foundation, and compatible with your
+                        framework of choice.
                     </p>
                 </div>
                 <div className="row">
                     {items.map((item, idx) => (
-                        <FeatureItem key={idx} {...item} />
+                        <div className="col col--4 margin-bottom--lg" key={idx}>
+                            <FeatureItem {...item} />
+                        </div>
                     ))}
                 </div>
             </div>
@@ -132,57 +257,130 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
     );
 }
 
-// --- Components ---
-
-type ComponentItemProps = {
-    icon?: ReactNode;
-    title: ReactNode;
-    description: ReactNode;
-    href?: string;
-};
-
-function ComponentItem(props: ComponentItemProps) {
-    const card = (
-        <div className="daiso-component-card card">
-            <div className="card__header">
-                <div className="daiso-component-icon">{props.icon}</div>
-                <h3>{props.title}</h3>
-            </div>
-            <div className="card__body">
-                <p>{props.description}</p>
-            </div>
-        </div>
-    );
-    return (
-        <div className="col col--4 margin-bottom--lg">
-            {props.href ? (
-                <Link to={props.href} className="daiso-component-link">
-                    {card}
-                </Link>
-            ) : (
-                card
-            )}
-        </div>
-    );
-}
-
-function ComponentSection({ items }: { items: ComponentItemProps[] }) {
+function WhoIsThisFor() {
     return (
         <section className="padding-vert--xl">
             <div className="container">
-                <div className="text--center margin-bottom--xl">
-                    <h2 className="daiso-section-title">Components</h2>
+                <div className="margin-bottom--xl">
+                    <h2 className="daiso-section-title">Who is this for?</h2>
                     <p className="daiso-section-subtitle">
-                        A growing collection of officially maintained,
-                        production-ready components. Every component ships with
-                        multiple built-in adapters — swap infrastructure without
-                        changing a single line of business logic.
+                        eridu-tech is built for backend and fullstack TypeScript
+                        developers who value flexibility and testability.
                     </p>
                 </div>
-                <div className="row">
-                    {items.map((item, idx) => (
-                        <ComponentItem key={idx} {...item} />
-                    ))}
+                <div
+                    className="row"
+                    style={{
+                        justifyContent: "stretch",
+                        alignItems: "start",
+                    }}
+                >
+                    <div className="col col--6">
+                        <div className="daiso-who-card daiso-who-yes">
+                            <h3>
+                                <Check
+                                    size="1.25rem"
+                                    strokeWidth={2.5}
+                                    style={{
+                                        marginRight: "0.5rem",
+                                        verticalAlign: "middle",
+                                        color: "var(--ifm-color-primary)",
+                                    }}
+                                />
+                                Perfect for
+                            </h3>
+                            <ul className="daiso-who-list">
+                                {Object.values(PERFECT_FOR).map((item, i) => (
+                                    <li key={i}>
+                                        <strong>{item.title}</strong>{" "}
+                                        {item.description}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="col col--6">
+                        <div className="daiso-who-card daiso-who-no">
+                            <h3>
+                                <Star
+                                    size="1.25rem"
+                                    strokeWidth={2}
+                                    style={{
+                                        marginRight: "0.5rem",
+                                        verticalAlign: "middle",
+                                        opacity: 0.7,
+                                    }}
+                                />
+                                Not ideal for
+                            </h3>
+                            <ul className="daiso-who-list">
+                                {Object.values(NOT_IDEAL_FOR).map((item, i) => (
+                                    <li key={i}>
+                                        <strong>{item.title}</strong>{" "}
+                                        {item.description}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+// --- Components (Available Today) ---
+
+function ComponentSection() {
+    return (
+        <section className="padding-vert--xl daiso-section-alt">
+            <div className="container">
+                <div className="margin-bottom--xl">
+                    <h2 className="daiso-section-title">
+                        Officially Maintained Components
+                    </h2>
+                    <p className="daiso-section-subtitle">
+                        A growing collection of officially maintained
+                        components. Every component ships with multiple built-in
+                        adapters — swap infrastructure without changing a single
+                        line of business logic.
+                    </p>
+                </div>
+                <AvailableCategory
+                    label="Foundation"
+                    items={FOUNDATION_EXISTING_ITEMS}
+                />
+                <AvailableCategory
+                    label="Storage"
+                    items={STORAGE_EXISTING_ITEMS}
+                />
+                <AvailableCategory
+                    label="Resilience"
+                    items={RELIABILITY_EXISTING_ITEMS}
+                />
+                <AvailableCategory
+                    label="Concurrency"
+                    items={CONCURRENCY_EXISTING_ITEMS}
+                />
+                <AvailableCategory
+                    label="Messaging"
+                    items={MESSAGING_EXISTING_ITEMS}
+                />
+                <AvailableCategory label="Web" items={WEB_EXISTING_ITEMS} />
+                <div className="text--center margin-top--lg">
+                    <Link
+                        className="button button--outline button--secondary"
+                        to="/docs/components/overview"
+                    >
+                        View all component docs{" "}
+                        <ArrowRight
+                            size="1rem"
+                            style={{
+                                marginLeft: "0.4rem",
+                                verticalAlign: "middle",
+                            }}
+                        />
+                    </Link>
                 </div>
             </div>
         </section>
@@ -204,17 +402,20 @@ function GitHubStarBanner() {
                     Find this library useful? Give it a ⭐
                 </h2>
                 <p className="daiso-star-subtitle">
-                    If you see potential in @daiso-tech/core, starring the repo
-                    on GitHub helps others discover it and motivates continued
+                    If you see potential in eridu-tech, starring the repo on
+                    GitHub helps others discover it and motivates continued
                     development. It takes one click and means a lot.
                 </p>
                 <Link
                     className="button button--primary button--lg"
-                    href="https://github.com/daiso-tech/daiso-core"
+                    href={GITHUB_REPO_URL}
                 >
                     <Star
                         size="1rem"
-                        style={{ marginRight: "0.5rem", verticalAlign: "middle" }}
+                        style={{
+                            marginRight: "0.5rem",
+                            verticalAlign: "middle",
+                        }}
                         strokeWidth={2}
                     />
                     Star on GitHub
@@ -240,7 +441,7 @@ function CtaSection() {
                 <div className="daiso-hero-ctas">
                     <Link
                         className="button button--secondary button--lg"
-                        to="./docs/installation"
+                        to="./docs/getting_started"
                     >
                         Get started{" "}
                         <ArrowRight
@@ -253,7 +454,7 @@ function CtaSection() {
                     </Link>
                     <Link
                         className="button button--outline button--secondary button--lg"
-                        href="https://github.com/daiso-tech/daiso-core"
+                        href={GITHUB_REPO_URL}
                     >
                         View on GitHub
                     </Link>
@@ -265,71 +466,114 @@ function CtaSection() {
 
 // --- Upcoming Components ---
 
-function UpcomingSection({ items }: { items: ComponentItemProps[] }) {
+function UpcomingSection() {
     return (
         <section className="padding-vert--xl daiso-section-alt">
             <div className="container">
-                <div className="text--center margin-bottom--xl">
-                    <h2 className="daiso-section-title">🔮 Upcoming Components</h2>
+                <div className="margin-bottom--xl">
+                    <h2 className="daiso-section-title">
+                        🔮 Upcoming Components
+                    </h2>
                     <p className="daiso-section-subtitle">
                         Components currently in design or development — not yet
                         available in any release.
                     </p>
                 </div>
-                <div className="row">
-                    {items.map((item, idx) => (
-                        <ComponentItem key={idx} {...item} />
-                    ))}
+                <PlannedCardGrid items={UPCOMING_ITEMS} />
+                <div className="text--center margin-top--lg">
+                    <Link
+                        className="button button--outline button--secondary"
+                        to="/docs/roadmap"
+                    >
+                        View full roadmap{" "}
+                        <ArrowRight
+                            size="1rem"
+                            style={{
+                                marginLeft: "0.4rem",
+                                verticalAlign: "middle",
+                            }}
+                        />
+                    </Link>
                 </div>
             </div>
         </section>
     );
 }
 
-// --- Vision ---
+// --- Framework Comparison ---
 
-type VisionItemProps = {
-    title: string;
-    comingSoon?: boolean;
-    description: ReactNode;
-};
+function FrameworkComparison() {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const comparisons = Object.values(COMPARISONS);
 
-function VisionItem({ title, comingSoon, description }: VisionItemProps) {
-    return (
-        <div className="col col--6 margin-bottom--lg">
-            <div className="daiso-feature-card" style={{ height: "100%" }}>
-                <h3 style={{ marginTop: 0 }}>{title}</h3>
-                <p style={{ margin: 0 }}>{description}</p>
-            </div>
-        </div>
-    );
-}
-
-function VisionSection({ items }: { items: VisionItemProps[] }) {
     return (
         <section className="padding-vert--xl">
             <div className="container">
-                <div className="text--center margin-bottom--xl">
-                    <h2 className="daiso-section-title">🌟 Vision</h2>
-                    <p className="daiso-section-subtitle" style={{ textAlign: "left" }}>
-                        @daiso-tech/core will be built around one core idea:{" "}
-                        <strong>
-                            production-grade backend primitives that work great
-                            standalone, but are even better together
-                        </strong>{" "}
-                        — all inside your existing fullstack TypeScript app.
-                    </p>
+                <div className="daiso-section-header daiso-section-header--split">
+                    <h2 className="daiso-section-title">
+                        How eridu-tech compares
+                    </h2>
+                    <div className="daiso-segmented-control">
+                        {comparisons.map((comp, i) => (
+                            <button
+                                key={comp.name}
+                                className={`daiso-segmented-option${i === activeIndex ? " daiso-segmented-option--active" : ""}`}
+                                onClick={() => setActiveIndex(i)}
+                            >
+                                {comp.name}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <div className="daiso-carousel-text">
+                    <h3
+                        className="daiso-section-subtitle"
+                        style={{
+                            width: "100%",
+                            fontWeight: 700,
+                            color: "var(--ifm-color-emphasis-900)",
+                            fontSize: "1.25rem",
+                        }}
+                    >
+                        {comparisons[activeIndex].heading}
+                    </h3>
                 </div>
                 <div className="row">
-                    {items.map((item, idx) => (
-                        <VisionItem key={idx} {...item} />
-                    ))}
+                    <div className="col col--6">
+                        <div className="daiso-comp-instead">
+                            <div className="daiso-comp-label-daiso">
+                                {comparisons[activeIndex].name}
+                            </div>
+                            <ul>
+                                {comparisons[activeIndex].instead.map(
+                                    (point, i) => (
+                                        <li key={i}>{point}</li>
+                                    ),
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="col col--6">
+                        <div className="daiso-comp-daiso">
+                            <div className="daiso-comp-label-daiso">
+                                eridu-tech
+                            </div>
+                            <ul>
+                                {comparisons[activeIndex].eriduTech.map(
+                                    (point, i) => (
+                                        <li key={i}>{point}</li>
+                                    ),
+                                )}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
     );
 }
 
+<<<<<<< HEAD
 // --- Data ---
 
 const featureItems: FeatureItemProps[] = [
@@ -657,6 +901,25 @@ const visionItems: VisionItemProps[] = [
         ),
     },
 ];
+=======
+// --- Header ---
+function Header() {
+    const { siteConfig } = useDocusaurusContext();
+    return (
+        <header className="daiso-hero hero hero--primary">
+            <div className="container">
+                <h1 className="hero__title">{siteConfig.title}</h1>
+                <p className="hero__subtitle daiso-hero-tagline">
+                    Cradle of Composable Backends
+                </p>
+                <p className="daiso-hero-badge margin-bottom--md">
+                    Backend foundation for TypeScript.
+                </p>
+            </div>
+        </header>
+    );
+}
+>>>>>>> main
 
 // --- Page ---
 
@@ -665,52 +928,15 @@ export default function Home(): ReactNode {
 
     return (
         <Layout title={siteConfig.title} description={siteConfig.tagline}>
-            <header className="daiso-hero hero hero--primary">
-                <div className="container">
-                    <p className="daiso-hero-badge margin-bottom--md">
-                        Backend server SDK for TypeScript
-                    </p>
-                    <h1 className="hero__title">{siteConfig.title}</h1>
-                    <p className="hero__subtitle daiso-hero-tagline">
-                        {siteConfig.tagline}
-                    </p>
-                    <p className="daiso-hero-subtext">
-                        The library contains 4,640 tests — the majority are integration and behavior tests, ensuring reliability in real-world scenarios.
-                    </p>
-                    <div className="margin-bottom--xl">
-                        <InstallCommand />
-                    </div>
-                    <div className="daiso-hero-ctas">
-                        <Link
-                            className="button button--secondary button--lg"
-                            to="./docs/installation"
-                        >
-                            Get started{" "}
-                            <ArrowRight
-                                size="1rem"
-                                style={{
-                                    marginLeft: "0.4rem",
-                                    verticalAlign: "middle",
-                                }}
-                            />
-                        </Link>
-                        <Link
-                            className="button button--outline button--secondary button--lg"
-                            href="https://github.com/daiso-tech/daiso-core"
-                        >
-                            View on GitHub
-                        </Link>
-                    </div>
-                </div>
-            </header>
-
-            <StatsBar />
-
+            <Header />
             <main>
-                <FeatureSection items={featureItems} />
-                <ComponentSection items={componentItems} />
-                <UpcomingSection items={upcomingItems} />
-                <VisionSection items={visionItems} />
+                <StatsBar />
+                <FeatureSection items={Object.values(FEATURE_ITEMS)} />
+                <CodeShowcase />
+                <WhoIsThisFor />
+                <ComponentSection />
+                <UpcomingSection />
+                <FrameworkComparison />
                 <GitHubStarBanner />
                 <CtaSection />
             </main>

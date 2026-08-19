@@ -2,17 +2,16 @@
  * @module Lock
  */
 
-import { type ILockState } from "@/lock/contracts/_module.js";
-import { type IKey } from "@/namespace/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
-import { type AsyncLazy } from "@/utilities/_module.js";
+import type { ILockState } from "@/lock/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { AsyncLazy } from "@/utilities/_module.js";
 
 /**
  * State and metadata methods for a lock instance.
  * Provides read-only access to lock state and configuration properties.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockStateMethods = {
@@ -27,7 +26,7 @@ export type ILockStateMethods = {
      * The unique identifier for the resource being locked.
      * Multiple lock instances with the same key cannot be held simultaneously by different owners.
      */
-    readonly key: IKey;
+    readonly key: string;
 
     /**
      * The unique identifier for this lock holder (lock instance).
@@ -46,7 +45,7 @@ export type ILockStateMethods = {
  * Base operations for managing lock acquisition, release, and refresh cycles.
  * Provides both safe (boolean-returning) and strict (error-throwing) versions of lock operations.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILockBase = {
@@ -123,7 +122,7 @@ export type ILockBase = {
  * High-level lock interface combining state methods and base operations.
  * Provides a complete distributed locking API for synchronizing resource access.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock/contracts"`
+ * IMPORT_PATH: `"eridu-tech/lock/contracts"`
  * @group Contracts
  */
 export type ILock = ILockBase & ILockStateMethods;

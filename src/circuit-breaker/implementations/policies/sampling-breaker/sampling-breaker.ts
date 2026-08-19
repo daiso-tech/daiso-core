@@ -3,26 +3,27 @@
  */
 
 import {
-    type HalfOpenTransitions,
-    type CircuitBreakerTrackSettings,
-    type CircuitBreakerTrackState,
-    type ICircuitBreakerPolicy,
-    type ClosedTransitions,
     CLOSED_TRANSITIONS,
     HALF_OPEN_TRANSITIONS,
 } from "@/circuit-breaker/contracts/_module.js";
-import {
-    TO_MILLISECONDS,
-    type ITimeSpan,
-} from "@/time-span/contracts/_module.js";
+import { TO_MILLISECONDS } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
+
+import type {
+    HalfOpenTransitions,
+    CircuitBreakerTrackSettings,
+    CircuitBreakerTrackState,
+    ICircuitBreakerPolicy,
+    ClosedTransitions,
+} from "@/circuit-breaker/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * Configuration for the time-based sampling circuit breaker policy.
  * Tracks requests over a sliding time window and opens the circuit when the failure
  * percentage exceeds `failureThreshold`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type SamplingBreakerSettings = {
@@ -48,7 +49,7 @@ export type SamplingBreakerSettings = {
      *
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(1)
      * ```
@@ -60,7 +61,7 @@ export type SamplingBreakerSettings = {
      *
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromTimeSpan(settings.timeSpan).divide(6)
      * ```
@@ -167,7 +168,7 @@ export function serializeSamplingBreakerSettings(
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type Sample = {
@@ -177,7 +178,7 @@ export type Sample = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
 export type SamplingBreakerState = {
@@ -196,12 +197,10 @@ type ProccesedMetricData = {
 /**
  * The `SamplingBreaker` breaks after a proportion of requests over a time period fail.
  *
- * IMPORT_PATH: `"@daiso-tech/core/circuit-breaker/policies"`
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/policies"`
  * @group Policies
  */
-export class SamplingBreaker
-    implements ICircuitBreakerPolicy<SamplingBreakerState>
-{
+export class SamplingBreaker implements ICircuitBreakerPolicy<SamplingBreakerState> {
     private readonly failureThreshold: number;
     private readonly successThreshold: number;
     private readonly timeSpan: TimeSpan;

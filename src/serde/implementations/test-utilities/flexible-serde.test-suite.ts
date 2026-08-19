@@ -4,16 +4,18 @@
 
 import { Buffer } from "node:buffer";
 
-import { type TestAPI, type ExpectStatic, beforeEach, vi } from "vitest";
+import { beforeEach, vi } from "vitest";
 
-import {
-    type IFlexibleSerde,
-    type ISerdeTransformer,
-    type ISerializable,
+import type { TestAPI, ExpectStatic } from "vitest";
+
+import type {
+    IFlexibleSerde,
+    ISerdeTransformer,
+    ISerializable,
 } from "@/serde/contracts/_module.js";
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/serde/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/serde/test-utilities"`
  * @group TestUtilities
  */
 export type FlexibleSerdeSuiteSettings = {
@@ -24,14 +26,14 @@ export type FlexibleSerdeSuiteSettings = {
 /**
  * The `flexibleSerdeTestSuite` function simplifies the process of testing your custom implementation of {@link IFlexibleSerde | `IFlexibleSerde`} with `vitest`.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/test-utilities"`
+ * IMPORT_PATH: `"eridu-tech/serde/test-utilities"`
  * @group TestUtilities
  * @example
  * ```ts
  * import { describe, test, expect } from "vitest";
- * import { Serde } from "@daiso-tech/core/serde";
- * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
- * import { flexibleSerdeTestSuite } from "@daiso-tech/core/serde/test-utilities";
+ * import { Serde } from "eridu-tech/serde";
+ * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+ * import { flexibleSerdeTestSuite } from "eridu-tech/serde/test-utilities";
  *
  * describe("class: Serde", () => {
  *     flexibleSerdeTestSuite({

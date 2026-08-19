@@ -1,39 +1,35 @@
 /**
  * @module Lock
  */
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import {
-    type ILockFactoryResolver,
-    type ILockFactory,
-    type LockAdapterVariants,
-} from "@/lock/contracts/_module.js";
-import {
-    LockFactory,
-    type LockFactorySettingsBase,
-} from "@/lock/implementations/derivables/lock-factory/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { LockFactory } from "@/lock/implementations/derivables/lock-factory/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type Invokable,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ILockFactoryResolver,
+    ILockFactory,
+    ILockAdapter,
+} from "@/lock/contracts/_module.js";
+import type { LockFactorySettingsBase } from "@/lock/implementations/derivables/lock-factory/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Invocable } from "@/utilities/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/lock"`
+ * IMPORT_PATH: `"eridu-tech/lock"`
  * @group Derivables
  */
 export type LockAdapters<TAdapters extends string> = Partial<
-    Record<TAdapters, LockAdapterVariants>
+    Record<TAdapters, ILockAdapter>
 >;
 
 /**
  * Configuration for `LockFactoryResolver`.
  * Registers named lock adapters and optionally designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock"`
+ * IMPORT_PATH: `"eridu-tech/lock"`
  * @group Derivables
  */
 export type LockFactoryResolverSettings<TAdapters extends string> =
@@ -52,20 +48,20 @@ export type LockFactoryResolverSettings<TAdapters extends string> =
 /**
  * The `LockFactoryResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/lock"`
+ * IMPORT_PATH: `"eridu-tech/lock"`
  * @group Derivables
  */
-export class LockFactoryResolver<TAdapters extends string>
-    implements ILockFactoryResolver<TAdapters>
-{
+export class LockFactoryResolver<
+    TAdapters extends string,
+> implements ILockFactoryResolver<TAdapters> {
     /**
      * @example
      * ```ts
-     * import { LockFactoryResolver } from "@daiso-tech/core/lock";
-     * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-     * import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { LockFactoryResolver } from "eridu-tech/lock";
+     * import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+     * import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -83,26 +79,12 @@ export class LockFactoryResolver<TAdapters extends string>
         private readonly settings: LockFactoryResolverSettings<TAdapters>,
     ) {}
 
-    setNamespace(namespace: INamespace): LockFactoryResolver<TAdapters> {
-        return new LockFactoryResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
-
     setCreateLockId(
-        createId: Invokable<[], string>,
+        createId: Invocable<[], string>,
     ): LockFactoryResolver<TAdapters> {
         return new LockFactoryResolver({
             ...this.settings,
             createLockId: createId,
-        });
-    }
-
-    setEventBus(eventBus: EventBusInput): LockFactoryResolver<TAdapters> {
-        return new LockFactoryResolver({
-            ...this.settings,
-            eventBus,
         });
     }
 
@@ -120,31 +102,24 @@ export class LockFactoryResolver<TAdapters extends string>
         });
     }
 
-    setWaitUntil(waitUntil: WaitUntil): LockFactoryResolver<TAdapters> {
-        return new LockFactoryResolver({
-            ...this.settings,
-            waitUntil,
-        });
-    }
-
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): LockFactoryResolver<TAdapters> {
         return new LockFactoryResolver({
             ...this.settings,
-            executionContext,
+            context,
         });
     }
 
     /**
      * @example
      * ```ts
-     * import { LockFactoryResolver } from "@daiso-tech/core/lock";
-     * import { MemoryLockAdapter } from "@daiso-tech/core/lock/memory-lock-adapter";
-     * import { RedisLockAdapter } from "@daiso-tech/core/lock/redis-lock-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { LockFactoryResolver } from "eridu-tech/lock";
+     * import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+     * import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { TimeSpan } from "eridu-tech/time-span";
      * import Redis from "ioredis";
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

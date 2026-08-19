@@ -1,16 +1,16 @@
 ---
 sidebar_position: 2
 sidebar_label: Resolver classes
-pagination_label: Rate-limiter resolver classes
+pagination_label: RateLimiter resolver classes
 tags:
-    - Rate-limiter
+    - RateLimiter
     - Resolvers
 keywords:
-    - Rate-limiter
+    - RateLimiter
     - Resolvers
 ---
 
-# Rate-limiter resolver factory classes
+# RateLimiter resolver factory classes
 
 ## RateLimiterFactoryResolver
 
@@ -21,12 +21,12 @@ The `RateLimiterFactoryResolver` class provides a flexible way to configure and 
 To begin using the `RateLimiterFactoryResolver`, You will need to register all required adapters during initialization.
 
 ```ts
-import { RateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
-import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { RedisRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/redis-rate-limiter-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RateLimiterFactoryResolver } from "eridu-tech/rate-limiter";
+import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storate-adapter";
+import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import Redis from "ioredis";
 
 const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -103,12 +103,12 @@ The `DatabaseRateLimiterFactoryResolver` class provides a flexible way to config
 To begin using the `DatabaseRateLimiterFactoryResolver`, You will need to register all required adapters during initialization.
 
 ```ts
-import { DatabaseRateLimiterFactoryResolver } from "@daiso-tech/core/rate-limiter";
-import { MemoryRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/memory-rate-limiter-storate-adapter";
-import { KyselyRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/kysely-rate-limiter-storate-adapter";
-import { DatabaseRateLimiterAdapter } from "@daiso-tech/core/rate-limiter/database-rate-limiter-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { DatabaseRateLimiterFactoryResolver } from "eridu-tech/rate-limiter";
+import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storate-adapter";
+import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storate-adapter";
+import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 
@@ -183,8 +183,8 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 #### 3. Overriding default settings
 
 ```ts
-import { SlidingWindowLimiter } from "@daiso-tech/core/rate-limiter/policies";
-import { constantBackoff } from "@daiso-tech/core/backoff-policies";
+import { SlidingWindowLimiter } from "eridu-tech/rate-limiter/policies";
+import { constantBackoff } from "eridu-tech/backoff-policies";
 
 await rateLimiterFactoryResolver
     .setBackoffPolicy(constantBackoff())
@@ -202,4 +202,4 @@ Note that the `DatabaseRateLimiterFactoryResolver` is immutable, meaning any con
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/rate-limiter`](https://daiso-tech.github.io/daiso-core/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech/modules/RateLimiter.html) API docs.

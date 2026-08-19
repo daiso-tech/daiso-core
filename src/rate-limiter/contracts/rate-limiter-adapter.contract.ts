@@ -2,17 +2,17 @@
  * @module RateLimiter
  */
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
-import { type TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
+import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Low-level state snapshot for rate limiter operations.
  * Provides the current quota tracking metrics at the adapter level.
  * Contains information about success status, attempt count, and reset timing.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiterAdapterState = {
@@ -44,7 +44,7 @@ export type IRateLimiterAdapterState = {
  * The adapter works with a policy interface that determines the blocking algorithm (e.g., fixed-window, sliding-window).
  * This separation allows multiple algorithm implementations to share the same storage layer.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/contracts"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/contracts"`
  * @group Contracts
  */
 export type IRateLimiterAdapter = {
@@ -52,13 +52,14 @@ export type IRateLimiterAdapter = {
      * Retrieves the current rate limiter state without modifying it.
      * Returns the tracking metrics if the rate limiter exists, otherwise null.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter
+     * @param context Readable execution context for the operation
+     *
      * @returns Current adapter state if found, or null if not yet initialized
      */
     getState(
-        context: IReadableContext,
         key: string,
+        context: IReadableContext,
     ): Promise<IRateLimiterAdapterState | null>;
 
     /**
@@ -66,15 +67,16 @@ export type IRateLimiterAdapter = {
      * Increments attempt counter and determines if the request should be allowed or blocked.
      * The decision logic is handled by the policy interface configured for this adapter.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter
      * @param limit Maximum allowed attempts in the current window
+     * @param context Readable execution context for the operation
+     *
      * @returns Updated state with incremented attempt and success flag
      */
     updateState(
-        context: IReadableContext,
         key: string,
         limit: number,
+        context: IReadableContext,
     ): Promise<IRateLimiterAdapterState>;
 
     /**
@@ -82,8 +84,8 @@ export type IRateLimiterAdapter = {
      * Clears all attempt tracking and lifts any blocking status.
      * Can be called even if the rate limiter has expired or was never initialized.
      *
-     * @param context Readable execution context for the operation
      * @param key Unique identifier for the rate limiter to reset
+     * @param context Readable execution context for the operation
      */
-    reset(context: IReadableContext, key: string): Promise<void>;
+    reset(key: string, context: IReadableContext): Promise<void>;
 };

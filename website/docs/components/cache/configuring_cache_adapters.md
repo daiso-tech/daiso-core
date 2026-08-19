@@ -37,7 +37,7 @@ keywords:
 To use the `MemoryCacheAdapter` you only need to create instance of it:
 
 ```ts
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
 
 const memoryCacheAdapter = new MemoryCacheAdapter();
 ```
@@ -45,7 +45,7 @@ const memoryCacheAdapter = new MemoryCacheAdapter();
 You can also provide an `Map` that will be used for storing the data in memory:
 
 ```ts
-import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
 
 const map = new Map<any, any>();
 const memoryCacheAdapter = new MemoryCacheAdapter(map);
@@ -66,9 +66,9 @@ To use the `MongodbCacheAdapter`, you'll need to:
 -We recommend using `SuperJsonSerdeAdapter` for this purpose
 
 ```ts
-import { MongodbCacheAdapter } from "@daiso-tech/core/cache/mongodb-cache-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { MongodbCacheAdapter } from "eridu-tech/cache/mongodb-cache-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import { MongoClient } from "mongodb";
 
 const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
@@ -129,9 +129,9 @@ To use the `RedisCacheAdapter`, you'll need to:
 - We recommend using `SuperJsonSerdeAdapter` for this purpose
 
 ```ts
-import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import Redis from "ioredis";
 
 const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
@@ -156,10 +156,10 @@ To use the `KyselyCacheAdapter`, you'll need to:
 You will need to install [`better-sqlite3`](https://www.npmjs.com/package/better-sqlite3) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselyCacheAdapter } from "@daiso-tech/core/cache/kysely-cache-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 
@@ -185,10 +185,10 @@ await kyselyCacheAdapter.init();
 You will need to install [`pg`](https://www.npmjs.com/package/pg) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselyCacheAdapter } from "@daiso-tech/core/cache/kysely-cache-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import { Pool } from "pg";
 import { Kysely, PostgresDialect } from "kysely";
 
@@ -222,10 +222,10 @@ await kyselyCacheAdapter.init();
 You will need to install [`mysql2`](https://www.npmjs.com/package/mysql2) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselyCacheAdapter } from "@daiso-tech/core/cache/kysely-cache-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import { createPool } from "mysql2";
 import { Kysely, MysqlDialect } from "kysely";
 
@@ -259,10 +259,10 @@ await kyselyCacheAdapter.init();
 You will need to install [`@libsql/kysely-libsql`](https://www.npmjs.com/package/@libsql/kysely-libsql) package:
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-import { KyselyCacheAdapter } from "@daiso-tech/core/cache/kysely-cache-adapter";
-import { Serde } from "@daiso-tech/core/serde";
-import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+import { TimeSpan } from "eridu-tech/time-span";
+import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
+import { Serde } from "eridu-tech/serde";
+import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { Kysely } from "kysely";
 
@@ -293,35 +293,17 @@ you won't be able to use following methods `put` and `increment`, as they requir
 
 ### Settings
 
-Expired keys are cleared at regular intervals and you can change the interval time:
+To clean up expired cache keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
 const kyselyCacheAdapter = new KyselyCacheAdapter({
     database,
     serde,
-    // By default, the interval is 1 minute
-    expiredKeysRemovalInterval: TimeSpan.fromSeconds(10),
-});
-
-await kyselyCacheAdapter.init();
-```
-
-Disabling scheduled interval cleanup of expired keys:
-
-```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const kyselyCacheAdapter = new KyselyCacheAdapter({
-    database,
-    serde,
-    shouldRemoveExpiredKeys: false,
 });
 
 await kyselyCacheAdapter.init();
 
-// You can remove all expired keys manually.
+// Remove all expired cache keys manually.
 await kyselyCacheAdapter.removeAllExpired();
 ```
 
@@ -339,13 +321,13 @@ await kyselyCacheAdapter.deInit();
 The `NoOpCacheAdapter` is a no-operation implementation, it performs no actions when called:
 
 ```ts
-import { NoOpCacheAdapter } from "@daiso-tech/core/cache/no-op-cache-adapter";
+import { NoOpCacheAdapter } from "eridu-tech/cache/no-op-cache-adapter";
 
 const noOpCacheAdapter = new NoOpCacheAdapter();
 ```
 
 :::info
-The `NoOpCacheAdapter` is useful when you want to mock out or disable your [`Cache`](https://daiso-tech.github.io/daiso-core/classes/Cache.Cache.html) class instance.
+The `NoOpCacheAdapter` is useful when you want to mock out or disable your [`Cache`](https://eridu-tech.github.io/eridu-tech/classes/Cache.Cache.html) class instance.
 :::
 
 :::info
@@ -354,4 +336,4 @@ Note `NoOpCacheAdapter` returns always null when retrieving items and return tru
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/cache`](https://daiso-tech.github.io/daiso-core/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech/modules/Cache.html) API docs.

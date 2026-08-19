@@ -5,7 +5,7 @@
 /**
  * The error occurs when a value is unable to be serialized.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Errors
  */
 export class SerializationSerdeError extends Error {
@@ -30,7 +30,7 @@ export class SerializationSerdeError extends Error {
 /**
  * The error occurs when a value is unable to be deserialized.
  *
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Errors
  */
 export class DeserializationSerdeError extends Error {
@@ -53,7 +53,7 @@ export class DeserializationSerdeError extends Error {
 }
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Errors
  */
 export const SERDE_ERRORS = {
@@ -62,15 +62,14 @@ export const SERDE_ERRORS = {
 } as const;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Errors
  */
 export type AllSerdeErrors =
-    | SerializationSerdeError
-    | DeserializationSerdeError;
+    SerializationSerdeError | DeserializationSerdeError;
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/serde/contracts"`
+ * IMPORT_PATH: `"eridu-tech/serde/contracts"`
  * @group Errors
  */
 export function isSerdeError(value: unknown): value is AllSerdeErrors {

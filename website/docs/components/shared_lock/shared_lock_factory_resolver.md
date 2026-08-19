@@ -1,12 +1,12 @@
 ---
 sidebar_position: 2
 sidebar_label: Resolver classes
-pagination_label: Shared-lock resolver classes
+pagination_label: SharedLock resolver classes
 tags:
-    - Shared-lock
+    - SharedLock
     - Resolvers
 keywords:
-    - Shared-lock
+    - SharedLock
     - Resolvers
 ---
 
@@ -19,9 +19,9 @@ The `SharedLockFactoryResolver` class provides a flexible way to configure and s
 To begin using the `ISharedLockFactoryResolver`, you will need to register all required adapters during initialization.
 
 ```ts
-import { SharedLockFactoryResolver } from "@daiso-tech/core/shared-lock";
-import { MemorySharedLockAdapter } from "@daiso-tech/core/shared-lock/memory-shared-lock-adapter";
-import { RedisSharedLockAdapter } from "@daiso-tech/core/shared-lock/redis-shared-lock-adapter";
+import { SharedLockFactoryResolver } from "eridu-tech/shared-lock";
+import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+import { RedisSharedLockAdapter } from "eridu-tech/shared-lock/redis-shared-lock-adapter";
 import Redis from "ioredis";
 
 const sharedLockFactoryResolver = new SharedLockFactoryResolver({
@@ -84,4 +84,4 @@ Note that the `SharedLockFactoryResolver` is immutable, meaning any configuratio
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/shared-lock`](https://daiso-tech.github.io/daiso-core/modules/SharedLock.html) API docs.
+For further information refer to [`eridu-tech/shared-lock`](https://eridu-tech.github.io/eridu-tech/modules/SharedLock.html) API docs.

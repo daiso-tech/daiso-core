@@ -2,7 +2,7 @@
  * @module FileStorage
  */
 
-import { type IFileStorage } from "@/file-storage/contracts/_module.js";
+import type { IFileStorage } from "@/file-storage/contracts/_module.js";
 
 /**
  * File storage resolver contract for dynamically selecting and switching between storage adapters.
@@ -16,7 +16,7 @@ import { type IFileStorage } from "@/file-storage/contracts/_module.js";
  *
  * @template TAdapters - Union type of registered adapter names (e.g., "memory" | "s3" | "fs")
  *
- * IMPORT_PATH: `"@daiso-tech/core/file-storage/contracts"`
+ * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
  */
 export type IFileStorageResolver<TAdapters extends string = string> = {

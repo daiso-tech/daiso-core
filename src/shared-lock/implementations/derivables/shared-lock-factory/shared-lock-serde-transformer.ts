@@ -2,88 +2,53 @@
  * @module SharedLock
  */
 
-import { type IEventBus } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { type ISerdeTransformer } from "@/serde/contracts/_module.js";
-import {
-    type ISharedLockAdapter,
-    type SharedLockAdapterVariants,
-    type SharedLockEventMap,
-} from "@/shared-lock/contracts/_module.js";
-import {
-    SharedLock,
-    type ISerializedSharedLock,
-} from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock.js";
+import { SharedLock } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import {
-    getConstructorName,
-    type OneOrMore,
-    type WaitUntil,
-} from "@/utilities/_module.js";
+import { getConstructorName } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
+import type { ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
+import type { ISerializedSharedLock } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock.js";
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type SharedLockSerdeTransformerSettings = {
     adapter: ISharedLockAdapter;
-    originalAdapter: SharedLockAdapterVariants;
-    namespace: INamespace;
     defaultRefreshTime: TimeSpan;
-    eventBus: IEventBus<SharedLockEventMap>;
     serdeTransformerName: string;
-    waitUntil: WaitUntil;
-    executionContext: IExecutionContext;
-    use: Use;
+    context: IReadableContext;
 };
 
 /**
  * @internal
  */
-export class SharedLockSerdeTransformer
-    implements ISerdeTransformer<SharedLock, ISerializedSharedLock>
-{
+export class SharedLockSerdeTransformer implements ISerdeTransformer<
+    SharedLock,
+    ISerializedSharedLock
+> {
     private readonly adapter: ISharedLockAdapter;
-    private readonly originalAdapter: SharedLockAdapterVariants;
-    private readonly namespace: INamespace;
     private readonly defaultRefreshTime: TimeSpan;
-    private readonly eventBus: IEventBus<SharedLockEventMap>;
     private readonly serdeTransformerName: string;
-    private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
-    private readonly use: Use;
+    private readonly context: IReadableContext;
 
     constructor(settings: SharedLockSerdeTransformerSettings) {
-        const {
-            adapter,
-            originalAdapter,
-            namespace,
-            defaultRefreshTime,
-            eventBus,
-            serdeTransformerName,
-            waitUntil,
-            executionContext,
-            use,
-        } = settings;
+        const { adapter, defaultRefreshTime, serdeTransformerName, context } =
+            settings;
 
-        this.use = use;
-        this.executionContext = executionContext;
-        this.waitUntil = waitUntil;
+        this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
-        this.originalAdapter = originalAdapter;
-        this.namespace = namespace;
         this.defaultRefreshTime = defaultRefreshTime;
-        this.eventBus = eventBus;
     }
 
     get name(): OneOrMore<string> {
         return [
             "shared-lock",
             this.serdeTransformerName,
-            getConstructorName(this.originalAdapter),
-            this.namespace.toString(),
+            getConstructorName(this.adapter),
         ].filter((str) => str !== "");
     }
 
@@ -98,37 +63,24 @@ export class SharedLockSerdeTransformer
         const isSerdTransformerNameMathcing =
             value._getSerdeTransformerName() === this.serdeTransformerName;
 
-        const isNamespaceMatching =
-            this.namespace.toString() === value._getNamespace().toString();
-
         const isAdapterMatching =
-            getConstructorName(this.originalAdapter) ===
+            getConstructorName(this.adapter) ===
             getConstructorName(value._getAdapter());
 
-        return (
-            isSerdTransformerNameMathcing &&
-            isNamespaceMatching &&
-            isAdapterMatching
-        );
+        return isSerdTransformerNameMathcing && isAdapterMatching;
     }
 
     deserialize(serializedValue: ISerializedSharedLock): SharedLock {
         const { key, lockId, limit, ttlInMs } = serializedValue;
-        const keyObj = this.namespace.create(key);
         return new SharedLock({
-            use: this.use,
-            executionContext: this.executionContext,
-            waitUntil: this.waitUntil,
+            context: this.context,
             lockId,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
-            eventDispatcher: this.eventBus,
-            key: keyObj,
+            key,
             limit,
             serdeTransformerName: this.serdeTransformerName,
             ttl: ttlInMs === null ? null : TimeSpan.fromMilliseconds(ttlInMs),
             defaultRefreshTime: this.defaultRefreshTime,
-            namespace: this.namespace,
         });
     }
 

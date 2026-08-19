@@ -4,78 +4,44 @@
 
 import { v4 } from "uuid";
 
-import {
-    type EventBusInput,
-    type IEventBus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IEventBusAdapter,
-} from "@/event-bus/contracts/_module.js";
-import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
-import {
-    resolveEventBusInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type EventBus,
-} from "@/event-bus/implementations/derivables/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-import { type Use } from "@/middleware/contracts/_module.js";
-import { useFactory } from "@/middleware/implementations/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { NoOpNamespace } from "@/namespace/implementations/_module.js";
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    type IDatabaseSemaphoreAdapter,
-    type ISemaphore,
-    type ISemaphoreAdapter,
-    type SemaphoreAdapterVariants,
-    type SemaphoreEventMap,
-    type SemaphoreFactoryCreateSettings,
-    type ISemaphoreFactory,
-    type ISemaphoreListenable,
-} from "@/semaphore/contracts/_module.js";
-import { resolveSemaphoreAdapter } from "@/semaphore/implementations/derivables/semaphore-factory/resolve-semaphore-adapter.js";
 import { SemaphoreSerdeTransformer } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore-serde-transformer.js";
 import { Semaphore } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore.js";
-import { type ISerderRegister } from "@/serde/contracts/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
-    callInvokable,
+    callInvocable,
     CORE,
-    defaultWaitUntil,
     isPositiveNbr,
     resolveOneOrMore,
-    type Invokable,
-    type OneOrMore,
-    type WaitUntil,
 } from "@/utilities/_module.js";
+
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    ISemaphore,
+    ISemaphoreAdapter,
+    SemaphoreFactoryCreateSettings,
+    ISemaphoreFactory,
+} from "@/semaphore/contracts/_module.js";
+import type { ISerderRegister } from "@/serde/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+import type { Invocable, OneOrMore } from "@/utilities/_module.js";
 
 /**
  * Base configuration shared by all `SemaphoreFactory` variants.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
+ * IMPORT_PATH: `"eridu-tech/semaphore"`
  * @group Derivables
  */
 export type SemaphoreFactorySettingsBase = {
     /**
-     * @default
-     * ```ts
-     * import { NoOpNamespace } from "@daiso-tech/core/namespace";
-     *
-     * new NoOpNamespace()
-     * ```
-     */
-    namespace?: INamespace;
-
-    /**
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link SemaphoreFactory | `SemaphoreFactory`} to register the semaphore's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { NoOpSerdeAdapter } from "@daiso-tech/core/serde/no-op-serde-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import { NoOpSerdeAdapter } from "eridu-tech/serde/no-op-serde-adapter";
      *
      * new Serde(new NoOpSerdeAdapter())
      * ```
@@ -96,26 +62,13 @@ export type SemaphoreFactorySettingsBase = {
      *
      * () => v4()
      */
-    createSlotId?: Invokable<[], string>;
-
-    /**
-     * You can provide an {@link IEventBus | `IEventBus`} or an {@link IEventBusAdapter | `IEventBusAdapter`} instance to handle the component's events.
-     * If you provide an adapter, it will be automatically wrapped in an {@link EventBus | `EventBus`} instance.
-     *
-     * @default
-     * ```ts
-     * import { NoOpEventBusAdapter } from "@daiso-tech/core/event-bus/no-op-event-bus-adapter";
-     *
-     * new NoOpEventBusAdapter()
-     * ```
-     */
-    eventBus?: EventBusInput;
+    createSlotId?: Invocable<[], string>;
 
     /**
      * You can decide the default ttl value for {@link ISemaphore | `ISemaphore`} expiration. If null is passed then no ttl will be used by default.
      * @default
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(5);
      * ```
@@ -125,7 +78,7 @@ export type SemaphoreFactorySettingsBase = {
     /**
      * The default refresh time used in the {@link ISemaphore | `ISemaphore`} `refresh` method.
      * ```ts
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { TimeSpan } from "eridu-tech/time-span";
      *
      * TimeSpan.fromMinutes(5);
      * ```
@@ -133,73 +86,58 @@ export type SemaphoreFactorySettingsBase = {
     defaultRefreshTime?: ITimeSpan;
 
     /**
-     * You can pass the `waitUntil` function to handle background promises.
-     * This is required when working with environments like Cloudflare Workers or Vercel Functions to ensure tasks complete after the response is sent.
+     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
      * @default
      * ```ts
-     * import { defaultWaitUntil } from "@daiso-tech/core/utilities"
-     * ```
-     */
-    waitUntil?: WaitUntil;
-
-    /**
-     * You can pass {@link IExecutionContext | `IExecutionContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "@daiso-tech/core/execution-context"
-     * import { NoOpExecutionContextAdapter } from "@daiso-tech/core/execution-context/no-op-execution-context-adapter"
+     * import { ExecutionContext } from "eridu-tech/execution-context"
+     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
      *
      * new ExecutionContext(new NoOpExecutionContextAdapter())
      * ```
      */
-    executionContext?: IExecutionContext;
+    context?: IReadableContext;
 };
 
 /**
  * Configuration for `SemaphoreFactory`.
  * Extends {@link SemaphoreFactorySettingsBase | `SemaphoreFactorySettingsBase`} with a required adapter.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
+ * IMPORT_PATH: `"eridu-tech/semaphore"`
  * @group Derivables
  */
 export type SemaphoreFactorySettings = SemaphoreFactorySettingsBase & {
     /**
      * The underlying semaphore adapter that handles the actual slot acquisition operations.
      */
-    adapter: SemaphoreAdapterVariants;
+    adapter: ISemaphoreAdapter;
 };
 
 /**
- * `SemaphoreFactory` class can be derived from any {@link ISemaphoreAdapter | `ISemaphoreAdapter`} or {@link IDatabaseSemaphoreAdapter | `IDatabaseSemaphoreAdapter`}.
+ * `SemaphoreFactory` class can be derived from any {@link ISemaphoreAdapter | `ISemaphoreAdapter`}.
  *
  * Note the {@link ISemaphore | `ISemaphore`} instances created by the `SemaphoreFactory` class are serializable and deserializable,
  * allowing them to be seamlessly transferred across different servers, processes, and databases.
  * This can be done directly using {@link ISerderRegister | `ISerderRegister`} or indirectly through components that rely on {@link ISerderRegister | `ISerderRegister`} internally.
  *
- * IMPORT_PATH: `"@daiso-tech/core/semaphore"`
+ * IMPORT_PATH: `"eridu-tech/semaphore"`
  * @group Derivables
  */
 export class SemaphoreFactory implements ISemaphoreFactory {
-    private readonly eventBus: IEventBus<SemaphoreEventMap>;
     private readonly adapter: ISemaphoreAdapter;
-    private readonly originalAdapter: SemaphoreAdapterVariants;
-    private readonly namespace: INamespace;
     private readonly defaultTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
-    private readonly createSlotId: Invokable<[], string>;
-    private readonly waitUntil: WaitUntil;
-    private readonly executionContext: IExecutionContext;
-    private readonly use: Use;
+    private readonly createSlotId: Invocable<[], string>;
+    private readonly context: IReadableContext;
 
     /**
      * @example
      * ```ts
-     * import { KyselySemaphoreAdapter } from "@daiso-tech/core/semaphore/kysely-semaphore-adapter";
-     * import { SemaphoreFactory } from "@daiso-tech/core/semaphore";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { KyselySemaphoreAdapter } from "eridu-tech/semaphore/kysely-semaphore-adapter";
+     * import { SemaphoreFactory } from "eridu-tech/semaphore";
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Sqlite from "better-sqlite3";
      * import { Kysely, SqliteDialect } from "kysely";
      *
@@ -226,44 +164,29 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             defaultTtl = TimeSpan.fromMinutes(5),
             defaultRefreshTime = TimeSpan.fromMinutes(5),
             serde = new Serde(new NoOpSerdeAdapter()),
-            namespace = new NoOpNamespace(),
             adapter,
-            eventBus = new NoOpEventBusAdapter(),
             serdeTransformerName = "",
-            waitUntil = defaultWaitUntil,
-            executionContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            ),
+            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.use = useFactory({ executionContext });
-        this.executionContext = executionContext;
-        this.waitUntil = waitUntil;
+        this.context = context;
         this.createSlotId = createSlotId;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
-        this.namespace = namespace;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
-        this.eventBus = resolveEventBusInput(namespace, eventBus);
         this.serdeTransformerName = serdeTransformerName;
 
-        this.originalAdapter = adapter;
-        this.adapter = resolveSemaphoreAdapter(adapter);
+        this.adapter = adapter;
 
         this.registerToSerde();
     }
 
     private registerToSerde(): void {
         const transformer = new SemaphoreSerdeTransformer({
-            use: this.use,
-            executionContext: this.executionContext,
-            waitUntil: this.waitUntil,
+            context: this.context,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
             defaultRefreshTime: this.defaultRefreshTime,
-            eventBus: this.eventBus,
-            namespace: this.namespace,
             serdeTransformerName: this.serdeTransformerName,
         });
         for (const serde of resolveOneOrMore(this.serde)) {
@@ -271,32 +194,23 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         }
     }
 
-    get events(): ISemaphoreListenable {
-        return this.eventBus;
-    }
-
     create(key: string, settings: SemaphoreFactoryCreateSettings): ISemaphore {
         const {
             ttl = this.defaultTtl,
             limit,
-            slotId = callInvokable(this.createSlotId),
+            slotId = callInvocable(this.createSlotId),
         } = settings;
         isPositiveNbr(limit);
 
         return new Semaphore({
-            use: this.use,
-            executionContext: this.executionContext,
-            waitUntil: this.waitUntil,
+            context: this.context,
             slotId,
             limit,
             adapter: this.adapter,
-            originalAdapter: this.originalAdapter,
-            eventDispatcher: this.eventBus,
-            key: this.namespace.create(key),
+            key,
             ttl: ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
             serdeTransformerName: this.serdeTransformerName,
             defaultRefreshTime: this.defaultRefreshTime,
-            namespace: this.namespace,
         });
     }
 }

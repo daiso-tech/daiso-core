@@ -2,33 +2,33 @@
  * @module RateLimiter
  */
 
-import {
-    type ClientSession,
-    type Collection,
-    type CollectionOptions,
-    type Db,
-    type MongoClient,
-    type ObjectId,
+import type {
+    ClientSession,
+    Collection,
+    CollectionOptions,
+    Db,
+    MongoClient,
+    ObjectId,
 } from "mongodb";
 
-import { type IReadableContext } from "@/execution-context/contracts/_module.js";
-import {
-    type IRateLimiterData,
-    type IRateLimiterStorageAdapter,
-    type IRateLimiterStorageAdapterTransaction,
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type {
+    IRateLimiterData,
+    IRateLimiterStorageAdapter,
+    IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
-import { type ISerde } from "@/serde/contracts/_module.js";
-import {
-    type IDeinitizable,
-    type IInitizable,
-    type InvokableFn,
+import type { ISerde } from "@/serde/contracts/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
 } from "@/utilities/_module.js";
 
 /**
  * Configuration for `MongodbRateLimiterStorageAdapter`.
  * Requires a MongoDB `Db` instance.
  *
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/mongodb-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type MongodbRateLimiterStorageAdapterSettings = {
@@ -53,17 +53,10 @@ export type MongodbRateLimiterStorageAdapterSettings = {
      * Serde instance for serializing and deserializing rate-limiter state to and from strings.
      */
     serde: ISerde<string>;
-
-    /**
-     * When `true`, operations are wrapped in MongoDB transactions for atomicity.
-     * Requires a Replica Set or sharded cluster that supports transactions.
-     * @default true
-     */
-    enableTransactions?: boolean;
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/mongodb-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export type MongodbRateLimiterDocument = {
@@ -74,7 +67,7 @@ export type MongodbRateLimiterDocument = {
 };
 
 /**
- * IMPORT_PATH: `"@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter"`
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/mongodb-rate-limiter-storage-adapter"`
  * @group Adapters
  */
 export class MongodbRateLimiterStorageAdapter<TType>
@@ -83,15 +76,14 @@ export class MongodbRateLimiterStorageAdapter<TType>
     private readonly client: MongoClient;
     private readonly collection: Collection<MongodbRateLimiterDocument>;
     private readonly serde: ISerde<string>;
-    private readonly enableTransactions: boolean;
 
     /**
      * @example
      * ```ts
-     * import { MongodbRateLimiterStorageAdapter } from "@daiso-tech/core/rate-limiter/mongodb-rate-limiter-storage-adapter";
+     * import { MongodbRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/mongodb-rate-limiter-storage-adapter";
      * import { MongoClient } from "mongodb";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter"
+     * import { Serde } from "eridu-tech/serde";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter"
      *
      * const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
      * const database = client.db("database");
@@ -112,7 +104,6 @@ export class MongodbRateLimiterStorageAdapter<TType>
             collectionSettings,
             database,
             serde,
-            enableTransactions = true,
         } = settings;
         this.client = client;
         this.collection = database.collection(
@@ -120,7 +111,6 @@ export class MongodbRateLimiterStorageAdapter<TType>
             collectionSettings,
         );
         this.serde = serde;
-        this.enableTransactions = enableTransactions;
     }
 
     /**
@@ -173,10 +163,10 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     private async upsert(
-        _context: IReadableContext,
         key: string,
         state: TType,
         expiration: Date,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.updateOne(
@@ -194,37 +184,34 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     private async _transaction<TValue>(
-        trxFn: InvokableFn<[session?: ClientSession], Promise<TValue>>,
+        trxFn: InvocableFn<[session?: ClientSession], Promise<TValue>>,
     ): Promise<TValue> {
-        if (this.enableTransactions) {
-            return await this.client.withSession(async (session) => {
-                return await session.withTransaction(async () => {
-                    return await trxFn(session);
-                });
+        return await this.client.withSession(async (session) => {
+            return await session.withTransaction(async () => {
+                return await trxFn(session);
             });
-        }
-        return trxFn();
+        });
     }
 
     async transaction<TValue>(
-        _context: IReadableContext,
-        fn: InvokableFn<
+        fn: InvocableFn<
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
+        _context: IReadableContext,
     ): Promise<TValue> {
         return await this._transaction(async (session) => {
             return await fn({
-                upsert: (context, key, state, exiration) =>
-                    this.upsert(context, key, state, exiration, session),
-                find: (context, key) => this.find(context, key, session),
+                upsert: (key, state, expiration, context) =>
+                    this.upsert(key, state, expiration, context, session),
+                find: (key, context) => this.find(key, context, session),
             });
         });
     }
 
     async find(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<IRateLimiterData<TType> | null> {
         const doc = await this.collection.findOne(
@@ -245,8 +232,8 @@ export class MongodbRateLimiterStorageAdapter<TType>
     }
 
     async remove(
-        _context: IReadableContext,
         key: string,
+        _context: IReadableContext,
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.deleteOne(

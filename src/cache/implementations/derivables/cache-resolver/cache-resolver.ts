@@ -2,76 +2,68 @@
  * @module Cache
  */
 
-import { type StandardSchemaV1 } from "@standard-schema/spec";
-
-import {
-    type CacheAdapterVariants,
-    type ICache,
-    type ICacheResolver,
-} from "@/cache/contracts/_module.js";
-import {
-    Cache,
-    type CacheSettingsBase,
-} from "@/cache/implementations/derivables/cache/_module.js";
-import { type EventBusInput } from "@/event-bus/contracts/_module.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { type LockFactoryInput } from "@/lock/contracts/_module.js";
-import { type INamespace } from "@/namespace/contracts/_module.js";
-import { type ITimeSpan } from "@/time-span/contracts/_module.js";
+import { Cache } from "@/cache/implementations/derivables/cache/_module.js";
 import {
     DefaultAdapterNotDefinedError,
     UnregisteredAdapterError,
-    type WaitUntil,
 } from "@/utilities/_module.js";
 
+import type {
+    ICache,
+    ICacheAdapter,
+    ICacheResolver,
+} from "@/cache/contracts/_module.js";
+import type { CacheSettingsBase } from "@/cache/implementations/derivables/cache/_module.js";
+import type { IReadableContext } from "@/execution-context/contracts/_module.js";
+import type { ITimeSpan } from "@/time-span/contracts/_module.js";
+
 /**
- * IMPORT_PATH: `"@daiso-tech/core/cache"`
+ * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
 export type CacheAdapters<TAdapters extends string = string> = Partial<
-    Record<TAdapters, CacheAdapterVariants<any>>
+    Record<TAdapters, ICacheAdapter<any>>
 >;
 
 /**
  * Configuration for `CacheResolver`.
  * Registers named cache adapters with optional schema validation and designates a default.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache"`
+ * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
-export type CacheResolverSettings<
-    TAdapters extends string = string,
-    TType = unknown,
-> = CacheSettingsBase<TType> & {
-    /**
-     * Named registry of cache adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
-     */
-    adapters: CacheAdapters<TAdapters>;
+export type CacheResolverSettings<TAdapters extends string = string> =
+    CacheSettingsBase & {
+        /**
+         * Named registry of cache adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+         */
+        adapters: CacheAdapters<TAdapters>;
 
-    /**
-     * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
-     */
-    defaultAdapter?: NoInfer<TAdapters>;
-};
+        /**
+         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+         */
+        defaultAdapter?: NoInfer<TAdapters>;
+    };
 
 /**
  * The `CacheResolver` class is immutable.
  *
- * IMPORT_PATH: `"@daiso-tech/core/cache"`
+ * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
-export class CacheResolver<TAdapters extends string = string, TType = unknown>
-    implements ICacheResolver<TAdapters, TType>
-{
+export class CacheResolver<
+    TAdapters extends string = string,
+    TType = unknown,
+> implements ICacheResolver<TAdapters, TType> {
     /**
      * @example
      * ```ts
-     * import { CacheResolver } from "@daiso-tech/core/cache";
-     * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-     * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import type { ISerde } from "@daiso-tech/core/serde/contracts";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
+     * import { CacheResolver } from "eridu-tech/cache";
+     * import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+     * import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import type { ISerde } from "eridu-tech/serde/contracts";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());
@@ -86,16 +78,7 @@ export class CacheResolver<TAdapters extends string = string, TType = unknown>
      *   defaultAdapter: "memory",
      * });
      */
-    constructor(
-        private readonly settings: CacheResolverSettings<TAdapters, TType>,
-    ) {}
-
-    setNamespace(namespace: INamespace): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            namespace,
-        });
-    }
+    constructor(private readonly settings: CacheResolverSettings<TAdapters>) {}
 
     setDefaultTtl(ttl: ITimeSpan | null): CacheResolver<TAdapters, TType> {
         return new CacheResolver({
@@ -104,70 +87,29 @@ export class CacheResolver<TAdapters extends string = string, TType = unknown>
         });
     }
 
-    setEventBus(eventBus: EventBusInput): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            eventBus,
-        });
-    }
-
-    setSchema<TSchemaOutputType>(
-        schema: StandardSchemaV1<TSchemaOutputType>,
-    ): CacheResolver<TAdapters, TSchemaOutputType> {
-        return new CacheResolver({
-            ...this.settings,
-            schema,
-        });
-    }
-
     setType<TOutputType>(): CacheResolver<TAdapters, TOutputType> {
-        return new CacheResolver(
-            this.settings as CacheResolverSettings<TAdapters, TOutputType>,
-        );
-    }
-
-    setJitter(jitter: number): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            defaultJitter: jitter,
-        });
-    }
-
-    setWaitUntil(waitUntil: WaitUntil): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            waitUntil,
-        });
+        return new CacheResolver(this.settings);
     }
 
     setExecutionContext(
-        executionContext: IExecutionContext,
+        context: IReadableContext,
     ): CacheResolver<TAdapters, TType> {
         return new CacheResolver({
             ...this.settings,
-            executionContext,
-        });
-    }
-
-    setLockFactory(
-        lockFactory: LockFactoryInput,
-    ): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            lockFactory,
+            context,
         });
     }
 
     /**
      * @example
      * ```ts
-     * import { CacheResolver } from "@daiso-tech/core/cache";
-     * import { MemoryCacheAdapter } from "@daiso-tech/core/cache/memory-cache-adapter";
-     * import { RedisCacheAdapter } from "@daiso-tech/core/cache/redis-cache-adapter";
-     * import { Serde } from "@daiso-tech/core/serde";
-     * import type { ISerde } from "@daiso-tech/core/serde/contracts";
-     * import { SuperJsonSerdeAdapter } from "@daiso-tech/core/serde/super-json-serde-adapter";
-     * import { TimeSpan } from "@daiso-tech/core/time-span";
+     * import { CacheResolver } from "eridu-tech/cache";
+     * import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+     * import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
+     * import { Serde } from "eridu-tech/serde";
+     * import type { ISerde } from "eridu-tech/serde/contracts";
+     * import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
+     * import { TimeSpan } from "eridu-tech/time-span";
      * import Redis from "ioredis"
      *
      * const serde = new Serde(new SuperJsonSerdeAdapter());

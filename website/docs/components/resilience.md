@@ -7,10 +7,10 @@ keywords:
 
 # Resilience
 
-The `@daiso-tech/core/resilience` component provides predefined fault tolerant `middlewares`.
+The `eridu-tech/resilience` component provides predefined fault tolerant `middlewares`.
 
 :::info
-For further information about `middlewares` refer to [`@daiso-tech/core/middleware`](./middleware.md) documentation.
+For further information about `middlewares` refer to [`eridu-tech/middleware`](./middleware.md) documentation.
 :::
 
 ## Fallback
@@ -20,10 +20,8 @@ The `fallback` middleware adds fallback value when an error occurs:
 ### Usage
 
 ```ts
-import { fallback } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
-
-const use = useFactory();
+import { fallback } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -43,7 +41,7 @@ console.log(await fn());
 ```
 
 :::info
-You can provide synchronous or asynchronous [`Invokable<[], TValue | Promise<TValue>>`](../utilities/invokable.md) as fallback value.
+You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TValue>>`](../utilities/invocable.md) as fallback value.
 :::
 
 ### Custom ErrorPolicy
@@ -64,7 +62,7 @@ await fn();
 
 ### Callbacks
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the fallback value is returned.
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before the fallback value is returned.
 
 ```ts
 const fn = use(unstableFn, [
@@ -88,10 +86,8 @@ The `retry` middleware enables automatic retries for all errors or specific erro
 ### Usage
 
 ```ts
-import { retry } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
-
-const use = useFactory();
+import { retry } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -146,7 +142,7 @@ await fn();
 You can use custom [`BackoffPolicy`](./backoff_policies.md):
 
 ```ts
-import { TimeSpan } from "@daiso-tech/core/time-span";
+import { TimeSpan } from "eridu-tech/time-span";
 
 const fn = use(unstableFn, [
     retry({
@@ -162,7 +158,7 @@ await fn();
 
 ### Callbacks
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before execution attempt:
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before execution attempt:
 
 ```ts
 const fn = use(unstableFn, [
@@ -175,7 +171,7 @@ const fn = use(unstableFn, [
 await fn();
 ```
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the retry delay starts:
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before the retry delay starts:
 
 :::info
 For more details about `onExecutionAttempt` callback data, see the `OnRetryAttemptData` type.
@@ -203,11 +199,9 @@ The `retryInterval` middleware retries a function repeatedly within a given time
 ### Usage
 
 ```ts
-import { retryInterval } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const use = useFactory();
+import { retryInterval } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 function unstableFn(): number {
     // We simulate a function that can throw unexpected errors
@@ -263,7 +257,7 @@ await fn();
 
 ### Callbacks
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before each execution attempt:
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before each execution attempt:
 
 ```ts
 const fn = use(unstableFn, [
@@ -281,7 +275,7 @@ await fn();
 For more details about `onExecutionAttempt` callback data, see the `OnRetryAttemptData` type.
 :::
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the retry delay starts:
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before the retry delay starts:
 
 ```ts
 const fn = use(unstableFn, [
@@ -306,11 +300,9 @@ The `timeout` middleware automatically aborts functions after a specified time p
 ### Usage
 
 ```ts
-import { timeout } from "@daiso-tech/core/resilience";
-import { useFactory } from "@daiso-tech/core/middleware";
-import { TimeSpan } from "@daiso-tech/core/time-span";
-
-const use = useFactory();
+import { timeout } from "eridu-tech/resilience";
+import { use } from "eridu-tech/middleware";
+import { TimeSpan } from "eridu-tech/time-span";
 
 async function fetchData(): Promise<Response> {
     const response = await fetch("ENDPOINT");
@@ -328,7 +320,7 @@ await fn();
 
 ### Callbacks
 
-You can add callback [`Invokable`](../utilities/invokable.md) that will be called before the timeout occurs.
+You can add callback [`Invocable`](../utilities/invocable.md) that will be called before the timeout occurs.
 
 ```ts
 const fn = use(fetchData, [
@@ -347,4 +339,4 @@ For more details about `onTimeout` callback data, see the `OnTimeoutData` type.
 
 ## Further information
 
-For further information refer to [`@daiso-tech/core/resilience`](https://daiso-tech.github.io/daiso-core/modules/Resilience.html) API docs.
+For further information refer to [`eridu-tech/resilience`](https://eridu-tech.github.io/eridu-tech/modules/Resilience.html) API docs.
