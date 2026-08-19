@@ -2,16 +2,16 @@
  * @module DI
  */
 
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import {
-    type AsyncLazy,
-    type Class,
-    type IDeinitizable,
-    type IInitizable,
-    type IInvokableObject,
-    type Invokable,
-    type InvokableFn,
-    type Promisable,
+import type { IExecutionContext } from "@/execution-context/contracts/_module.js";
+import type {
+    AsyncLazy,
+    Class,
+    IDeinitizable,
+    IInitizable,
+    IInvocableObject,
+    Invocable,
+    InvocableFn,
+    Promisable,
 } from "@/utilities/_module.js";
 
 /**
@@ -20,8 +20,8 @@ import {
  * - `"transient"`: new instance per resolution.
  * - `"scoped"`: one instance per run scope.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export const LIFETIME = {
     SINGLETON: "singleton",
@@ -29,6 +29,10 @@ export const LIFETIME = {
     SCOPED: "scoped",
 } as const;
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Contracts
+ */
 export type Lifetime = (typeof LIFETIME)[keyof typeof LIFETIME];
 
 /**
@@ -37,8 +41,8 @@ export type Lifetime = (typeof LIFETIME)[keyof typeof LIFETIME];
  *
  * @typeParam TRegisteredType - The type of the registered service.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type GenericToken<TRegisteredType = unknown> = {
     /**
@@ -59,8 +63,8 @@ export type GenericToken<TRegisteredType = unknown> = {
  * @param id - A unique string identifier for the token.
  * @returns A new {@link GenericToken} instance.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export function genericToken<TValue>(id: string): GenericToken<TValue> {
     return {
@@ -74,8 +78,8 @@ export function genericToken<TValue>(id: string): GenericToken<TValue> {
  *
  * @typeParam TInstance - The type of the class instance.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ClassToken<TInstance = unknown> = Class<Array<any>, TInstance>;
 
@@ -85,17 +89,19 @@ export type ClassToken<TInstance = unknown> = Class<Array<any>, TInstance>;
  *
  * @typeParam TRegisteredType - The type of the registered service.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type DiToken<TRegisteredType = unknown> =
-    | ClassToken<TRegisteredType>
-    | GenericToken<TRegisteredType>;
+    ClassToken<TRegisteredType> | GenericToken<TRegisteredType>;
 
 /**
  * A record that maps dependency argument names to their resolved types.
  * This is the shape of the dependencies object that is passed to a service
  * factory at resolution time.
+ *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Contracts
  */
 export type DepRecord = Partial<Record<string, unknown>>;
 
@@ -105,6 +111,10 @@ export type DepRecord = Partial<Record<string, unknown>>;
  * {@link ServiceFactory} and {@link FactoryRegistration}.
  */
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Contracts
+ */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type EmptyDepRecord = {};
 /**
@@ -115,13 +125,13 @@ export type EmptyDepRecord = {};
  * @typeParam TDeps - Record of dependency names mapped to their types.
  * @typeParam TRegisteredType - The type this factory produces.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ServiceFactory<
     TDeps extends DepRecord = EmptyDepRecord,
     TRegisteredType = unknown,
-> = Invokable<
+> = Invocable<
     [deps: TDeps, executionContext: IExecutionContext],
     Promisable<TRegisteredType>
 >;
@@ -132,8 +142,8 @@ export type ServiceFactory<
  *
  * @typeParam TDeps - Record of dependency names mapped to their types.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type DepsTokens<TDeps extends DepRecord = EmptyDepRecord> = {
@@ -146,8 +156,8 @@ export type DepsTokens<TDeps extends DepRecord = EmptyDepRecord> = {
  * @typeParam TDeps - Record of dependency names mapped to the types the factory consumes.
  * @typeParam TRegisteredType - The type produced by the factory.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type FactoryRegistration<
     TDeps extends DepRecord = EmptyDepRecord,
@@ -171,8 +181,8 @@ export type FactoryRegistration<
  * @typeParam TDeps - Record of dependency names mapped to the types the factory consumes.
  * @typeParam TRegisteredType - The type produced by the factory.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type FactoryRegistrationOverride<
     TDeps extends DepRecord = EmptyDepRecord,
@@ -194,8 +204,8 @@ export type FactoryRegistrationOverride<
  *
  * @typeParam TRegisteredType - The type of the value.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ValueRegistration<TRegisteredType = unknown> = {
     /** The token used to identify and resolve this service. */
@@ -209,8 +219,8 @@ export type ValueRegistration<TRegisteredType = unknown> = {
  * Core service registration interface providing factory, class, value,
  * and dynamic registration methods.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceRegisterBase = {
     /**
@@ -250,17 +260,17 @@ export type IServiceRegisterBase = {
  * A hook callback invoked during container lifecycle events.
  * Receives an {@link IServiceResolver} to resolve services during the hook.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export type DiHook = Invokable<[resolver: IServiceResolver], Promisable<void>>;
+export type DiHook = Invocable<[resolver: IServiceResolver], Promisable<void>>;
 
 /**
  * Interface for registering lifecycle hooks that run on container
  * initialization and deinitialization.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IContainerHooks = {
     /**
@@ -282,8 +292,8 @@ export type IContainerHooks = {
  * The full service registration interface, combining base registration,
  * provider registration, and container lifecycle hooks.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceRegister = IServiceRegisterBase &
     IServiceProviderRegister &
@@ -293,10 +303,10 @@ export type IServiceRegister = IServiceRegisterBase &
  * A plain function that acts as a service provider, receiving an
  * {@link IServiceRegister} to register services.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export type ServiceProviderFn = InvokableFn<
+export type ServiceProviderFn = InvocableFn<
     [serviceRegister: IServiceRegister],
     void
 >;
@@ -305,10 +315,10 @@ export type ServiceProviderFn = InvokableFn<
  * An object with an `invoke` method that acts as a service provider,
  * receiving an {@link IServiceRegister} to register services.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export type IServiceProvider = IInvokableObject<
+export type IServiceProvider = IInvocableObject<
     [serviceRegister: IServiceRegister],
     void
 >;
@@ -317,8 +327,8 @@ export type IServiceProvider = IInvokableObject<
  * A service provider, either as a plain function ({@link ServiceProviderFn})
  * or an object with an `invoke` method ({@link IServiceProvider}).
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ServiceProvider = ServiceProviderFn | IServiceProvider;
 
@@ -329,8 +339,8 @@ export type ServiceProvider = ServiceProviderFn | IServiceProvider;
  * Useful for creating reusable, isolated code blocks — similar to Laravel
  * service providers — that encapsulate a group of related registrations.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceProviderRegister = {
     /**
@@ -344,8 +354,8 @@ export type IServiceProviderRegister = {
  * Interface for resolving registered services by token, with nullable,
  * default-value, and throw-on-missing variants.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceResolver = {
     /**
@@ -384,10 +394,10 @@ export type IServiceResolver = {
  *
  * @typeParam TRegisteredType - The type of the dynamic value.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export type DynamicValue<TRegisteredType = unknown> = Invokable<
+export type DynamicValue<TRegisteredType = unknown> = Invocable<
     [executionContext: IExecutionContext],
     Promisable<TRegisteredType>
 >;
@@ -398,8 +408,8 @@ export type DynamicValue<TRegisteredType = unknown> = Invokable<
  *
  * @typeParam TRegisteredType - The type of the value.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type DynamicRegistration<TRegisteredType = unknown> = {
     /** The token whose dynamic value is being set. */
@@ -413,8 +423,8 @@ export type DynamicRegistration<TRegisteredType = unknown> = {
  * Interface for setting dynamic values at runtime for tokens previously
  * registered via {@link IServiceRegisterBase.registerDynamic}.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IDynamicServiceRegister = {
     /**
@@ -430,10 +440,10 @@ export type IDynamicServiceRegister = {
  * A plain function that provides dynamic service registrations,
  * receiving an {@link IDynamicServiceRegister} to set values.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export type DynamicServiceProviderFn = InvokableFn<
+export type DynamicServiceProviderFn = InvocableFn<
     [serviceRegister: IDynamicServiceRegister],
     Promisable<void>
 >;
@@ -442,10 +452,10 @@ export type DynamicServiceProviderFn = InvokableFn<
  * An object with an `invoke` method that provides dynamic service
  * registrations, receiving an {@link IDynamicServiceRegister}.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
-export type IDynamicServiceProvider = IInvokableObject<
+export type IDynamicServiceProvider = IInvocableObject<
     [serviceRegister: IDynamicServiceRegister],
     Promisable<void>
 >;
@@ -454,12 +464,11 @@ export type IDynamicServiceProvider = IInvokableObject<
  * A dynamic service provider, either as a plain function
  * ({@link DynamicServiceProviderFn}) or an object ({@link IDynamicServiceProvider}).
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type DynamicServiceProvider =
-    | DynamicServiceProviderFn
-    | IDynamicServiceProvider;
+    DynamicServiceProviderFn | IDynamicServiceProvider;
 
 /**
  * Configuration for a scoped container execution via
@@ -467,8 +476,8 @@ export type DynamicServiceProvider =
  *
  * @typeParam TValue - The return type of the scope body.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type RunSettings<TValue = unknown> = {
     /**
@@ -486,8 +495,8 @@ export type RunSettings<TValue = unknown> = {
  * Interface for executing code within a scoped container context.
  * Scoped services are resolved only once per {@link run} invocation.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IContainerScope = {
     /**
@@ -501,8 +510,8 @@ export type IContainerScope = {
  * Interface for overriding existing service registrations, is meant for
  * testing.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IServiceOverrider = {
     /**
@@ -541,8 +550,8 @@ export type IServiceOverrider = {
  *   dependency, or an undeclared dependency.
  * @throws {CanNotRegisterServiceDiError} When attempting to register a duplicate token.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type IContainer = IInitizable &
     IDeinitizable &

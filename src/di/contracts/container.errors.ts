@@ -2,9 +2,13 @@
  * @module DI
  */
 
-import { type DiToken } from "@/di/contracts/container.contract.js";
 import { isClass, UnexpectedError } from "@/utilities/_module.js";
 
+import type { DiToken } from "@/di/contracts/container.contract.js";
+
+/**
+ * @internal
+ */
 const UNMANAGED_FLAG_ERROR_MESSAGE = "Unmanaged flag";
 
 /**
@@ -17,9 +21,18 @@ function tokenToString(diToken: DiToken): string {
     return diToken.id.toString();
 }
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ *
+ */
 export type InvalidMethodCallFlag =
     (typeof InvalidMethodCallDiError.FLAG)[keyof typeof InvalidMethodCallDiError.FLAG];
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ */
 export type InvalidMethodCallData =
     | {
           flag: typeof InvalidMethodCallDiError.FLAG.NOT_ACTIVE;
@@ -67,14 +80,26 @@ function buildGraphMessage(args: {
     );
 }
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ */
 export type InvalidGraphFlag =
     (typeof InvalidGraphDiError.FLAG)[keyof typeof InvalidGraphDiError.FLAG];
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ */
 export type EdgeErrorInfo = {
     edge: [DiToken, DiToken];
     edgeType: [string, string];
 };
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ */
 export type InvalidGraphInfo =
     | {
           flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP;
@@ -92,11 +117,19 @@ export type InvalidGraphInfo =
           }>;
       };
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ */
 export type UndeclaredDependencyInfo<T = DiToken> = {
     missingDependency: T;
     dependents: Array<T>;
 };
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ */
 export type InvalidGraphCreateSettings =
     | {
           flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP;
@@ -114,18 +147,17 @@ export type InvalidGraphCreateSettings =
           totalNodes?: number;
       };
 
-
 /**
  * Thrown when the service graph is invalid.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export class InvalidGraphDiError extends Error {
     /**
      * The kinds of graph problems that can be detected.
      */
-    public static readonly FLAG = {
+    static readonly FLAG = {
         INVALID_EDGE_RELATIONSHIP: "INVALID_EDGE_RELATIONSHIP",
         CYCLE_DEPENDENCY: "CYCLE_DEPENDENCY",
         UNDECLARED_DEPENDENCIES: "UNDECLARED_DEPENDENCIES",
@@ -134,12 +166,12 @@ export class InvalidGraphDiError extends Error {
     /**
      * The graph problem details, discriminated by `flag`.
      */
-    public readonly info: InvalidGraphInfo;
+    readonly info: InvalidGraphInfo;
 
     /**
      * The kind of graph problem.
      */
-    public get flag(): InvalidGraphFlag {
+    get flag(): InvalidGraphFlag {
         return this.info.flag;
     }
 
@@ -282,11 +314,8 @@ export class InvalidGraphDiError extends Error {
 
     /**
      * Note: Do not instantiate `InvalidGraphDiError` directly via the constructor. Use the static `create()` factory method instead.
-     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
-     *
-     * @param message - A descriptive error message.
-     * @param info - The graph problem details, discriminated by `flag`.
-     * @param cause - The underlying cause of the error, if any.
+     * The constructor remains  only to maintain compatibility with errorPolicy types and prevent type errors.
+     * @internal
      */
     constructor(message: string, info: InvalidGraphInfo, cause?: unknown) {
         super(message, { cause });
@@ -299,14 +328,14 @@ export class InvalidGraphDiError extends Error {
  * Thrown when a container method is called at an invalid time or context.
  * The `flag` identifies which rule was violated.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export class InvalidMethodCallDiError extends Error {
     /**
      * The reasons why a container method call can be invalid.
      */
-    public static readonly FLAG = {
+    static readonly FLAG = {
         NOT_ACTIVE: "CONTAINER_NOT_ACTIVE",
         ALREADY_INITIALIZED: "CONTAINER_ALREADY_INITIALIZED",
         INSIDE_RUN: "METHOD_CALL_INSIDE_RUN",
@@ -317,12 +346,12 @@ export class InvalidMethodCallDiError extends Error {
     /**
      * The details of the invalid call, discriminated by `flag`.
      */
-    public readonly info: InvalidMethodCallData;
+    readonly info: InvalidMethodCallData;
 
     /**
      * The reason why the method call is invalid.
      */
-    public get flag(): InvalidMethodCallFlag {
+    get flag(): InvalidMethodCallFlag {
         return this.info.flag;
     }
 
@@ -341,12 +370,8 @@ export class InvalidMethodCallDiError extends Error {
 
     /**
      * Note: Do not instantiate `InvalidMethodCallDiError` directly via the constructor. Use the static `create()` factory method instead.
-     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
-     *
-     * @param message - A descriptive error message.
-     * @param settings - An object literal `{ flag, ...data }` describing the
-     * invalid call.
-     * @param cause - The underlying cause of the error, if any.
+     * The constructor remains  only to maintain compatibility with errorPolicy types and prevent type errors.
+     * @internal
      */
     constructor(
         message: string,
@@ -378,6 +403,10 @@ export class InvalidMethodCallDiError extends Error {
     }
 }
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ */
 export type ServiceCanNotBeResolvedErrorFlag =
     (typeof ServiceCanNotBeResolvedDiError.FLAG)[keyof typeof ServiceCanNotBeResolvedDiError.FLAG];
 
@@ -392,6 +421,9 @@ export type ServiceCanNotBeResolvedErrorFlag =
  * - `RESOLVED_VALUE_IS_NULL` - `data` is the offending {@link DiToken}.
  * - `NO_DYNAMIC_VALUE_SET_FOR_TOKEN` - `data` is the offending
  *   {@link DiToken}.
+ *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
  */
 export type ServiceCanNotBeResolvedErrorData =
     | {
@@ -423,14 +455,14 @@ export type ServiceCanNotBeResolvedErrorData =
 /**
  * Thrown when a service cannot be resolved.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export class ServiceCanNotBeResolvedDiError extends Error {
     /**
      * The reasons why a service cannot be resolved.
      */
-    public static readonly FLAG = {
+    static readonly FLAG = {
         NOT_REGISTERED_TOKEN: "NOT_REGISTERED_TOKEN",
         SCOPED_SERVICE_OUTSIDE_RUN: "SCOPED_SERVICE_OUTSIDE_RUN",
         DYNAMIC_SERVICE_OUTSIDE_RUN: "DYNAMIC_SERVICE_OUTSIDE_RUN",
@@ -445,12 +477,12 @@ export class ServiceCanNotBeResolvedDiError extends Error {
      * related data. The `flag` acts as a type guard: narrowing on
      * `info.flag` exposes the corresponding `data` field.
      */
-    public readonly info: ServiceCanNotBeResolvedErrorData;
+    readonly info: ServiceCanNotBeResolvedErrorData;
 
     /**
      * The reason why the service could not be resolved.
      */
-    public get flag(): ServiceCanNotBeResolvedErrorFlag {
+    get flag(): ServiceCanNotBeResolvedErrorFlag {
         return this.info.flag;
     }
 
@@ -470,11 +502,8 @@ export class ServiceCanNotBeResolvedDiError extends Error {
 
     /**
      * Note: Do not instantiate `ServiceCanNotBeResolvedDiError` directly via the constructor. Use the static `create()` factory method instead.
-     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
-     *
-     * @param settings - An object literal `{ flag, data }` describing why the
-     * service could not be resolved.
-     * @param cause - The underlying cause of the error, if any.
+     * The constructor remains only to maintain compatibility with errorPolicy types and prevent type errors.
+     * @internal
      */
     constructor(
         message: string,
@@ -521,12 +550,19 @@ export class ServiceCanNotBeResolvedDiError extends Error {
     }
 }
 
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ */
 export type CanNotRegisterFlag =
     (typeof CanNotRegisterServiceDiError.FLAG)[keyof typeof CanNotRegisterServiceDiError.FLAG];
 
 /**
  * The object literal `{ flag, token }` describing why a service cannot be
  * registered. The `flag` discriminates the remaining fields.
+ *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
  */
 export type CanNotRegisterServiceDiErrorData = {
     flag: typeof CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED;
@@ -536,14 +572,14 @@ export type CanNotRegisterServiceDiErrorData = {
 /**
  * Thrown when a service cannot be registered.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export class CanNotRegisterServiceDiError extends Error {
     /**
      * The reasons why a service cannot be registered.
      */
-    public static readonly FLAG = {
+    static readonly FLAG = {
         ALREADY_REGISTERED: "ALREADY_REGISTERED",
     } as const;
 
@@ -551,12 +587,12 @@ export class CanNotRegisterServiceDiError extends Error {
      * The reason why the service cannot be registered together with the
      * related data. The `flag` acts as a type guard.
      */
-    public readonly info: CanNotRegisterServiceDiErrorData;
+    readonly info: CanNotRegisterServiceDiErrorData;
 
     /**
      * The reason why the service cannot be registered.
      */
-    public get flag(): CanNotRegisterFlag {
+    get flag(): CanNotRegisterFlag {
         return this.info.flag;
     }
 
@@ -577,12 +613,8 @@ export class CanNotRegisterServiceDiError extends Error {
 
     /**
      * Note: Do not instantiate `CanNotRegisterServiceDiError` directly via the constructor. Use the static {@link CanNotRegisterServiceDiError.create | `create()`} factory method instead.
-     * The constructor remains public only to maintain compatibility with error types and prevent type errors.
-     *
-     * @param message - A descriptive error message.
-     * @param settings - An object literal `{ flag, token }` describing why the
-     * service cannot be registered.
-     * @param cause - The underlying cause of the error, if any.
+     * The constructor remains  only to maintain compatibility with error types and prevent type errors.
+     * @internal
      */
     constructor(
         message: string,
@@ -600,13 +632,19 @@ export class CanNotRegisterServiceDiError extends Error {
         return `Failed to register service for token: "${tokenToString(settings.token)}". A registration with this token already exists and cannot be replaced.`;
     }
 }
-
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
+ */
 export type CanNotOverrideFlag =
     (typeof CanNotOverrideServiceDiError.FLAG)[keyof typeof CanNotOverrideServiceDiError.FLAG];
 
 /**
  * The object literal `{ flag, ...data }` describing why a service cannot be
  * overridden. The `flag` discriminates the remaining fields.
+ *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Errors
  */
 export type CanNotOverrideServiceDiErrorData =
     | {
@@ -625,14 +663,14 @@ export type CanNotOverrideServiceDiErrorData =
 /**
  * Thrown when a service cannot be overridden.
  *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
- * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export class CanNotOverrideServiceDiError extends Error {
     /**
      * The reasons why a service cannot be overridden.
      */
-    public static readonly FLAG = {
+    static readonly FLAG = {
         DYNAMIC_TOKEN: "TOKEN_REGISTERED_AS_DYNAMIC",
         TOKEN_NOT_REGISTERED: "NOT_REGISTERED",
         ALREADY_OVERRIDDEN: "ALREADY_OVERRIDDEN",
@@ -642,12 +680,12 @@ export class CanNotOverrideServiceDiError extends Error {
      * The reason why the service cannot be overridden together with the
      * related data. The `flag` acts as a type guard.
      */
-    public readonly info: CanNotOverrideServiceDiErrorData;
+    readonly info: CanNotOverrideServiceDiErrorData;
 
     /**
      * The reason why the service cannot be overridden.
      */
-    public get flag(): CanNotOverrideFlag {
+    get flag(): CanNotOverrideFlag {
         return this.info.flag;
     }
 
@@ -668,12 +706,8 @@ export class CanNotOverrideServiceDiError extends Error {
 
     /**
      * Note: Do not instantiate `CanNotOverrideServiceDiError` directly via the constructor. Use the static {@link CanNotOverrideServiceDiError.create | `create()`} factory method instead.
-     * The constructor remains public only to maintain compatibility with errorPolicy types and prevent type errors.
-     *
-     * @param message - A descriptive error message.
-     * @param settings - An object literal `{ flag, ...data }` describing why the
-     * service cannot be overridden.
-     * @param cause - The underlying cause of the error, if any.
+     * The constructor remains  only to maintain compatibility with errorPolicy types and prevent type errors.
+     * @internal
      */
     constructor(
         message: string,
