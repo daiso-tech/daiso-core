@@ -2,21 +2,7 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import { describe, test, expect, beforeEach, vi } from "vitest";
 
-import {
-    type IServiceRegister,
-    type IServiceProvider,
-    genericToken,
-    type DiToken,
-    type IContainer,
-    type IDynamicServiceRegister,
-    LIFETIME,
-    type EmptyDepRecord,
-    type DepRecord,
-    type FactoryRegistration,
-    type ServiceFactory,
-    type DepsTokens,
-    type Lifetime,
-} from "@/di/contracts/container.contract.js";
+import { genericToken, LIFETIME } from "@/di/contracts/container.contract.js";
 import {
     InvalidGraphDiError,
     InvalidMethodCallDiError,
@@ -25,10 +11,24 @@ import {
     CanNotOverrideServiceDiError,
 } from "@/di/contracts/container.errors.js";
 import { Container } from "@/di/implementations/eager/container.js";
-import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
 import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/als-execution-context-adapter.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/execution-context/execution-context.js";
-import { callInvokable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
+
+import type {
+    IServiceRegister,
+    IServiceProvider,
+    DiToken,
+    IContainer,
+    IDynamicServiceRegister,
+    EmptyDepRecord,
+    DepRecord,
+    FactoryRegistration,
+    ServiceFactory,
+    DepsTokens,
+    Lifetime,
+} from "@/di/contracts/container.contract.js";
+import type { IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
 
 // ---------------------------------------------------------------------------
 // Helper tokens and test classes
@@ -1269,9 +1269,7 @@ describe(`Illegal method call before ${Container.name}.${Container.prototype.ini
         `When method ${Container.name}.$name is called before ${Container.name}.${Container.prototype.init.name} then should fail with ${InvalidMethodCallDiError.name}`,
         async (testCase) => {
             const promise = testCase.func();
-            await expect(promise).rejects.toThrowError(
-                InvalidMethodCallDiError,
-            );
+            await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidMethodCallDiError.FLAG.NOT_ACTIVE,
@@ -1301,9 +1299,7 @@ describe(`Illegal method call before ${Container.name}.${Container.prototype.ini
             await container.init();
             await container.deInit();
             const promise = testCase.func();
-            await expect(promise).rejects.toThrowError(
-                InvalidMethodCallDiError,
-            );
+            await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidMethodCallDiError.FLAG.NOT_ACTIVE,
@@ -1427,9 +1423,7 @@ describe(`illegal method call after ${Container.prototype.init.name} (when conta
             const promise = (async () => {
                 await testCase.func();
             })();
-            await expect(promise).rejects.toThrowError(
-                InvalidMethodCallDiError,
-            );
+            await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidMethodCallDiError.FLAG.ALREADY_INITIALIZED,
@@ -1448,7 +1442,7 @@ describe(`illegal method call inside ${Container.prototype.run.name}`, () => {
                 await container.deInit();
             },
         });
-        await expect(promise).rejects.toThrowError(InvalidMethodCallDiError);
+        await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
         //await promise;
         await expect(promise).rejects.toHaveProperty(
             "flag",
@@ -1469,7 +1463,7 @@ describe(`illegal method call inside DynamicServiceProvider in ${Container.proto
             },
             scope: async () => {},
         });
-        await expect(promise).rejects.toThrowError(InvalidMethodCallDiError);
+        await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidMethodCallDiError.FLAG.INSIDE_DYNAMIC_REGISTRATION,
@@ -1487,7 +1481,7 @@ describe(`illegal method call inside DynamicServiceProvider in ${Container.proto
             },
             scope: async () => {},
         });
-        await expect(promise).rejects.toThrowError(InvalidMethodCallDiError);
+        await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidMethodCallDiError.FLAG.INSIDE_DYNAMIC_REGISTRATION,
@@ -1505,7 +1499,7 @@ describe(`illegal method call inside DynamicServiceProvider in ${Container.proto
             },
             scope: async () => {},
         });
-        await expect(promise).rejects.toThrowError(InvalidMethodCallDiError);
+        await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidMethodCallDiError.FLAG.INSIDE_DYNAMIC_REGISTRATION,
@@ -1529,7 +1523,7 @@ describe(`illegal method call outside ${Container.prototype.run.name}`, () => {
         const promise = (async () => {
             await regCapture?.set({ token, value: "_" });
         })();
-        await expect(promise).rejects.toThrowError(InvalidMethodCallDiError);
+        await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidMethodCallDiError.FLAG.OUTSIDE_RUN,
@@ -1568,9 +1562,7 @@ describe(`${Container.prototype.onContainerInit.name} & ${Container.prototype.in
 
         container.registerFactory(nodeA);
         let value: string | null | undefined = undefined as
-            | string
-            | null
-            | undefined;
+            string | null | undefined;
 
         container.onContainerInit(async (serviceResolver) => {
             value = await serviceResolver.resolve(nodeA.token);
@@ -1578,7 +1570,7 @@ describe(`${Container.prototype.onContainerInit.name} & ${Container.prototype.in
 
         await container.init();
         expect(value).toBe(
-            await callInvokable(nodeA.factory, {}, executionContext),
+            await callInvocable(nodeA.factory, {}, executionContext),
         );
     });
 });
@@ -1616,9 +1608,7 @@ describe(`${Container.prototype.onContainerDeInit.name} & ${Container.prototype.
 
         container.registerFactory(nodeA);
         let value: string | null | undefined = undefined as
-            | string
-            | null
-            | undefined;
+            string | null | undefined;
 
         container.onContainerDeInit(async (serviceResolver) => {
             value = await serviceResolver.resolve(nodeA.token);
@@ -1628,7 +1618,7 @@ describe(`${Container.prototype.onContainerDeInit.name} & ${Container.prototype.
         await container.deInit();
 
         expect(value).toBe(
-            await callInvokable(nodeA.factory, {}, executionContext),
+            await callInvocable(nodeA.factory, {}, executionContext),
         );
     });
 });
@@ -1745,7 +1735,7 @@ describe(`${Container.prototype.resolve.name} & ${Container.name}.${Container.pr
          */
         test(`should fail when resolving a nonexistent token at top with ${Container.name}.${Container.prototype.resolveOrFail.name}`, async () => {
             const promise = container.resolveOrFail(tokenA);
-            await expect(promise).rejects.toThrowError(
+            await expect(promise).rejects.toThrow(
                 ServiceCanNotBeResolvedDiError,
             );
             await expect(promise).rejects.toHaveProperty(
@@ -1774,9 +1764,7 @@ describe(`${Container.prototype.resolve.name} & ${Container.name}.${Container.pr
 
         test(`should return null when resolving a nonexistent token inside ${Container.prototype.run.name} block scope with ${Container.name}.${Container.prototype.resolve.name}`, async () => {
             let value: undefined | string | null = undefined as
-                | undefined
-                | string
-                | null;
+                undefined | string | null;
 
             await container.run({
                 scope: async () => {
@@ -1793,7 +1781,7 @@ describe(`${Container.prototype.resolve.name} & ${Container.name}.${Container.pr
                     return await container.resolveOrFail(tokenA);
                 },
             });
-            await expect(promise).rejects.toThrowError(
+            await expect(promise).rejects.toThrow(
                 ServiceCanNotBeResolvedDiError,
             );
             await expect(promise).rejects.toHaveProperty(
@@ -1836,7 +1824,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             container.registerFactory(nodeA);
             await container.init();
 
-            const correctValue = await callInvokable(
+            const correctValue = await callInvocable(
                 nodeA.factory,
                 {},
                 executionContext,
@@ -1874,22 +1862,22 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             await container.init();
 
             const value = await container.resolve(nodeD.token);
-            const valueA = await callInvokable(
+            const valueA = await callInvocable(
                 nodeA.factory,
                 {},
                 executionContext,
             );
-            const valueB = await callInvokable(
+            const valueB = await callInvocable(
                 nodeB.factory,
                 { a: valueA },
                 executionContext,
             );
-            const valueC = await callInvokable(
+            const valueC = await callInvocable(
                 nodeC.factory,
                 { b: valueB },
                 executionContext,
             );
-            const correctValue = await callInvokable(
+            const correctValue = await callInvocable(
                 nodeD.factory,
                 { c: valueC },
                 executionContext,
@@ -1915,7 +1903,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
 
             await container.init();
 
-            const correctValue = await callInvokable(
+            const correctValue = await callInvocable(
                 nodeA.factory,
                 {},
                 executionContext,
@@ -1958,7 +1946,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             await container.init();
 
             const promise = container.resolveOrFail(nodeA.token);
-            await expect(promise).rejects.toThrowError(
+            await expect(promise).rejects.toThrow(
                 ServiceCanNotBeResolvedDiError,
             );
             await expect(promise).rejects.toHaveProperty(
@@ -1984,9 +1972,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             const correctValue = new Date(1786699358026);
 
             let valueA: Date | undefined | null = undefined as
-                | Date
-                | undefined
-                | null;
+                Date | undefined | null;
 
             await executionContext.run(async () => {
                 executionContext.put(dateKey, correctValue);
@@ -2015,14 +2001,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             const newValue = new Date(correctValue.getTime() + 1000);
 
             let valueA: Date | undefined | null = undefined as
-                | Date
-                | undefined
-                | null;
+                Date | undefined | null;
 
             let valueB: Date | undefined | null = undefined as
-                | Date
-                | undefined
-                | null;
+                Date | undefined | null;
 
             await executionContext.run(async () => {
                 executionContext.put(dateKey, correctValue);
@@ -2134,7 +2116,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             container.registerFactory(nodeA);
             await container.init();
 
-            const correctValue = await callInvokable(
+            const correctValue = await callInvocable(
                 nodeA.factory,
                 {},
                 executionContext,
@@ -2172,22 +2154,22 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
 
             await container.init();
 
-            const valueA = await callInvokable(
+            const valueA = await callInvocable(
                 nodeA.factory,
                 {},
                 executionContext,
             );
-            const valueB = await callInvokable(
+            const valueB = await callInvocable(
                 nodeB.factory,
                 { a: valueA },
                 executionContext,
             );
-            const valueC = await callInvokable(
+            const valueC = await callInvocable(
                 nodeC.factory,
                 { b: valueB },
                 executionContext,
             );
-            const correctValue = await callInvokable(
+            const correctValue = await callInvocable(
                 nodeD.factory,
                 { c: valueC },
                 executionContext,
@@ -2216,14 +2198,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             const correctValue1 = new Date(correctValue0.getTime() + 1000);
 
             let valueA: Date | undefined | null = undefined as
-                | Date
-                | undefined
-                | null;
+                Date | undefined | null;
 
             let valueB: Date | undefined | null = undefined as
-                | Date
-                | undefined
-                | null;
+                Date | undefined | null;
 
             await executionContext.run(async () => {
                 executionContext.put(dateKey, correctValue0);
@@ -2317,9 +2295,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             await container.init();
 
             let value: undefined | string | null = undefined as
-                | undefined
-                | string
-                | null;
+                undefined | string | null;
 
             await container.run({
                 scope: async () => {
@@ -2327,7 +2303,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                 },
             });
 
-            const correctValue = await callInvokable(
+            const correctValue = await callInvocable(
                 nodeA.factory,
                 {},
                 executionContext,
@@ -2369,9 +2345,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             const correctValue0 = new Date(1786699358026);
 
             let valueA: Date | undefined | null = undefined as
-                | Date
-                | undefined
-                | null;
+                Date | undefined | null;
 
             await container.init();
             await executionContext.run(async () => {
@@ -2404,14 +2378,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             const correctValue1 = new Date(correctValue0.getTime() + 1000);
 
             let valueA: Date | undefined | null = undefined as
-                | Date
-                | undefined
-                | null;
+                Date | undefined | null;
 
             let valueB: Date | undefined | null = undefined as
-                | Date
-                | undefined
-                | null;
+                Date | undefined | null;
 
             await container.init();
             await executionContext.run(async () => {
@@ -2455,14 +2425,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                 .createToken("A");
 
             let valueA: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             let valueB: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             container.registerFactory(nodeA);
             await container.init();
@@ -2483,14 +2449,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                 .createToken("A");
 
             let valueA: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             let valueB: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             container.registerFactory(nodeA);
             await container.init();
@@ -2520,14 +2482,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                 .createToken("A");
 
             let valueA: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             let valueB: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             container.registerFactory(nodeA);
             await container.init();
@@ -2613,7 +2571,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                     await container.resolveOrFail(tokenA);
                 },
             });
-            await expect(promise).rejects.toThrowError(
+            await expect(promise).rejects.toThrow(
                 ServiceCanNotBeResolvedDiError,
             );
             await expect(promise).rejects.toHaveProperty(
@@ -2628,9 +2586,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             container.registerDynamic(tokenA);
             const correctValueA = "_";
             let valueA: undefined | string | null = null as
-                | undefined
-                | string
-                | null;
+                undefined | string | null;
 
             await container.init();
             await container.run({
@@ -2655,9 +2611,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             const scope1ValueOfA = "1";
 
             let valueA: undefined | string | null = null as
-                | undefined
-                | string
-                | null;
+                undefined | string | null;
 
             await container.init();
             await container.run({
@@ -2693,14 +2647,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             const tokenA = genericToken<object>("A");
 
             let valueA: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             let valueB: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             container.registerDynamic(tokenA);
             await container.init();
@@ -2721,14 +2671,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             const tokenA = genericToken<object>("A");
 
             let valueA: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             let valueB: undefined | object | null = undefined as
-                | undefined
-                | object
-                | null;
+                undefined | object | null;
 
             container.registerDynamic(tokenA);
             await container.init();
@@ -2752,9 +2698,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
         test(`should return null when resolving an existing dynamic token with no value provided inside ${Container.prototype.run.name} block scope with ${Container.name}.${Container.prototype.resolve.name}`, async () => {
             const tokenA = genericToken<string>("A");
             let value: undefined | string | null = undefined as
-                | undefined
-                | string
-                | null;
+                undefined | string | null;
 
             container.registerDynamic(tokenA);
             await container.init();
@@ -2779,14 +2723,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                 .createToken("B");
 
             let valueAScope0: undefined | null | object = undefined as
-                | undefined
-                | null
-                | object;
+                undefined | null | object;
 
             let valueAScope1: undefined | null | object = undefined as
-                | undefined
-                | null
-                | object;
+                undefined | null | object;
 
             container.registerDynamic(tokenA);
             container.registerFactory(nodeB);
@@ -2819,14 +2759,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                 .createToken("B");
 
             let valueAScope0: undefined | null | object = undefined as
-                | undefined
-                | null
-                | object;
+                undefined | null | object;
 
             let valueAScope1: undefined | null | object = undefined as
-                | undefined
-                | null
-                | object;
+                undefined | null | object;
 
             container.registerDynamic(tokenA);
             container.registerFactory(nodeB);
@@ -2972,12 +2908,12 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                 },
             });
 
-            const valueA = await callInvokable(
+            const valueA = await callInvocable(
                 nodeA.factory,
                 {},
                 executionContext,
             );
-            const correctValue = await callInvokable(
+            const correctValue = await callInvocable(
                 nodeB.factory,
                 { a: valueA },
                 executionContext,
@@ -3089,7 +3025,7 @@ describe("graph validation", () => {
             container.registerFactory(nodeA);
 
             const promise = container.init();
-            await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+            await expect(promise).rejects.toThrow(InvalidGraphDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidGraphDiError.FLAG.UNDECLARED_DEPENDENCIES,
@@ -3116,7 +3052,7 @@ describe("graph validation", () => {
             container.registerFactory(nodeB);
 
             const promise = container.init();
-            await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+            await expect(promise).rejects.toThrow(InvalidGraphDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP,
@@ -3136,7 +3072,7 @@ describe("graph validation", () => {
             container.registerDynamic(tokenB);
 
             const promise = container.init();
-            await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+            await expect(promise).rejects.toThrow(InvalidGraphDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP,
@@ -3161,7 +3097,7 @@ describe("graph validation", () => {
             container.registerFactory(nodeB);
 
             const promise = container.init();
-            await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+            await expect(promise).rejects.toThrow(InvalidGraphDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP,
@@ -3186,7 +3122,7 @@ describe("graph validation", () => {
             container.registerFactory(nodeB);
 
             const promise = container.init();
-            await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+            await expect(promise).rejects.toThrow(InvalidGraphDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP,
@@ -3206,7 +3142,7 @@ describe("graph validation", () => {
             container.registerDynamic(tokenB);
 
             const promise = container.init();
-            await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+            await expect(promise).rejects.toThrow(InvalidGraphDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP,
@@ -3237,7 +3173,7 @@ describe("graph validation", () => {
             container.registerFactory(nodeB);
 
             const promise = container.init();
-            await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+            await expect(promise).rejects.toThrow(InvalidGraphDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidGraphDiError.FLAG.CYCLE_DEPENDENCY,
@@ -3254,7 +3190,7 @@ describe("graph validation", () => {
             });
 
             const promise = container.init();
-            await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+            await expect(promise).rejects.toThrow(InvalidGraphDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 InvalidGraphDiError.FLAG.CYCLE_DEPENDENCY,
@@ -3293,7 +3229,7 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await callInvokable(
+        const correctA = await callInvocable(
             nodeAOverridden.factory,
             {},
             executionContext,
@@ -3399,12 +3335,12 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await callInvokable(
+        const correctA = await callInvocable(
             nodeAOverridden.factory,
             {},
             executionContext,
         );
-        const correctB = await callInvokable(
+        const correctB = await callInvocable(
             nodeB.factory,
             { a: correctA },
             executionContext,
@@ -3439,12 +3375,12 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await callInvokable(
+        const correctA = await callInvocable(
             nodeA.factory,
             {},
             executionContext,
         );
-        const correctB = await callInvokable(
+        const correctB = await callInvocable(
             nodeBOverridden.factory,
             { a: correctA },
             executionContext,
@@ -3486,17 +3422,17 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await callInvokable(
+        const correctA = await callInvocable(
             nodeAOverridden.factory,
             {},
             executionContext,
         );
-        const correctB = await callInvokable(
+        const correctB = await callInvocable(
             nodeB.factory,
             { a: correctA },
             executionContext,
         );
-        const correctC = await callInvokable(
+        const correctC = await callInvocable(
             nodeC.factory,
             { b: correctB },
             executionContext,
@@ -3539,22 +3475,22 @@ describe("override", () => {
 
         await container.init();
 
-        const correctA = await callInvokable(
+        const correctA = await callInvocable(
             nodeA.factory,
             {},
             executionContext,
         );
-        const correctC = await callInvokable(
+        const correctC = await callInvocable(
             nodeC.factory,
             {},
             executionContext,
         );
-        const correctB = await callInvokable(
+        const correctB = await callInvocable(
             overriddenNodeB.factory,
             { c: correctC },
             executionContext,
         );
-        const inCorrectB = await callInvokable(
+        const inCorrectB = await callInvocable(
             nodeB.factory,
             { a: correctA },
             executionContext,
@@ -3604,7 +3540,7 @@ describe("graph validation & override", () => {
 
         container.overrideFactory(nodeCOverridden);
         const promise = container.init();
-        await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+        await expect(promise).rejects.toThrow(InvalidGraphDiError);
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP,
@@ -3631,7 +3567,7 @@ describe("graph validation & override", () => {
         container.overrideFactory(nodeAOverridden);
 
         const promise = container.init();
-        await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+        await expect(promise).rejects.toThrow(InvalidGraphDiError);
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidGraphDiError.FLAG.CYCLE_DEPENDENCY,
@@ -3653,7 +3589,7 @@ describe("graph validation & override", () => {
         container.registerFactory(nodeA);
         container.overrideFactory(nodeAOverridden);
         const promise = container.init();
-        await expect(promise).rejects.toThrowError(InvalidGraphDiError);
+        await expect(promise).rejects.toThrow(InvalidGraphDiError);
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidGraphDiError.FLAG.UNDECLARED_DEPENDENCIES,
@@ -3775,7 +3711,7 @@ describe("forked container & override", () => {
         const resolvedContainerA = await containerA.resolve(nodeA.token);
         const resolvedContainerB = await containerB.resolve(nodeA.token);
 
-        const correctA = await callInvokable(
+        const correctA = await callInvocable(
             nodeAOverride1.factory,
             {},
             executionContext,
@@ -3803,7 +3739,7 @@ describe("forked container & override", () => {
         await containerA.init();
         await containerB.init();
 
-        const correctContainerB = await callInvokable(
+        const correctContainerB = await callInvocable(
             nodeAOverride.factory,
             {},
             executionContext,
@@ -3830,7 +3766,7 @@ describe("forked container & override", () => {
         await containerA.init();
         await containerB.init();
 
-        const correctContainerA = await callInvokable(
+        const correctContainerA = await callInvocable(
             nodeAOverride.factory,
             {},
             executionContext,
@@ -3866,7 +3802,7 @@ describe("forked container & hooks", () => {
 
         await expect(containerA.resolve(nodeA.token)).resolves.toBe("A");
         const promise = containerB.resolve(nodeA.token);
-        await expect(promise).rejects.toThrowError(InvalidMethodCallDiError);
+        await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidMethodCallDiError.FLAG.NOT_ACTIVE,
@@ -3890,7 +3826,7 @@ describe("forked container & hooks", () => {
 
         await expect(containerB.resolve(nodeA.token)).resolves.toBe("A");
         const promise = containerA.resolve(nodeA.token);
-        await expect(promise).rejects.toThrowError(InvalidMethodCallDiError);
+        await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidMethodCallDiError.FLAG.NOT_ACTIVE,
