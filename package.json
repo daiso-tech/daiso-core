@@ -206,8 +206,8 @@
             "import": "./dist/config-accessor/contracts/_module-exports.js"
         },
         "./di": {
-            "types": "./dist/di/implementations/_module-exports.d.ts",
-            "import": "./dist/di/implementations/_module-exports.js"
+            "types": "./dist/di/implementations/eager/_module-exports.d.ts",
+            "import": "./dist/di/implementations/eager/_module-exports.js"
         },
         "./di/contracts": {
             "types": "./dist/di/contracts/_module-exports.d.ts",
