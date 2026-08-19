@@ -1,8 +1,6 @@
 import {
-    CAN_NOT_OVERRIDE_CAUSE_FLAG,
     CanNotOverrideServiceDiError,
-    INVALID_GRAPH_FLAG,
-    InvalidGraph,
+    InvalidGraphDiError,
     type DiToken,
     type EdgeErrorInfo,
     type FactoryRegistration,
@@ -11,6 +9,8 @@ import {
 import {
     type DepsTokens,
     type FactoryRegistrationOverride,
+    type DepRecord,
+    type EmptyDepRecord,
 } from "@/di/contracts/container.contract.js";
 import {
     type NodeProps,
@@ -23,26 +23,62 @@ import {
     type TEdge,
     type InternalLifespan,
     INTERNAL_LIFESPAN,
-} from "@/di/implementations/common.js";
+} from "@/di/implementations/eager/_shared.js";
 import {
     findAllCycles,
     getMissingNodes as getMissingDependencies,
     getInvalidEdges,
     visitedNodes,
-} from "@/di/implementations/graph-algorithms.js";
-import { Graph } from "@/di/implementations/graph.js";
-import { tokenToString } from "@/di/implementations/utils.js";
+} from "@/di/implementations/eager/graph-algorithms.js";
+import { Graph } from "@/di/implementations/eager/graph.js";
+import { tokenToString } from "@/di/implementations/eager/utils.js";
 import { UnexpectedError } from "@/utilities/errors.js";
 
+/**
+ * Lifespan pairs that form an invalid edge: a map of a source lifespan to
+ * the set of target lifespans it can not point to.
+ *
+ * Rules:
+ * - dynamic node can not point to any other node
+ * - transient node can not point to dynamic node
+ * - only scoped node can point to dynamic node
+ * - singleton node can not point to transient or scoped node
+ * - scoped node can not point to transient node
+ */
+const INVALID_EDGE_TARGETS: Record<
+    InternalLifespan,
+    ReadonlySet<InternalLifespan>
+> = {
+    [INTERNAL_LIFESPAN.TRANSIENT]: new Set([INTERNAL_LIFESPAN.DYNAMIC]),
+    [INTERNAL_LIFESPAN.SINGLETON]: new Set([
+        INTERNAL_LIFESPAN.TRANSIENT,
+        INTERNAL_LIFESPAN.SCOPED,
+        INTERNAL_LIFESPAN.DYNAMIC,
+    ]),
+    [INTERNAL_LIFESPAN.SCOPED]: new Set([INTERNAL_LIFESPAN.TRANSIENT]),
+    [INTERNAL_LIFESPAN.DYNAMIC]: new Set([
+        INTERNAL_LIFESPAN.TRANSIENT,
+        INTERNAL_LIFESPAN.SINGLETON,
+        INTERNAL_LIFESPAN.SCOPED,
+        INTERNAL_LIFESPAN.DYNAMIC,
+    ]),
+};
+
+/**
+ * @internal
+ */
 export type GraphValidationStatus =
     | {
           valid: true;
       }
     | {
           valid: false;
-          error: InvalidGraph;
+          error: InvalidGraphDiError;
       };
 
+/**
+ * @internal
+ */
 export class GraphManager {
     private graph: Graph<NodeProps, EdgeProps>;
     private overrideSet = new Set<TNode>();
@@ -94,8 +130,8 @@ export class GraphManager {
         if (missing.length !== 0) {
             return {
                 valid: false,
-                error: InvalidGraph.create({
-                    flag: INVALID_GRAPH_FLAG.UNDECLARED_DEPENDENCIES,
+                error: InvalidGraphDiError.create({
+                    flag: InvalidGraphDiError.FLAG.UNDECLARED_DEPENDENCIES,
                     undeclaredDependencies: missing.slice(
                         undefined,
                         this.maxUndeclaredDependenciesInError,
@@ -115,35 +151,10 @@ export class GraphManager {
                     return false;
                 }
 
-                // dynamic node can not point to any other node
-                if (this.isDynamic(source)) {
-                    return true;
-                }
+                const sourceLifespan = this.getLifespan(source);
+                const targetLifespan = this.getLifespan(target);
 
-                // transient node can not point to dynamic node
-                if (this.isTransient(source) && this.isDynamic(target)) {
-                    return true;
-                }
-
-                // only scoped node can point to dynamic node
-                if (this.isDynamic(target)) {
-                    return !this.isScoped(source);
-                }
-
-                // singleton node can not point to transient or scoped node
-                if (
-                    this.isSingleton(source) &&
-                    (this.isTransient(target) || this.isScoped(target))
-                ) {
-                    return true;
-                }
-
-                // scoped node can not point to transient node
-                if (this.isScoped(source) && this.isTransient(target)) {
-                    return true;
-                }
-
-                return false;
+                return INVALID_EDGE_TARGETS[sourceLifespan].has(targetLifespan);
             },
         });
 
@@ -160,8 +171,8 @@ export class GraphManager {
             );
             return {
                 valid: false,
-                error: InvalidGraph.create({
-                    flag: INVALID_GRAPH_FLAG.INVALID_EDGE_RELATIONSHIP,
+                error: InvalidGraphDiError.create({
+                    flag: InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP,
                     edgeErrorInfos: errors.slice(
                         undefined,
                         this.maxInvalidEdgeInError,
@@ -179,8 +190,8 @@ export class GraphManager {
         if (cycles.length !== 0) {
             return {
                 valid: false,
-                error: InvalidGraph.create({
-                    flag: INVALID_GRAPH_FLAG.CYCLE_DEPENDENCY,
+                error: InvalidGraphDiError.create({
+                    flag: InvalidGraphDiError.FLAG.CYCLE_DEPENDENCY,
                     cycles: cycles.slice(undefined, this.maxCyclesInError),
                     totalDetected: cycles.length,
                 }),
@@ -191,8 +202,7 @@ export class GraphManager {
     }
 
     private depsToEdges<
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        TDeps extends Partial<Record<string, unknown>> = {},
+        TDeps extends DepRecord = EmptyDepRecord,
         TRegisteredType = unknown,
     >(args: { token: DiToken<TRegisteredType>; deps: DepsTokens<TDeps> }) {
         const keys = Object.keys(args.deps);
@@ -210,14 +220,10 @@ export class GraphManager {
     }
 
     registerFactory<
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        TDeps extends Partial<Record<string, unknown>> = {},
+        TDeps extends DepRecord = EmptyDepRecord,
         TRegisteredType = unknown,
     >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
         const factory = settings.factory as ServiceFactory;
-        // const deps: Array<[TEdge, EdgeProps]> = [...settings.deps].map(
-        //     (to, argIndex) => [[settings.token, to], { argIndex }],
-        // );
 
         const edges = this.depsToEdges(settings);
 
@@ -238,8 +244,7 @@ export class GraphManager {
     }
 
     overrideFactory<
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        TDeps extends Partial<Record<string, unknown>> = {},
+        TDeps extends DepRecord = EmptyDepRecord,
         TRegisteredType = unknown,
     >(
         settings: FactoryRegistrationOverride<TDeps, TRegisteredType>,
@@ -254,7 +259,8 @@ export class GraphManager {
                 success: false,
                 error: CanNotOverrideServiceDiError.create({
                     token: settings.token,
-                    flag: CAN_NOT_OVERRIDE_CAUSE_FLAG.TOKEN_NOT_REGISTERED,
+                    flag: CanNotOverrideServiceDiError.FLAG
+                        .TOKEN_NOT_REGISTERED,
                 }),
             };
         }
@@ -264,7 +270,7 @@ export class GraphManager {
                 success: false,
                 error: CanNotOverrideServiceDiError.create({
                     token: settings.token,
-                    flag: CAN_NOT_OVERRIDE_CAUSE_FLAG.ALREADY_OVERRIDDEN,
+                    flag: CanNotOverrideServiceDiError.FLAG.ALREADY_OVERRIDDEN,
                 }),
             };
         }
@@ -275,7 +281,7 @@ export class GraphManager {
                 success: false,
                 error: CanNotOverrideServiceDiError.create({
                     token: settings.token,
-                    flag: CAN_NOT_OVERRIDE_CAUSE_FLAG.DYNAMIC_TOKEN,
+                    flag: CanNotOverrideServiceDiError.FLAG.DYNAMIC_TOKEN,
                 }),
             };
         }
@@ -296,10 +302,6 @@ export class GraphManager {
             this.graph.removeEdge(edge);
         });
 
-        // const newEdgesToBeAdded: Array<[TEdge, EdgeProps]> = [
-        //     ...settings.deps,
-        // ].map((to, argIndex) => [[settings.token, to], { argIndex }]);
-
         const newEdgesToBeAdded = this.depsToEdges(settings);
 
         // new edges added
@@ -310,32 +312,32 @@ export class GraphManager {
         return { success: true };
     }
 
-    ancestorIncludeScopedNodes(nodeId: TNode): boolean {
+    ancestorIncludeScopedNodes(
+        nodeId: TNode,
+    ): { status: true; nodes: Array<TNode> } | { status: false } {
+        if (this.getLifespan(nodeId) !== INTERNAL_LIFESPAN.TRANSIENT) {
+            throw new UnexpectedError("Expected node to be transient");
+        }
         const nodesVisited = visitedNodes({
             getNeighbors: (node) => this.getSuccessorsOf(node),
+            breakBranchSearch: (node) => {
+                return this.getLifespan(node) === INTERNAL_LIFESPAN.SCOPED;
+            },
             node: nodeId,
         });
-        const scopedNodeVisited = nodesVisited.some((visited) =>
+        const scopedNodeVisited = nodesVisited.filter((visited) =>
             this.isScoped(visited),
         );
 
-        return scopedNodeVisited;
+        if (scopedNodeVisited.length !== 0) {
+            return { status: true, nodes: scopedNodeVisited };
+        }
+        return {
+            status: false,
+        };
     }
 
-    // dependencyOf(node: TNode): Array<TNode>
     dependencyOf(node: TNode): Array<TNode> {
-        // return this.getSuccessorEdgesOf(node)
-        //     .map((edge) => ({
-        //         edge,
-        //         property: this.getEdgePropertyOrThrow(edge),
-        //     }))
-        //     .sort(
-        //         (itemA, itemB) =>
-        //             itemA.property.argIndex - itemB.property.argIndex,
-        //     )
-        //     .map((item) => item.edge)
-        //     .map(([_, successorNode]) => successorNode);
-
         return this.getSuccessorEdgesOf(node)
             .map((edge) => ({
                 edge,

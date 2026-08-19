@@ -1,6 +1,6 @@
 import {
     genericToken,
-    ServiceAlreadyRegisteredDiError,
+    CanNotRegisterServiceDiError,
     type DiHook,
     type DiToken,
     type FactoryRegistration,
@@ -10,55 +10,63 @@ import {
     type RunSettings,
     type ServiceProvider,
     type ValueRegistration,
+    type DepRecord,
+    type EmptyDepRecord,
 } from "@/di/contracts/_module.js";
 import {
-    InvalidMethodCall,
-    METHOD_CALL_FLAG,
-    ServiceCanNotBeResolvedError,
+    InvalidMethodCallDiError,
+    ServiceCanNotBeResolvedDiError,
+    type ServiceCanNotBeResolvedErrorData,
 } from "@/di/contracts/container.errors.js";
-import { type TNode, INTERNAL_LIFESPAN } from "@/di/implementations/common.js";
-import { DynamicServiceRegister } from "@/di/implementations/dynamic-service-register.js";
-import { eagerInitialization } from "@/di/implementations/graph-algorithms.js";
-import { GraphManager } from "@/di/implementations/graph-manager.js";
+import {
+    type TNode,
+    INTERNAL_LIFESPAN,
+} from "@/di/implementations/eager/_shared.js";
+import { DynamicServiceRegister } from "@/di/implementations/eager/dynamic-service-register.js";
+import { eagerInitialization } from "@/di/implementations/eager/graph-algorithms.js";
+import { GraphManager } from "@/di/implementations/eager/graph-manager.js";
 import {
     REGISTER_ELEMENT_TYPE,
     RegistryManager,
-} from "@/di/implementations/registry-manager.js";
+} from "@/di/implementations/eager/registry-manager.js";
 import {
     createFunctionCache,
     tokenToString,
-} from "@/di/implementations/utils.js";
+} from "@/di/implementations/eager/utils.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import { callInvokable, UnexpectedError } from "@/utilities/_module.js";
-
 /**
  * @group Implementations
  */
 export type ContainerSettings = {
+    /**
+     * The execution context used by the container to track and propagate
+     * per-scope state (such as the current run-scope depth and the dynamic
+     * registration status) across asynchronous boundaries.
+     */
     executionContext: IExecutionContext;
-    maxInvalidEdgeInError?: number;
-    maxCyclesInError?: number;
-    maxUndeclaredDependenciesInError?: number;
 };
+
+const UNINITIALIZED_STATE = Symbol("Container is uninitialized.");
+const ACTIVE_STATE = Symbol("Container is active.");
+const TERMINATED_STATE = Symbol("Container is terminated.");
+
+const STATE = {
+    ACTIVE: ACTIVE_STATE,
+    UNINITIALIZED: UNINITIALIZED_STATE,
+    TERMINATED: TERMINATED_STATE,
+} as const;
+
+type TState = (typeof STATE)[keyof typeof STATE];
 
 /**
  * @group Implementations
+ * IMPORT_PATH: `"@daiso-tech/core/di/implementations/eager"`
  */
 
-const BEFORE_ACTIVE_STATE = Symbol("container.init not called yet");
-const IN_ACTIVE_STATE = Symbol(
-    "container.init called but deInit not called yet",
-);
-const AFTER_ACTIVE_STATE = Symbol("container.deInit called");
-
-type TState =
-    | typeof BEFORE_ACTIVE_STATE
-    | typeof IN_ACTIVE_STATE
-    | typeof AFTER_ACTIVE_STATE;
-
 export class Container implements IContainer {
-    private readonly SCOPE_DEPTH_KEY = genericToken<number>(
-        "the depth level associated with current scope",
+    private readonly SCOPE_DEPTH_COUNT_KEY = genericToken<number>(
+        "The depth level associated with current scope",
     );
 
     private readonly INSIDE_DYNAMIC_SERVICE_PROVIDER_STATUS_KEY =
@@ -69,58 +77,60 @@ export class Container implements IContainer {
     private initHandlers: Array<DiHook> = [];
     private deInitHandlers: Array<DiHook> = [];
     private registryManager: RegistryManager;
-    private currentState: TState = BEFORE_ACTIVE_STATE;
+    private currentState: TState = STATE.UNINITIALIZED;
 
     constructor(private readonly settings: ContainerSettings) {
         this.registryManager = RegistryManager.withExecutionContext(
             this.settings.executionContext,
         );
         this.graphManager = new GraphManager({
-            maxCyclesInError: settings.maxCyclesInError,
-            maxInvalidEdgeInError: settings.maxInvalidEdgeInError,
-            maxUndeclaredDependenciesInError:
-                settings.maxUndeclaredDependenciesInError,
+            maxCyclesInError: 10,
+            maxInvalidEdgeInError: 100,
+            maxUndeclaredDependenciesInError: 100,
         });
     }
 
     private throwIfContainerAlreadyInitialized(methodName: string) {
-        if (this.currentState !== BEFORE_ACTIVE_STATE) {
-            throw InvalidMethodCall.create({
+        if (this.currentState !== STATE.UNINITIALIZED) {
+            throw InvalidMethodCallDiError.create({
                 methodName,
-                flag: METHOD_CALL_FLAG.ALREADY_INITIALIZED,
+                flag: InvalidMethodCallDiError.FLAG.ALREADY_INITIALIZED,
             });
         }
     }
 
     private throwIfContainerNotActive(methodName: string) {
-        if (this.currentState !== IN_ACTIVE_STATE) {
-            throw InvalidMethodCall.create({
+        if (this.currentState !== STATE.ACTIVE) {
+            throw InvalidMethodCallDiError.create({
                 methodName,
-                flag: METHOD_CALL_FLAG.NOT_ACTIVE,
+                flag: InvalidMethodCallDiError.FLAG.NOT_ACTIVE,
             });
         }
     }
 
     private throwIfTokenAlreadyRegistered(token: DiToken) {
         if (this.graphManager.hasNodeProperty(token)) {
-            throw ServiceAlreadyRegisteredDiError.create(token);
+            throw CanNotRegisterServiceDiError.create({
+                flag: CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED,
+                token,
+            });
         }
     }
 
     private throwIfInsideRunScope(methodName: string) {
         if (this.isInsideRunScope()) {
-            throw InvalidMethodCall.create({
+            throw InvalidMethodCallDiError.create({
                 methodName,
-                flag: METHOD_CALL_FLAG.INSIDE_RUN,
+                flag: InvalidMethodCallDiError.FLAG.INSIDE_RUN,
             });
         }
     }
 
     private throwIfInsideDynamicServiceProvider(methodName: string) {
         if (this.isInsideDynamicServiceProvider()) {
-            throw InvalidMethodCall.create({
+            throw InvalidMethodCallDiError.create({
                 methodName,
-                flag: METHOD_CALL_FLAG.INSIDE_DYNAMIC_REGISTRATION,
+                flag: InvalidMethodCallDiError.FLAG.INSIDE_DYNAMIC_REGISTRATION,
             });
         }
     }
@@ -129,12 +139,12 @@ export class Container implements IContainer {
         const tokenExistInGraph = this.graphManager.hasNodeProperty(token);
 
         if (!tokenExistInGraph) {
-            throw new UnexpectedError("is bro");
+            throw new UnexpectedError("token not registered");
         }
     }
 
     private getRunScopeDepthCounter(): number | null {
-        return this.settings.executionContext.get(this.SCOPE_DEPTH_KEY);
+        return this.settings.executionContext.get(this.SCOPE_DEPTH_COUNT_KEY);
     }
 
     private transformArrayDepToRecordDep<T>(
@@ -145,13 +155,14 @@ export class Container implements IContainer {
         );
     }
 
-    private increaseOrInitRunScopeDepthCounter(): void {
-        this.settings.executionContext.putIncrement(this.SCOPE_DEPTH_KEY);
+    private incOrInitScopeDepthCounter(): void {
+        this.settings.executionContext.putIncrement(this.SCOPE_DEPTH_COUNT_KEY);
     }
 
     private isInsideRunScope(): boolean {
         return (
-            this.settings.executionContext.get(this.SCOPE_DEPTH_KEY) !== null
+            this.settings.executionContext.get(this.SCOPE_DEPTH_COUNT_KEY) !==
+            null
         );
     }
 
@@ -171,9 +182,7 @@ export class Container implements IContainer {
     }
 
     private isOutsideRunScope(): boolean {
-        return (
-            this.settings.executionContext.get(this.SCOPE_DEPTH_KEY) === null
-        );
+        return !this.isInsideRunScope();
     }
 
     private async initSingletonsValues(): Promise<void> {
@@ -358,6 +367,13 @@ export class Container implements IContainer {
         });
     }
 
+    private async runHooks(hooks: Array<DiHook>): Promise<void> {
+        const handlers = hooks.map(async (hanlder) => {
+            await callInvokable(hanlder, this);
+        });
+        await Promise.all(handlers);
+    }
+
     async init(): Promise<void> {
         this.throwIfContainerAlreadyInitialized(this.init.name);
         this.throwIfInsideRunScope(this.init.name);
@@ -370,28 +386,18 @@ export class Container implements IContainer {
         await this.initSingletonsValues();
         await this.initTransientFactories();
 
-        this.currentState = IN_ACTIVE_STATE;
-
-        if (this.initHandlers.length !== 0) {
-            const handlers = this.initHandlers.map(async (hanlder) => {
-                await callInvokable(hanlder, this);
-            });
-            await Promise.all(handlers);
-        }
+        this.currentState = STATE.ACTIVE;
+        await this.runHooks(this.initHandlers);
     }
 
     async deInit(): Promise<void> {
         this.throwIfContainerNotActive(this.deInit.name);
         this.throwIfInsideRunScope(this.deInit.name);
 
-        if (this.deInitHandlers.length !== 0) {
-            const handlers = this.deInitHandlers.map(async (hanlder) => {
-                await callInvokable(hanlder, this);
-            });
-            await Promise.all(handlers);
-        }
+        await this.runHooks(this.deInitHandlers);
+
         this.registryManager.clear();
-        this.currentState = AFTER_ACTIVE_STATE;
+        this.currentState = STATE.TERMINATED;
     }
 
     onContainerInit(handler: DiHook): void {
@@ -425,7 +431,7 @@ export class Container implements IContainer {
                     isOutsideRunScope: () => this.isOutsideRunScope(),
                 });
 
-            this.increaseOrInitRunScopeDepthCounter();
+            this.incOrInitScopeDepthCounter();
             this.registryManager.initNewScopedRegistry();
 
             if (settings.dynamicRegistration !== undefined) {
@@ -444,14 +450,12 @@ export class Container implements IContainer {
     }
 
     registerFactory<
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        TDeps extends Partial<Record<string, unknown>> = {},
+        TDeps extends DepRecord = EmptyDepRecord,
         TRegisteredType = unknown,
     >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
         this.throwIfContainerAlreadyInitialized(this.registerFactory.name);
         this.throwIfInsideRunScope(this.registerFactory.name);
         this.throwIfTokenAlreadyRegistered(settings.token);
-
         this.graphManager.registerFactory(settings);
     }
 
@@ -482,16 +486,25 @@ export class Container implements IContainer {
         callInvokable(provider, this);
     }
 
-    async resolve<TType>(token: DiToken<TType>): Promise<TType | null> {
-        this.throwIfContainerNotActive(this.resolve.name);
-        this.throwIfInsideDynamicServiceProvider(this.resolve.name);
-
+    private async resolveOrGiveExplanation<TType>(
+        token: DiToken<TType>,
+    ): Promise<
+        | { success: true; value: TType }
+        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+    > {
         const tokenExistInRegistry = this.registryManager.has(token);
 
         const tokenExistInGraph = this.graphManager.hasNodeProperty(token);
 
         if (!tokenExistInGraph && !tokenExistInRegistry) {
-            return null;
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .NOT_REGISTERED_TOKEN,
+                    token,
+                },
+            };
         }
 
         if (tokenExistInRegistry && !tokenExistInGraph) {
@@ -501,9 +514,6 @@ export class Container implements IContainer {
             );
         }
 
-        if (!tokenExistInRegistry) {
-            return null;
-        }
         if (this.graphManager.isSingleton(token)) {
             return this.resolveSingleton(token);
         }
@@ -516,8 +526,18 @@ export class Container implements IContainer {
         if (this.graphManager.isDynamic(token)) {
             return this.resolveDynamic(token);
         }
-
         throw new UnexpectedError("unknown type");
+    }
+
+    async resolve<TType>(token: DiToken<TType>): Promise<TType | null> {
+        this.throwIfContainerNotActive(this.resolveOr.name);
+        this.throwIfInsideDynamicServiceProvider(this.resolveOr.name);
+
+        const res = await this.resolveOrGiveExplanation(token);
+        if (res.success) {
+            return res.value;
+        }
+        return null;
     }
 
     private assumeType<TType>(value: unknown): TType {
@@ -526,7 +546,10 @@ export class Container implements IContainer {
 
     private async resolveSingleton<TType>(
         token: DiToken<TType>,
-    ): Promise<TType> {
+    ): Promise<
+        | { success: true; value: TType }
+        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+    > {
         await Promise.resolve();
         if (!this.graphManager.isSingleton(token)) {
             throw new UnexpectedError(
@@ -537,12 +560,27 @@ export class Container implements IContainer {
             );
         }
         const value = this.registryManager.getAsValueOrThrow(token);
-        return this.assumeType<TType>(value);
+
+        if (value === null) {
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .RESOLVED_VALUE_IS_NULL,
+                    token,
+                },
+            };
+        }
+
+        return { success: true, value: this.assumeType<TType>(value) };
     }
 
     private async resolveTransient<TType>(
         token: DiToken<TType>,
-    ): Promise<TType | null> {
+    ): Promise<
+        | { success: true; value: TType }
+        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+    > {
         if (!this.graphManager.isTransient(token)) {
             throw new UnexpectedError(
                 `Excepted token to exist in graph and be transient`,
@@ -551,25 +589,46 @@ export class Container implements IContainer {
                 },
             );
         }
+        const includeScopedNodes =
+            this.graphManager.ancestorIncludeScopedNodes(token);
 
         const canNotResolve =
-            this.graphManager.ancestorIncludeScopedNodes(token) &&
-            this.isOutsideRunScope();
+            includeScopedNodes.status && this.isOutsideRunScope();
 
-        const canResolve = !canNotResolve;
-
-        if (canResolve) {
-            const factory = this.registryManager.getAsFunctionOrThrow(token);
-            const value = await factory();
-            return this.assumeType<TType>(value);
-        } else {
-            return null;
+        if (canNotResolve) {
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .TRANSIENT_SERVICE_DEPEND_ON_SCOPED,
+                    scopedTokens: includeScopedNodes.nodes,
+                    transientToken: token,
+                },
+            };
         }
+
+        const factory = this.registryManager.getAsFunctionOrThrow(token);
+        const value = await factory();
+
+        if (value === null) {
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .RESOLVED_VALUE_IS_NULL,
+                    token,
+                },
+            };
+        }
+        return { success: true, value: this.assumeType<TType>(value) };
     }
 
     private async resolveScoped<TType>(
         token: DiToken<TType>,
-    ): Promise<TType | null> {
+    ): Promise<
+        | { success: true; value: TType }
+        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+    > {
         if (!this.graphManager.isScoped(token)) {
             throw new UnexpectedError(
                 `Excepted token to exist in graph and be scoped`,
@@ -581,16 +640,37 @@ export class Container implements IContainer {
 
         await Promise.resolve();
         const canResolve = this.isInsideRunScope();
-        if (canResolve) {
-            const value = this.registryManager.getAsValueOrThrow(token);
-            return this.assumeType<TType>(value);
+
+        if (!canResolve) {
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .SCOPED_SERVICE_OUTSIDE_RUN,
+                    token,
+                },
+            };
         }
-        return null;
+        const value = this.registryManager.getAsValueOrThrow(token);
+        if (value === null) {
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .RESOLVED_VALUE_IS_NULL,
+                    token,
+                },
+            };
+        }
+        return { success: true, value: this.assumeType<TType>(value) };
     }
 
     private async resolveDynamic<TType>(
         token: DiToken<TType>,
-    ): Promise<TType | null> {
+    ): Promise<
+        | { success: true; value: TType }
+        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+    > {
         await Promise.resolve();
         if (!this.graphManager.isDynamic(token)) {
             throw new UnexpectedError(
@@ -600,12 +680,42 @@ export class Container implements IContainer {
                 },
             );
         }
-        const canResolve = this.isInsideRunScope();
-        if (canResolve) {
-            const value = this.registryManager.getAsValueOrThrow(token);
-            return this.assumeType<TType>(value);
+        const outsideRun = !this.isInsideRunScope();
+
+        if (outsideRun) {
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .DYNAMIC_SERVICE_OUTSIDE_RUN,
+                    token,
+                },
+            };
         }
-        return null;
+        if (!this.registryManager.has(token)) {
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .NO_DYNAMIC_VALUE_SET_FOR_TOKEN,
+                    token,
+                },
+            };
+        }
+
+        const value = this.registryManager.getAsValueOrThrow(token);
+
+        if (value === null) {
+            return {
+                success: false,
+                explanation: {
+                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                        .RESOLVED_VALUE_IS_NULL,
+                    token,
+                },
+            };
+        }
+        return { success: true, value: this.assumeType<TType>(value) };
     }
 
     async resolveOr<TType>(
@@ -615,22 +725,22 @@ export class Container implements IContainer {
         this.throwIfContainerNotActive(this.resolveOr.name);
         this.throwIfInsideDynamicServiceProvider(this.resolveOr.name);
 
-        const value = await this.resolve(token);
-        if (value === null) {
-            return defaultValue;
+        const result = await this.resolveOrGiveExplanation(token);
+        if (result.success) {
+            return result.value;
         }
-        return value;
+        return defaultValue;
     }
 
     async resolveOrFail<TType>(token: DiToken<TType>): Promise<TType> {
         this.throwIfContainerNotActive(this.resolveOrFail.name);
         this.throwIfInsideDynamicServiceProvider(this.resolveOrFail.name);
 
-        const value = await this.resolve(token);
-        if (value === null) {
-            throw ServiceCanNotBeResolvedError.create(token);
+        const result = await this.resolveOrGiveExplanation(token);
+        if (!result.success) {
+            throw ServiceCanNotBeResolvedDiError.create(result.explanation);
         }
-        return value;
+        return result.value;
     }
 
     async has(token: DiToken): Promise<boolean> {
@@ -640,8 +750,7 @@ export class Container implements IContainer {
     }
 
     overrideFactory<
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        TDeps extends Partial<Record<string, unknown>> = {},
+        TDeps extends DepRecord = EmptyDepRecord,
         TRegisteredType = unknown,
     >(settings: FactoryRegistrationOverride<TDeps, TRegisteredType>): void {
         this.throwIfContainerAlreadyInitialized(this.overrideFactory.name);
@@ -670,10 +779,14 @@ export class Container implements IContainer {
         this.throwIfContainerAlreadyInitialized(this.fork.name);
         this.throwIfInsideRunScope(this.fork.name);
 
-        const copy = new Container(this.settings);
-        copy.initHandlers.push(...this.initHandlers);
-        copy.deInitHandlers.push(...this.deInitHandlers);
-        copy.graphManager = this.graphManager.copy();
-        return copy;
+        const forked = new Container(this.settings);
+        this.initHandlers.forEach((hook) => {
+            forked.onContainerInit(hook);
+        });
+        this.deInitHandlers.forEach((hook) => {
+            forked.onContainerDeInit(hook);
+        });
+        forked.graphManager = this.graphManager.copy();
+        return forked;
     }
 }

@@ -9,6 +9,7 @@ import { isClass } from "@/utilities/_module.js";
  *
  * @param token - The token to format.
  * @returns A string representation of the token.
+ * @internal
  */
 export function tokenToString(token: DiToken): string {
     if (isClass(token)) {
@@ -21,6 +22,10 @@ type CachedFunc<T, T2> = (cacheArgs: {
     nodeId: T;
     func: () => Promise<T2>;
 }) => () => Promise<T2>;
+
+/**
+ * @internal
+ */
 
 export function createFunctionCache<T1, T2>(): CachedFunc<T1, T2> {
     const functionCache = new Map<T1, () => Promise<T2>>();

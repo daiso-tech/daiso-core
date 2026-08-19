@@ -1,6 +1,6 @@
 import { describe, test, vi, expect } from "vitest";
 
-import { eagerInitialization } from "../graph-algorithms.js";
+import { eagerInitialization } from "@/di/implementations/eager/graph-algorithms.js";
 
 describe("eagerInitialization", () => {
     test("should initialize nodes in correct dependency order", async () => {

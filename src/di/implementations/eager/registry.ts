@@ -1,13 +1,6 @@
 import { type DiToken } from "@/di/contracts/container.contract.js";
-import { tokenToString } from "@/di/implementations/utils.js";
+import { tokenToString } from "@/di/implementations/eager/utils.js";
 import { UnexpectedError } from "@/utilities/errors.js";
-
-export interface IRegister<T> {
-    has(token: DiToken): boolean;
-    get(token: DiToken): T | null;
-    getOrThrow(token: DiToken): T;
-    set(token: DiToken, value: T): void;
-}
 
 /**
  * A layered key-value store for DI tokens.
@@ -19,8 +12,10 @@ export interface IRegister<T> {
  * `undefined`.
  *
  * @typeParam T - The type of stored values. Must not be `null` or `undefined`.
+ * @internal
  */
-export class Registry<T> implements IRegister<T> {
+
+export class Registry<T> {
     private map = new Map<DiToken, T>();
 
     constructor(private parent?: Registry<T> | (() => Registry<T>)) {}

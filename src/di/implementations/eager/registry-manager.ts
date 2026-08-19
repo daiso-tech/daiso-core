@@ -2,17 +2,21 @@ import {
     genericToken,
     type DiToken,
 } from "@/di/contracts/container.contract.js";
-import { Registry } from "@/di/implementations/registry.js";
-import { tokenToString } from "@/di/implementations/utils.js";
+import { Registry } from "@/di/implementations/eager/registry.js";
+import { tokenToString } from "@/di/implementations/eager/utils.js";
 import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
 import { UnexpectedError } from "@/utilities/errors.js";
 
+/**
+ * @internal
+ */
 export const REGISTER_ELEMENT_TYPE = {
     DIRECT: "value",
     FUNC: "func",
 } as const;
 
 const VALUE_KEY = "value";
+
 const TYPE_KEY = "type";
 
 type TRegisterValueElement = {
@@ -25,16 +29,28 @@ type TRegisterFunctionElement = {
     [VALUE_KEY]: () => Promise<unknown>;
 };
 
+/**
+ * @internal
+ */
 export type TRegisterElement = TRegisterValueElement | TRegisterFunctionElement;
 
+/**
+ * @internal
+ */
 export type TRegisterValueType =
     (typeof REGISTER_ELEMENT_TYPE)[keyof typeof REGISTER_ELEMENT_TYPE];
 
+/**
+ * @internal
+ */
 export type TCurrentRegistry<T> = {
     get(): Registry<T> | null;
     set(registry: Registry<T>): void;
 };
 
+/**
+ * @internal
+ */
 export class RegistryManager {
     private baseRegistry: Registry<TRegisterElement> =
         new Registry<TRegisterElement>();

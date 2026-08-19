@@ -2,16 +2,14 @@ import {
     type DynamicRegistration,
     type IDynamicServiceRegister,
 } from "@/di/contracts/container.contract.js";
-import {
-    InvalidMethodCall,
-    METHOD_CALL_FLAG,
-} from "@/di/contracts/container.errors.js";
-import { type TNode } from "@/di/implementations/common.js";
+import { InvalidMethodCallDiError } from "@/di/contracts/container.errors.js";
+import { type TNode } from "@/di/implementations/eager/_shared.js";
 import { type IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
 import { callInvokable, isInvokable } from "@/utilities/_module.js";
 
-// TODO change remove and callback where container throws spefic error type and UnexpectedError
-// since error is trigged by user.
+/**
+ * @internal
+ */
 export class DynamicServiceRegister implements IDynamicServiceRegister {
     private setValueFor: (token: TNode, value: unknown) => void;
     private isOutsideRunScope: () => boolean;
@@ -31,9 +29,9 @@ export class DynamicServiceRegister implements IDynamicServiceRegister {
         settings: DynamicRegistration<TRegisteredType>,
     ): Promise<void> {
         if (this.isOutsideRunScope()) {
-            throw InvalidMethodCall.create({
-                methodName: "set",
-                flag: METHOD_CALL_FLAG.OUTSIDE_RUN,
+            throw InvalidMethodCallDiError.create({
+                methodName: this.set.name,
+                flag: InvalidMethodCallDiError.FLAG.OUTSIDE_RUN,
                 token: settings.token,
             });
         }

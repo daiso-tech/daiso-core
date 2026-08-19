@@ -1,5 +1,5 @@
-import { type TNode, type TEdge } from "@/di/implementations/common.js";
-import { tokenToString } from "@/di/implementations/utils.js";
+import { type TNode, type TEdge } from "@/di/implementations/eager/_shared.js";
+import { tokenToString } from "@/di/implementations/eager/utils.js";
 import { UnexpectedError } from "@/utilities/_module.js";
 
 const edgeToString = (edge: TEdge): string =>
@@ -7,6 +7,7 @@ const edgeToString = (edge: TEdge): string =>
 
 /**
  * A directed graph that stores arbitrary properties on its nodes and edges.
+ * @internal
  */
 export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
     private nodeProps = new Map<TNode, TNodeProp | null>();

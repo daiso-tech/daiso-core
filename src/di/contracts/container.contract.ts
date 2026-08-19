@@ -1,16 +1,7 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 /**
  * @module DI
  */
 
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ServiceCanNotBeResolvedError,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    InvalidGraph,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ServiceAlreadyRegisteredDiError,
-} from "@/di/contracts/container.errors.js";
 import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
 import {
     type AsyncLazy,
@@ -99,19 +90,33 @@ export type DiToken<TRegisteredType = unknown> =
     | GenericToken<TRegisteredType>;
 
 /**
+ * A record that maps dependency argument names to their resolved types.
+ * This is the shape of the dependencies object that is passed to a service
+ * factory at resolution time.
+ */
+export type DepRecord = Partial<Record<string, unknown>>;
+
+/**
+ * The default dependency record used when a service declares no
+ * dependencies. It is the default `TDeps` type parameter for types like
+ * {@link ServiceFactory} and {@link FactoryRegistration}.
+ */
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type EmptyDepRecord = {};
+/**
  * A callback invoked by the container to create a service instance.
  * Receives resolved dependencies followed by the current
  * {@link IExecutionContext}.
  *
- * @typeParam TDeps - Tuple of dependency types.
+ * @typeParam TDeps - Record of dependency names mapped to their types.
  * @typeParam TRegisteredType - The type this factory produces.
  *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type ServiceFactory<
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    TDeps extends Partial<Record<string, unknown>> = {},
+    TDeps extends DepRecord = EmptyDepRecord,
     TRegisteredType = unknown,
 > = Invokable<
     [deps: TDeps, executionContext: IExecutionContext],
@@ -119,31 +124,30 @@ export type ServiceFactory<
 >;
 
 /**
- * Maps a tuple of dependency types to a tuple of {@link DiToken}s.
- * Each position K in the input tuple becomes `DiToken<TDeps[K]>`.
+ * Maps a record of dependency names to a record of {@link DiToken}s.
+ * Each key K in the input record becomes `DiToken<TDeps[K]>`.
  *
- * @typeParam TDeps - Tuple of dependency types to map.
+ * @typeParam TDeps - Record of dependency names mapped to their types.
  *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export type DepsTokens<TDeps extends Partial<Record<string, unknown>> = {}> = {
+export type DepsTokens<TDeps extends DepRecord = EmptyDepRecord> = {
     [K in keyof TDeps]: DiToken<TDeps[K]>;
 };
 
 /**
  * Configuration for registering a factory-based service.
  *
- * @typeParam TDeps - Tuple of dependency types the factory consumes.
+ * @typeParam TDeps - Record of dependency names mapped to the types the factory consumes.
  * @typeParam TRegisteredType - The type produced by the factory.
  *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type FactoryRegistration<
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    TDeps extends Partial<Record<string, unknown>> = {},
+    TDeps extends DepRecord = EmptyDepRecord,
     TRegisteredType = unknown,
 > = {
     /** The token used to identify and resolve this service. */
@@ -161,15 +165,14 @@ export type FactoryRegistration<
 /**
  * Configuration for overriding  a factory-based service.
  *
- * @typeParam TDeps - Tuple of dependency types the factory consumes.
+ * @typeParam TDeps - Record of dependency names mapped to the types the factory consumes.
  * @typeParam TRegisteredType - The type produced by the factory.
  *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`
  */
 export type FactoryRegistrationOverride<
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    TDeps extends Partial<Record<string, unknown>> = {},
+    TDeps extends DepRecord = EmptyDepRecord,
     TRegisteredType = unknown,
 > = {
     /** The token used to identify and resolve this service. */
@@ -238,8 +241,7 @@ export type IServiceRegisterBase = {
      * @returns An {@link IServiceLifetime} to configure the service lifetime.
      */
     registerFactory<
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        TDeps extends Partial<Record<string, unknown>> = {},
+        TDeps extends DepRecord = EmptyDepRecord,
         TRegisteredType = unknown,
     >(
         settings: FactoryRegistration<TDeps, TRegisteredType>,
@@ -257,18 +259,6 @@ export type IServiceRegisterBase = {
      * via {@link IDynamicServiceRegister.set}.
      */
     registerDynamic(token: DiToken): void;
-
-    // /**
-    //  * Registers a contextual binding so that when the specified consumer
-    //  * (`when`) requires an abstract dependency (`needs`), a specific
-    //  * implementation (`give`) is provided instead.
-    //  *
-    //  * Useful for targeting overrides to a single consumer without affecting
-    //  * other consumers of the same abstract dependency.
-    //  */
-    // registerContext<TWhen = unknown, TNeeds = unknown>(
-    //     settings: ContextRegistration<TWhen, TNeeds>,
-    // ): void;
 };
 
 /**
@@ -383,7 +373,7 @@ export type IServiceResolver = {
     ): Promise<TType>;
 
     /**
-     * Resolves a service by token, throwing {@link ServiceCanNotBeResolvedError} if not found.
+     * Resolves a service by token, throwing {@link ServiceCanNotBeResolvedDiError} if not found.
      */
     resolveOrFail<TType>(token: DiToken<TType>): Promise<TType>;
 
@@ -525,7 +515,7 @@ export type IServiceOverrider = {
      * Overrides an existing factory registration with a new factory.
      */
     overrideFactory<
-        TDeps extends Partial<Record<string, unknown>> = {},
+        TDeps extends DepRecord = EmptyDepRecord,
         TRegisteredType = unknown,
     >(
         settings: FactoryRegistrationOverride<TDeps, TRegisteredType>,
@@ -545,11 +535,11 @@ export type IServiceOverrider = {
  * single cohesive API.
  *
  * The following errors can be thrown any method listed in `IContainer` dependent on the algorithm used:
- * @throws {ServiceCanNotBeResolvedError} When a required service cannot be resolved.
- * @throws {InvalidGraph} When the service graph is invalid, e.g. an invalid
+ * @throws {ServiceCanNotBeResolvedDiError} When a required service cannot be resolved.
+ * @throws {InvalidGraphDiError} When the service graph is invalid, e.g. an invalid
  *   lifetime configuration (singleton depending on transient), a circular
  *   dependency, or an undeclared dependency.
- * @throws {ServiceAlreadyRegisteredDiError} When attempting to register a duplicate token.
+ * @throws {CanNotRegisterServiceDiError} When attempting to register a duplicate token.
  *
  * @group Contracts
  * IMPORT_PATH: `"@daiso-tech/core/di/contracts"`

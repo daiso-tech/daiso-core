@@ -1,5 +1,5 @@
+import { type UndeclaredDependencyInfo } from "@/di/contracts/container.errors.js";
 import { UnexpectedError } from "@/utilities/errors.js";
-import type { UndeclaredDependencyInfo } from "../contracts/container.errors.js";
 
 /**
  * Kahn's Algorithm for eager initialization.
@@ -7,8 +7,13 @@ import type { UndeclaredDependencyInfo } from "../contracts/container.errors.js"
  * Resolves nodes in dependency order: a node's **successors** are its
  * dependencies — they must be initialized before the node itself.
  *
+ * @param args.nodeIds - All nodes to initialize.
  * @param args.getSuccessors - Returns the dependencies (successors) of a node.
- * @param args.initNode      - Called once all of a node's dependencies are ready.
+ * @param args.initNode - Called once all of a node's dependencies are ready.
+ * @param args.getPredecessors - Returns the nodes that depend on a node.
+ * @returns Resolves once every node has been initialized after all of its
+ * dependencies.
+ * @internal
  */
 
 export async function eagerInitialization<T>(args: {
@@ -61,6 +66,17 @@ export async function eagerInitialization<T>(args: {
     }
 }
 
+/**
+ * Finds all nodes transitively affected by a change to the starting node.
+ *
+ * Starting from `startNodeId`, traverses the graph by repeatedly following
+ * the `predecessorOf` relation and returns every reachable node.
+ *
+ * @param args.predecessorOf - Returns the predecessors (dependents) of a node.
+ * @param args.startNodeId - The node whose change triggers the traversal.
+ * @returns The starting node plus every node transitively affected by it.
+ * @internal
+ */
 // TODO make few tests
 export function findEffectedNodes<T>(args: {
     predecessorOf: (node: T) => Array<T>;
@@ -87,10 +103,28 @@ export function findEffectedNodes<T>(args: {
     return [...effectedNodes];
 }
 
+/**
+ * Visits the graph starting from a node and collects every visited node.
+ *
+ * Traversal follows `getNeighbors` depth-first. If `breakBranchSearch`
+ * returns `true` for a node, its branch is not explored any further.
+ *
+ * @param args.node - The node to start visiting from.
+ * @param args.getNeighbors - Returns the neighbors of a node to visit next.
+ * @param args.breakBranchSearch - Optional predicate that stops exploring a
+ * branch when it returns `true` for the current node.
+ * @returns All visited nodes, starting with the start node.
+ * @internal
+ */
 // TODO make few tests
+// TODO better name
+
 export function visitedNodes<T>(args: {
     node: T;
     getNeighbors: (node: T) => Array<T>;
+    // sometimes only need first node in branch and not all visted
+    // for example if checking transient depends on scoped. No need find all dependcy of scoped.
+    breakBranchSearch?: (node: T) => boolean;
 }): Array<T> {
     const { node, getNeighbors } = args;
 
@@ -102,6 +136,10 @@ export function visitedNodes<T>(args: {
         }
 
         visited.add(current);
+
+        if (args.breakBranchSearch?.(node) ?? false) {
+            return;
+        }
 
         for (const neighbor of getNeighbors(current)) {
             dfs(neighbor);
@@ -122,9 +160,14 @@ export function visitedNodes<T>(args: {
  * - BLACK: fully explored, no cycle found through it
  *
  * If DFS reaches a GRAY node, a cycle exists.
+ *
+ * @param args.getSuccessor - Returns the successors (dependencies) of a node.
+ * @param args.nodes - All nodes of the graph.
+ * @returns Every detected cycle, each as the path of nodes that forms it.
+ * @internal
  */
-
 // TODO make few tests
+
 export function findAllCycles<TNode>(args: {
     getSuccessor: (node: TNode) => Array<TNode>;
     nodes: Array<TNode>;
@@ -201,7 +244,17 @@ export function findAllCycles<TNode>(args: {
 
     return allCycles;
 }
-
+/**
+ * Finds dependencies referenced by the declared nodes that are not
+ * themselves declared.
+ *
+ * @param args.getSuccessor - Returns the successors (dependencies) of a node.
+ * @param args.nodes - All declared nodes of the graph. Must not contain
+ * duplicates.
+ * @returns An entry per undeclared dependency: the missing dependency and the
+ * declared nodes that depend on it.
+ * @internal
+ */
 // TODO make few tests
 export function getMissingNodes<T>(args: {
     getSuccessor: (node: T) => Array<T>;
@@ -236,6 +289,14 @@ export function getMissingNodes<T>(args: {
     ) satisfies Array<UndeclaredDependencyInfo<T>>;
 }
 
+/**
+ * Filters out the edges that fail the validity predicate.
+ *
+ * @param args.edges - The edges to validate.
+ * @param args.edgeIsNotValid - Predicate returning `true` for an invalid edge.
+ * @returns The edges that are considered invalid.
+ * @internal
+ */
 export function getInvalidEdges<TEdge>(args: {
     edges: Array<TEdge>;
     edgeIsNotValid: (edge: TEdge) => boolean;
