@@ -2,7 +2,7 @@
  * @module Utilities
  */
 
-import { type AnyFunction } from "@/utilities/types/any-function.type.js";
+import type { AnyFunction } from "@/utilities/types/any-function.type.js";
 
 /**
  * @internal

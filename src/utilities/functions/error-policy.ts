@@ -4,13 +4,6 @@
 
 import { callInvocable, isInvocable } from "@/utilities/functions/invocable.js";
 import { isStandardSchema } from "@/utilities/functions/is-standard-schema.js";
-<<<<<<< HEAD
-import {
-    resolveOneOrMore,
-    type OneOrMore,
-} from "@/utilities/functions/resolve-one-or-more.js";
-import { type Class } from "@/utilities/types/_module.js";
-=======
 import { resolveOneOrMore } from "@/utilities/functions/resolve-one-or-more.js";
 
 import type { StandardSchemaV1 } from "@standard-schema/spec";
@@ -18,7 +11,6 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { Invocable } from "@/utilities/functions/invocable.js";
 import type { OneOrMore } from "@/utilities/functions/resolve-one-or-more.js";
 import type { AnyClass } from "@/utilities/types/_module.js";
->>>>>>> main
 
 /**
  * IMPORT_PATH: `"eridu-tech/utilities"`
@@ -55,7 +47,7 @@ export function isErrorPolicyBoolSetting(
 export type ErrorPolicy<TError = unknown> =
     | Invocable<[error: TError], boolean>
     | StandardSchemaV1<TError>
-    | OneOrMore<Class>
+    | OneOrMore<AnyClass>
     | ErrorPolicyBoolSetting;
 
 /**

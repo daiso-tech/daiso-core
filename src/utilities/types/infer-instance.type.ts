@@ -2,7 +2,7 @@
  * @module Utilities
  */
 
-import { type Class } from "@/utilities/types/class.type.js";
+import type { Class } from "@/utilities/types/class.type.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/utilities"`

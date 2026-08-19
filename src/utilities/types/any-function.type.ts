@@ -2,9 +2,9 @@
  * @module Utilities
  */
 
-import { type InvokableFn } from "@/utilities/functions/_module.js";
+import type { InvocableFn } from "@/utilities/functions/_module.js";
 
 /**
  * @internal
  */
-export type AnyFunction = InvokableFn<Array<any>, any>;
+export type AnyFunction = InvocableFn<Array<any>, any>;

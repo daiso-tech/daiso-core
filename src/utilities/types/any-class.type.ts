@@ -2,7 +2,7 @@
  * @module Utilities
  */
 
-import { type Class } from "@/utilities/types/class.type.js";
+import type { Class } from "@/utilities/types/class.type.js";
 
 /**
  * @internal
