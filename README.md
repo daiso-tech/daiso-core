@@ -60,18 +60,10 @@ The ExecutionContext component propagates any kind of async context across execu
 
 The Middleware component provides a composable AOP-style middleware pipeline with before/after hooks, error handling, and context propagation. It supports wrapping standalone functions with `use()`, enhancing class methods with `enhance()`, and packaging reusable middleware into plugins with `withPlugin()`. Built-in middlewares include retry, timeout, fallback, and more.
 
-<<<<<<< HEAD
-### 💉 Dependency Injection
-
-- **DI container**: A lightweight, type-safe dependency injection container for managing service lifetimes, resolving dependencies, and composing large applications in a modular and testable way.
-
-### 🧰 Utilities
-=======
 - AOP with before/after hooks around any function
 - Built-in retry, timeout, fallback middlewares and so many more
 - Function wrapping with `use()`, class enhancement with `enhance()`, plugin system with `withPlugin()`
 - Built-in prefixing plugins for majority of components and so many more
->>>>>>> main
 
 ### 🌐 HttpRouter — Define routes. Stay framework-agnostic.
 
@@ -135,9 +127,8 @@ eridu-tech is built for backend and fullstack TypeScript developers who value fl
 A growing collection of officially maintained components. Every component ships with multiple built-in adapters — swap infrastructure without changing a single line of business logic.
 
 ### Foundation
-
+- [**DI Container**](https://www.eridu-tech.io/docs/components/di) — `Near-stable` — A lightweight, type-safe dependency injection container for wiring application components without tight coupling.
 - [**Middleware and AOP**](https://www.eridu-tech.io/docs/components/middleware) — `Near-stable` — Composable middleware pipeline with before/after hooks, error handling — the foundation for every component's plugin system.
-- [**Collection**](https://www.eridu-tech.io/docs/components/collection) — `Near-stable` — Type-safe collection utilities with powerful query, transform, and pagination primitives.
 - [**Serde**](https://www.eridu-tech.io/docs/components/serde) — `Experimental` — Serialize and deserialize data with a built-in SuperJSON adapter (Date, Map, Set, BigInt) and custom serializers — the backbone for all data interchange across the ecosystem.
 - [**Codec**](https://www.eridu-tech.io/docs/components/codec) — `Experimental` — Encode and decode data with a unified, type-safe interface — includes a built-in Base64 codec and lets you build custom codecs for any protocol.
 - [**Execution Context**](https://www.eridu-tech.io/docs/components/execution_context) — `Near-stable` — Type-safe, composable context propagation for request IDs, user info, and tracing metadata across async boundaries — without thread-local hacks.
@@ -177,7 +168,6 @@ A growing collection of officially maintained components. Every component ships 
 
 Components currently in design or development — not yet available in any release.
 
-- **DI Container** — A lightweight, type-safe dependency injection container for wiring application components without tight coupling.
 - **Transaction Context** — Coordinate database transactions across components with the after-commit pattern. Foundation for reliable messaging — powers the Outbox, Inbox, Scheduler, and Notifications.
 - **CLI Command** — A unified API for defining and executing CLI commands with a transport adapter architecture. Run commands locally via child processes, remotely over SSH or HTTP, inside Docker containers, or through custom transports — all from the same command definition.
 - **Structured concurrency** — Run async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.
@@ -186,45 +176,7 @@ Components currently in design or development — not yet available in any relea
 - **Introspection** — Inspect the actual runtime state of any component through pre-built CLI commands — view registered handlers, active jobs, queue depth, lock holders, and more without digging into logs or metrics.
 - **Job Scheduler** — Schedule work with full flexibility — immediate dispatch, delayed execution, and recurring jobs. Uses Transaction Context for reliable execution.
 
-<<<<<<< HEAD
-- **Job scheduler**: Schedule work with full flexibility — immediate dispatch, delayed execution, and recurring jobs.
-
-### 🔀 Structured Concurrency
-
-- **Structured cancellations**: Planning to support running async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.
-- **Promise queue**: Planning to add a configurable promise queue to control the number of concurrently executing promises and prevent resource exhaustion.
-
-###  Notifications
-
-- **Notifications**: Planning to support sending notifications through multiple channels with flexible dispatch strategies — synchronous dispatching, immediate enqueueing, delayed enqueueing, and recurring messages. Planned channel adapters include Slack, Discord, email, SMS, and WebSocket (browser push).
-
-### 🗄️ Data Integrity
-
-- **Transaction context**: Planning to support coordinating database transactions across components with the after-commit, outbox, and inbox patterns for reliable, exactly-once message delivery.
-- **Idempotent cache**: Planning to add built-in idempotency support for the Job Scheduler and Event Bus to prevent duplicate job execution and event processing.
-
-### 🐘 Database
-
-- **MikroORM** _(primary)_: Planning first-class integration with [MikroORM](https://mikro-orm.io/) as the main recommended database layer — full ORM support across PostgreSQL, MongoDB, SQLite, and more, with deep integration across all components.
-
-### 🔍 Text Search
-
-- **Text search**: Planning to support synchronising your database — synchronously or asynchronously — with an external search engine, queryable through a unified, ergonomic interface. First-class integrations with MikroORM, PostgreSQL (via Kysely), and MongoDB are planned so no glue code will be required.
-
-### 🌐 HTTP
-
-- **HTTP server**: Planning to support defining HTTP servers using the standard Web platform `Request`/`Response` API — portable across runtimes with no framework lock-in.
-- **OpenAPI**: Planning first-class OpenAPI support — define your API schema alongside your handlers and get spec generation, validation, and documentation out of the box.
-
-### 🔐 Security
-
-- **Session management**: Planning to support managing user sessions securely with a pluggable, adapter-driven API.
-- **Authorization gates**: Planning to implement Laravel-inspired gate primitives for fine-grained, policy-based access control.
-- **Apache Casbin integration**: Planning integration with [Casbin](https://casbin.org/) for advanced authorization using attribute-based, role-based, and relationship-based access control models.
-- **Authentication**: Planning first-class support for username/password, email verification, OAuth, and WebAuthn — with a [Better Auth](https://www.better-auth.com/) integration for batteries-included setups.
-=======
 [**View full roadmap →**](https://www.eridu-tech.io/docs/roadmap)
->>>>>>> main
 
 ---
 
