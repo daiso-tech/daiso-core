@@ -1,27 +1,15 @@
+/**
+ * @module DI
+ */
 import {
     genericToken,
     CanNotRegisterServiceDiError,
-    type DiHook,
-    type DiToken,
-    type FactoryRegistration,
-    type FactoryRegistrationOverride,
-    type IContainer,
-    type IDynamicServiceRegister,
-    type RunSettings,
-    type ServiceProvider,
-    type ValueRegistration,
-    type DepRecord,
-    type EmptyDepRecord,
 } from "@/di/contracts/_module.js";
 import {
     InvalidMethodCallDiError,
     ServiceCanNotBeResolvedDiError,
-    type ServiceCanNotBeResolvedErrorData,
 } from "@/di/contracts/container.errors.js";
-import {
-    type TNode,
-    INTERNAL_LIFETIME,
-} from "@/di/implementations/eager/_shared.js";
+import { INTERNAL_LIFETIME } from "@/di/implementations/eager/_shared.js";
 import { DynamicServiceRegister } from "@/di/implementations/eager/dynamic-service-register.js";
 import { eagerInitialization } from "@/di/implementations/eager/graph-algorithms.js";
 import { GraphManager } from "@/di/implementations/eager/graph-manager.js";
@@ -33,9 +21,27 @@ import {
     createFunctionCache,
     tokenToString,
 } from "@/di/implementations/eager/utils.js";
-import { type IExecutionContext } from "@/execution-context/contracts/_module.js";
-import { callInvokable, UnexpectedError } from "@/utilities/_module.js";
+import { callInvocable, UnexpectedError } from "@/utilities/_module.js";
+
+import type {
+    DiHook,
+    DiToken,
+    FactoryRegistration,
+    FactoryRegistrationOverride,
+    IContainer,
+    IDynamicServiceRegister,
+    RunSettings,
+    ServiceProvider,
+    ValueRegistration,
+    DepRecord,
+    EmptyDepRecord,
+} from "@/di/contracts/_module.js";
+import type { ServiceCanNotBeResolvedErrorData } from "@/di/contracts/container.errors.js";
+import type { Node } from "@/di/implementations/eager/_shared.js";
+import type { IExecutionContext } from "@/execution-context/contracts/_module.js";
+
 /**
+ * IMPORT_PATH: `"eridu-tech/di"`
  * @group Implementations
  */
 export type ContainerSettings = {
@@ -47,23 +53,39 @@ export type ContainerSettings = {
     executionContext: IExecutionContext;
 };
 
+/**
+ * @internal
+ */
 const UNINITIALIZED_STATE = Symbol("Container is uninitialized.");
+
+/**
+ * @internal
+ */
 const ACTIVE_STATE = Symbol("Container is active.");
+
+/**
+ * @internal
+ */
 const TERMINATED_STATE = Symbol("Container is terminated.");
 
+/**
+ * @internal
+ */
 const STATE = {
     ACTIVE: ACTIVE_STATE,
     UNINITIALIZED: UNINITIALIZED_STATE,
     TERMINATED: TERMINATED_STATE,
 } as const;
 
+/**
+ * @internal
+ */
 type TState = (typeof STATE)[keyof typeof STATE];
 
 /**
+ * IMPORT_PATH: `"eridu-tech/di"`
  * @group Implementations
- * IMPORT_PATH: `"@daiso-tech/core/di/implementations/eager"`
  */
-
 export class Container implements IContainer {
     private readonly SCOPE_DEPTH_COUNT_KEY = genericToken<number>(
         "The depth level associated with current scope",
@@ -135,7 +157,7 @@ export class Container implements IContainer {
         }
     }
 
-    private throwIfNodeNotExistInGraph(token: TNode) {
+    private throwIfNodeNotExistInGraph(token: Node) {
         const tokenExistInGraph = this.graphManager.hasNodeProperty(token);
 
         if (!tokenExistInGraph) {
@@ -190,17 +212,17 @@ export class Container implements IContainer {
             .nodes()
             .filter((node) => this.graphManager.isSingleton(node));
 
-        const getSingletonNeighbors = (node: TNode) =>
+        const getSingletonNeighbors = (node: Node) =>
             this.graphManager
                 .dependencyOf(node)
                 .filter(() => this.graphManager.isSingleton(node));
 
-        const getSingletonPredecessor = (nodeId: TNode) =>
+        const getSingletonPredecessor = (nodeId: Node) =>
             this.graphManager
                 .getPredecessorsOf(nodeId)
                 .filter((node) => this.graphManager.isSingleton(node));
 
-        await eagerInitialization<TNode>({
+        await eagerInitialization<Node>({
             getSuccessors: getSingletonNeighbors,
             getPredecessors: getSingletonPredecessor,
             initNode: async (nodeId) => {
@@ -217,7 +239,7 @@ export class Container implements IContainer {
                 const serviceFactory =
                     this.graphManager.getSingletonNodeOrThrow(nodeId).service;
 
-                const value = await callInvokable(
+                const value = await callInvocable(
                     serviceFactory,
                     factoryArgs,
                     this.settings.executionContext,
@@ -238,19 +260,19 @@ export class Container implements IContainer {
             .nodes()
             .filter((node) => this.graphManager.isTransient(node));
 
-        const getTransientNeighbors = (node: TNode) =>
+        const getTransientNeighbors = (node: Node) =>
             this.graphManager.dependencyOf(node).filter((dep) => {
                 return this.graphManager.isTransient(dep);
             });
 
-        const getTransientPredecessors = (nodeId: TNode) =>
+        const getTransientPredecessors = (nodeId: Node) =>
             this.graphManager
                 .getPredecessorsOf(nodeId)
                 .filter((node) => this.graphManager.isTransient(node));
 
         const reuse = createFunctionCache();
 
-        await eagerInitialization<TNode>({
+        await eagerInitialization<Node>({
             getSuccessors: getTransientNeighbors,
             getPredecessors: getTransientPredecessors,
             initNode: (nodeId) => {
@@ -302,7 +324,7 @@ export class Container implements IContainer {
                     const resolvedFactoryArgs =
                         this.transformArrayDepToRecordDep(resolvedInputs);
 
-                    const value = await callInvokable(
+                    const value = await callInvocable(
                         serviceFactory,
                         resolvedFactoryArgs,
                         this.settings.executionContext,
@@ -325,17 +347,17 @@ export class Container implements IContainer {
             .nodes()
             .filter((node) => this.graphManager.isScoped(node));
 
-        const getScopedNeighbors = (nodeId: TNode) =>
+        const getScopedNeighbors = (nodeId: Node) =>
             this.graphManager
                 .dependencyOf(nodeId)
                 .filter((node) => this.graphManager.isScoped(node));
 
-        const getScopedPredecessor = (nodeId: TNode) =>
+        const getScopedPredecessor = (nodeId: Node) =>
             this.graphManager
                 .getPredecessorsOf(nodeId)
                 .filter((node) => this.graphManager.isScoped(node));
 
-        await eagerInitialization<TNode>({
+        await eagerInitialization<Node>({
             getSuccessors: getScopedNeighbors,
             getPredecessors: getScopedPredecessor,
             initNode: async (nodeId) => {
@@ -352,7 +374,7 @@ export class Container implements IContainer {
                 const serviceFactory =
                     this.graphManager.getScopedNodeOrThrow(nodeId).service;
 
-                const value = await callInvokable(
+                const value = await callInvocable(
                     serviceFactory,
                     factoryArgs,
                     this.settings.executionContext,
@@ -369,7 +391,7 @@ export class Container implements IContainer {
 
     private async runHooks(hooks: Array<DiHook>): Promise<void> {
         const handlers = hooks.map(async (hanlder) => {
-            await callInvokable(hanlder, this);
+            await callInvocable(hanlder, this);
         });
         await Promise.all(handlers);
     }
@@ -436,7 +458,7 @@ export class Container implements IContainer {
 
             if (settings.dynamicRegistration !== undefined) {
                 this.setInsideDynamicServiceProviderStatusTo(true);
-                await callInvokable(
+                await callInvocable(
                     settings.dynamicRegistration,
                     dynamicServiceRegister,
                 );
@@ -444,7 +466,7 @@ export class Container implements IContainer {
             }
             await this.initScopedValues();
 
-            const value = await callInvokable(settings.scope);
+            const value = await callInvocable(settings.scope);
             return value;
         });
     }
@@ -483,7 +505,7 @@ export class Container implements IContainer {
     registerProvider(provider: ServiceProvider): void {
         this.throwIfContainerAlreadyInitialized(this.registerProvider.name);
         this.throwIfInsideRunScope(this.registerProvider.name);
-        callInvokable(provider, this);
+        callInvocable(provider, this);
     }
 
     private async resolveOrGiveExplanation<TType>(

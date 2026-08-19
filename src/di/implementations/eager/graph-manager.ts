@@ -1,29 +1,12 @@
+/**
+ * @module DI
+ */
+
 import {
     CanNotOverrideServiceDiError,
     InvalidGraphDiError,
-    type DiToken,
-    type EdgeErrorInfo,
-    type FactoryRegistration,
-    type ServiceFactory,
 } from "@/di/contracts/_module-exports.js";
-import {
-    type DepsTokens,
-    type FactoryRegistrationOverride,
-    type DepRecord,
-    type EmptyDepRecord,
-} from "@/di/contracts/container.contract.js";
-import {
-    type NodeProps,
-    type EdgeProps,
-    type SingletonNodeProps,
-    type TransientNodeProps,
-    type ScopedNodeProps,
-    type DynamicNodeProps,
-    type TNode,
-    type TEdge,
-    type InternalLifetime,
-    INTERNAL_LIFETIME,
-} from "@/di/implementations/eager/_shared.js";
+import { INTERNAL_LIFETIME } from "@/di/implementations/eager/_shared.js";
 import {
     findAllCycles,
     getMissingNodes as getMissingDependencies,
@@ -33,6 +16,30 @@ import {
 import { Graph } from "@/di/implementations/eager/graph.js";
 import { tokenToString } from "@/di/implementations/eager/utils.js";
 import { UnexpectedError } from "@/utilities/errors.js";
+
+import type {
+    DiToken,
+    EdgeErrorInfo,
+    FactoryRegistration,
+    ServiceFactory,
+} from "@/di/contracts/_module-exports.js";
+import type {
+    DepsTokens,
+    FactoryRegistrationOverride,
+    DepRecord,
+    EmptyDepRecord,
+} from "@/di/contracts/container.contract.js";
+import type {
+    NodeProps,
+    EdgeProps,
+    SingletonNodeProps,
+    TransientNodeProps,
+    ScopedNodeProps,
+    DynamicNodeProps,
+    Node,
+    Edge,
+    InternalLifetime,
+} from "@/di/implementations/eager/_shared.js";
 
 /**
  * Lifetime pairs that form an invalid edge: a map of a source lifetime to
@@ -44,6 +51,8 @@ import { UnexpectedError } from "@/utilities/errors.js";
  * - only scoped node can point to dynamic node
  * - singleton node can not point to transient or scoped node
  * - scoped node can not point to transient node
+ *
+ * @internal
  */
 const INVALID_EDGE_TARGETS: Record<
     InternalLifetime,
@@ -81,14 +90,14 @@ export type GraphValidationStatus =
  */
 export class GraphManager {
     private graph: Graph<NodeProps, EdgeProps>;
-    private overrideSet = new Set<TNode>();
+    private overrideSet = new Set<Node>();
     private readonly maxInvalidEdgeInError?: number;
     private readonly maxCyclesInError?: number;
     private readonly maxUndeclaredDependenciesInError?: number;
 
     constructor(args?: {
         graph?: Graph<NodeProps, EdgeProps>;
-        overrideSet?: Set<TNode>;
+        overrideSet?: Set<Node>;
         maxInvalidEdgeInError?: number;
         maxCyclesInError?: number;
         maxUndeclaredDependenciesInError?: number;
@@ -120,7 +129,7 @@ export class GraphManager {
         const declaredNodes = this.nodes().filter((node) =>
             this.hasNodeProperty(node),
         );
-        const getSuccessor = (node: TNode) => this.getSuccessorsOf(node);
+        const getSuccessor = (node: Node) => this.getSuccessorsOf(node);
 
         const missing = getMissingDependencies({
             getSuccessor,
@@ -207,7 +216,7 @@ export class GraphManager {
     >(args: { token: DiToken<TRegisteredType>; deps: DepsTokens<TDeps> }) {
         const keys = Object.keys(args.deps);
 
-        const edges: Array<[TEdge, EdgeProps]> = keys.map((key) => {
+        const edges: Array<[Edge, EdgeProps]> = keys.map((key) => {
             const diDependencyToken = args.deps[key];
             if (diDependencyToken === undefined) {
                 throw new Error();
@@ -223,13 +232,13 @@ export class GraphManager {
         TDeps extends DepRecord = EmptyDepRecord,
         TRegisteredType = unknown,
     >(settings: FactoryRegistration<TDeps, TRegisteredType>): void {
-        const factory = settings.factory as ServiceFactory;
+        const factory = settings.factory;
 
         const edges = this.depsToEdges(settings);
 
         this.setNodeProperty(settings.token, {
             lifetime: settings.lifetime,
-            service: factory,
+            service: factory as ServiceFactory<DepRecord>,
         });
 
         edges.forEach(([edge, value]) => {
@@ -286,11 +295,11 @@ export class GraphManager {
             };
         }
 
-        const factory = settings.factory as ServiceFactory;
+        const factory = settings.factory;
 
         this.graph.setNodeProperty(settings.token, {
             lifetime: nodeProps.lifetime,
-            service: factory,
+            service: factory as ServiceFactory<DepRecord>,
         });
 
         this.overrideSet.add(settings.token);
@@ -313,8 +322,8 @@ export class GraphManager {
     }
 
     ancestorOfTransientNodeIncludeScopedNodes(
-        nodeId: TNode,
-    ): { status: true; nodes: Array<TNode> } | { status: false } {
+        nodeId: Node,
+    ): { status: true; nodes: Array<Node> } | { status: false } {
         if (this.getLifespan(nodeId) !== INTERNAL_LIFETIME.TRANSIENT) {
             throw new UnexpectedError("Expected node to be transient");
         }
@@ -337,7 +346,7 @@ export class GraphManager {
         };
     }
 
-    getDynamicAncestralNodesOfScopedNode(nodeId: TNode): Array<TNode> {
+    getDynamicAncestralNodesOfScopedNode(nodeId: Node): Array<Node> {
         if (this.getLifespan(nodeId) !== INTERNAL_LIFETIME.SCOPED) {
             throw new UnexpectedError("Expected node to be scoped");
         }
@@ -351,7 +360,7 @@ export class GraphManager {
         return dynamicNodeVisited;
     }
 
-    dependencyOf(node: TNode): Array<TNode> {
+    dependencyOf(node: Node): Array<Node> {
         return this.getSuccessorEdgesOf(node)
             .map((edge) => ({
                 edge,
@@ -361,43 +370,43 @@ export class GraphManager {
             .map(([_, successorNode]) => successorNode);
     }
 
-    public getArgKey(edge: TEdge): EdgeProps["argIndex"] {
+    getArgKey(edge: Edge): EdgeProps["argIndex"] {
         return this.getEdgePropertyOrThrow(edge).argIndex;
     }
 
-    public isTransient(node: TNode): boolean {
+    isTransient(node: Node): boolean {
         return (
             this.getNodePropertyOrThrow(node).lifetime ===
             INTERNAL_LIFETIME.TRANSIENT
         );
     }
 
-    public isSingleton(node: TNode): boolean {
+    isSingleton(node: Node): boolean {
         return (
             this.getNodePropertyOrThrow(node).lifetime ===
             INTERNAL_LIFETIME.SINGLETON
         );
     }
 
-    public isScoped(node: TNode): boolean {
+    isScoped(node: Node): boolean {
         return (
             this.getNodePropertyOrThrow(node).lifetime ===
             INTERNAL_LIFETIME.SCOPED
         );
     }
 
-    public isDynamic(node: TNode): boolean {
+    isDynamic(node: Node): boolean {
         return (
             this.getNodePropertyOrThrow(node).lifetime ===
             INTERNAL_LIFETIME.DYNAMIC
         );
     }
 
-    public getLifespan(key: TNode): InternalLifetime {
+    getLifespan(key: Node): InternalLifetime {
         return this.graph.getNodePropertyOrThrow(key).lifetime;
     }
 
-    public getSingletonNodeOrThrow(nodeId: TNode): SingletonNodeProps {
+    getSingletonNodeOrThrow(nodeId: Node): SingletonNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
         if (node.lifetime === INTERNAL_LIFETIME.SINGLETON) {
             return node;
@@ -407,7 +416,7 @@ export class GraphManager {
         );
     }
 
-    public getTransientNodeOrThrow(nodeId: TNode): TransientNodeProps {
+    getTransientNodeOrThrow(nodeId: Node): TransientNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
         if (node.lifetime === INTERNAL_LIFETIME.TRANSIENT) {
             return node;
@@ -416,7 +425,7 @@ export class GraphManager {
             `Node with token "${tokenToString(nodeId)}" is not registered as a transient node.`,
         );
     }
-    public getScopedNodeOrThrow(nodeId: TNode): ScopedNodeProps {
+    getScopedNodeOrThrow(nodeId: Node): ScopedNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
         if (node.lifetime === INTERNAL_LIFETIME.SCOPED) {
             return node;
@@ -426,7 +435,7 @@ export class GraphManager {
         );
     }
 
-    public getDynamicNodeOrThrow(nodeId: TNode): DynamicNodeProps {
+    getDynamicNodeOrThrow(nodeId: Node): DynamicNodeProps {
         const node = this.getNodePropertyOrThrow(nodeId);
         if (node.lifetime === INTERNAL_LIFETIME.DYNAMIC) {
             return node;
@@ -436,7 +445,7 @@ export class GraphManager {
         );
     }
 
-    public getServiceFactory(nodeId: TNode): ServiceFactory {
+    getServiceFactory(nodeId: Node): ServiceFactory {
         const node = this.getNodePropertyOrThrow(nodeId);
         if (node.lifetime === INTERNAL_LIFETIME.DYNAMIC) {
             throw new UnexpectedError(
@@ -446,57 +455,53 @@ export class GraphManager {
         return node.service;
     }
 
-    // public getArgIndex(edge: TEdge): number {
-    //     return this.getEdgePropertyOrThrow(edge).argIndex;
-    // }
-
-    setNodeProperty(key: TNode, value: NodeProps): void {
+    setNodeProperty(key: Node, value: NodeProps): void {
         this.graph.setNodeProperty(key, value);
     }
 
-    setEdgeProperty(edge: TEdge, value: EdgeProps): void {
+    setEdgeProperty(edge: Edge, value: EdgeProps): void {
         this.graph.setEdgeProperty(edge, value);
     }
 
-    hasNodeProperty(node: TNode): boolean {
+    hasNodeProperty(node: Node): boolean {
         return this.graph.hasNodeProperty(node);
     }
-    hasEdgeProperty(edge: TEdge): boolean {
+    hasEdgeProperty(edge: Edge): boolean {
         return this.graph.hasEdgeProperty(edge);
     }
-    getNodeProperty(nodeId: TNode): NodeProps | null {
+    getNodeProperty(nodeId: Node): NodeProps | null {
         return this.graph.getNodeProperty(nodeId);
     }
 
-    getEdgeProperty(edge: TEdge): EdgeProps | null {
+    getEdgeProperty(edge: Edge): EdgeProps | null {
         return this.graph.getEdgeProperty(edge);
     }
 
-    getNodePropertyOrThrow(key: TNode): NodeProps {
+    getNodePropertyOrThrow(key: Node): NodeProps {
         return this.graph.getNodePropertyOrThrow(key);
     }
 
-    getEdgePropertyOrThrow(edge: TEdge): EdgeProps {
+    getEdgePropertyOrThrow(edge: Edge): EdgeProps {
         return this.graph.getEdgePropertyOrThrow(edge);
     }
-    nodes(): Array<TNode> {
+    nodes(): Array<Node> {
         return this.graph.nodes();
     }
-    edges(): Array<TEdge> {
+    edges(): Array<Edge> {
         return this.graph.edges();
     }
-    getSuccessorEdgesOf(node: TNode): Array<TEdge> {
+    getSuccessorEdgesOf(node: Node): Array<Edge> {
         return this.graph.getSuccessorEdgesOf(node);
     }
 
-    getPredecessorEdgesOf(node: TNode): Array<TEdge> {
+    getPredecessorEdgesOf(node: Node): Array<Edge> {
         return this.graph.getPredecessorEdgesOf(node);
     }
 
-    getPredecessorsOf(node: TNode): Array<TNode> {
+    getPredecessorsOf(node: Node): Array<Node> {
         return this.graph.getPredecessorsOf(node);
     }
-    getSuccessorsOf(node: TNode): Array<TNode> {
+    getSuccessorsOf(node: Node): Array<Node> {
         return this.graph.getSuccessorsOf(node);
     }
 }

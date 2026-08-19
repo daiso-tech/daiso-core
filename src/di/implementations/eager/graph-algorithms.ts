@@ -1,5 +1,9 @@
-import { type UndeclaredDependencyInfo } from "@/di/contracts/container.errors.js";
+/**
+ * @module DI
+ */
 import { UnexpectedError } from "@/utilities/errors.js";
+
+import type { UndeclaredDependencyInfo } from "@/di/contracts/container.errors.js";
 
 /**
  * Kahn's Algorithm for eager initialization.
@@ -47,7 +51,7 @@ export async function eagerInitialization<T>(args: {
     let currentBatch = nodeIds.filter((id) => isAllDependencyResolved(id));
 
     while (currentBatch.length > 0) {
-        await Promise.all(currentBatch.map((nodeId) => initNode(nodeId)));
+        await Promise.all(currentBatch.map(async (nodeId) => initNode(nodeId)));
 
         const nextBatch: Array<T> = [];
 
@@ -185,8 +189,8 @@ export function findAllCycles<TNode>(args: {
     }
 
     const collectCyclesFrom = (startNode: TNode): void => {
-        type TFrame = { node: TNode; successors: Array<TNode> };
-        const stack: Array<TFrame> = [
+        type Frame = { node: TNode; successors: Array<TNode> };
+        const stack: Array<Frame> = [
             { node: startNode, successors: getSuccessor(startNode) },
         ];
         color.set(startNode, GRAY);

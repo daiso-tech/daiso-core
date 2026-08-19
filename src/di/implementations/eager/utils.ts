@@ -1,5 +1,9 @@
-import { type DiToken } from "@/di/contracts/container.contract.js";
+/**
+ * @module DI
+ */
 import { isClass } from "@/utilities/_module.js";
+
+import type { DiToken } from "@/di/contracts/container.contract.js";
 
 /**
  * Converts a DI token to a readable string representation.
@@ -18,6 +22,9 @@ export function tokenToString(token: DiToken): string {
     return token.id.toString();
 }
 
+/**
+ * @internal
+ */
 type CachedFunc<T, T2> = (cacheArgs: {
     nodeId: T;
     func: () => Promise<T2>;
@@ -26,7 +33,6 @@ type CachedFunc<T, T2> = (cacheArgs: {
 /**
  * @internal
  */
-
 export function createFunctionCache<T1, T2>(): CachedFunc<T1, T2> {
     const functionCache = new Map<T1, () => Promise<T2>>();
 

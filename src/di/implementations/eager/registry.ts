@@ -1,20 +1,14 @@
-import { type DiToken } from "@/di/contracts/container.contract.js";
+/**
+ * @module DI
+ */
 import { tokenToString } from "@/di/implementations/eager/utils.js";
 import { UnexpectedError } from "@/utilities/errors.js";
 
+import type { DiToken } from "@/di/contracts/container.contract.js";
+
 /**
- * A layered key-value store for DI tokens.
- *
- * @remarks
- * A value of `null` or `undefined` is treated as non-existent: it is
- * indistinguishable from an absent token and is reported as "not found" by
- * `get` / `getOrThrow`. For this reason `T` should not be `null` or
- * `undefined`.
- *
- * @typeParam T - The type of stored values. Must not be `null` or `undefined`.
  * @internal
  */
-
 export class Registry<T> {
     private map = new Map<DiToken, T>();
 
@@ -30,18 +24,13 @@ export class Registry<T> {
         }
     }
 
-    /** Whether the token exists in this layer or any parent layer. */
-    public has(token: DiToken): boolean {
+    has(token: DiToken): boolean {
         const value =
             this.map.get(token) ?? this.getParent()?.get(token) ?? null;
         return value !== null;
     }
 
-    /** Returns the value for the token from the nearest layer.
-     * Checks the current layer first; if not found, delegates to the parent.
-     * Returns `null` if the token is not found in any layer.
-     * Always converts `undefined` to `null`. */
-    public get(token: DiToken): T | null {
+    get(token: DiToken): T | null {
         if (this.map.has(token)) {
             const value = this.map.get(token);
             return value === undefined ? null : value;
@@ -49,7 +38,7 @@ export class Registry<T> {
         return this.getParent()?.get(token) ?? null;
     }
 
-    public getOrThrow(token: DiToken): T {
+    getOrThrow(token: DiToken): T {
         if (!this.has(token)) {
             throw new UnexpectedError(
                 `Token not found in registry: "${tokenToString(
@@ -71,12 +60,11 @@ export class Registry<T> {
         return value;
     }
 
-    /** Sets the value for the token in this layer. */
-    public set(token: DiToken, value: T): void {
+    set(token: DiToken, value: T): void {
         this.map.set(token, value);
     }
 
-    public clear(): void {
+    clear(): void {
         this.map.clear();
         this.getParent()?.clear();
     }
