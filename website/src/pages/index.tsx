@@ -483,7 +483,7 @@ function UpcomingSection() {
                 <div className="text--center margin-top--lg">
                     <Link
                         className="button button--outline button--secondary"
-                        to="/docs/roadmap"
+                        to="/roadmap"
                     >
                         View full roadmap{" "}
                         <ArrowRight
