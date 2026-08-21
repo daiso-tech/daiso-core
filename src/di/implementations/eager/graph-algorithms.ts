@@ -68,6 +68,16 @@ export async function eagerInitialization<T>(args: {
 
         currentBatch = nextBatch;
     }
+
+    const blockedNodes = [...pending.entries()]
+        .filter(([, count]) => count > 0)
+        .map(([id]) => id);
+
+    if (blockedNodes.length > 0) {
+        throw new UnexpectedError(
+            `Eager initialization failed: nodes ${blockedNodes.map((id) => `"${String(id)}"`).join(", ")} could not be initialized because their dependencies remain unresolved (possible cycle or undeclared dependency).`,
+        );
+    }
 }
 
 /**
@@ -81,7 +91,6 @@ export async function eagerInitialization<T>(args: {
  * @returns The starting node plus every node transitively affected by it.
  * @internal
  */
-// TODO make few tests
 export function findEffectedNodes<T>(args: {
     predecessorOf: (node: T) => Array<T>;
     startNodeId: T;
@@ -93,7 +102,9 @@ export function findEffectedNodes<T>(args: {
         const node = queue.shift();
 
         if (node === undefined) {
-            throw new Error();
+            throw new UnexpectedError(
+                "Invariant violation: the traversal queue must not be empty inside the loop, so shift() should always return a node.",
+            );
         }
 
         for (const successor of args.predecessorOf(node)) {
@@ -120,9 +131,7 @@ export function findEffectedNodes<T>(args: {
  * @returns All visited nodes, starting with the start node.
  * @internal
  */
-// TODO make few tests
 // TODO better name
-
 export function visitedNodes<T>(args: {
     node: T;
     getNeighbors: (node: T) => Array<T>;
@@ -141,7 +150,7 @@ export function visitedNodes<T>(args: {
 
         visited.add(current);
 
-        if (args.breakBranchSearch?.(node) ?? false) {
+        if (args.breakBranchSearch?.(current) ?? false) {
             return;
         }
 
@@ -170,8 +179,6 @@ export function visitedNodes<T>(args: {
  * @returns Every detected cycle, each as the path of nodes that forms it.
  * @internal
  */
-// TODO make few tests
-
 export function findAllCycles<TNode>(args: {
     getSuccessor: (node: TNode) => Array<TNode>;
     nodes: Array<TNode>;
@@ -199,7 +206,9 @@ export function findAllCycles<TNode>(args: {
             const frame = stack[stack.length - 1];
 
             if (frame === undefined) {
-                throw new Error();
+                throw new UnexpectedError(
+                    "Invariant violation: the DFS stack must not be empty inside the loop, so the top frame should always exist.",
+                );
             }
 
             const successor = frame.successors.pop();
@@ -259,7 +268,6 @@ export function findAllCycles<TNode>(args: {
  * declared nodes that depend on it.
  * @internal
  */
-// TODO make few tests
 export function getMissingNodes<T>(args: {
     getSuccessor: (node: T) => Array<T>;
     nodes: Array<T>;

@@ -107,4 +107,30 @@ describe("eagerInitialization", () => {
 
         expect(initNode).not.toHaveBeenCalled();
     });
+
+    test("should fail when nodes remain blocked by unresolved dependencies", async () => {
+        // Graph: A -> B, B -> A (a cycle). Neither node can be initialized.
+        const nodeIds = ["A", "B"];
+        const neighbors: Record<string, Array<string>> = {
+            A: ["B"],
+            B: ["A"],
+        };
+
+        const initNode = vi.fn();
+
+        const promise = eagerInitialization({
+            nodeIds,
+            getSuccessors: (id) => neighbors[id] ?? [],
+            getPredecessors: (id) =>
+                Object.entries(neighbors)
+                    .filter(([_, deps]) => deps.includes(id))
+                    .map(([node]) => node),
+            initNode,
+        });
+
+        await expect(promise).rejects.toThrow(
+            /nodes "A", "B" could not be initialized/,
+        );
+        expect(initNode).not.toHaveBeenCalled();
+    });
 });

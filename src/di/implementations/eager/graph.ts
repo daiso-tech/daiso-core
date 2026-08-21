@@ -242,25 +242,36 @@ export class Graph<TNodeProp = unknown, TEdgeProp = unknown> {
     }
 
     removeNode(node: Node): void {
+        const outgoingTargets = this.edgeProps.get(node);
+        const incomingSources = this.reversedEdges.get(node);
+
+        // Remove the node's outgoing edges from the reverse index, visiting
+        // only its known successors.
+        if (outgoingTargets !== undefined) {
+            for (const targetNode of outgoingTargets.keys()) {
+                const sources = this.reversedEdges.get(targetNode);
+                sources?.delete(node);
+                if (sources?.size === 0) {
+                    this.reversedEdges.delete(targetNode);
+                }
+            }
+        }
+
+        // Remove the node's incoming edges from the forward index, visiting
+        // only its known predecessors.
+        if (incomingSources !== undefined) {
+            for (const sourceNode of incomingSources) {
+                const targets = this.edgeProps.get(sourceNode);
+                targets?.delete(node);
+                if (targets?.size === 0) {
+                    this.edgeProps.delete(sourceNode);
+                }
+            }
+        }
+
         this.nodeProps.delete(node);
         this.edgeProps.delete(node);
         this.reversedEdges.delete(node);
-
-        for (const sourceNode of this.edgeProps.keys()) {
-            const targetNode = node;
-            this.edgeProps.get(sourceNode)?.delete(targetNode);
-            if (this.edgeProps.get(sourceNode)?.size === 0) {
-                this.edgeProps.delete(sourceNode);
-            }
-        }
-
-        for (const targetNode of this.reversedEdges.keys()) {
-            const sourceNode = node;
-            this.reversedEdges.get(targetNode)?.delete(sourceNode);
-            if (this.reversedEdges.get(targetNode)?.size === 0) {
-                this.reversedEdges.delete(targetNode);
-            }
-        }
     }
 
     nodes(): Array<Node> {
