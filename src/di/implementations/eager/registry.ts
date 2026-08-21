@@ -2,7 +2,7 @@
  * @module DI
  */
 import { tokenToString } from "@/di/implementations/eager/utils.js";
-import { UnexpectedError } from "@/utilities/errors.js";
+import { UnexpectedError } from "@/utilities/_module-exports.js";
 
 import type { DiToken } from "@/di/contracts/container.contract.js";
 

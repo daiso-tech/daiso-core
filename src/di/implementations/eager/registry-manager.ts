@@ -4,10 +4,10 @@
 import { genericToken } from "@/di/contracts/container.contract.js";
 import { Registry } from "@/di/implementations/eager/registry.js";
 import { tokenToString } from "@/di/implementations/eager/utils.js";
-import { UnexpectedError } from "@/utilities/errors.js";
+import { UnexpectedError } from "@/utilities/_module-exports.js";
 
 import type { DiToken } from "@/di/contracts/container.contract.js";
-import type { IExecutionContext } from "@/execution-context/contracts/execution-context.contract.js";
+import type { IExecutionContext } from "@/execution-context/contracts/_module-exports.js";
 
 /**
  * @internal

@@ -4,7 +4,7 @@
 import {
     genericToken,
     CanNotRegisterServiceDiError,
-} from "@/di/contracts/_module.js";
+} from "@/di/contracts/_module-exports.js";
 import {
     InvalidMethodCallDiError,
     ServiceCanNotBeResolvedDiError,
@@ -21,7 +21,7 @@ import {
     createFunctionCache,
     tokenToString,
 } from "@/di/implementations/eager/utils.js";
-import { callInvocable, UnexpectedError } from "@/utilities/_module.js";
+import { callInvocable, UnexpectedError } from "@/utilities/_module-exports.js";
 
 import type {
     DiHook,

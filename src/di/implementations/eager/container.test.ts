@@ -11,8 +11,8 @@ import {
     CanNotOverrideServiceDiError,
 } from "@/di/contracts/container.errors.js";
 import { Container } from "@/di/implementations/eager/container.js";
-import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/als-execution-context-adapter.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/execution-context/execution-context.js";
+import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/_module-exports.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module-exports.js";
 import { callInvocable } from "@/utilities/_module.js";
 
 import type {

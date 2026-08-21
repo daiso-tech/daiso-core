@@ -1,7 +1,7 @@
 /**
  * @module DI
  */
-import { isClass } from "@/utilities/_module.js";
+import { isClass } from "@/utilities/_module-exports.js";
 
 import type { DiToken } from "@/di/contracts/container.contract.js";
 

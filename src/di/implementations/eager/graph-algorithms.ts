@@ -1,7 +1,7 @@
 /**
  * @module DI
  */
-import { UnexpectedError } from "@/utilities/errors.js";
+import { UnexpectedError } from "@/utilities/_module-exports.js";
 
 import type { UndeclaredDependencyInfo } from "@/di/contracts/container.errors.js";
 

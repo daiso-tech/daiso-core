@@ -2,7 +2,7 @@
  * @module DI
  */
 import { tokenToString } from "@/di/implementations/eager/utils.js";
-import { UnexpectedError } from "@/utilities/_module.js";
+import { UnexpectedError } from "@/utilities/_module-exports.js";
 
 import type { Node, Edge } from "@/di/implementations/eager/_shared.js";
 
