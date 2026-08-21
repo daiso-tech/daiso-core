@@ -25,9 +25,10 @@ export class Registry<T> {
     }
 
     has(token: DiToken): boolean {
-        const value =
-            this.map.get(token) ?? this.getParent()?.get(token) ?? null;
-        return value !== null;
+        if (this.map.has(token)) {
+            return true;
+        }
+        return this.getParent()?.has(token) ?? false;
     }
 
     get(token: DiToken): T | null {
