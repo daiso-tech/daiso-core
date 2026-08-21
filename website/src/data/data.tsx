@@ -1044,7 +1044,7 @@ export const PERFECT_FOR = {
         description: (
             <>
                 Share the same abstractions, middleware, and adapters across a
-                single deployable application. Some components or workers can be
+                single deployable application. Some components can be
                 used in microservices, but the library is primarily designed for
                 modular monolith architectures.
             </>
@@ -1065,7 +1065,7 @@ export const PERFECT_FOR = {
         title: <>Testing and local development:</>,
         description: (
             <>
-                Use in-memory and NoOp adapters for fast, deterministic tests,
+                Use in-memory adapters for fast, deterministic tests,
                 then swap to production infrastructure with configuration only.
             </>
         ),

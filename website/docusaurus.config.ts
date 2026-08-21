@@ -133,6 +133,11 @@ const config: Config = {
                     position: "left",
                 },
                 {
+                    to: "/roadmap",
+                    label: "Roadmap",
+                    position: "left",
+                },
+                {
                     label: "API docs",
                     href: "https://eridu-tech.github.io/eridu-tech-core/modules.html",
                     position: "left",
