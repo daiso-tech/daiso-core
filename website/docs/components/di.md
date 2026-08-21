@@ -150,7 +150,7 @@ const IUSER_SERVICE = genericToken<IUserService>("IUserService");
 const IDATABASE = genericToken<Database>("IDatabase");
 
 class Database {
-    query(sql: string): Promise<any> {
+    query(sql: string, params: Array<unknown>): Promise<any> {
         /* ... */
     }
 }
@@ -162,7 +162,7 @@ container.registerFactory({
         // followed by the execution context
         return {
             getUser: async (id: string) => {
-                return db.query(`SELECT * FROM users WHERE id = ${id}`);
+                return db.query("SELECT * FROM users WHERE id = ?", [id]);
             },
         };
     },
@@ -171,7 +171,7 @@ container.registerFactory({
 });
 ```
 
-The factory callback signature is `(deps, executionContext) => T | Promise<T>` where `deps` is a record keyed by the names declared in the `deps` setting (e.g., `{ db }`). The `executionContext` parameter is always the last argument. The `lifetime` is set  on the registration using the `LIFETIME`.
+The factory callback signature is `(deps, executionContext) => T | Promise<T>` where `deps` is a record keyed by the names declared in the `deps` setting (e.g., `{ db }`). The `executionContext` parameter is always the last argument. The `lifetime` is set on the registration using the `LIFETIME`.
 
 #### Value registration
 
@@ -233,11 +233,14 @@ await container.run({
     dynamicRegistration: async (register) => {
         await register.set({
             token: REQUEST_ID,
-            value: (executionContext) => {
-                // Compute the value using the execution context
-                return (
-                    executionContext.get("correlationId") ?? crypto.randomUUID()
-                );
+            value: {
+                dynamicValue: (executionContext) => {
+                    // Compute the value using the execution context
+                    return (
+                        executionContext.get("correlationId") ??
+                        crypto.randomUUID()
+                    );
+                },
             },
         });
     },
