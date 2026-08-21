@@ -322,13 +322,13 @@ Returns the service if found, otherwise throws `CanNotBeResolvedDiError`:
 const logger = await container.resolveOrFail(Logger);
 ```
 
-#### `has` — Existence check
+#### `has` — Resolvability check
 
-Checks whether a token is registered without resolving it:
+Returns `true` if the token can be resolved to a value, and `false` otherwise. This is not a registration check — it actually resolves the token, so calling it may invoke service factories (such as transient factories) as a side effect:
 
 ```ts
 if (await container.has(Logger)) {
-    console.log("Logger is registered");
+    console.log("Logger is resolvable");
 }
 ```
 
@@ -498,7 +498,7 @@ Service providers encapsulate a group of related registrations into a reusable, 
 import { LIFETIME, type IServiceRegister } from "eridu-tech/di/contracts";
 
 // As a plain function
-async function loggingProvider(register: IServiceRegister): Promise<void> {
+function loggingProvider(register: IServiceRegister): void {
     register.registerFactory({
         token: Logger,
         factory: () => new Logger(),
@@ -516,7 +516,7 @@ async function loggingProvider(register: IServiceRegister): Promise<void> {
 
 // As an object with an invoke method
 class DatabaseProvider {
-    async invoke(register: IServiceRegister): Promise<void> {
+    invoke(register: IServiceRegister): void {
         register.registerFactory({
             token: Database,
             factory: () => new Database(),
@@ -652,9 +652,7 @@ Group related registrations into service providers to keep your composition root
 
 ```ts
 // providers/logging.provider.ts
-export async function loggingProvider(
-    register: IServiceRegister,
-): Promise<void> {
+export function loggingProvider(register: IServiceRegister): void {
     register.registerFactory({
         token: Logger,
         factory: () => new Logger(),
@@ -665,7 +663,7 @@ export async function loggingProvider(
 
 // providers/database.provider.ts
 export class DatabaseProvider implements IServiceProvider {
-    async invoke(register: IServiceRegister): Promise<void> {
+    invoke(register: IServiceRegister): void {
         register.registerFactory({
             token: Database,
             factory: () => new Database(),
@@ -820,7 +818,7 @@ Scoped services are only available within a `container.run()` scope. Resolving t
 - **Scoped resolution** has minimal overhead per scope — instances are cached within the scope.
 - **Transient resolution** creates a new instance every time, which can be expensive if the service has a deep dependency graph. Use transient only when fresh state is required.
 - **Factory functions** can be synchronous or asynchronous and can perform I/O. Avoid heavy computation or blocking operations in factory callbacks.
-- **Service providers** (both functions and `IServiceProvider` objects) are invoked during registration, not during resolution. Provider invocation is synchronous but can be async.
+- **Service providers** (both functions and `IServiceProvider` objects) are invoked during registration, not during resolution. Providers must be synchronous — the container rejects async providers because their registrations would not complete before `init()`.
 
 ### Further information
 

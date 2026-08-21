@@ -39,7 +39,7 @@ A new dependency-injection (IoC) component is available at `eridu-tech/di`. The
   and `DiHook`.
 - **Error class surface** — `public` modifiers were dropped from members of
   `InvalidGraphDiError`, `InvalidMethodCallDiError`, and
-  `ServiceCanNotBeResolvedDiError`; their constructors are now `@internal`
+  `CanNotBeResolvedDiError`; their constructors are now `@internal`
   (use the `create()` factory methods instead).
 
 ## Eager container implementation
