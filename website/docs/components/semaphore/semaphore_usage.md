@@ -34,7 +34,7 @@ const semaphoreFactory = new SemaphoreFactory({
 ```
 
 :::info
-Here is a complete list of settings for the [`SemaphoreFactory`](https://eridu-tech.github.io/eridu-tech/types/Semaphore.SemaphoreFactorySettingsBase.html) class.
+Here is a complete list of settings for the [`SemaphoreFactory`](https://eridu-tech.github.io/eridu-tech-core/types/Semaphore.SemaphoreFactorySettingsBase.html) class.
 :::
 
 ## Semaphore basics
@@ -129,7 +129,7 @@ const semaphore = semaphoreFactory.create("shared-resource", {
 
 ### Checking semaphore state
 
-You can get the semaphore state by using the `getState` method, it returns [`ISemaphoreState`](https://eridu-tech.github.io/eridu-tech/types/Semaphore.ISemaphoreState.html).
+You can get the semaphore state by using the `getState` method, it returns [`ISemaphoreState`](https://eridu-tech.github.io/eridu-tech-core/types/Semaphore.ISemaphoreState.html).
 
 ```ts
 import { SEMAPHORE_STATE } from "eridu-tech/semaphore/contracts";
@@ -576,10 +576,10 @@ await eventBus.addListener(
 
 The library includes 2 additional contracts:
 
-- [`ISemaphore`](https://eridu-tech.github.io/eridu-tech/types/Semaphore.ISemaphore.html) - Allows only for manipulating of the semaphore.
+- [`ISemaphore`](https://eridu-tech.github.io/eridu-tech-core/types/Semaphore.ISemaphore.html) - Allows only for manipulating of the semaphore.
 
-- [`ISemaphoreFactory`](https://eridu-tech.github.io/eridu-tech/types/Semaphore.ISemaphoreFactory.html) - Allows only for creation of semaphores.
+- [`ISemaphoreFactory`](https://eridu-tech.github.io/eridu-tech-core/types/Semaphore.ISemaphoreFactory.html) - Allows only for creation of semaphores.
 
 ## Further information
 
-For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech-core/modules/Semaphore.html) API docs.

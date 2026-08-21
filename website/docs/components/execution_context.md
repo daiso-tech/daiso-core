@@ -150,4 +150,4 @@ The library includes several contracts that separate concerns for different use 
 
 ## Further information
 
-For further information refer to [`eridu-tech/execution-context`](https://eridu-tech.github.io/eridu-tech/modules/ExecutionContext.html) API docs.
+For further information refer to [`eridu-tech/execution-context`](https://eridu-tech.github.io/eridu-tech-core/modules/ExecutionContext.html) API docs.

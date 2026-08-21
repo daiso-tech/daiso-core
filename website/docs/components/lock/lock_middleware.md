@@ -45,9 +45,9 @@ await safeProcess("job-123"); // Acquires lock, processes, releases lock
 ```
 
 :::info
-Here is a complete list of settings for the [`withLock`](https://eridu-tech.github.io/eridu-tech/types/Lock.WithLockSettings.html) function.
+Here is a complete list of settings for the [`withLock`](https://eridu-tech.github.io/eridu-tech-core/types/Lock.WithLockSettings.html) function.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech-core/modules/Lock.html) API docs.

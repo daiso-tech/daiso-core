@@ -193,4 +193,4 @@ This separation makes it easy to visually distinguish the 4 contracts, making it
 
 ## Further information
 
-For further information refer to [`eridu-tech/serde`](https://eridu-tech.github.io/eridu-tech/modules/Serde.html) API docs.
+For further information refer to [`eridu-tech/serde`](https://eridu-tech.github.io/eridu-tech-core/modules/Serde.html) API docs.

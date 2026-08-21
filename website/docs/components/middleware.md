@@ -514,4 +514,4 @@ This pattern is ideal for building reusable feature packs (logging, monitoring) 
 
 ## Further information
 
-For further information refer to [`eridu-tech/middleware`](https://eridu-tech.github.io/eridu-tech/modules/Middleware.html) API docs.
+For further information refer to [`eridu-tech/middleware`](https://eridu-tech.github.io/eridu-tech-core/modules/Middleware.html) API docs.

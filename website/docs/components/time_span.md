@@ -296,4 +296,4 @@ export class Duration implements ITimeSpan {
 
 ## Further information
 
-For further information refer to [`eridu-tech/time-span`](https://eridu-tech.github.io/eridu-tech/modules/TimeSpan.html) API docs.
+For further information refer to [`eridu-tech/time-span`](https://eridu-tech.github.io/eridu-tech-core/modules/TimeSpan.html) API docs.

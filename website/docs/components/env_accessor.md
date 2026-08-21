@@ -85,4 +85,4 @@ type IEnvAccessor<TEnvConfig extends BaseEnvConfig = BaseEnvConfig> = {
 
 ## Further information
 
-For further information refer to [`eridu-tech/env-accessor`](https://eridu-tech.github.io/eridu-tech/modules/EnvAccessor.html) API docs.
+For further information refer to [`eridu-tech/env-accessor`](https://eridu-tech.github.io/eridu-tech-core/modules/EnvAccessor.html) API docs.

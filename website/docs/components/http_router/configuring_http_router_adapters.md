@@ -20,7 +20,7 @@ keywords:
 
 `SmartRouter` is the recommended adapter. It composes multiple routers and automatically selects the best matching router for each route.
 
-`eridu-tech/http-router` exports [`defaultHttpRouterAdapter`](https://eridu-tech.github.io/eridu-tech/variables/HttpRouter.defaultHttpRouterAdapter.html) to reduce boilerplate. It is equivalent to:
+`eridu-tech/http-router` exports [`defaultHttpRouterAdapter`](https://eridu-tech.github.io/eridu-tech-core/variables/HttpRouter.defaultHttpRouterAdapter.html) to reduce boilerplate. It is equivalent to:
 
 ```ts
 new SmartRouter({

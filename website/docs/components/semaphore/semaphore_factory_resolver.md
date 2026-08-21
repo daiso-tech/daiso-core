@@ -85,4 +85,4 @@ Note that the `SemaphoreFactoryResolver` is immutable, meaning any configuration
 
 ## Further information
 
-For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech-core/modules/Semaphore.html) API docs.

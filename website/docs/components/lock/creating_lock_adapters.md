@@ -14,11 +14,11 @@ keywords:
 
 ## Implementing your custom ILockAdapter
 
-In order to create an adapter you need to implement the [`ILockAdapter`](https://eridu-tech.github.io/eridu-tech/types/Lock.ILockAdapter.html) contract.
+In order to create an adapter you need to implement the [`ILockAdapter`](https://eridu-tech.github.io/eridu-tech-core/types/Lock.ILockAdapter.html) contract.
 
 ## Testing your custom ILockAdapter
 
-We provide a complete test suite to test your lock adapter implementation. Simply use the [`lockAdapterTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Lock.lockAdapterTestSuite.html) function:
+We provide a complete test suite to test your lock adapter implementation. Simply use the [`lockAdapterTestSuite`](https://eridu-tech.github.io/eridu-tech-core/functions/Lock.lockAdapterTestSuite.html) function:
 
 The suite provides preconfigured Vitest test cases with common edge
 case coverage and standardized lock adapter contract conformance
@@ -46,11 +46,11 @@ describe("class: MyLockAdapter", () => {
 
 ## Implementing your custom ILockFactory class
 
-In some cases, you may need to implement a custom [`LockFactory`](https://eridu-tech.github.io/eridu-tech/classes/Lock.LockFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ILockFactory`](https://eridu-tech.github.io/eridu-tech/types/Lock.ILockFactory.html) contract.
+In some cases, you may need to implement a custom [`LockFactory`](https://eridu-tech.github.io/eridu-tech-core/classes/Lock.LockFactory.html) class to optimize performance for your specific technology stack. You can then directly implement the [`ILockFactory`](https://eridu-tech.github.io/eridu-tech-core/types/Lock.ILockFactory.html) contract.
 
 ## Testing your custom ILockFactory class
 
-We provide a complete test suite to verify your custom lock factory class implementation. Simply use the [`lockFactoryTestSuite`](https://eridu-tech.github.io/eridu-tech/functions/Lock.lockFactoryTestSuite.html) function:
+We provide a complete test suite to verify your custom lock factory class implementation. Simply use the [`lockFactoryTestSuite`](https://eridu-tech.github.io/eridu-tech-core/functions/Lock.lockFactoryTestSuite.html) function:
 
 The suite provides preconfigured Vitest test cases with common edge
 case coverage and standardized lock factory contract conformance
@@ -78,4 +78,4 @@ describe("class: MyLockFactory", () => {
 
 ## Further information
 
-For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech-core/modules/Lock.html) API docs.

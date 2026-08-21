@@ -51,7 +51,7 @@ const router = new HttpRouter({
 ```
 
 :::info
-Here is a complete list of settings for the [`HttpRouter`](https://eridu-tech.github.io/eridu-tech/types/HttpRouter.HttpRouterSettings.html) class.
+Here is a complete list of settings for the [`HttpRouter`](https://eridu-tech.github.io/eridu-tech-core/types/HttpRouter.HttpRouterSettings.html) class.
 :::
 
 ## HttpRouter basics
