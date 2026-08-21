@@ -33,7 +33,7 @@ export type InvalidMethodCallFlag =
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type InvalidMethodCallData =
+export type InvalidMethodCallDiErrorData =
     | {
           flag: typeof InvalidMethodCallDiError.FLAG.NOT_ACTIVE;
           methodName: string;
@@ -346,7 +346,7 @@ export class InvalidMethodCallDiError extends Error {
     /**
      * The details of the invalid call, discriminated by `flag`.
      */
-    readonly info: InvalidMethodCallData;
+    readonly info: InvalidMethodCallDiErrorData;
 
     /**
      * The reason why the method call is invalid.
@@ -363,7 +363,9 @@ export class InvalidMethodCallDiError extends Error {
      * remaining fields.
      * @returns A new error instance.
      */
-    static create(settings: InvalidMethodCallData): InvalidMethodCallDiError {
+    static create(
+        settings: InvalidMethodCallDiErrorData,
+    ): InvalidMethodCallDiError {
         const message = InvalidMethodCallDiError.createMessage(settings);
         return new InvalidMethodCallDiError(message, settings);
     }
@@ -375,7 +377,7 @@ export class InvalidMethodCallDiError extends Error {
      */
     constructor(
         message: string,
-        settings: InvalidMethodCallData,
+        settings: InvalidMethodCallDiErrorData,
         cause?: unknown,
     ) {
         super(message, {
@@ -385,7 +387,9 @@ export class InvalidMethodCallDiError extends Error {
         this.info = settings;
     }
 
-    private static createMessage(settings: InvalidMethodCallData): string {
+    private static createMessage(
+        settings: InvalidMethodCallDiErrorData,
+    ): string {
         switch (settings.flag) {
             case InvalidMethodCallDiError.FLAG.ALREADY_INITIALIZED:
                 return `Illegal method call: "${settings.methodName}" was called after container.init() was invoked.`;
@@ -407,8 +411,8 @@ export class InvalidMethodCallDiError extends Error {
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type ServiceCanNotBeResolvedErrorFlag =
-    (typeof ServiceCanNotBeResolvedDiError.FLAG)[keyof typeof ServiceCanNotBeResolvedDiError.FLAG];
+export type CanNotBeResolvedErrorFlag =
+    (typeof CanNotBeResolvedDiError.FLAG)[keyof typeof CanNotBeResolvedDiError.FLAG];
 
 /**
  * The object literal `{ flag, data }` describing why a service could not be
@@ -427,28 +431,28 @@ export type ServiceCanNotBeResolvedErrorFlag =
  */
 export type ServiceCanNotBeResolvedErrorData =
     | {
-          flag: typeof ServiceCanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN;
+          flag: typeof CanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN;
           token: DiToken;
       }
     | {
-          flag: typeof ServiceCanNotBeResolvedDiError.FLAG.SCOPED_SERVICE_OUTSIDE_RUN;
+          flag: typeof CanNotBeResolvedDiError.FLAG.SCOPED_SERVICE_OUTSIDE_RUN;
           token: DiToken;
       }
     | {
-          flag: typeof ServiceCanNotBeResolvedDiError.FLAG.DYNAMIC_SERVICE_OUTSIDE_RUN;
+          flag: typeof CanNotBeResolvedDiError.FLAG.DYNAMIC_SERVICE_OUTSIDE_RUN;
           token: DiToken;
       }
     | {
-          flag: typeof ServiceCanNotBeResolvedDiError.FLAG.TRANSIENT_SERVICE_DEPEND_ON_SCOPED;
+          flag: typeof CanNotBeResolvedDiError.FLAG.TRANSIENT_SERVICE_DEPEND_ON_SCOPED;
           transientToken: DiToken;
           scopedTokens: Array<DiToken>;
       }
     | {
-          flag: typeof ServiceCanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL;
+          flag: typeof CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL;
           token: DiToken;
       }
     | {
-          flag: typeof ServiceCanNotBeResolvedDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS;
+          flag: typeof CanNotBeResolvedDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS;
           dynamicTokens: Array<DiToken>;
       };
 
@@ -458,7 +462,7 @@ export type ServiceCanNotBeResolvedErrorData =
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export class ServiceCanNotBeResolvedDiError extends Error {
+export class CanNotBeResolvedDiError extends Error {
     /**
      * The reasons why a service cannot be resolved.
      */
@@ -482,12 +486,12 @@ export class ServiceCanNotBeResolvedDiError extends Error {
     /**
      * The reason why the service could not be resolved.
      */
-    get flag(): ServiceCanNotBeResolvedErrorFlag {
+    get flag(): CanNotBeResolvedErrorFlag {
         return this.info.flag;
     }
 
     /**
-     * Creates a new {@link ServiceCanNotBeResolvedDiError} instance.
+     * Creates a new {@link CanNotBeResolvedDiError} instance.
      *
      * @param settings - An object literal `{ flag, data }`. The `flag` selects
      * which failure occurred and acts as a type guard for the `data` field.
@@ -495,9 +499,9 @@ export class ServiceCanNotBeResolvedDiError extends Error {
      */
     static create(
         settings: ServiceCanNotBeResolvedErrorData,
-    ): ServiceCanNotBeResolvedDiError {
+    ): CanNotBeResolvedDiError {
         const message = this.createMessage(settings);
-        return new ServiceCanNotBeResolvedDiError(message, settings);
+        return new CanNotBeResolvedDiError(message, settings);
     }
 
     /**
@@ -513,7 +517,7 @@ export class ServiceCanNotBeResolvedDiError extends Error {
         super(message, {
             cause,
         });
-        this.name = ServiceCanNotBeResolvedDiError.name;
+        this.name = CanNotBeResolvedDiError.name;
         this.info = data;
     }
 
@@ -521,24 +525,22 @@ export class ServiceCanNotBeResolvedDiError extends Error {
         settings: ServiceCanNotBeResolvedErrorData,
     ): string {
         switch (settings.flag) {
-            case ServiceCanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN:
+            case CanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN:
                 return `Failed to resolve service for token: "${tokenToString(settings.token)}". The token is not registered.`;
-            case ServiceCanNotBeResolvedDiError.FLAG.SCOPED_SERVICE_OUTSIDE_RUN:
+            case CanNotBeResolvedDiError.FLAG.SCOPED_SERVICE_OUTSIDE_RUN:
                 return `Failed to resolve service for token: "${tokenToString(settings.token)}". The service is scoped and can only be resolved inside a run scope.`;
-            case ServiceCanNotBeResolvedDiError.FLAG
-                .DYNAMIC_SERVICE_OUTSIDE_RUN:
+            case CanNotBeResolvedDiError.FLAG.DYNAMIC_SERVICE_OUTSIDE_RUN:
                 return `Failed to resolve service for token: "${tokenToString(settings.token)}". The service is dynamic and no value has been set for it within the current run scope.`;
-            case ServiceCanNotBeResolvedDiError.FLAG
+            case CanNotBeResolvedDiError.FLAG
                 .TRANSIENT_SERVICE_DEPEND_ON_SCOPED: {
                 const scopedTokensString = settings.scopedTokens
                     .map((token) => tokenToString(token))
                     .join(", ");
                 return `Failed to resolve service for token: "${tokenToString(settings.transientToken)}". The service is transient and depends on a scoped service ("${scopedTokensString}"), so it can only be resolved inside a run scope.`;
             }
-            case ServiceCanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL:
+            case CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL:
                 return `Failed to resolve service for token: "${tokenToString(settings.token)}". The resolved value is null.`;
-            case ServiceCanNotBeResolvedDiError.FLAG
-                .NO_DYNAMIC_VALUE_SET_FOR_TOKENS: {
+            case CanNotBeResolvedDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS: {
                 const dynamicTokensString = settings.dynamicTokens
                     .map((token) => tokenToString(token))
                     .join(", ");

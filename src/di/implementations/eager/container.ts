@@ -7,7 +7,7 @@ import {
 } from "@/di/contracts/_module-exports.js";
 import {
     InvalidMethodCallDiError,
-    ServiceCanNotBeResolvedDiError,
+    CanNotBeResolvedDiError,
 } from "@/di/contracts/container.errors.js";
 import { INTERNAL_LIFETIME } from "@/di/implementations/eager/_shared.js";
 import { DynamicServiceRegister } from "@/di/implementations/eager/dynamic-service-register.js";
@@ -53,40 +53,18 @@ export type ContainerSettings = {
     executionContext: IExecutionContext;
 };
 
-/**
- * @internal
- */
-const UNINITIALIZED_STATE = Symbol("Container is uninitialized.");
-
-/**
- * @internal
- */
-const ACTIVE_STATE = Symbol("Container is active.");
-
-/**
- * @internal
- */
-const TERMINATED_STATE = Symbol("Container is terminated.");
-
-/**
- * @internal
- */
-const STATE = {
-    ACTIVE: ACTIVE_STATE,
-    UNINITIALIZED: UNINITIALIZED_STATE,
-    TERMINATED: TERMINATED_STATE,
-} as const;
-
-/**
- * @internal
- */
-type TState = (typeof STATE)[keyof typeof STATE];
+type TState = (typeof Container.STATE)[keyof typeof Container.STATE];
 
 /**
  * IMPORT_PATH: `"eridu-tech/di"`
  * @group Implementations
  */
 export class Container implements IContainer {
+    static readonly STATE = {
+        ACTIVE: Symbol("Container is active."),
+        UNINITIALIZED: Symbol("Container is uninitialized."),
+        TERMINATED: Symbol("Container is terminated."),
+    } as const;
     private readonly SCOPE_DEPTH_COUNT_KEY = genericToken<number>(
         "The depth level associated with current scope",
     );
@@ -99,7 +77,7 @@ export class Container implements IContainer {
     private initHandlers: Array<DiHook> = [];
     private deInitHandlers: Array<DiHook> = [];
     private registryManager: RegistryManager;
-    private currentState: TState = STATE.UNINITIALIZED;
+    private currentState: TState = Container.STATE.UNINITIALIZED;
 
     constructor(private readonly settings: ContainerSettings) {
         this.registryManager = RegistryManager.withExecutionContext(
@@ -113,7 +91,7 @@ export class Container implements IContainer {
     }
 
     private throwIfContainerAlreadyInitialized(methodName: string) {
-        if (this.currentState !== STATE.UNINITIALIZED) {
+        if (this.currentState !== Container.STATE.UNINITIALIZED) {
             throw InvalidMethodCallDiError.create({
                 methodName,
                 flag: InvalidMethodCallDiError.FLAG.ALREADY_INITIALIZED,
@@ -122,7 +100,7 @@ export class Container implements IContainer {
     }
 
     private throwIfContainerNotActive(methodName: string) {
-        if (this.currentState !== STATE.ACTIVE) {
+        if (this.currentState !== Container.STATE.ACTIVE) {
             throw InvalidMethodCallDiError.create({
                 methodName,
                 flag: InvalidMethodCallDiError.FLAG.NOT_ACTIVE,
@@ -408,7 +386,7 @@ export class Container implements IContainer {
         await this.initSingletonsValues();
         await this.initTransientFactories();
 
-        this.currentState = STATE.ACTIVE;
+        this.currentState = Container.STATE.ACTIVE;
         await this.runHooks(this.initHandlers);
     }
 
@@ -419,7 +397,7 @@ export class Container implements IContainer {
         await this.runHooks(this.deInitHandlers);
 
         this.registryManager.clear();
-        this.currentState = STATE.TERMINATED;
+        this.currentState = Container.STATE.TERMINATED;
     }
 
     onContainerInit(handler: DiHook): void {
@@ -522,8 +500,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
-                        .NOT_REGISTERED_TOKEN,
+                    flag: CanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN,
                     token,
                 },
             };
@@ -587,8 +564,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
-                        .RESOLVED_VALUE_IS_NULL,
+                    flag: CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
                     token,
                 },
             };
@@ -621,7 +597,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                    flag: CanNotBeResolvedDiError.FLAG
                         .TRANSIENT_SERVICE_DEPEND_ON_SCOPED,
                     scopedTokens: includeScopedNodes.nodes,
                     transientToken: token,
@@ -636,8 +612,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
-                        .RESOLVED_VALUE_IS_NULL,
+                    flag: CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
                     token,
                 },
             };
@@ -668,7 +643,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                    flag: CanNotBeResolvedDiError.FLAG
                         .SCOPED_SERVICE_OUTSIDE_RUN,
                     token,
                 },
@@ -685,7 +660,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                    flag: CanNotBeResolvedDiError.FLAG
                         .NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
                     dynamicTokens: dynamicTokensWithoutValue,
                 },
@@ -697,8 +672,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
-                        .RESOLVED_VALUE_IS_NULL,
+                    flag: CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
                     token,
                 },
             };
@@ -727,7 +701,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                    flag: CanNotBeResolvedDiError.FLAG
                         .DYNAMIC_SERVICE_OUTSIDE_RUN,
                     token,
                 },
@@ -737,7 +711,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
+                    flag: CanNotBeResolvedDiError.FLAG
                         .NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
                     dynamicTokens: [token],
                 },
@@ -750,8 +724,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: ServiceCanNotBeResolvedDiError.FLAG
-                        .RESOLVED_VALUE_IS_NULL,
+                    flag: CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
                     token,
                 },
             };
@@ -779,7 +752,7 @@ export class Container implements IContainer {
 
         const result = await this.resolveOrGiveExplanation(token);
         if (!result.success) {
-            throw ServiceCanNotBeResolvedDiError.create(result.explanation);
+            throw CanNotBeResolvedDiError.create(result.explanation);
         }
         return result.value;
     }
