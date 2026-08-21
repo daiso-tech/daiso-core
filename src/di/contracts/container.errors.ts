@@ -18,7 +18,7 @@ function tokenToString(diToken: DiToken): string {
     if (isClass(diToken)) {
         return diToken.name;
     }
-    return diToken.id.toString();
+    return diToken.id.description ?? String(diToken.id);
 }
 
 /**
@@ -33,7 +33,7 @@ export type InvalidMethodCallFlag =
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type InvalidMethodCallDiErrorData =
+export type InvalidMethodCallData =
     | {
           flag: typeof InvalidMethodCallDiError.FLAG.NOT_ACTIVE;
           methodName: string;
@@ -69,7 +69,9 @@ function buildGraphMessage(args: {
     const noun = args.count === 1 ? args.singularNoun : args.pluralNoun;
     const shortenedNote =
         args.shownCount !== args.count
-            ? ` Only ${args.shownCount.toString()} are shown.`
+            ? ` Only ${args.shownCount.toString()} ${
+                  args.shownCount === 1 ? "is" : "are"
+              } shown.`
             : "";
     return (
         `${args.count.toString()} ${noun} detected in the service graph.` +
@@ -100,7 +102,7 @@ export type EdgeErrorInfo = {
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type InvalidGraphInfo =
+export type InvalidGraphData =
     | {
           flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP;
           edgeErrors: Array<{ edge: string; edgeType: string }>;
@@ -130,7 +132,7 @@ export type UndeclaredDependencyInfo<T = DiToken> = {
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type InvalidGraphCreateSettings =
+export type InvalidGraphCreateData =
     | {
           flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP;
           edgeErrorInfos: Array<EdgeErrorInfo>;
@@ -144,7 +146,7 @@ export type InvalidGraphCreateSettings =
     | {
           flag: typeof InvalidGraphDiError.FLAG.UNDECLARED_DEPENDENCIES;
           undeclaredDependencies: Array<UndeclaredDependencyInfo>;
-          totalNodes?: number;
+          totalDetected?: number;
       };
 
 /**
@@ -166,7 +168,7 @@ export class InvalidGraphDiError extends Error {
     /**
      * The graph problem details, discriminated by `flag`.
      */
-    readonly info: InvalidGraphInfo;
+    readonly info: InvalidGraphData;
 
     /**
      * The kind of graph problem.
@@ -183,7 +185,7 @@ export class InvalidGraphDiError extends Error {
      * fields.
      * @returns A new error instance.
      */
-    static create(settings: InvalidGraphCreateSettings): InvalidGraphDiError {
+    static create(settings: InvalidGraphCreateData): InvalidGraphDiError {
         switch (settings.flag) {
             case InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP:
                 return InvalidGraphDiError.createInvalidEdgeRelationshipError(
@@ -200,7 +202,7 @@ export class InvalidGraphDiError extends Error {
 
     private static createInvalidEdgeRelationshipError(
         settings: Extract<
-            InvalidGraphCreateSettings,
+            InvalidGraphCreateData,
             { flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP }
         >,
     ): InvalidGraphDiError {
@@ -241,7 +243,7 @@ export class InvalidGraphDiError extends Error {
 
     private static createCycleDependencyError(
         settings: Extract<
-            InvalidGraphCreateSettings,
+            InvalidGraphCreateData,
             { flag: typeof InvalidGraphDiError.FLAG.CYCLE_DEPENDENCY }
         >,
     ): InvalidGraphDiError {
@@ -276,13 +278,13 @@ export class InvalidGraphDiError extends Error {
 
     private static createUndeclaredDependenciesError(
         settings: Extract<
-            InvalidGraphCreateSettings,
+            InvalidGraphCreateData,
             { flag: typeof InvalidGraphDiError.FLAG.UNDECLARED_DEPENDENCIES }
         >,
     ): InvalidGraphDiError {
-        const { undeclaredDependencies, totalNodes } = settings;
+        const { undeclaredDependencies, totalDetected } = settings;
         const totalUnDeclaredNodes =
-            totalNodes ?? undeclaredDependencies.length;
+            totalDetected ?? undeclaredDependencies.length;
 
         const undeclaredDependencyStrings = undeclaredDependencies.map(
             (undeclaredDependency) => ({
@@ -317,7 +319,7 @@ export class InvalidGraphDiError extends Error {
      * The constructor remains  only to maintain compatibility with errorPolicy types and prevent type errors.
      * @internal
      */
-    constructor(message: string, info: InvalidGraphInfo, cause?: unknown) {
+    constructor(message: string, info: InvalidGraphData, cause?: unknown) {
         super(message, { cause });
         this.name = InvalidGraphDiError.name;
         this.info = info;
@@ -346,7 +348,7 @@ export class InvalidMethodCallDiError extends Error {
     /**
      * The details of the invalid call, discriminated by `flag`.
      */
-    readonly info: InvalidMethodCallDiErrorData;
+    readonly info: InvalidMethodCallData;
 
     /**
      * The reason why the method call is invalid.
@@ -363,9 +365,7 @@ export class InvalidMethodCallDiError extends Error {
      * remaining fields.
      * @returns A new error instance.
      */
-    static create(
-        settings: InvalidMethodCallDiErrorData,
-    ): InvalidMethodCallDiError {
+    static create(settings: InvalidMethodCallData): InvalidMethodCallDiError {
         const message = InvalidMethodCallDiError.createMessage(settings);
         return new InvalidMethodCallDiError(message, settings);
     }
@@ -377,7 +377,7 @@ export class InvalidMethodCallDiError extends Error {
      */
     constructor(
         message: string,
-        settings: InvalidMethodCallDiErrorData,
+        settings: InvalidMethodCallData,
         cause?: unknown,
     ) {
         super(message, {
@@ -387,9 +387,7 @@ export class InvalidMethodCallDiError extends Error {
         this.info = settings;
     }
 
-    private static createMessage(
-        settings: InvalidMethodCallDiErrorData,
-    ): string {
+    private static createMessage(settings: InvalidMethodCallData): string {
         switch (settings.flag) {
             case InvalidMethodCallDiError.FLAG.ALREADY_INITIALIZED:
                 return `Illegal method call: "${settings.methodName}" was called after container.init() was invoked.`;
@@ -415,16 +413,17 @@ export type CanNotBeResolvedErrorFlag =
     (typeof CanNotBeResolvedDiError.FLAG)[keyof typeof CanNotBeResolvedDiError.FLAG];
 
 /**
- * The object literal `{ flag, data }` describing why a service could not be
- * resolved. The `flag` discriminates the shape of `data`:
- * - `GENERAL` - no further details.
- * - `NOT_REGISTERED`, `SCOPED_SERVICE`, `DYNAMIC_SERVICE` - `data` is the
- *   offending {@link DiToken}.
- * - `TRANSIENT_SERVICE_DEPEND_ON_SCOPED` - `data` holds both the transient
- *   and the scoped tokens.
- * - `RESOLVED_VALUE_IS_NULL` - `data` is the offending {@link DiToken}.
- * - `NO_DYNAMIC_VALUE_SET_FOR_TOKEN` - `data` is the offending
- *   {@link DiToken}.
+ * The object literal `{ flag, ...data }` describing why a service could not
+ * be resolved. The `flag` discriminates the shape of the remaining fields:
+ * - `NOT_REGISTERED_TOKEN` - `token` is the offending {@link DiToken}.
+ * - `SCOPED_SERVICE_OUTSIDE_RUN` - `token` is the offending {@link DiToken}.
+ * - `DYNAMIC_SERVICE_OUTSIDE_RUN` - `token` is the offending {@link DiToken}.
+ * - `TRANSIENT_SERVICE_DEPEND_ON_SCOPED` - `transientToken` is the
+ *   offending transient token and `scopedTokens` are the scoped tokens it
+ *   depends on.
+ * - `RESOLVED_VALUE_IS_NULL` - `token` is the offending {@link DiToken}.
+ * - `NO_DYNAMIC_VALUE_SET_FOR_TOKENS` - `dynamicTokens` are the offending
+ *   {@link DiToken}s.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
@@ -493,8 +492,9 @@ export class CanNotBeResolvedDiError extends Error {
     /**
      * Creates a new {@link CanNotBeResolvedDiError} instance.
      *
-     * @param settings - An object literal `{ flag, data }`. The `flag` selects
-     * which failure occurred and acts as a type guard for the `data` field.
+     * @param settings - An object literal `{ flag, ...data }`. The `flag`
+     * selects which failure occurred and acts as a type guard for the
+     * remaining fields.
      * @returns A new error instance.
      */
     static create(

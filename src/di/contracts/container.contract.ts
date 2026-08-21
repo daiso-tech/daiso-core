@@ -60,7 +60,10 @@ export type GenericToken<TRegisteredType = unknown> = {
 /**
  * Creates a new generic token identified by the given `id`.
  *
- * @param id - A unique string identifier for the token.
+ * Each call creates a distinct token, so a token must be created once and
+ * exported, then reused for registration and resolution.
+ *
+ * @param id - A descriptive label for the token.
  * @returns A new {@link GenericToken} instance.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
@@ -109,9 +112,7 @@ export type DepRecord = Partial<Record<string, unknown>>;
  * The default dependency record used when a service declares no
  * dependencies. It is the default `TDeps` type parameter for types like
  * {@link ServiceFactory} and {@link FactoryRegistration}.
- */
-
-/**
+ *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
  */
@@ -376,14 +377,17 @@ export type IServiceResolver = {
      */
     resolveOrFail<TType>(token: DiToken<TType>): Promise<TType>;
 
+    // TODO: find a better name for this method.
     /**
-     * TODO find better name?
-     * Checks whether a token can be resolved.
+     * Checks whether a token can be resolved by calling `resolve`.
      *
      * Note: this does NOT check whether the token is registered. It only
-     * returns `true` if the token can be resolved to a value. A
-     * registered token with that can not resolved to value yet
-     * will return `false`.
+     * returns `true` if the token can be resolved to a value; a registered
+     * token that cannot be resolved to a value yet returns `false`.
+     *
+     * Because it resolves the token, calling `has` may invoke service
+     * factories (for example, transient factories) as a side effect — the
+     * service is created as part of the check.
      */
     has(token: DiToken): Promise<boolean>;
 };
@@ -403,6 +407,20 @@ export type DynamicValue<TRegisteredType = unknown> = Invocable<
 >;
 
 /**
+ * A wrapper that explicitly marks a value as a {@link DynamicValue} callback,
+ * distinguishing it from a plain service value that may itself be callable.
+ *
+ * @typeParam TRegisteredType - The type of the dynamic value.
+ *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Contracts
+ */
+export type DynamicValueWrapper<TRegisteredType = unknown> = {
+    /** The callback that computes the dynamic value from the execution context. */
+    readonly dynamicValue: DynamicValue<TRegisteredType>;
+};
+
+/**
  * Configuration for setting a dynamic value at runtime via
  * {@link IDynamicServiceRegister.set}.
  *
@@ -415,8 +433,11 @@ export type DynamicRegistration<TRegisteredType = unknown> = {
     /** The token whose dynamic value is being set. */
     token: DiToken<TRegisteredType>;
 
-    /** A static value or a {@link DynamicValue} callback. */
-    value: TRegisteredType | DynamicValue<TRegisteredType>;
+    /**
+     * A static value, or a {@link DynamicValueWrapper} wrapping a callback
+     * that computes the value from the execution context.
+     */
+    value: TRegisteredType | DynamicValueWrapper<TRegisteredType>;
 };
 
 /**
@@ -502,8 +523,9 @@ export type IContainerScope = {
     /**
      * Runs a callback within a scoped container context.
      * Scoped services are resolved once per `run()` invocation.
+     * Resolves to the value returned by the scope callback.
      */
-    run<TValue = void>(settings: RunSettings<TValue>): Promise<void>;
+    run<TValue = void>(settings: RunSettings<TValue>): Promise<TValue>;
 };
 
 /**
