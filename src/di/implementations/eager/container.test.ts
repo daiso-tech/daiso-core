@@ -11,9 +11,10 @@ import {
     CanNotOverrideServiceDiError,
 } from "@/di/contracts/container.errors.js";
 import { Container } from "@/di/implementations/eager/container.js";
+import { RegistryManager } from "@/di/implementations/eager/registry-manager.js";
 import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/_module-exports.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module-exports.js";
-import { callInvocable } from "@/utilities/_module.js";
+import { callInvocable, UnexpectedError } from "@/utilities/_module.js";
 
 import type {
     IServiceRegister,
@@ -412,6 +413,24 @@ describe("class: Container", () => {
                 container.registerProvider(appProvider);
             }).not.toThrow();
         });
+
+        test("Should reject a promise-returning (async) provider", () => {
+            function asyncProvider(register: IServiceRegister): Promise<void> {
+                return Promise.resolve().then(() => {
+                    register.registerFactory({
+                        token: ConsoleLogger,
+                        factory: () => new ConsoleLogger(),
+                        deps: {},
+                        lifetime: LIFETIME.SINGLETON,
+                    });
+                });
+            }
+
+            expect(() => {
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                container.registerProvider(asyncProvider);
+            }).toThrow(UnexpectedError);
+        });
     });
 
     // -----------------------------------------------------------------------
@@ -593,7 +612,10 @@ describe("class: Container", () => {
                 dynamicRegistration: async (register) => {
                     await register.set({
                         token: REQUEST_ID,
-                        value: (_executionContext) => "req-from-callback",
+                        value: {
+                            dynamicValue: (_executionContext) =>
+                                "req-from-callback",
+                        },
                     });
                 },
                 scope: async () => {
@@ -603,6 +625,39 @@ describe("class: Container", () => {
             });
 
             expect(capturedRequestId).toBe("req-from-callback");
+        });
+
+        test("Should preserve callable values as direct service values", async () => {
+            const FN_TOKEN = genericToken<() => string>("FnToken");
+            const OBJ_TOKEN = genericToken<{ invoke: () => string }>(
+                "ObjToken",
+            );
+
+            container.registerDynamic(FN_TOKEN);
+            container.registerDynamic(OBJ_TOKEN);
+
+            const serviceFn = () => "fn-result";
+            const serviceObject = { invoke: () => "obj-result" };
+
+            await container.init();
+            await container.run({
+                dynamicRegistration: async (register) => {
+                    // Neither value is wrapped as a DynamicValue, so both must
+                    // be stored directly — never invoked as callbacks.
+                    await register.set({ token: FN_TOKEN, value: serviceFn });
+                    await register.set({
+                        token: OBJ_TOKEN,
+                        value: serviceObject,
+                    });
+                },
+                scope: async () => {
+                    const resolvedFn = await container.resolveOrFail(FN_TOKEN);
+                    const resolvedObj =
+                        await container.resolveOrFail(OBJ_TOKEN);
+                    expect(resolvedFn).toBe(serviceFn);
+                    expect(resolvedObj).toBe(serviceObject);
+                },
+            });
         });
 
         test("Should share scoped services within the same run() call", async () => {
@@ -857,6 +912,72 @@ describe("class: Container", () => {
             expect(config.apiUrl).toBe("https://api.example.com");
 
             await container.deInit();
+        });
+    });
+
+    // -----------------------------------------------------------------------
+    // initTransientFactories (memory-leak regression)
+    // -----------------------------------------------------------------------
+    describe("initTransientFactories", () => {
+        test("Should keep the factory closure set bounded across repeated transient resolutions", async () => {
+            const { container } = createContainerAndExecutionContext();
+
+            const DEP = genericToken<{ value: number }>("Dep");
+            const OTHER = genericToken<{ value: number }>("Other");
+            const SERVICE = genericToken<{
+                dep: { value: number };
+                other: { value: number };
+            }>("Service");
+
+            container.registerFactory({
+                token: DEP,
+                factory: () => ({ value: 1 }),
+                deps: {},
+                lifetime: LIFETIME.SINGLETON,
+            });
+            container.registerFactory({
+                token: OTHER,
+                factory: () => ({ value: 2 }),
+                deps: {},
+                lifetime: LIFETIME.TRANSIENT,
+            });
+            container.registerFactory({
+                token: SERVICE,
+                factory: ({ dep, other }) => ({ dep, other }),
+                deps: { dep: DEP, other: OTHER },
+                lifetime: LIFETIME.TRANSIENT,
+            });
+
+            const saveInBaseRegistrySpy = vi.spyOn(
+                RegistryManager.prototype,
+                "saveInBaseRegistry",
+            );
+
+            await container.init();
+            const savesAfterInit = saveInBaseRegistrySpy.mock.calls.length;
+            expect(savesAfterInit).toBeGreaterThan(0);
+
+            const resolved = new Array<{
+                dep: { value: number };
+                other: { value: number };
+            }>(100);
+            for (let i = 0; i < resolved.length; i++) {
+                resolved[i] = await container.resolveOrFail(SERVICE);
+            }
+
+            // Repeated resolutions must not write new closures or resolved
+            // instances into the registry. The factory closure set is fixed
+            // during init and bounded by the transient node count, so it
+            // cannot grow with the number of resolutions.
+            expect(saveInBaseRegistrySpy.mock.calls.length).toBe(
+                savesAfterInit,
+            );
+
+            // Transient semantics: every resolution returns a fresh instance
+            // instead of reusing a retained one.
+            expect(new Set(resolved).size).toBe(resolved.length);
+
+            saveInBaseRegistrySpy.mockRestore();
         });
     });
 
@@ -1623,6 +1744,51 @@ describe(`${Container.prototype.onContainerDeInit.name} & ${Container.prototype.
     });
 });
 
+describe("init / deInit failure semantics", () => {
+    test("Should move to a non-active state when an init hook rejects", async () => {
+        const { container } = createContainerAndExecutionContext();
+
+        container.onContainerInit(() => {
+            throw new Error("init hook failed");
+        });
+
+        await expect(container.init()).rejects.toThrow("init hook failed");
+
+        // A failed init must not leave the container usable: resolves and
+        // re-inits are both blocked.
+        await expect(container.resolve(ICONFIG)).rejects.toThrow(
+            InvalidMethodCallDiError,
+        );
+        await expect(container.init()).rejects.toThrow(
+            InvalidMethodCallDiError,
+        );
+    });
+
+    test("Should run every deInit hook and still terminate when one rejects", async () => {
+        const { container } = createContainerAndExecutionContext();
+
+        const hook1 = vi.fn();
+        const hook2 = vi.fn();
+        container.onContainerDeInit(hook1);
+        container.onContainerDeInit(() => {
+            throw new Error("deInit hook failed");
+        });
+        container.onContainerDeInit(hook2);
+
+        await container.init();
+        await expect(container.deInit()).rejects.toThrow("deInit hook failed");
+
+        // Every deInit handler runs even though one rejects.
+        expect(hook1).toHaveBeenCalled();
+        expect(hook2).toHaveBeenCalled();
+
+        // Cleanup still ran: the container is terminated.
+        await expect(container.resolve(ICONFIG)).rejects.toThrow(
+            InvalidMethodCallDiError,
+        );
+    });
+});
+
 describe("has", () => {
     let container: IContainer;
     beforeEach(() => {
@@ -1735,9 +1901,7 @@ describe(`${Container.prototype.resolve.name} & ${Container.name}.${Container.pr
          */
         test(`should fail when resolving a nonexistent token at top with ${Container.name}.${Container.prototype.resolveOrFail.name}`, async () => {
             const promise = container.resolveOrFail(tokenA);
-            await expect(promise).rejects.toThrow(
-                CanNotBeResolvedDiError,
-            );
+            await expect(promise).rejects.toThrow(CanNotBeResolvedDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 CanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN,
@@ -1781,9 +1945,7 @@ describe(`${Container.prototype.resolve.name} & ${Container.name}.${Container.pr
                     return await container.resolveOrFail(tokenA);
                 },
             });
-            await expect(promise).rejects.toThrow(
-                CanNotBeResolvedDiError,
-            );
+            await expect(promise).rejects.toThrow(CanNotBeResolvedDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 CanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN,
@@ -1946,9 +2108,7 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             await container.init();
 
             const promise = container.resolveOrFail(nodeA.token);
-            await expect(promise).rejects.toThrow(
-                CanNotBeResolvedDiError,
-            );
+            await expect(promise).rejects.toThrow(CanNotBeResolvedDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
                 CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
@@ -2571,13 +2731,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                     await container.resolveOrFail(tokenA);
                 },
             });
-            await expect(promise).rejects.toThrow(
-                CanNotBeResolvedDiError,
-            );
+            await expect(promise).rejects.toThrow(CanNotBeResolvedDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
-                CanNotBeResolvedDiError.FLAG
-                    .NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
+                CanNotBeResolvedDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
             );
         });
 

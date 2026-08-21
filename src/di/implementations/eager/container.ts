@@ -30,6 +30,7 @@ import type {
     FactoryRegistrationOverride,
     IContainer,
     IDynamicServiceRegister,
+    IServiceRegister,
     RunSettings,
     ServiceProvider,
     ValueRegistration,
@@ -135,14 +136,6 @@ export class Container implements IContainer {
         }
     }
 
-    private throwIfNodeNotExistInGraph(token: Node) {
-        const tokenExistInGraph = this.graphManager.hasNodeProperty(token);
-
-        if (!tokenExistInGraph) {
-            throw new UnexpectedError("token not registered");
-        }
-    }
-
     private getRunScopeDepthCounter(): number | null {
         return this.settings.executionContext.get(this.SCOPE_DEPTH_COUNT_KEY);
     }
@@ -232,7 +225,6 @@ export class Container implements IContainer {
         });
     }
 
-    // TODO check function for memory leaks
     private async initTransientFactories(): Promise<void> {
         const transients = this.graphManager
             .nodes()
@@ -285,7 +277,12 @@ export class Container implements IContainer {
                         };
                     }
 
-                    throw new Error();
+                    throw new UnexpectedError(
+                        `Dependency "${tokenToString(dep)}" of transient node "${tokenToString(nodeId)}" is neither singleton, scoped, nor transient.`,
+                        {
+                            token: dep,
+                        },
+                    );
                 });
 
                 const serviceFactory =
@@ -367,10 +364,24 @@ export class Container implements IContainer {
         });
     }
 
-    private async runHooks(hooks: Array<DiHook>): Promise<void> {
+    private async runHooks(
+        hooks: Array<DiHook>,
+        allSettled = false,
+    ): Promise<void> {
         const handlers = hooks.map(async (hanlder) => {
             await callInvocable(hanlder, this);
         });
+        if (allSettled) {
+            const results = await Promise.allSettled(handlers);
+            const firstRejected = results.find(
+                (result): result is PromiseRejectedResult =>
+                    result.status === "rejected",
+            );
+            if (firstRejected !== undefined) {
+                throw firstRejected.reason;
+            }
+            return;
+        }
         await Promise.all(handlers);
     }
 
@@ -387,17 +398,29 @@ export class Container implements IContainer {
         await this.initTransientFactories();
 
         this.currentState = Container.STATE.ACTIVE;
-        await this.runHooks(this.initHandlers);
+        try {
+            await this.runHooks(this.initHandlers);
+        } catch (error) {
+            // A failed init hook means initialization is incomplete. Move to a
+            // non-active state so retries and resolve calls cannot use the
+            // partially initialized container.
+            this.currentState = Container.STATE.TERMINATED;
+            throw error;
+        }
     }
 
     async deInit(): Promise<void> {
         this.throwIfContainerNotActive(this.deInit.name);
         this.throwIfInsideRunScope(this.deInit.name);
 
-        await this.runHooks(this.deInitHandlers);
-
-        this.registryManager.clear();
-        this.currentState = Container.STATE.TERMINATED;
+        try {
+            // Run every deInit handler even if one rejects, so all cleanup
+            // hooks get a chance to execute.
+            await this.runHooks(this.deInitHandlers, true);
+        } finally {
+            this.registryManager.clear();
+            this.currentState = Container.STATE.TERMINATED;
+        }
     }
 
     onContainerInit(handler: DiHook): void {
@@ -414,18 +437,18 @@ export class Container implements IContainer {
         this.deInitHandlers.push(handler);
     }
 
-    async run<TValue = void>(settings: RunSettings<TValue>): Promise<void> {
+    async run<TValue = void>(settings: RunSettings<TValue>): Promise<TValue> {
         this.throwIfContainerNotActive(this.run.name);
         this.throwIfInsideDynamicServiceProvider(this.run.name);
 
-        await this.settings.executionContext.run(async () => {
+        return this.settings.executionContext.run(async () => {
             const dynamicServiceRegister: IDynamicServiceRegister =
                 new DynamicServiceRegister({
                     executionContext: this.settings.executionContext,
                     setValueFor: (token, value) => {
                         this.registryManager.saveInCurrentScopedOrBaseRegistry(
                             token,
-                            { value, type: "value" },
+                            { value, type: REGISTER_ELEMENT_TYPE.DIRECT },
                         );
                     },
                     isOutsideRunScope: () => this.isOutsideRunScope(),
@@ -483,7 +506,19 @@ export class Container implements IContainer {
     registerProvider(provider: ServiceProvider): void {
         this.throwIfContainerAlreadyInitialized(this.registerProvider.name);
         this.throwIfInsideRunScope(this.registerProvider.name);
-        callInvocable(provider, this);
+        const result = callInvocable<[IServiceRegister], unknown>(
+            provider,
+            this,
+        );
+        if (result instanceof Promise) {
+            // A promise-returning (async) provider would be fire-and-forgotten:
+            // its registrations could be missing at init() and any rejection
+            // would be unhandled. Fail loudly instead of ignoring it.
+            void result.catch(() => {});
+            throw new UnexpectedError(
+                "Service providers must be synchronous. Async providers are not supported because their registrations would not complete before init().",
+            );
+        }
     }
 
     private async resolveOrGiveExplanation<TType>(
@@ -529,8 +564,8 @@ export class Container implements IContainer {
     }
 
     async resolve<TType>(token: DiToken<TType>): Promise<TType | null> {
-        this.throwIfContainerNotActive(this.resolveOr.name);
-        this.throwIfInsideDynamicServiceProvider(this.resolveOr.name);
+        this.throwIfContainerNotActive(this.resolve.name);
+        this.throwIfInsideDynamicServiceProvider(this.resolve.name);
 
         const res = await this.resolveOrGiveExplanation(token);
         if (res.success) {
