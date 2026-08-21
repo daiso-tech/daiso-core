@@ -74,7 +74,7 @@ Tokens are how you identify services in the container. There are two kinds of to
 A class constructor can be used directly as a token. The class itself serves as the registration key — no separate token object is needed:
 
 ```ts
-import { LIFESPAN } from "eridu-tech/di/contracts";
+import { LIFETIME } from "eridu-tech/di/contracts";
 
 class Logger {
     log(message: string): void {
@@ -87,7 +87,7 @@ container.registerFactory({
     token: Logger,
     factory: () => new Logger(),
     deps: {},
-    lifetime: LIFESPAN.SINGLETON,
+    lifetime: LIFETIME.SINGLETON,
 });
 
 // Initialize the container, then resolve using the class
@@ -100,7 +100,7 @@ const logger = await container.resolveOrFail(Logger);
 For interfaces, primitive values, or when you need to decouple the token from the implementation, use `genericToken()` to create a symbol-based token:
 
 ```ts
-import { LIFESPAN, genericToken } from "eridu-tech/di/contracts";
+import { LIFETIME, genericToken } from "eridu-tech/di/contracts";
 
 interface ILogger {
     log(message: string): void;
@@ -119,7 +119,7 @@ container.registerFactory({
     token: ILOGGER,
     factory: () => new ConsoleLogger(),
     deps: {},
-    lifetime: LIFESPAN.SINGLETON,
+    lifetime: LIFETIME.SINGLETON,
 });
 
 // Initialize the container, then resolve using the generic token
@@ -140,7 +140,7 @@ The container provides three core registration methods — `registerFactory`, `r
 Use `registerFactory` when you need full control over how a service is created. The factory receives resolved dependencies and the current execution context:
 
 ```ts
-import { LIFESPAN, genericToken } from "eridu-tech/di/contracts";
+import { LIFETIME, genericToken } from "eridu-tech/di/contracts";
 
 interface IUserService {
     getUser(id: string): Promise<{ name: string }>;
@@ -167,11 +167,11 @@ container.registerFactory({
         };
     },
     deps: { db: IDATABASE },
-    lifetime: LIFESPAN.SINGLETON, // Choose the lifetime
+    lifetime: LIFETIME.SINGLETON, // Choose the lifetime
 });
 ```
 
-The factory callback signature is `(deps, executionContext) => T | Promise<T>` where `deps` is a record keyed by the names declared in the `deps` setting (e.g., `{ db }`). The `executionContext` parameter is always the last argument. The `lifetime` is set directly on the registration using the `LIFESPAN` constant — there is no separate `.singleton()`/`.scoped()`/`.transient()` chain.
+The factory callback signature is `(deps, executionContext) => T | Promise<T>` where `deps` is a record keyed by the names declared in the `deps` setting (e.g., `{ db }`). The `executionContext` parameter is always the last argument. The `lifetime` is set  on the registration using the `LIFETIME`.
 
 #### Value registration
 
@@ -250,17 +250,17 @@ await container.run({
 
 ### Service lifetimes
 
-A lifetime is chosen by setting the `lifetime` field directly on a `registerFactory` call, using the `LIFESPAN` constant from `eridu-tech/di/contracts`.
+A lifetime is chosen by setting the `lifetime` field directly on a `registerFactory` call, using the `LIFETIME` constant from `eridu-tech/di/contracts`.
 
 ```ts
-import { LIFESPAN } from "eridu-tech/di/contracts";
+import { LIFETIME } from "eridu-tech/di/contracts";
 
 // Singleton: one instance shared across all resolutions
 container.registerFactory({
     token: Logger,
     factory: () => new Logger(),
     deps: {},
-    lifetime: LIFESPAN.SINGLETON,
+    lifetime: LIFETIME.SINGLETON,
 });
 
 // Scoped: one instance per container.run() scope
@@ -268,7 +268,7 @@ container.registerFactory({
     token: UserRepository,
     factory: ({ db }) => new UserRepository(db),
     deps: { db: Database },
-    lifetime: LIFESPAN.SCOPED,
+    lifetime: LIFETIME.SCOPED,
 });
 
 // Transient: a new instance every time
@@ -276,7 +276,7 @@ container.registerFactory({
     token: Mailer,
     factory: () => new Mailer(),
     deps: {},
-    lifetime: LIFESPAN.TRANSIENT,
+    lifetime: LIFETIME.TRANSIENT,
 });
 ```
 
@@ -312,10 +312,10 @@ logger.log("Always has a logger");
 
 #### `resolveOrFail` — Strict resolution
 
-Returns the service if found, otherwise throws `ServiceCanNotBeResolvedDiError`:
+Returns the service if found, otherwise throws `CanNotBeResolvedDiError`:
 
 ```ts
-// Throws ServiceCanNotBeResolvedDiError if Logger is not registered
+// Throws CanNotBeResolvedDiError if Logger is not registered
 const logger = await container.resolveOrFail(Logger);
 ```
 
@@ -365,17 +365,17 @@ await container.run({
 
 The container defines the following error types in `eridu-tech/di/contracts`:
 
-#### `ServiceCanNotBeResolvedDiError`
+#### `CanNotBeResolvedDiError`
 
 Thrown when a service cannot be resolved — e.g. the token is not registered, a scoped service is resolved outside a `run()` scope, or a dynamic token has no value set:
 
 ```ts
-import { ServiceCanNotBeResolvedDiError } from "eridu-tech/di/contracts";
+import { CanNotBeResolvedDiError } from "eridu-tech/di/contracts";
 
 try {
     await container.resolveOrFail(Logger);
 } catch (error) {
-    if (error instanceof ServiceCanNotBeResolvedDiError) {
+    if (error instanceof CanNotBeResolvedDiError) {
         console.log("Logger was not registered");
     }
 }
@@ -386,21 +386,21 @@ try {
 Thrown by `container.init()` when the service graph is invalid — e.g. an invalid lifetime configuration (such as a singleton depending on a transient or scoped service), a dependency cycle, or a declared dependency that is not registered:
 
 ```ts
-import { LIFESPAN, InvalidGraphDiError } from "eridu-tech/di/contracts";
+import { LIFETIME, InvalidGraphDiError } from "eridu-tech/di/contracts";
 
 // ❌ Invalid: a singleton depending on a transient service
 container.registerFactory({
     token: SingletonService,
     factory: ({ transient }) => new SingletonService(transient),
     deps: { transient: TransientService },
-    lifetime: LIFESPAN.SINGLETON,
+    lifetime: LIFETIME.SINGLETON,
 });
 
 container.registerFactory({
     token: TransientService,
     factory: () => new TransientService(),
     deps: {},
-    lifetime: LIFESPAN.TRANSIENT,
+    lifetime: LIFETIME.TRANSIENT,
 });
 
 try {
@@ -492,7 +492,7 @@ This section covers advanced patterns, architectural considerations, and real-wo
 Service providers encapsulate a group of related registrations into a reusable, isolated code block — similar to Laravel service providers:
 
 ```ts
-import { LIFESPAN, type IServiceRegister } from "eridu-tech/di/contracts";
+import { LIFETIME, type IServiceRegister } from "eridu-tech/di/contracts";
 
 // As a plain function
 async function loggingProvider(register: IServiceRegister): Promise<void> {
@@ -500,14 +500,14 @@ async function loggingProvider(register: IServiceRegister): Promise<void> {
         token: Logger,
         factory: () => new Logger(),
         deps: {},
-        lifetime: LIFESPAN.SINGLETON,
+        lifetime: LIFETIME.SINGLETON,
     });
 
     register.registerFactory({
         token: FileLogger,
         factory: () => new FileLogger(),
         deps: {},
-        lifetime: LIFESPAN.SINGLETON,
+        lifetime: LIFETIME.SINGLETON,
     });
 }
 
@@ -518,14 +518,14 @@ class DatabaseProvider {
             token: Database,
             factory: () => new Database(),
             deps: {},
-            lifetime: LIFESPAN.SINGLETON,
+            lifetime: LIFETIME.SINGLETON,
         });
 
         register.registerFactory({
             token: UserRepository,
             factory: ({ db }) => new UserRepository(db),
             deps: { db: Database },
-            lifetime: LIFESPAN.SCOPED,
+            lifetime: LIFETIME.SCOPED,
         });
     }
 }
@@ -623,7 +623,7 @@ Child containers are particularly useful for **testing**: fork the main containe
 Use `genericToken()` for interfaces, abstract classes, and primitive values. Use class tokens only for concrete classes that serve as their own implementation:
 
 ```ts
-import { LIFESPAN } from "eridu-tech/di/contracts";
+import { LIFETIME } from "eridu-tech/di/contracts";
 
 // ✅ Good: Interface mapped via generic token
 const ILOGGER = genericToken<ILogger>("ILogger");
@@ -631,7 +631,7 @@ container.registerFactory({
     token: ILOGGER,
     factory: () => new ConsoleLogger(),
     deps: {},
-    lifetime: LIFESPAN.SINGLETON,
+    lifetime: LIFETIME.SINGLETON,
 });
 
 // ✅ Good: Concrete class is its own token
@@ -639,7 +639,7 @@ container.registerFactory({
     token: Database,
     factory: () => new Database(),
     deps: {},
-    lifetime: LIFESPAN.SINGLETON,
+    lifetime: LIFETIME.SINGLETON,
 });
 ```
 
@@ -656,7 +656,7 @@ export async function loggingProvider(
         token: Logger,
         factory: () => new Logger(),
         deps: {},
-        lifetime: LIFESPAN.SINGLETON,
+        lifetime: LIFETIME.SINGLETON,
     });
 }
 
@@ -667,13 +667,13 @@ export class DatabaseProvider implements IServiceProvider {
             token: Database,
             factory: () => new Database(),
             deps: {},
-            lifetime: LIFESPAN.SINGLETON,
+            lifetime: LIFETIME.SINGLETON,
         });
         register.registerFactory({
             token: UserRepository,
             factory: ({ db }) => new UserRepository(db),
             deps: { db: Database },
-            lifetime: LIFESPAN.SCOPED,
+            lifetime: LIFETIME.SCOPED,
         });
     }
 }
@@ -760,13 +760,13 @@ container.registerFactory({
     token: SingletonA,
     factory: ({ transient }) => new SingletonA(transient),
     deps: { transient: TransientB },
-    lifetime: LIFESPAN.SINGLETON,
+    lifetime: LIFETIME.SINGLETON,
 });
 container.registerFactory({
     token: TransientB,
     factory: () => new TransientB(),
     deps: {},
-    lifetime: LIFESPAN.TRANSIENT,
+    lifetime: LIFETIME.TRANSIENT,
 });
 // container.init() throws InvalidGraphDiError
 
@@ -775,25 +775,25 @@ container.registerFactory({
     token: SingletonA,
     factory: ({ transient }) => new SingletonA(transient),
     deps: { transient: TransientB },
-    lifetime: LIFESPAN.SINGLETON,
+    lifetime: LIFETIME.SINGLETON,
 });
 container.registerFactory({
     token: TransientB,
     factory: () => new TransientB(),
     deps: {},
-    lifetime: LIFESPAN.SCOPED, // Upgraded
+    lifetime: LIFETIME.SCOPED, // Upgraded
 });
 ```
 
 #### Forgetting to set dynamic values
 
-A token registered with `registerDynamic()` must have its value set via `IDynamicServiceRegister.set()` before it is resolved. Attempting to resolve a dynamic token without a value set will throw `ServiceCanNotBeResolvedDiError`:
+A token registered with `registerDynamic()` must have its value set via `IDynamicServiceRegister.set()` before it is resolved. Attempting to resolve a dynamic token without a value set will throw `CanNotBeResolvedDiError`:
 
 ```ts
 // ❌ Wrong: dynamic token never set
 container.registerDynamic(REQUEST_ID);
 await container.init();
-await container.resolveOrFail(REQUEST_ID); // Throws ServiceCanNotBeResolvedDiError
+await container.resolveOrFail(REQUEST_ID); // Throws CanNotBeResolvedDiError
 
 // ✅ Correct: set the value in a scope
 await container.init();
@@ -809,7 +809,7 @@ await container.run({
 
 #### Resolving scoped services outside a scope
 
-Scoped services are only available within a `container.run()` scope. Resolving them outside a scope will throw `ServiceCanNotBeResolvedDiError` (flag `SCOPED_SERVICE_OUTSIDE_RUN`).
+Scoped services are only available within a `container.run()` scope. Resolving them outside a scope will throw `CanNotBeResolvedDiError` (flag `SCOPED_SERVICE_OUTSIDE_RUN`).
 
 ### Performance considerations
 
