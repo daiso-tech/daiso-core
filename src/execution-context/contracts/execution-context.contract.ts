@@ -41,7 +41,8 @@ export type ContextToken<TValue> = {
  *
  * @template TValue - The type of value this token will represent
  * @param id - Unique identifier string for the token (recommend using a descriptive name or UUID)
- * @returns A new contextToken with the specified ID and type
+ * @returns A new contextToken with the specified value type. Note: each call creates a
+ * distinct token, so the token must be created once and exported for reuse.
  *
  * @example
  * import { contextToken } from "eridu-tech/execution-context/contracts";
