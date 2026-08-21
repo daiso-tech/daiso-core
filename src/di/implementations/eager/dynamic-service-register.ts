@@ -3,25 +3,37 @@
  */
 
 import { InvalidMethodCallDiError } from "@/di/contracts/container.errors.js";
-import { callInvocable, isInvocable } from "@/utilities/_module.js";
+import { callInvocable } from "@/utilities/_module.js";
 
 import type {
+    DiToken,
     DynamicRegistration,
+    DynamicValueWrapper,
     IDynamicServiceRegister,
 } from "@/di/contracts/container.contract.js";
-import type { Node } from "@/di/implementations/eager/_shared.js";
 import type { IExecutionContext } from "@/execution-context/contracts/_module-exports.js";
 
 /**
  * @internal
  */
+function isDynamicValueWrapper<TRegisteredType>(
+    value: TRegisteredType | DynamicValueWrapper<TRegisteredType>,
+): value is DynamicValueWrapper<TRegisteredType> {
+    return (
+        typeof value === "object" && value !== null && "dynamicValue" in value
+    );
+}
+
+/**
+ * @internal
+ */
 export class DynamicServiceRegister implements IDynamicServiceRegister {
-    private setValueFor: (token: Node, value: unknown) => void;
+    private setValueFor: (token: DiToken, value: unknown) => void;
     private isOutsideRunScope: () => boolean;
     private executionContext: IExecutionContext;
 
     constructor(args: {
-        setValueFor: (token: Node, value: unknown) => void;
+        setValueFor: (token: DiToken, value: unknown) => void;
         isOutsideRunScope: () => boolean;
         executionContext: IExecutionContext;
     }) {
@@ -41,8 +53,11 @@ export class DynamicServiceRegister implements IDynamicServiceRegister {
             });
         }
 
-        const value = isInvocable(settings.value)
-            ? await callInvocable(settings.value, this.executionContext)
+        const value = isDynamicValueWrapper(settings.value)
+            ? await callInvocable(
+                  settings.value.dynamicValue,
+                  this.executionContext,
+              )
             : settings.value;
 
         this.setValueFor(settings.token, value);
