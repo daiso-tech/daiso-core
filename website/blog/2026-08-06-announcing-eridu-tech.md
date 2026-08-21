@@ -105,6 +105,6 @@ The [component overview](/docs/components/overview) walks through the available 
 
 ## 🔗 What's next
 
-eridu-tech is pre-v1 and evolving quickly. The [roadmap](/docs/roadmap) shows what's planned and in progress across the ecosystem.
+eridu-tech is pre-v1 and evolving quickly. The [roadmap](/roadmap) shows what's planned and in progress across the ecosystem.
 
 If the problems behind eridu-tech sound familiar, **try the components, explore the architecture, and let me know what you think.** I'm especially interested in feedback from developers who have dealt with the same problems around framework coupling, infrastructure abstractions, testing, and keeping backend code maintainable under tight deadlines.
