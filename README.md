@@ -127,6 +127,7 @@ eridu-tech is built for backend and fullstack TypeScript developers who value fl
 A growing collection of officially maintained components. Every component ships with multiple built-in adapters — swap infrastructure without changing a single line of business logic.
 
 ### Foundation
+
 - [**DI Container**](https://www.eridu-tech.io/docs/components/di) — `Near-stable` — A lightweight, type-safe dependency injection container for wiring application components without tight coupling.
 - [**Middleware and AOP**](https://www.eridu-tech.io/docs/components/middleware) — `Near-stable` — Composable middleware pipeline with before/after hooks, error handling — the foundation for every component's plugin system.
 - [**Serde**](https://www.eridu-tech.io/docs/components/serde) — `Experimental` — Serialize and deserialize data with a built-in SuperJSON adapter (Date, Map, Set, BigInt) and custom serializers — the backbone for all data interchange across the ecosystem.
