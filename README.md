@@ -26,12 +26,23 @@ npm install eridu-tech
 
 ## ✨ Why eridu-tech?
 
-- **Switch infrastructure without rewriting business logic**: The adapter pattern keeps your code decoupled from vendors. Use Redis today, Postgres tomorrow — no refactoring required.
-- **Test everything without Docker**: Every component ships with an in-memory adapter and built-in Vitest helpers. Write fast, isolated tests without external services.
-- **Bring your own framework**: No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.
-- **Type-safe from day one**: Full TypeScript support with precise generics, rich intellisense, and auto-import friendly APIs — errors caught at compile time, not runtime.
-- **Standard schema validation built in**: First-class integration with [Standard Schema](https://standardschema.dev/). Use [Zod](https://zod.dev/), Valibot, or ArkType to enforce both compile-time and runtime data safety.
-- **ESM native. No CommonJS baggage.**: Built on modern JavaScript primitives. Fully compatible with Node.js, Bun, Deno, and the modern bundler ecosystem.
+### Switch infrastructure without rewriting business logic
+The adapter pattern keeps your code decoupled from vendors. Use Redis today, Postgres tomorrow — no refactoring required.
+
+### Composable and extendable
+Agnostic AOP-style middlewares and adapter plugins let you extend your own code or existing adapters with additional behavior that isn't included by default, keeping every component composable and extendable. Predefined plugins and middlewares are included out of the box.
+
+### Unified foundation
+Every component is built on a single shared foundation, reusing common abstractions like Serde, Execution Context, and the AOP middleware system, so they work together seamlessly.
+
+### Bring your own framework
+No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.
+
+### Small runtime footprint
+Every component is built from scratch in a modular way, keeping the runtime minimal with no framework or component baggage. Only the client libraries and drivers (Redis, Postgres, MongoDB, and more) are optional peer dependencies, installed when you need them.
+
+### Battery included
+eridu-tech aims to be battery included, shipping a broad set of ready-to-use components and integrations out of the box so you can start building without wiring different libraries everything yourself.
 
 ---
 
