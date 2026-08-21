@@ -145,7 +145,7 @@ export class GraphManager {
                         undefined,
                         this.maxUndeclaredDependenciesInError,
                     ),
-                    totalNodes: missing.length,
+                    totalDetected: missing.length,
                 }),
             };
         }
@@ -219,7 +219,9 @@ export class GraphManager {
         const edges: Array<[Edge, EdgeProps]> = keys.map((key) => {
             const diDependencyToken = args.deps[key];
             if (diDependencyToken === undefined) {
-                throw new Error();
+                throw new UnexpectedError(
+                    `Dependency "${key}" of token "${tokenToString(args.token)}" is undefined in the deps record.`,
+                );
             }
 
             return [[args.token, diDependencyToken], { argIndex: key }];
