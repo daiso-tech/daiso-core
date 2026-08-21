@@ -37,4 +37,4 @@ Currently the library only included `Base64Codec` class.
 
 ## Further information
 
-For further information refer to [`eridu-tech/codec`](https://eridu-tech.github.io/eridu-tech/modules/Codec.html) API docs.
+For further information refer to [`eridu-tech/codec`](https://eridu-tech.github.io/eridu-tech-core/modules/Codec.html) API docs.

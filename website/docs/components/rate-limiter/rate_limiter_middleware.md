@@ -52,9 +52,9 @@ await rateLimitedCall(
 ```
 
 :::info
-Here is a complete list of settings for the [`withRateLimiter`](https://eridu-tech.github.io/eridu-tech/types/RateLimiter.WithRateLimiterSettings.html) function.
+Here is a complete list of settings for the [`withRateLimiter`](https://eridu-tech.github.io/eridu-tech-core/types/RateLimiter.WithRateLimiterSettings.html) function.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech-core/modules/RateLimiter.html) API docs.

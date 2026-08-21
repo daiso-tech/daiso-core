@@ -52,9 +52,9 @@ await Promise.all([
 ```
 
 :::info
-Here is a complete list of settings for the [`withSemaphore`](https://eridu-tech.github.io/eridu-tech/types/Semaphore.WithSemaphoreSettings.html) function.
+Here is a complete list of settings for the [`withSemaphore`](https://eridu-tech.github.io/eridu-tech-core/types/Semaphore.WithSemaphoreSettings.html) function.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech/modules/Semaphore.html) API docs.
+For further information refer to [`eridu-tech/semaphore`](https://eridu-tech.github.io/eridu-tech-core/modules/Semaphore.html) API docs.

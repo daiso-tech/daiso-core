@@ -76,9 +76,9 @@ const noEventBusAdapter = new NoOpEventBusAdapter();
 ```
 
 :::info
-The `NoOpEventBusAdapter` is useful when you want to mock out or disable your [`EventBus`](https://eridu-tech.github.io/eridu-tech/classes/EventBus.EventBus.html) class.
+The `NoOpEventBusAdapter` is useful when you want to mock out or disable your [`EventBus`](https://eridu-tech.github.io/eridu-tech-core/classes/EventBus.EventBus.html) class.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/event-bus`](https://eridu-tech.github.io/eridu-tech/modules/EventBus.html) API docs.
+For further information refer to [`eridu-tech/event-bus`](https://eridu-tech.github.io/eridu-tech-core/modules/EventBus.html) API docs.

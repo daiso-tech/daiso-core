@@ -17,17 +17,17 @@ import type { Invocable, InvocableFn, Lazyable } from "@/utilities/_module.js";
  */
 export type ContextToken<TValue> = {
     /**
-     * Unique identifier for this token, used internally as the storage key
+     * Unique symbol reference for this token, used internally as the storage key.
+     * Using a symbol guarantees uniqueness — two tokens with the same name will never collide.
      */
-    id: string;
+    readonly id: symbol;
 
     /**
      * Phantom type that is only used for type inference.
      * This property is never actually set at runtime and exists only to help
      * TypeScript infer the correct value type when using get/put operations.
      */
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    __type: TValue | null;
+    readonly _type: TValue | null;
 };
 
 /**
@@ -41,7 +41,8 @@ export type ContextToken<TValue> = {
  *
  * @template TValue - The type of value this token will represent
  * @param id - Unique identifier string for the token (recommend using a descriptive name or UUID)
- * @returns A new ContextToken with the specified ID and type
+ * @returns A new contextToken with the specified value type. Note: each call creates a
+ * distinct token, so the token must be created once and exported for reuse.
  *
  * @example
  * import { contextToken } from "eridu-tech/execution-context/contracts";
@@ -51,7 +52,7 @@ export type ContextToken<TValue> = {
  */
 export function contextToken<TValue>(id: string): ContextToken<TValue> {
     return {
-        id,
+        id: Symbol(id),
     } as ContextToken<TValue>;
 }
 

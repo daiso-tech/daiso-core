@@ -128,8 +128,8 @@ A growing collection of officially maintained components. Every component ships 
 
 ### Foundation
 
+- [**DI Container**](https://www.eridu-tech.io/docs/components/di) — `Near-stable` — A lightweight, type-safe dependency injection container for wiring application components without tight coupling.
 - [**Middleware and AOP**](https://www.eridu-tech.io/docs/components/middleware) — `Near-stable` — Composable middleware pipeline with before/after hooks, error handling — the foundation for every component's plugin system.
-- [**Collection**](https://www.eridu-tech.io/docs/components/collection) — `Near-stable` — Type-safe collection utilities with powerful query, transform, and pagination primitives.
 - [**Serde**](https://www.eridu-tech.io/docs/components/serde) — `Experimental` — Serialize and deserialize data with a built-in SuperJSON adapter (Date, Map, Set, BigInt) and custom serializers — the backbone for all data interchange across the ecosystem.
 - [**Codec**](https://www.eridu-tech.io/docs/components/codec) — `Experimental` — Encode and decode data with a unified, type-safe interface — includes a built-in Base64 codec and lets you build custom codecs for any protocol.
 - [**Execution Context**](https://www.eridu-tech.io/docs/components/execution_context) — `Near-stable` — Type-safe, composable context propagation for request IDs, user info, and tracing metadata across async boundaries — without thread-local hacks.
@@ -169,7 +169,6 @@ A growing collection of officially maintained components. Every component ships 
 
 Components currently in design or development — not yet available in any release.
 
-- **DI Container** — A lightweight, type-safe dependency injection container for wiring application components without tight coupling.
 - **Transaction Context** — Coordinate database transactions across components with the after-commit pattern. Foundation for reliable messaging — powers the Outbox, Inbox, Scheduler, and Notifications.
 - **CLI Command** — A unified API for defining and executing CLI commands with a transport adapter architecture. Run commands locally via child processes, remotely over SSH or HTTP, inside Docker containers, or through custom transports — all from the same command definition.
 - **Structured concurrency** — Run async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.

@@ -48,9 +48,9 @@ await protectedCall("users"); // Succeeds or opens the circuit on repeated failu
 ```
 
 :::info
-Here is a complete list of settings for the [`withCircuitBreaker`](https://eridu-tech.github.io/eridu-tech/types/CircuitBreaker.WithCircuitBreakerSettings.html) function.
+Here is a complete list of settings for the [`withCircuitBreaker`](https://eridu-tech.github.io/eridu-tech-core/types/CircuitBreaker.WithCircuitBreakerSettings.html) function.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/circuit-breaker`](https://eridu-tech.github.io/eridu-tech/modules/CircuitBreaker.html) API docs.
+For further information refer to [`eridu-tech/circuit-breaker`](https://eridu-tech.github.io/eridu-tech-core/modules/CircuitBreaker.html) API docs.

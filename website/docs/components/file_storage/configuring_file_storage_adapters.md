@@ -196,4 +196,4 @@ The `NoOpFileStorageAdapter` is useful when you want to mock out or disable your
 
 ## Further information
 
-For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech-core/modules/FileStorage.html) API docs.

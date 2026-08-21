@@ -5,7 +5,7 @@ keywords:
     - Utilities
 ---
 
-# ConfigAccessor
+# Config accessor
 
 The `eridu-tech/config-accessor` component provides standardized type-safe access to domain configuration variables. It supports optional schema validation useful accessing dynamic configurations (e.g tenneat configurations).
 
@@ -107,4 +107,4 @@ type IConfigAccessor<TConfig extends BaseConfig = BaseConfig> = {
 
 ## Further information
 
-For further information refer to [`eridu-tech/config-accessor`](https://eridu-tech.github.io/eridu-tech/modules/ConfigAccessor.html) API docs.
+For further information refer to [`eridu-tech/config-accessor`](https://eridu-tech.github.io/eridu-tech-core/modules/ConfigAccessor.html) API docs.

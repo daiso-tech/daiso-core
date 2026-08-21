@@ -327,7 +327,7 @@ const noOpCacheAdapter = new NoOpCacheAdapter();
 ```
 
 :::info
-The `NoOpCacheAdapter` is useful when you want to mock out or disable your [`Cache`](https://eridu-tech.github.io/eridu-tech/classes/Cache.Cache.html) class instance.
+The `NoOpCacheAdapter` is useful when you want to mock out or disable your [`Cache`](https://eridu-tech.github.io/eridu-tech-core/classes/Cache.Cache.html) class instance.
 :::
 
 :::info
@@ -336,4 +336,4 @@ Note `NoOpCacheAdapter` returns always null when retrieving items and return tru
 
 ## Further information
 
-For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech-core/modules/Cache.html) API docs.

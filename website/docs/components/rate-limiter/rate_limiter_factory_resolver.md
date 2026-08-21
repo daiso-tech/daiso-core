@@ -202,4 +202,4 @@ Note that the `DatabaseRateLimiterFactoryResolver` is immutable, meaning any con
 
 ## Further information
 
-For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech/modules/RateLimiter.html) API docs.
+For further information refer to [`eridu-tech/rate-limiter`](https://eridu-tech.github.io/eridu-tech-core/modules/RateLimiter.html) API docs.

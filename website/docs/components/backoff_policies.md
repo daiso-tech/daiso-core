@@ -72,4 +72,4 @@ const backoff = linearBackoff({
 
 ## Further information
 
-For further information refer to [`eridu-tech/backoff-policies`](https://eridu-tech.github.io/eridu-tech/modules/BackoffPolicy.html) API docs.
+For further information refer to [`eridu-tech/backoff-policies`](https://eridu-tech.github.io/eridu-tech-core/modules/BackoffPolicy.html) API docs.
