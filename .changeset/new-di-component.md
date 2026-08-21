@@ -25,31 +25,3 @@ A new dependency-injection (IoC) component is available at `eridu-tech/di`. The
   and eagerly initializes singletons in dependency order, surfacing
   `InvalidGraphDiError` for cycles, invalid lifetime edges, and undeclared
   dependencies.
-
-## High-level breaking changes
-
-- **Package rebrand** — import paths move from `@daiso-tech/core/*` to
-  `eridu-tech/*` (e.g. `eridu-tech/di`, `eridu-tech/di/contracts`).
-- **`./di` export retargeted** — `eridu-tech/di` now points to the eager
-  implementation at `dist/di/implementations/eager`.
-- **Type renames in the contract surface** — `Invokable` → `Invocable`,
-  `InvokableFn` → `InvocableFn`, and `IInvokableObject` → `IInvocableObject`.
-  These appear in `ServiceFactory`, `DynamicValue`, `ServiceProviderFn`,
-  `IServiceProvider`, `DynamicServiceProviderFn`, `IDynamicServiceProvider`,
-  and `DiHook`.
-- **Error class surface** — `public` modifiers were dropped from members of
-  `InvalidGraphDiError`, `InvalidMethodCallDiError`, and
-  `CanNotBeResolvedDiError`; their constructors are now `@internal`
-  (use the `create()` factory methods instead).
-
-## Eager container implementation
-
-`Container` (`src/di/implementations/eager/container.ts`) is a lifecycle state
-machine (`uninitialized` → `active` → `terminated`) that:
-
-- builds the service graph via `GraphManager` and validates it on `init()`;
-- eagerly initializes singletons (and resolves scoped/transient values) in
-  dependency order using Kahn's algorithm (`eagerInitialization`);
-- tracks run-scope depth and per-scope registries through the execution context
-  (`RegistryManager` + `DynamicServiceRegister`);
-- invokes factories, hooks, and providers via `callInvocable`.
