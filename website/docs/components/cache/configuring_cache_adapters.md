@@ -55,6 +55,32 @@ const memoryCacheAdapter = new MemoryCacheAdapter(map);
 `MemoryCacheAdapter` lets you test your app without external dependencies like `Redis`, ideal for local development, unit tests, integration tests and fast E2E test for the backend application.
 :::
 
+### Settings
+
+To clean up expired cache keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
+
+```ts
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+
+const memoryCacheAdapter = new MemoryCacheAdapter();
+
+// Remove all expired cache keys manually.
+await memoryCacheAdapter.removeAllExpired();
+```
+
+:::info
+Note `removeAllExpired` must be called to remove expired data that is no longer being used.
+:::
+
+:::info
+To remove the cache map and all stored cache data, use `deInit` method:
+
+```ts
+await memoryCacheAdapter.deInit();
+```
+
+:::
+
 ## MongodbCacheAdapter
 
 To use the `MongodbCacheAdapter`, you'll need to:

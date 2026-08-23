@@ -59,6 +59,28 @@ const memorySharedLockAdapter = new MemorySharedLockAdapter(map);
 Note the `MemorySharedLockAdapter` is limited to single process usage and cannot be shared across multiple servers or processes.
 :::
 
+### Settings
+
+To clean up expired shared-lock keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
+
+```ts
+import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
+
+const memorySharedLockAdapter = new MemorySharedLockAdapter();
+
+// Remove all expired shared-lock keys manually.
+await memorySharedLockAdapter.removeAllExpired();
+```
+
+:::info
+To remove the shared-lock map and all stored shared-lock data, use `deInit` method:
+
+```ts
+await memorySharedLockAdapter.deInit();
+```
+
+:::
+
 ## MongodbSharedLockAdapter
 
 To use the `MongodbSharedLockAdapter`, you'll need to:
