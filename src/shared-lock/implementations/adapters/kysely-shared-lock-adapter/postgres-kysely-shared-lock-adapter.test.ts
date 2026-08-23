@@ -59,7 +59,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
             await adapter.init();
 
             await kysely
-                .insertInto("writerLock")
+                .insertInto("writerLockEntry")
                 .values({
                     key: "a",
                     owner: "owner",
@@ -67,7 +67,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
                 })
                 .execute();
             await kysely
-                .insertInto("writerLock")
+                .insertInto("writerLockEntry")
                 .values({
                     key: "b",
                     owner: "owner",
@@ -75,7 +75,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
                 })
                 .execute();
             await kysely
-                .insertInto("writerLock")
+                .insertInto("writerLockEntry")
                 .values({
                     key: "c",
                     owner: "owner",
@@ -87,22 +87,22 @@ describe("postgres class: KyselySharedLockAdapter", () => {
 
             expect(
                 await kysely
-                    .selectFrom("writerLock")
-                    .where("writerLock.key", "=", "a")
+                    .selectFrom("writerLockEntry")
+                    .where("writerLockEntry.key", "=", "a")
                     .selectAll()
                     .executeTakeFirst(),
             ).toBeUndefined();
             expect(
                 await kysely
-                    .selectFrom("writerLock")
-                    .where("writerLock.key", "=", "b")
+                    .selectFrom("writerLockEntry")
+                    .where("writerLockEntry.key", "=", "b")
                     .selectAll()
                     .executeTakeFirst(),
             ).toBeUndefined();
             expect(
                 await kysely
-                    .selectFrom("writerLock")
-                    .where("writerLock.key", "=", "c")
+                    .selectFrom("writerLockEntry")
+                    .where("writerLockEntry.key", "=", "c")
                     .selectAll()
                     .executeTakeFirst(),
             ).toBeDefined();
@@ -118,37 +118,37 @@ describe("postgres class: KyselySharedLockAdapter", () => {
             const key2 = "2";
 
             await kysely
-                .insertInto("readerSemaphore")
+                .insertInto("readerSemaphoreEntry")
                 .values({ key: key1, limit })
                 .execute();
             await kysely
-                .insertInto("readerSemaphore")
+                .insertInto("readerSemaphoreEntry")
                 .values({ key: key2, limit })
                 .execute();
 
             await kysely
-                .insertInto("readerSemaphoreSlot")
+                .insertInto("readerSemaphoreSlotEntry")
                 .values({ key: key1, id: "1", expiration: Date.now() - 1000 })
                 .execute();
             await kysely
-                .insertInto("readerSemaphoreSlot")
+                .insertInto("readerSemaphoreSlotEntry")
                 .values({ key: key1, id: "2", expiration: Date.now() - 1000 })
                 .execute();
             await kysely
-                .insertInto("readerSemaphoreSlot")
+                .insertInto("readerSemaphoreSlotEntry")
                 .values({ key: key1, id: "3", expiration: Date.now() - 1000 })
                 .execute();
 
             await kysely
-                .insertInto("readerSemaphoreSlot")
+                .insertInto("readerSemaphoreSlotEntry")
                 .values({ key: key2, id: "4", expiration: Date.now() - 1000 })
                 .execute();
             await kysely
-                .insertInto("readerSemaphoreSlot")
+                .insertInto("readerSemaphoreSlotEntry")
                 .values({ key: key2, id: "5", expiration: Date.now() - 1000 })
                 .execute();
             await kysely
-                .insertInto("readerSemaphoreSlot")
+                .insertInto("readerSemaphoreSlotEntry")
                 .values({ key: key2, id: "6", expiration: Date.now() - 1000 })
                 .execute();
 
@@ -156,39 +156,39 @@ describe("postgres class: KyselySharedLockAdapter", () => {
 
             expect(
                 await kysely
-                    .selectFrom("readerSemaphore")
-                    .where("readerSemaphore.key", "=", key1)
+                    .selectFrom("readerSemaphoreEntry")
+                    .where("readerSemaphoreEntry.key", "=", key1)
                     .selectAll()
                     .executeTakeFirst(),
             ).toBeUndefined();
 
             expect(
                 await kysely
-                    .selectFrom("readerSemaphoreSlot")
-                    .where("readerSemaphoreSlot.key", "=", key1)
+                    .selectFrom("readerSemaphoreSlotEntry")
+                    .where("readerSemaphoreSlotEntry.key", "=", key1)
                     .selectAll()
                     .execute(),
             ).toEqual([]);
 
             expect(
                 await kysely
-                    .selectFrom("readerSemaphoreSlot")
-                    .where("readerSemaphoreSlot.key", "=", key2)
+                    .selectFrom("readerSemaphoreSlotEntry")
+                    .where("readerSemaphoreSlotEntry.key", "=", key2)
                     .selectAll()
                     .execute(),
             ).toEqual([]);
 
             expect(
                 await kysely
-                    .selectFrom("readerSemaphore")
-                    .where("readerSemaphore.key", "=", key2)
+                    .selectFrom("readerSemaphoreEntry")
+                    .where("readerSemaphoreEntry.key", "=", key2)
                     .selectAll()
                     .executeTakeFirst(),
             ).toBeUndefined();
         });
     });
     describe("method: init", () => {
-        test("Should create writerLock table", async () => {
+        test("Should create writerLockEntry table", async () => {
             const adapter = new KyselySharedLockAdapter({
                 kysely,
             });
@@ -198,7 +198,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
 
             expect(tables).toContainEqual(
                 expect.objectContaining<Partial<TableMetadata>>({
-                    name: "writerLock",
+                    name: "writerLockEntry",
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
                     columns: expect.arrayContaining<Partial<ColumnMetadata>>([
                         expect.objectContaining<Partial<ColumnMetadata>>({
@@ -223,7 +223,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
                 }),
             );
         });
-        test("Should create readerSemaphore table", async () => {
+        test("Should create readerSemaphoreEntry table", async () => {
             const adapter = new KyselySharedLockAdapter({
                 kysely,
             });
@@ -233,7 +233,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
 
             expect(tables).toContainEqual(
                 expect.objectContaining<Partial<TableMetadata>>({
-                    name: "readerSemaphore",
+                    name: "readerSemaphoreEntry",
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
                     columns: expect.arrayContaining<Partial<ColumnMetadata>>([
                         expect.objectContaining<Partial<ColumnMetadata>>({
@@ -252,7 +252,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
                 }),
             );
         });
-        test("Should create readerSemaphoreSlot table", async () => {
+        test("Should create readerSemaphoreSlotEntry table", async () => {
             const adapter = new KyselySharedLockAdapter({
                 kysely,
             });
@@ -262,7 +262,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
 
             expect(tables).toContainEqual(
                 expect.objectContaining<Partial<TableMetadata>>({
-                    name: "readerSemaphoreSlot",
+                    name: "readerSemaphoreSlotEntry",
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
                     columns: expect.arrayContaining<Partial<ColumnMetadata>>([
                         expect.objectContaining<Partial<ColumnMetadata>>({
@@ -310,11 +310,11 @@ describe("postgres class: KyselySharedLockAdapter", () => {
 
             expect(tables).not.toContainEqual(
                 expect.objectContaining<Partial<TableMetadata>>({
-                    name: "writerLock",
+                    name: "writerLockEntry",
                 }),
             );
         });
-        test("Should remove readerSemaphore table", async () => {
+        test("Should remove readerSemaphoreEntry table", async () => {
             const adapter = new KyselySharedLockAdapter({
                 kysely,
             });
@@ -325,11 +325,11 @@ describe("postgres class: KyselySharedLockAdapter", () => {
 
             expect(tables).not.toContainEqual(
                 expect.objectContaining<Partial<TableMetadata>>({
-                    name: "readerSemaphore",
+                    name: "readerSemaphoreEntry",
                 }),
             );
         });
-        test("Should remove readerSemaphoreSlot table", async () => {
+        test("Should remove readerSemaphoreSlotEntry table", async () => {
             const adapter = new KyselySharedLockAdapter({
                 kysely,
             });
@@ -340,7 +340,7 @@ describe("postgres class: KyselySharedLockAdapter", () => {
 
             expect(tables).not.toContainEqual(
                 expect.objectContaining<Partial<TableMetadata>>({
-                    name: "readerSemaphoreSlot",
+                    name: "readerSemaphoreSlotEntry",
                 }),
             );
         });
