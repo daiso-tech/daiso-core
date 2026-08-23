@@ -6,6 +6,16 @@
 import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { TimeSpan } from "@/time-span/implementations/_module.js";
+import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
+
+/**
+ * IMPORT_PATH: `"eridu-tech/cache/memory-cache-adapter"`
+ * @group Adapters
+ */
+export type MemoryCacheEntryData<TValue = unknown> = {
+    value: TValue;
+    expiration: Date | null;
+};
 
 /**
  * The `MemoryCacheAdapter` is used for easily faking{@link ICache | `ICache`} for testing.
@@ -13,101 +23,141 @@ import type { TimeSpan } from "@/time-span/implementations/_module.js";
  * IMPORT_PATH: `"eridu-tech/cache/memory-cache-adapter"`
  * @group Adapters
  */
-export class MemoryCacheAdapter<
-    TType = unknown,
-> implements ICacheAdapter<TType> {
-    private readonly timeoutMap = new Map<
-        string,
-        NodeJS.Timeout | string | number
-    >();
-
+export class MemoryCacheAdapter<TType = unknown>
+    implements ICacheAdapter<TType>, IDeinitizable, IPrunable
+{
     /**
      * You can provide an optional {@link Map | `Map`}, that will be used for storing the data.
      * @example
      * ```ts
      * import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
      *
-     * const map = new Map<any, any>();
+     * const map = new Map<string, any>();
      * const cacheAdapter = new MemoryCacheAdapter(map);
      * ```
      */
-    constructor(private readonly map: Map<string, unknown> = new Map()) {}
+    constructor(
+        private readonly map: Map<
+            string,
+            MemoryCacheEntryData<TType>
+        > = new Map(),
+    ) {}
 
-    get(key: string, context: IReadableContext): Promise<TType | null> {
-        return this._get(key, context);
+    private internalGet(key: string): MemoryCacheEntryData<TType> | null {
+        const cacheEntry = this.map.get(key);
+        if (cacheEntry === undefined) {
+            return null;
+        }
+        if (cacheEntry.expiration === null) {
+            return cacheEntry;
+        }
+        if (cacheEntry.expiration <= new Date()) {
+            return null;
+        }
+        return cacheEntry;
+    }
+
+    private hasKey(key: string): boolean {
+        const cacheEntry = this.internalGet(key);
+        return cacheEntry !== null;
+    }
+
+    removeAllExpired(): Promise<void> {
+        for (const key of this.map.keys()) {
+            if (this.hasKey(key)) {
+                continue;
+            }
+            this.map.delete(key);
+        }
+        return Promise.resolve();
+    }
+
+    deInit(): Promise<void> {
+        this.map.clear();
+        return Promise.resolve();
+    }
+
+    get(key: string, _context: IReadableContext): Promise<TType | null> {
+        const cacheEntry = this.internalGet(key);
+        if (cacheEntry === null) {
+            return Promise.resolve(null);
+        }
+        return Promise.resolve(cacheEntry.value);
+    }
+
+    getAndRemove(
+        key: string,
+        _context: IReadableContext,
+    ): Promise<TType | null> {
+        const cacheEntry = this.map.get(key);
+        this.map.delete(key);
+        if (cacheEntry === undefined) {
+            return Promise.resolve(null);
+        }
+        if (cacheEntry.expiration === null) {
+            return Promise.resolve(cacheEntry.value);
+        }
+        if (cacheEntry.expiration <= new Date()) {
+            return Promise.resolve(null);
+        }
+        return Promise.resolve(cacheEntry.value);
+    }
+
+    private internalAdd(
+        key: string,
+        value: TType,
+        ttl: TimeSpan | null,
+    ): boolean {
+        if (this.hasKey(key)) {
+            return false;
+        }
+        this.map.set(key, {
+            value,
+            expiration: ttl?.toEndDate() ?? null,
+        });
+        return true;
     }
 
     add(
         key: string,
         value: TType,
         ttl: TimeSpan | null,
-        context: IReadableContext,
+        _context: IReadableContext,
     ): Promise<boolean> {
-        return this._add(key, value, ttl, context);
+        return Promise.resolve(this.internalAdd(key, value, ttl));
     }
 
-    async getOrAdd(
+    getOrAdd(
         key: string,
         valueToAdd: TType,
         ttl: TimeSpan | null,
-        context: IReadableContext,
+        _context: IReadableContext,
     ): Promise<TType> {
-        const value = await this._get(key, context);
-        if (value === null) {
-            await this._add(key, valueToAdd, ttl, context);
-            return valueToAdd;
+        const cacheEntry = this.internalGet(key);
+        if (cacheEntry === null) {
+            this.internalAdd(key, valueToAdd, ttl);
+            return Promise.resolve(valueToAdd);
         }
-        return value;
+        return Promise.resolve(cacheEntry.value);
     }
 
-    private _get(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<TType | null> {
-        return Promise.resolve(
-            this.map.get(key) ?? null,
-        ) as Promise<TType | null>;
-    }
-
-    async getAndRemove(
-        key: string,
-        context: IReadableContext,
-    ): Promise<TType | null> {
-        const value = await this._get(key, context);
-        await this._remove(key);
-        return value;
-    }
-
-    private _add(
+    put(
         key: string,
         value: TType,
         ttl: TimeSpan | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const hasNotKey = !this.map.has(key);
-        if (hasNotKey) {
-            this.map.set(key, value);
-        }
-        if (hasNotKey && ttl !== null) {
-            this.timeoutMap.set(
-                key,
-                setTimeout(() => {
-                    this.map.delete(key);
-                    this.timeoutMap.delete(key);
-                }, ttl.toMilliseconds()),
-            );
-        }
-        return Promise.resolve(hasNotKey);
+        const hasKey = this.hasKey(key);
+        this.map.set(key, {
+            value,
+            expiration: ttl?.toEndDate() ?? null,
+        });
+        return Promise.resolve(hasKey);
     }
 
-    async put(
-        key: string,
-        value: TType,
-        ttl: TimeSpan | null,
-        context: IReadableContext,
-    ): Promise<boolean> {
-        const hasKey = await this._remove(key);
-        await this._add(key, value, ttl, context);
+    private internalRemove(key: string): boolean {
+        const hasKey = this.hasKey(key);
+        this.map.delete(key);
         return hasKey;
     }
 
@@ -116,74 +166,66 @@ export class MemoryCacheAdapter<
         value: TType,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const hasKey = this.map.has(key);
-        if (hasKey) {
-            this.map.set(key, value);
+        const cacheEntry = this.internalGet(key);
+        if (cacheEntry === null) {
+            this.internalRemove(key);
+            return Promise.resolve(false);
         }
-        return Promise.resolve(hasKey);
+        this.map.set(key, {
+            expiration: cacheEntry.expiration,
+            value,
+        });
+        return Promise.resolve(true);
     }
 
-    async increment(
+    increment(
         key: string,
         value: number,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const prevValue = this.map.get(key);
-        const hasKey = prevValue !== undefined;
-        if (hasKey) {
-            if (typeof prevValue !== "number") {
-                throw new TypeError(
-                    `Unable to increment or decrement none number type key "${key}"`,
-                );
-            }
-            const newValue = prevValue + value;
-            this.map.set(key, newValue);
+        const cacheEntry = this.internalGet(key);
+        if (cacheEntry === null) {
+            this.internalRemove(key);
+            return Promise.resolve(false);
         }
-        return Promise.resolve(hasKey);
-    }
-
-    private _remove(key: string): Promise<boolean> {
-        clearTimeout(this.timeoutMap.get(key));
-        this.timeoutMap.delete(key);
-        return Promise.resolve(this.map.delete(key));
+        if (typeof cacheEntry.value !== "number") {
+            return Promise.reject(
+                new TypeError(
+                    `Unable to increment or decrement none number type key "${key}"`,
+                ),
+            );
+        }
+        const newValue = cacheEntry.value + value;
+        this.map.set(key, {
+            expiration: cacheEntry.expiration,
+            value: newValue as TType,
+        });
+        return Promise.resolve(true);
     }
 
     removeMany(
         keys: Array<string>,
         _context: IReadableContext,
     ): Promise<boolean> {
-        let deleteCount = 0;
+        let hasRemoved = false;
         for (const key of keys) {
-            clearTimeout(this.timeoutMap.get(key));
-            this.timeoutMap.delete(key);
-            const hasDeleted = this.map.delete(key);
-            if (hasDeleted) {
-                deleteCount++;
+            if (this.internalRemove(key)) {
+                hasRemoved = true;
             }
         }
-        return Promise.resolve(deleteCount > 0);
+        return Promise.resolve(hasRemoved);
     }
 
-    private removeAll(_context: IReadableContext): Promise<void> {
-        this.map.clear();
-        this.timeoutMap.clear();
-        return Promise.resolve();
-    }
-
-    async removeByPrefix(
-        prefix: string,
-        context: IReadableContext,
-    ): Promise<void> {
+    removeByPrefix(prefix: string, _context: IReadableContext): Promise<void> {
         if (prefix === "") {
-            await this.removeAll(context);
-            return;
+            this.map.clear();
+            return Promise.resolve();
         }
         for (const key of this.map.keys()) {
-            if (key.startsWith(prefix)) {
-                clearTimeout(this.timeoutMap.get(key));
-                this.timeoutMap.delete(key);
-                this.map.delete(key);
+            if (!key.startsWith(prefix)) {
+                continue;
             }
+            this.internalRemove(key);
         }
         return Promise.resolve();
     }
