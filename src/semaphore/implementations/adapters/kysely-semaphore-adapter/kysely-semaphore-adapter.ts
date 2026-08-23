@@ -46,8 +46,8 @@ export type KyselySemaphoreSlotTable = {
  * @group Adapters
  */
 export type KyselySemaphoreTables = {
-    semaphoreEntry: KyselySemaphoreTable;
-    semaphoreSlotEntry: KyselySemaphoreSlotTable;
+    semaphore: KyselySemaphoreTable;
+    semaphoreSlot: KyselySemaphoreSlotTable;
 };
 
 /**
@@ -123,7 +123,7 @@ export class KyselySemaphoreAdapter
         // Should throw if the table already exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .createTable("semaphoreEntry")
+                .createTable("semaphore")
                 .addColumn("key", "varchar(255)", (col) =>
                     col.notNull().primaryKey(),
                 )
@@ -136,16 +136,16 @@ export class KyselySemaphoreAdapter
         // Should throw if the table already exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .createTable("semaphoreSlotEntry")
+                .createTable("semaphoreSlot")
                 .addColumn("id", "varchar(255)", (col) =>
                     col.notNull().primaryKey(),
                 )
                 .addColumn("key", "varchar(255)", (col) => col.notNull())
                 .addColumn("expiration", "bigint")
                 .addForeignKeyConstraint(
-                    "semaphoreSlotEntry_key",
+                    "semaphoreSlot_key",
                     ["key"],
-                    "semaphoreEntry",
+                    "semaphore",
                     ["key"],
                     (eb) => eb.onDelete("cascade"),
                 )
@@ -157,8 +157,8 @@ export class KyselySemaphoreAdapter
         // Should throw if the index already exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .createIndex("semaphoreSlotEntry_expiration_index")
-                .on("semaphoreSlotEntry")
+                .createIndex("semaphoreSlot_expiration_index")
+                .on("semaphoreSlot")
                 .columns(["key", "expiration"])
                 .execute();
         } catch {
@@ -174,8 +174,8 @@ export class KyselySemaphoreAdapter
         // Should throw if the index does not exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .dropIndex("semaphoreSlotEntry_expiration_index")
-                .on("semaphoreSlotEntry")
+                .dropIndex("semaphoreSlot_expiration_index")
+                .on("semaphoreSlot")
                 .execute();
         } catch {
             /* EMPTY */
@@ -183,14 +183,14 @@ export class KyselySemaphoreAdapter
 
         // Should throw if the table does not exists thats why the try catch is used.
         try {
-            await this.kysely.schema.dropTable("semaphoreSlotEntry").execute();
+            await this.kysely.schema.dropTable("semaphoreSlot").execute();
         } catch {
             /* EMPTY */
         }
 
         // Should throw if the table does not exists thats why the try catch is used.
         try {
-            await this.kysely.schema.dropTable("semaphoreEntry").execute();
+            await this.kysely.schema.dropTable("semaphore").execute();
         } catch {
             /* EMPTY */
         }
@@ -198,28 +198,16 @@ export class KyselySemaphoreAdapter
 
     async removeAllExpired(): Promise<void> {
         await this.kysely
-            .deleteFrom("semaphoreEntry")
+            .deleteFrom("semaphore")
             .where((eb) => {
                 const hasUnexpiredSlots = eb
-                    .selectFrom("semaphoreSlotEntry")
+                    .selectFrom("semaphoreSlot")
                     .select(eb.val(1).as("value"))
-                    .where(
-                        "semaphoreSlotEntry.key",
-                        "=",
-                        eb.ref("semaphoreEntry.key"),
-                    )
+                    .where("semaphoreSlot.key", "=", eb.ref("semaphore.key"))
                     .where((eb_) =>
                         eb_.and([
-                            eb_(
-                                "semaphoreSlotEntry.expiration",
-                                "is not",
-                                null,
-                            ),
-                            eb_(
-                                "semaphoreSlotEntry.expiration",
-                                ">",
-                                Date.now(),
-                            ),
+                            eb_("semaphoreSlot.expiration", "is not", null),
+                            eb_("semaphoreSlot.expiration", ">", Date.now()),
                         ]),
                     );
                 return eb.not(eb.exists(hasUnexpiredSlots));
@@ -234,7 +222,7 @@ export class KyselySemaphoreAdapter
             // Create the semaphore if it doesn't exist (never overwrite limit
             // when slots are still held — the stored limit governs admission).
             await trx
-                .insertInto("semaphoreEntry")
+                .insertInto("semaphore")
                 .values({ key, limit })
                 .$if(!this.isMysql, (eb) =>
                     eb.onConflict((eb_) => eb_.column("key").doNothing()),
@@ -244,9 +232,9 @@ export class KyselySemaphoreAdapter
 
             // Read the stored semaphore to get the authoritative limit.
             const semaphore = await trx
-                .selectFrom("semaphoreEntry")
-                .where("semaphoreEntry.key", "=", key)
-                .select("semaphoreEntry.limit")
+                .selectFrom("semaphore")
+                .where("semaphore.key", "=", key)
+                .select("semaphore.limit")
                 .executeTakeFirst();
 
             if (!semaphore) {
@@ -255,12 +243,12 @@ export class KyselySemaphoreAdapter
 
             // Count current non-expired slots.
             const countResult = await trx
-                .selectFrom("semaphoreSlotEntry")
-                .where("semaphoreSlotEntry.key", "=", key)
+                .selectFrom("semaphoreSlot")
+                .where("semaphoreSlot.key", "=", key)
                 .where((eb) =>
                     eb.or([
-                        eb("semaphoreSlotEntry.expiration", "is", null),
-                        eb("semaphoreSlotEntry.expiration", ">", Date.now()),
+                        eb("semaphoreSlot.expiration", "is", null),
+                        eb("semaphoreSlot.expiration", ">", Date.now()),
                     ]),
                 )
                 .select((eb) => eb.fn.countAll().as("count"))
@@ -280,8 +268,8 @@ export class KyselySemaphoreAdapter
             // and no slots are held.
             if (currentCount === 0 && limit !== semaphore.limit) {
                 await trx
-                    .updateTable("semaphoreEntry")
-                    .where("semaphoreEntry.key", "=", key)
+                    .updateTable("semaphore")
+                    .where("semaphore.key", "=", key)
                     .set({ limit })
                     .execute();
             }
@@ -289,7 +277,7 @@ export class KyselySemaphoreAdapter
             // Upsert the slot
             const expiration = ttl?.toEndDate().getTime() ?? null;
             await trx
-                .insertInto("semaphoreSlotEntry")
+                .insertInto("semaphoreSlot")
                 .values({ key, id: slotId, expiration })
                 .$if(!this.isMysql, (eb) =>
                     eb.onConflict((eb_) =>
@@ -315,20 +303,16 @@ export class KyselySemaphoreAdapter
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
-                    .selectFrom("semaphoreSlotEntry")
-                    .where("semaphoreSlotEntry.key", "=", key)
-                    .where("semaphoreSlotEntry.id", "=", slotId)
+                    .selectFrom("semaphoreSlot")
+                    .where("semaphoreSlot.key", "=", key)
+                    .where("semaphoreSlot.id", "=", slotId)
                     .where((eb) =>
                         eb.or([
-                            eb("semaphoreSlotEntry.expiration", "is", null),
-                            eb(
-                                "semaphoreSlotEntry.expiration",
-                                ">",
-                                Date.now(),
-                            ),
+                            eb("semaphoreSlot.expiration", "is", null),
+                            eb("semaphoreSlot.expiration", ">", Date.now()),
                         ]),
                     )
-                    .select("semaphoreSlotEntry.id")
+                    .select("semaphoreSlot.id")
                     .executeTakeFirst();
 
                 if (!existing) {
@@ -336,9 +320,9 @@ export class KyselySemaphoreAdapter
                 }
 
                 await trx
-                    .deleteFrom("semaphoreSlotEntry")
-                    .where("semaphoreSlotEntry.key", "=", key)
-                    .where("semaphoreSlotEntry.id", "=", slotId)
+                    .deleteFrom("semaphoreSlot")
+                    .where("semaphoreSlot.key", "=", key)
+                    .where("semaphoreSlot.id", "=", slotId)
                     .execute();
 
                 return true;
@@ -346,16 +330,16 @@ export class KyselySemaphoreAdapter
         }
 
         const result = await this.kysely
-            .deleteFrom("semaphoreSlotEntry")
-            .where("semaphoreSlotEntry.key", "=", key)
-            .where("semaphoreSlotEntry.id", "=", slotId)
+            .deleteFrom("semaphoreSlot")
+            .where("semaphoreSlot.key", "=", key)
+            .where("semaphoreSlot.id", "=", slotId)
             .where((eb) =>
                 eb.or([
-                    eb("semaphoreSlotEntry.expiration", "is", null),
-                    eb("semaphoreSlotEntry.expiration", ">", Date.now()),
+                    eb("semaphoreSlot.expiration", "is", null),
+                    eb("semaphoreSlot.expiration", ">", Date.now()),
                 ]),
             )
-            .returning("semaphoreSlotEntry.id")
+            .returning("semaphoreSlot.id")
             .executeTakeFirst();
 
         return result !== undefined;
@@ -368,19 +352,15 @@ export class KyselySemaphoreAdapter
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
-                    .selectFrom("semaphoreSlotEntry")
-                    .where("semaphoreSlotEntry.key", "=", key)
+                    .selectFrom("semaphoreSlot")
+                    .where("semaphoreSlot.key", "=", key)
                     .where((eb) =>
                         eb.or([
-                            eb("semaphoreSlotEntry.expiration", "is", null),
-                            eb(
-                                "semaphoreSlotEntry.expiration",
-                                ">",
-                                Date.now(),
-                            ),
+                            eb("semaphoreSlot.expiration", "is", null),
+                            eb("semaphoreSlot.expiration", ">", Date.now()),
                         ]),
                     )
-                    .select("semaphoreSlotEntry.id")
+                    .select("semaphoreSlot.id")
                     .executeTakeFirst();
 
                 if (!existing) {
@@ -388,8 +368,8 @@ export class KyselySemaphoreAdapter
                 }
 
                 await trx
-                    .deleteFrom("semaphoreSlotEntry")
-                    .where("semaphoreSlotEntry.key", "=", key)
+                    .deleteFrom("semaphoreSlot")
+                    .where("semaphoreSlot.key", "=", key)
                     .execute();
 
                 return true;
@@ -397,15 +377,15 @@ export class KyselySemaphoreAdapter
         }
 
         const result = await this.kysely
-            .deleteFrom("semaphoreSlotEntry")
-            .where("semaphoreSlotEntry.key", "=", key)
+            .deleteFrom("semaphoreSlot")
+            .where("semaphoreSlot.key", "=", key)
             .where((eb) =>
                 eb.or([
-                    eb("semaphoreSlotEntry.expiration", "is", null),
-                    eb("semaphoreSlotEntry.expiration", ">", Date.now()),
+                    eb("semaphoreSlot.expiration", "is", null),
+                    eb("semaphoreSlot.expiration", ">", Date.now()),
                 ]),
             )
-            .returning("semaphoreSlotEntry.id")
+            .returning("semaphoreSlot.id")
             .executeTakeFirst();
 
         return result !== undefined;
@@ -419,13 +399,13 @@ export class KyselySemaphoreAdapter
     ): Promise<boolean> {
         const expiration = ttl.toEndDate().getTime();
         const result = await this.kysely
-            .updateTable("semaphoreSlotEntry")
-            .where("semaphoreSlotEntry.key", "=", key)
-            .where("semaphoreSlotEntry.id", "=", slotId)
+            .updateTable("semaphoreSlot")
+            .where("semaphoreSlot.key", "=", key)
+            .where("semaphoreSlot.id", "=", slotId)
             .where((eb) =>
                 eb.and([
-                    eb("semaphoreSlotEntry.expiration", "is not", null),
-                    eb("semaphoreSlotEntry.expiration", ">", Date.now()),
+                    eb("semaphoreSlot.expiration", "is not", null),
+                    eb("semaphoreSlot.expiration", ">", Date.now()),
                 ]),
             )
             .set({ expiration })
@@ -439,9 +419,9 @@ export class KyselySemaphoreAdapter
         _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
         const semaphore = await this.kysely
-            .selectFrom("semaphoreEntry")
-            .where("semaphoreEntry.key", "=", key)
-            .select("semaphoreEntry.limit")
+            .selectFrom("semaphore")
+            .where("semaphore.key", "=", key)
+            .select("semaphore.limit")
             .executeTakeFirst();
 
         if (semaphore === undefined) {
@@ -449,9 +429,9 @@ export class KyselySemaphoreAdapter
         }
 
         const slots = await this.kysely
-            .selectFrom("semaphoreSlotEntry")
-            .where("semaphoreSlotEntry.key", "=", key)
-            .select(["semaphoreSlotEntry.id", "semaphoreSlotEntry.expiration"])
+            .selectFrom("semaphoreSlot")
+            .where("semaphoreSlot.key", "=", key)
+            .select(["semaphoreSlot.id", "semaphoreSlot.expiration"])
             .execute();
 
         const acquiredSlots = new Map<string, Date | null>();

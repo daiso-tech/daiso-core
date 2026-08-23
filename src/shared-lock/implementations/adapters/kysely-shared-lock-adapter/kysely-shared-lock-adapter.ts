@@ -61,9 +61,9 @@ export type KyselyReaderSemaphoreSlotTable = {
  * @group Adapters
  */
 export type KyselySharedLockTables = {
-    writerLockEntry: KyselyWriterLockTable;
-    readerSemaphoreEntry: KyselyReaderSemaphoreTable;
-    readerSemaphoreSlotEntry: KyselyReaderSemaphoreSlotTable;
+    writerLock: KyselyWriterLockTable;
+    readerSemaphore: KyselyReaderSemaphoreTable;
+    readerSemaphoreSlot: KyselyReaderSemaphoreSlotTable;
 };
 
 /**
@@ -148,7 +148,7 @@ export class KyselySharedLockAdapter
         // Should throw if the table already exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .createTable("readerSemaphoreEntry")
+                .createTable("readerSemaphore")
                 .addColumn("key", "varchar(255)", (col) =>
                     col.notNull().primaryKey(),
                 )
@@ -161,16 +161,16 @@ export class KyselySharedLockAdapter
         // Should throw if the table already exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .createTable("readerSemaphoreSlotEntry")
+                .createTable("readerSemaphoreSlot")
                 .addColumn("id", "varchar(255)", (col) =>
                     col.notNull().primaryKey(),
                 )
                 .addColumn("key", "varchar(255)", (col) => col.notNull())
                 .addColumn("expiration", "bigint")
                 .addForeignKeyConstraint(
-                    "readerSemaphoreSlotEntry_key",
+                    "readerSemaphoreSlot_key",
                     ["key"],
-                    "readerSemaphoreEntry",
+                    "readerSemaphore",
                     ["key"],
                     (eb) => eb.onDelete("cascade"),
                 )
@@ -182,8 +182,8 @@ export class KyselySharedLockAdapter
         // Should throw if the index already exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .createIndex("readerSemaphoreSlotEntry_expiration_index")
-                .on("readerSemaphoreSlotEntry")
+                .createIndex("readerSemaphoreSlot_expiration_index")
+                .on("readerSemaphoreSlot")
                 .columns(["key", "expiration"])
                 .execute();
         } catch {
@@ -193,7 +193,7 @@ export class KyselySharedLockAdapter
         // Should throw if the table already exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .createTable("writerLockEntry")
+                .createTable("writerLock")
                 .addColumn("key", "varchar(255)", (col) =>
                     col.primaryKey().notNull(),
                 )
@@ -207,8 +207,8 @@ export class KyselySharedLockAdapter
         // Should throw if the index already exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .createIndex("writerLockEntry_expiration")
-                .on("writerLockEntry")
+                .createIndex("writerLock_expiration")
+                .on("writerLock")
                 .column("expiration")
                 .execute();
         } catch {
@@ -224,8 +224,8 @@ export class KyselySharedLockAdapter
         // Should throw if the index does not exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .dropIndex("readerSemaphoreSlotEntry_expiration_index")
-                .on("readerSemaphoreSlotEntry")
+                .dropIndex("readerSemaphoreSlot_expiration_index")
+                .on("readerSemaphoreSlot")
                 .execute();
         } catch {
             /* EMPTY */
@@ -233,18 +233,14 @@ export class KyselySharedLockAdapter
 
         // Should throw if the table does not exists thats why the try catch is used.
         try {
-            await this.kysely.schema
-                .dropTable("readerSemaphoreSlotEntry")
-                .execute();
+            await this.kysely.schema.dropTable("readerSemaphoreSlot").execute();
         } catch {
             /* EMPTY */
         }
 
         // Should throw if the table does not exists thats why the try catch is used.
         try {
-            await this.kysely.schema
-                .dropTable("readerSemaphoreEntry")
-                .execute();
+            await this.kysely.schema.dropTable("readerSemaphore").execute();
         } catch {
             /* EMPTY */
         }
@@ -252,8 +248,8 @@ export class KyselySharedLockAdapter
         // Should throw if the index does not exists thats why the try catch is used.
         try {
             await this.kysely.schema
-                .dropIndex("writerLockEntry_expiration")
-                .on("writerLockEntry")
+                .dropIndex("writerLock_expiration")
+                .on("writerLock")
                 .execute();
         } catch {
             /* EMPTY */
@@ -261,7 +257,7 @@ export class KyselySharedLockAdapter
 
         // Should throw if the table does not exists thats why the try catch is used.
         try {
-            await this.kysely.schema.dropTable("writerLockEntry").execute();
+            await this.kysely.schema.dropTable("writerLock").execute();
         } catch {
             /* EMPTY */
         }
@@ -269,25 +265,25 @@ export class KyselySharedLockAdapter
 
     private async removeAllExpiredReaders(): Promise<void> {
         await this.kysely
-            .deleteFrom("readerSemaphoreEntry")
+            .deleteFrom("readerSemaphore")
             .where((eb) => {
                 const hasUnexpiredSlots = eb
-                    .selectFrom("readerSemaphoreSlotEntry")
+                    .selectFrom("readerSemaphoreSlot")
                     .select(eb.val(1).as("value"))
                     .where(
-                        "readerSemaphoreSlotEntry.key",
+                        "readerSemaphoreSlot.key",
                         "=",
-                        eb.ref("readerSemaphoreEntry.key"),
+                        eb.ref("readerSemaphore.key"),
                     )
                     .where((eb_) =>
                         eb_.and([
                             eb_(
-                                "readerSemaphoreSlotEntry.expiration",
+                                "readerSemaphoreSlot.expiration",
                                 "is not",
                                 null,
                             ),
                             eb_(
-                                "readerSemaphoreSlotEntry.expiration",
+                                "readerSemaphoreSlot.expiration",
                                 ">",
                                 Date.now(),
                             ),
@@ -300,12 +296,8 @@ export class KyselySharedLockAdapter
 
     private async removeAllExpiredWriters(): Promise<void> {
         await this.kysely
-            .deleteFrom("writerLockEntry")
-            .where(
-                "writerLockEntry.expiration",
-                "<=",
-                this.currentDate().getTime(),
-            )
+            .deleteFrom("writerLock")
+            .where("writerLock.expiration", "<=", this.currentDate().getTime())
             .execute();
     }
 
@@ -325,9 +317,9 @@ export class KyselySharedLockAdapter
         return await this.transaction(async (trx) => {
             // Check if a non-expired writer lock exists held by a different owner
             const existing = await trx
-                .selectFrom("writerLockEntry")
-                .where("writerLockEntry.key", "=", key)
-                .select(["writerLockEntry.owner", "writerLockEntry.expiration"])
+                .selectFrom("writerLock")
+                .where("writerLock.key", "=", key)
+                .select(["writerLock.owner", "writerLock.expiration"])
                 .executeTakeFirst();
 
             if (existing) {
@@ -342,13 +334,13 @@ export class KyselySharedLockAdapter
 
             // Check if any non-expired reader slots exist
             const readerCount = await trx
-                .selectFrom("readerSemaphoreSlotEntry")
-                .where("readerSemaphoreSlotEntry.key", "=", key)
+                .selectFrom("readerSemaphoreSlot")
+                .where("readerSemaphoreSlot.key", "=", key)
                 .where((eb) =>
                     eb.or([
-                        eb("readerSemaphoreSlotEntry.expiration", "is", null),
+                        eb("readerSemaphoreSlot.expiration", "is", null),
                         eb(
-                            "readerSemaphoreSlotEntry.expiration",
+                            "readerSemaphoreSlot.expiration",
                             ">",
                             this.currentDate().getTime(),
                         ),
@@ -364,7 +356,7 @@ export class KyselySharedLockAdapter
 
             const expiration = ttl?.toEndDate().getTime() ?? null;
             await trx
-                .insertInto("writerLockEntry")
+                .insertInto("writerLock")
                 .values({ key, owner: lockId, expiration })
                 .$if(!this.isMysql, (eb) =>
                     eb.onConflict((oc) =>
@@ -396,20 +388,20 @@ export class KyselySharedLockAdapter
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
-                    .selectFrom("writerLockEntry")
-                    .where("writerLockEntry.key", "=", key)
-                    .where("writerLockEntry.owner", "=", lockId)
+                    .selectFrom("writerLock")
+                    .where("writerLock.key", "=", key)
+                    .where("writerLock.owner", "=", lockId)
                     .where((eb) =>
                         eb.or([
-                            eb("writerLockEntry.expiration", "is", null),
+                            eb("writerLock.expiration", "is", null),
                             eb(
-                                "writerLockEntry.expiration",
+                                "writerLock.expiration",
                                 ">",
                                 this.currentDate().getTime(),
                             ),
                         ]),
                     )
-                    .select("writerLockEntry.key")
+                    .select("writerLock.key")
                     .executeTakeFirst();
 
                 if (!existing) {
@@ -417,9 +409,9 @@ export class KyselySharedLockAdapter
                 }
 
                 await trx
-                    .deleteFrom("writerLockEntry")
-                    .where("writerLockEntry.key", "=", key)
-                    .where("writerLockEntry.owner", "=", lockId)
+                    .deleteFrom("writerLock")
+                    .where("writerLock.key", "=", key)
+                    .where("writerLock.owner", "=", lockId)
                     .execute();
 
                 return true;
@@ -427,20 +419,20 @@ export class KyselySharedLockAdapter
         }
 
         const result = await this.kysely
-            .deleteFrom("writerLockEntry")
-            .where("writerLockEntry.key", "=", key)
-            .where("writerLockEntry.owner", "=", lockId)
+            .deleteFrom("writerLock")
+            .where("writerLock.key", "=", key)
+            .where("writerLock.owner", "=", lockId)
             .where((eb) =>
                 eb.or([
-                    eb("writerLockEntry.expiration", "is", null),
+                    eb("writerLock.expiration", "is", null),
                     eb(
-                        "writerLockEntry.expiration",
+                        "writerLock.expiration",
                         ">",
                         this.currentDate().getTime(),
                     ),
                 ]),
             )
-            .returning("writerLockEntry.key")
+            .returning("writerLock.key")
             .executeTakeFirst();
 
         return result !== undefined;
@@ -453,19 +445,19 @@ export class KyselySharedLockAdapter
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
-                    .selectFrom("writerLockEntry")
-                    .where("writerLockEntry.key", "=", key)
+                    .selectFrom("writerLock")
+                    .where("writerLock.key", "=", key)
                     .where((eb) =>
                         eb.or([
-                            eb("writerLockEntry.expiration", "is", null),
+                            eb("writerLock.expiration", "is", null),
                             eb(
-                                "writerLockEntry.expiration",
+                                "writerLock.expiration",
                                 ">",
                                 this.currentDate().getTime(),
                             ),
                         ]),
                     )
-                    .select("writerLockEntry.key")
+                    .select("writerLock.key")
                     .executeTakeFirst();
 
                 if (!existing) {
@@ -473,8 +465,8 @@ export class KyselySharedLockAdapter
                 }
 
                 await trx
-                    .deleteFrom("writerLockEntry")
-                    .where("writerLockEntry.key", "=", key)
+                    .deleteFrom("writerLock")
+                    .where("writerLock.key", "=", key)
                     .execute();
 
                 return true;
@@ -482,19 +474,19 @@ export class KyselySharedLockAdapter
         }
 
         const result = await this.kysely
-            .deleteFrom("writerLockEntry")
-            .where("writerLockEntry.key", "=", key)
+            .deleteFrom("writerLock")
+            .where("writerLock.key", "=", key)
             .where((eb) =>
                 eb.or([
-                    eb("writerLockEntry.expiration", "is", null),
+                    eb("writerLock.expiration", "is", null),
                     eb(
-                        "writerLockEntry.expiration",
+                        "writerLock.expiration",
                         ">",
                         this.currentDate().getTime(),
                     ),
                 ]),
             )
-            .returning("writerLockEntry.key")
+            .returning("writerLock.key")
             .executeTakeFirst();
 
         return result !== undefined;
@@ -508,14 +500,14 @@ export class KyselySharedLockAdapter
     ): Promise<boolean> {
         const expiration = ttl.toEndDate().getTime();
         const result = await this.kysely
-            .updateTable("writerLockEntry")
-            .where("writerLockEntry.key", "=", key)
-            .where("writerLockEntry.owner", "=", lockId)
+            .updateTable("writerLock")
+            .where("writerLock.key", "=", key)
+            .where("writerLock.owner", "=", lockId)
             .where((eb) =>
                 eb.and([
-                    eb("writerLockEntry.expiration", "is not", null),
+                    eb("writerLock.expiration", "is not", null),
                     eb(
-                        "writerLockEntry.expiration",
+                        "writerLock.expiration",
                         ">",
                         this.currentDate().getTime(),
                     ),
@@ -532,9 +524,9 @@ export class KyselySharedLockAdapter
         key: string,
     ): Promise<boolean> {
         const writer = await trx
-            .selectFrom("writerLockEntry")
-            .where("writerLockEntry.key", "=", key)
-            .select(["writerLockEntry.expiration"])
+            .selectFrom("writerLock")
+            .where("writerLock.key", "=", key)
+            .select(["writerLock.expiration"])
             .executeTakeFirst();
 
         if (!writer) {
@@ -554,7 +546,7 @@ export class KyselySharedLockAdapter
         limit: number,
     ): Promise<{ storedLimit: number } | null> {
         await trx
-            .insertInto("readerSemaphoreEntry")
+            .insertInto("readerSemaphore")
             .values({ key, limit })
             .$if(!this.isMysql, (eb) =>
                 eb.onConflict((eb_) => eb_.column("key").doNothing()),
@@ -563,9 +555,9 @@ export class KyselySharedLockAdapter
             .execute();
 
         const semaphore = await trx
-            .selectFrom("readerSemaphoreEntry")
-            .where("readerSemaphoreEntry.key", "=", key)
-            .select("readerSemaphoreEntry.limit")
+            .selectFrom("readerSemaphore")
+            .where("readerSemaphore.key", "=", key)
+            .select("readerSemaphore.limit")
             .executeTakeFirst();
 
         if (!semaphore) {
@@ -580,13 +572,13 @@ export class KyselySharedLockAdapter
         key: string,
     ): Promise<number> {
         const countResult = await trx
-            .selectFrom("readerSemaphoreSlotEntry")
-            .where("readerSemaphoreSlotEntry.key", "=", key)
+            .selectFrom("readerSemaphoreSlot")
+            .where("readerSemaphoreSlot.key", "=", key)
             .where((eb) =>
                 eb.or([
-                    eb("readerSemaphoreSlotEntry.expiration", "is", null),
+                    eb("readerSemaphoreSlot.expiration", "is", null),
                     eb(
-                        "readerSemaphoreSlotEntry.expiration",
+                        "readerSemaphoreSlot.expiration",
                         ">",
                         this.currentDate().getTime(),
                     ),
@@ -606,7 +598,7 @@ export class KyselySharedLockAdapter
     ): Promise<void> {
         const expiration = ttl?.toEndDate().getTime() ?? null;
         await trx
-            .insertInto("readerSemaphoreSlotEntry")
+            .insertInto("readerSemaphoreSlot")
             .values({ key, id: lockId, expiration })
             .$if(!this.isMysql, (eb) =>
                 eb.onConflict((eb_) =>
@@ -645,8 +637,8 @@ export class KyselySharedLockAdapter
 
             if (currentCount === 0 && limit !== semaphore.storedLimit) {
                 await trx
-                    .updateTable("readerSemaphoreEntry")
-                    .where("readerSemaphoreEntry.key", "=", key)
+                    .updateTable("readerSemaphore")
+                    .where("readerSemaphore.key", "=", key)
                     .set({ limit })
                     .execute();
             }
@@ -664,24 +656,20 @@ export class KyselySharedLockAdapter
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
-                    .selectFrom("readerSemaphoreSlotEntry")
-                    .where("readerSemaphoreSlotEntry.key", "=", key)
-                    .where("readerSemaphoreSlotEntry.id", "=", slotId)
+                    .selectFrom("readerSemaphoreSlot")
+                    .where("readerSemaphoreSlot.key", "=", key)
+                    .where("readerSemaphoreSlot.id", "=", slotId)
                     .where((eb) =>
                         eb.or([
+                            eb("readerSemaphoreSlot.expiration", "is", null),
                             eb(
-                                "readerSemaphoreSlotEntry.expiration",
-                                "is",
-                                null,
-                            ),
-                            eb(
-                                "readerSemaphoreSlotEntry.expiration",
+                                "readerSemaphoreSlot.expiration",
                                 ">",
                                 this.currentDate().getTime(),
                             ),
                         ]),
                     )
-                    .select("readerSemaphoreSlotEntry.id")
+                    .select("readerSemaphoreSlot.id")
                     .executeTakeFirst();
 
                 if (!existing) {
@@ -689,9 +677,9 @@ export class KyselySharedLockAdapter
                 }
 
                 await trx
-                    .deleteFrom("readerSemaphoreSlotEntry")
-                    .where("readerSemaphoreSlotEntry.key", "=", key)
-                    .where("readerSemaphoreSlotEntry.id", "=", slotId)
+                    .deleteFrom("readerSemaphoreSlot")
+                    .where("readerSemaphoreSlot.key", "=", key)
+                    .where("readerSemaphoreSlot.id", "=", slotId)
                     .execute();
 
                 return true;
@@ -699,20 +687,20 @@ export class KyselySharedLockAdapter
         }
 
         const result = await this.kysely
-            .deleteFrom("readerSemaphoreSlotEntry")
-            .where("readerSemaphoreSlotEntry.key", "=", key)
-            .where("readerSemaphoreSlotEntry.id", "=", slotId)
+            .deleteFrom("readerSemaphoreSlot")
+            .where("readerSemaphoreSlot.key", "=", key)
+            .where("readerSemaphoreSlot.id", "=", slotId)
             .where((eb) =>
                 eb.or([
-                    eb("readerSemaphoreSlotEntry.expiration", "is", null),
+                    eb("readerSemaphoreSlot.expiration", "is", null),
                     eb(
-                        "readerSemaphoreSlotEntry.expiration",
+                        "readerSemaphoreSlot.expiration",
                         ">",
                         this.currentDate().getTime(),
                     ),
                 ]),
             )
-            .returning("readerSemaphoreSlotEntry.id")
+            .returning("readerSemaphoreSlot.id")
             .executeTakeFirst();
 
         return result !== undefined;
@@ -725,23 +713,19 @@ export class KyselySharedLockAdapter
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
-                    .selectFrom("readerSemaphoreSlotEntry")
-                    .where("readerSemaphoreSlotEntry.key", "=", key)
+                    .selectFrom("readerSemaphoreSlot")
+                    .where("readerSemaphoreSlot.key", "=", key)
                     .where((eb) =>
                         eb.or([
+                            eb("readerSemaphoreSlot.expiration", "is", null),
                             eb(
-                                "readerSemaphoreSlotEntry.expiration",
-                                "is",
-                                null,
-                            ),
-                            eb(
-                                "readerSemaphoreSlotEntry.expiration",
+                                "readerSemaphoreSlot.expiration",
                                 ">",
                                 this.currentDate().getTime(),
                             ),
                         ]),
                     )
-                    .select("readerSemaphoreSlotEntry.id")
+                    .select("readerSemaphoreSlot.id")
                     .executeTakeFirst();
 
                 if (!existing) {
@@ -749,8 +733,8 @@ export class KyselySharedLockAdapter
                 }
 
                 await trx
-                    .deleteFrom("readerSemaphoreSlotEntry")
-                    .where("readerSemaphoreSlotEntry.key", "=", key)
+                    .deleteFrom("readerSemaphoreSlot")
+                    .where("readerSemaphoreSlot.key", "=", key)
                     .execute();
 
                 return true;
@@ -758,19 +742,19 @@ export class KyselySharedLockAdapter
         }
 
         const result = await this.kysely
-            .deleteFrom("readerSemaphoreSlotEntry")
-            .where("readerSemaphoreSlotEntry.key", "=", key)
+            .deleteFrom("readerSemaphoreSlot")
+            .where("readerSemaphoreSlot.key", "=", key)
             .where((eb) =>
                 eb.or([
-                    eb("readerSemaphoreSlotEntry.expiration", "is", null),
+                    eb("readerSemaphoreSlot.expiration", "is", null),
                     eb(
-                        "readerSemaphoreSlotEntry.expiration",
+                        "readerSemaphoreSlot.expiration",
                         ">",
                         this.currentDate().getTime(),
                     ),
                 ]),
             )
-            .returning("readerSemaphoreSlotEntry.id")
+            .returning("readerSemaphoreSlot.id")
             .executeTakeFirst();
 
         return result !== undefined;
@@ -784,14 +768,14 @@ export class KyselySharedLockAdapter
     ): Promise<boolean> {
         const expiration = ttl.toEndDate().getTime();
         const result = await this.kysely
-            .updateTable("readerSemaphoreSlotEntry")
-            .where("readerSemaphoreSlotEntry.key", "=", key)
-            .where("readerSemaphoreSlotEntry.id", "=", slotId)
+            .updateTable("readerSemaphoreSlot")
+            .where("readerSemaphoreSlot.key", "=", key)
+            .where("readerSemaphoreSlot.id", "=", slotId)
             .where((eb) =>
                 eb.and([
-                    eb("readerSemaphoreSlotEntry.expiration", "is not", null),
+                    eb("readerSemaphoreSlot.expiration", "is not", null),
                     eb(
-                        "readerSemaphoreSlotEntry.expiration",
+                        "readerSemaphoreSlot.expiration",
                         ">",
                         this.currentDate().getTime(),
                     ),
@@ -807,19 +791,19 @@ export class KyselySharedLockAdapter
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
-                    .selectFrom("writerLockEntry")
-                    .where("writerLockEntry.key", "=", key)
+                    .selectFrom("writerLock")
+                    .where("writerLock.key", "=", key)
                     .where((eb) =>
                         eb.or([
-                            eb("writerLockEntry.expiration", "is", null),
+                            eb("writerLock.expiration", "is", null),
                             eb(
-                                "writerLockEntry.expiration",
+                                "writerLock.expiration",
                                 ">",
                                 this.currentDate().getTime(),
                             ),
                         ]),
                     )
-                    .select("writerLockEntry.key")
+                    .select("writerLock.key")
                     .executeTakeFirst();
 
                 if (!existing) {
@@ -827,8 +811,8 @@ export class KyselySharedLockAdapter
                 }
 
                 await trx
-                    .deleteFrom("writerLockEntry")
-                    .where("writerLockEntry.key", "=", key)
+                    .deleteFrom("writerLock")
+                    .where("writerLock.key", "=", key)
                     .execute();
 
                 return true;
@@ -836,19 +820,19 @@ export class KyselySharedLockAdapter
         }
 
         const result = await this.kysely
-            .deleteFrom("writerLockEntry")
-            .where("writerLockEntry.key", "=", key)
+            .deleteFrom("writerLock")
+            .where("writerLock.key", "=", key)
             .where((eb) =>
                 eb.or([
-                    eb("writerLockEntry.expiration", "is", null),
+                    eb("writerLock.expiration", "is", null),
                     eb(
-                        "writerLockEntry.expiration",
+                        "writerLock.expiration",
                         ">",
                         this.currentDate().getTime(),
                     ),
                 ]),
             )
-            .returning("writerLockEntry.key")
+            .returning("writerLock.key")
             .executeTakeFirst();
 
         return result !== undefined;
@@ -858,23 +842,19 @@ export class KyselySharedLockAdapter
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
-                    .selectFrom("readerSemaphoreSlotEntry")
-                    .where("readerSemaphoreSlotEntry.key", "=", key)
+                    .selectFrom("readerSemaphoreSlot")
+                    .where("readerSemaphoreSlot.key", "=", key)
                     .where((eb) =>
                         eb.or([
+                            eb("readerSemaphoreSlot.expiration", "is", null),
                             eb(
-                                "readerSemaphoreSlotEntry.expiration",
-                                "is",
-                                null,
-                            ),
-                            eb(
-                                "readerSemaphoreSlotEntry.expiration",
+                                "readerSemaphoreSlot.expiration",
                                 ">",
                                 this.currentDate().getTime(),
                             ),
                         ]),
                     )
-                    .select("readerSemaphoreSlotEntry.id")
+                    .select("readerSemaphoreSlot.id")
                     .executeTakeFirst();
 
                 if (!existing) {
@@ -882,8 +862,8 @@ export class KyselySharedLockAdapter
                 }
 
                 await trx
-                    .deleteFrom("readerSemaphoreSlotEntry")
-                    .where("readerSemaphoreSlotEntry.key", "=", key)
+                    .deleteFrom("readerSemaphoreSlot")
+                    .where("readerSemaphoreSlot.key", "=", key)
                     .execute();
 
                 return true;
@@ -891,19 +871,19 @@ export class KyselySharedLockAdapter
         }
 
         const result = await this.kysely
-            .deleteFrom("readerSemaphoreSlotEntry")
-            .where("readerSemaphoreSlotEntry.key", "=", key)
+            .deleteFrom("readerSemaphoreSlot")
+            .where("readerSemaphoreSlot.key", "=", key)
             .where((eb) =>
                 eb.or([
-                    eb("readerSemaphoreSlotEntry.expiration", "is", null),
+                    eb("readerSemaphoreSlot.expiration", "is", null),
                     eb(
-                        "readerSemaphoreSlotEntry.expiration",
+                        "readerSemaphoreSlot.expiration",
                         ">",
                         this.currentDate().getTime(),
                     ),
                 ]),
             )
-            .returning("readerSemaphoreSlotEntry.id")
+            .returning("readerSemaphoreSlot.id")
             .executeTakeFirst();
 
         return result !== undefined;
@@ -922,9 +902,9 @@ export class KyselySharedLockAdapter
         key: string,
     ): Promise<IWriterLockAdapterState | null> {
         const writerRow = await this.kysely
-            .selectFrom("writerLockEntry")
-            .where("writerLockEntry.key", "=", key)
-            .select(["writerLockEntry.owner", "writerLockEntry.expiration"])
+            .selectFrom("writerLock")
+            .where("writerLock.key", "=", key)
+            .select(["writerLock.owner", "writerLock.expiration"])
             .executeTakeFirst();
 
         if (!writerRow) {
@@ -952,9 +932,9 @@ export class KyselySharedLockAdapter
         key: string,
     ): Promise<IReaderSemaphoreAdapterState | null> {
         const semaphore = await this.kysely
-            .selectFrom("readerSemaphoreEntry")
-            .where("readerSemaphoreEntry.key", "=", key)
-            .select("readerSemaphoreEntry.limit")
+            .selectFrom("readerSemaphore")
+            .where("readerSemaphore.key", "=", key)
+            .select("readerSemaphore.limit")
             .executeTakeFirst();
 
         if (!semaphore) {
@@ -962,11 +942,11 @@ export class KyselySharedLockAdapter
         }
 
         const slots = await this.kysely
-            .selectFrom("readerSemaphoreSlotEntry")
-            .where("readerSemaphoreSlotEntry.key", "=", key)
+            .selectFrom("readerSemaphoreSlot")
+            .where("readerSemaphoreSlot.key", "=", key)
             .select([
-                "readerSemaphoreSlotEntry.id",
-                "readerSemaphoreSlotEntry.expiration",
+                "readerSemaphoreSlot.id",
+                "readerSemaphoreSlot.expiration",
             ])
             .execute();
 
