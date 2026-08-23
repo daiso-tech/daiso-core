@@ -103,7 +103,9 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -134,7 +136,9 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -166,7 +170,9 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -207,7 +213,9 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -248,7 +256,9 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -291,7 +301,9 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,
@@ -334,7 +346,9 @@ describe("class: MongodbSemaphoreAdapter", () => {
             const database = client.db("database");
             const collectionName = "locks";
             const collection =
-                database.collection<MongodbSemaphoreEntryDocument>(collectionName);
+                database.collection<MongodbSemaphoreEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSemaphoreAdapter({
                 database,
                 collectionName,

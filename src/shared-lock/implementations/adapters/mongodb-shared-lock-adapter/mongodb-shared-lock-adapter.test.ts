@@ -102,7 +102,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "shared-locks";
             const collection =
-                database.collection<MongodbSharedLockEntryDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -129,7 +131,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "shared-locks";
             const collection =
-                database.collection<MongodbSharedLockEntryDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -159,7 +163,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockEntryDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -190,7 +196,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockEntryDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -222,7 +230,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockEntryDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -263,7 +273,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockEntryDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -304,7 +316,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockEntryDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -346,7 +360,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockEntryDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -388,7 +404,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockEntryDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
