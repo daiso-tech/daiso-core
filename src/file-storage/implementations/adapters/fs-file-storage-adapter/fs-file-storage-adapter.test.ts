@@ -47,11 +47,11 @@ describe("class: FsFileStorageAdapter", () => {
 
             expect(result).toBeNull();
         });
-        test("Should return content-type application/json when file name contains json extension", async () => {
+        test("Should return content-type null when file name contains json extension", async () => {
             const key = "a.json";
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
-            const contentType = "text/plain";
+            const contentType = "application/json";
             await adapter_.add(
                 key,
                 {
@@ -69,12 +69,12 @@ describe("class: FsFileStorageAdapter", () => {
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
-                contentType: "application/json",
+                contentType: null,
                 fileSizeInBytes: data.byteLength,
                 updatedAt: expect.any(Date) as Date,
             } satisfies FileAdapterMetadata);
         });
-        test("Should return content-type text/plain when file name contains txt extension", async () => {
+        test("Should return content-type null when file name contains txt extension", async () => {
             const key = "a.txt";
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
@@ -96,12 +96,12 @@ describe("class: FsFileStorageAdapter", () => {
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
-                contentType: "text/plain",
+                contentType: null,
                 fileSizeInBytes: data.byteLength,
                 updatedAt: expect.any(Date) as Date,
             } satisfies FileAdapterMetadata);
         });
-        test("Should return content-type application/octet stream when file name contains unknown extension", async () => {
+        test("Should return content-type null when file name contains unknown extension", async () => {
             const key = "a.unknown";
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
@@ -123,7 +123,7 @@ describe("class: FsFileStorageAdapter", () => {
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
-                contentType: "application/octet-stream",
+                contentType: null,
                 fileSizeInBytes: data.byteLength,
                 updatedAt: expect.any(Date) as Date,
             } satisfies FileAdapterMetadata);

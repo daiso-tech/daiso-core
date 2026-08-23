@@ -5,7 +5,7 @@ keywords:
     - Utilities
 ---
 
-# EnvAccessor
+# Env accessor
 
 The `eridu-tech/env-accessor` component provides easy type-safe access to enviroment variables.
 It supports multiple sources (sync/async), schema validation, and convenient access patterns.
@@ -85,4 +85,4 @@ type IEnvAccessor<TEnvConfig extends BaseEnvConfig = BaseEnvConfig> = {
 
 ## Further information
 
-For further information refer to [`eridu-tech/env-accessor`](https://eridu-tech.github.io/eridu-tech/modules/EnvAccessor.html) API docs.
+For further information refer to [`eridu-tech/env-accessor`](https://eridu-tech.github.io/eridu-tech-core/modules/EnvAccessor.html) API docs.

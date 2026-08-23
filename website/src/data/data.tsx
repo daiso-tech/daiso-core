@@ -64,21 +64,20 @@ const EXISTING_FOUNDATION_RECORD = {
         description: (
             <>
                 Composable middleware pipeline with before/after hooks, error
-                handling — the foundation for every
-                component's plugin system.
+                handling — the foundation for every component's plugin system.
             </>
         ),
     } satisfies ComponentItemProps,
-    COLLECTION: {
-        name: "Collection",
-        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
-        title: <>Collection</>,
-        link: "/docs/components/collection",
+    DI_CONTAINER: {
+        name: "DI Container",
+        icon: <Box size="1.5rem" strokeWidth={1.5} />,
+        title: <>DI Container</>,
+        link: "/docs/components/di",
         maturity: 90,
         description: (
             <>
-                Type-safe collection utilities with powerful query, transform,
-                and pagination primitives.
+                A lightweight, type-safe dependency injection container for
+                wiring application components without tight coupling.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -90,9 +89,9 @@ const EXISTING_FOUNDATION_RECORD = {
         maturity: 80,
         description: (
             <>
-                Serialize and deserialize data with a built-in SuperJSON
-                adapter (Date, Map, Set, BigInt) and custom serializers — the
-                backbone for all data interchange across the ecosystem.
+                Serialize and deserialize data with a built-in SuperJSON adapter
+                (Date, Map, Set, BigInt) and custom serializers — the backbone
+                for all data interchange across the ecosystem.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -132,9 +131,8 @@ const EXISTING_FOUNDATION_RECORD = {
         maturity: 90,
         description: (
             <>
-                Standardized type-safe access to domain configuration
-                variables — with optional schema validation and full
-                TypeScript inference.
+                Standardized type-safe access to domain configuration variables
+                — with optional schema validation and full TypeScript inference.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -164,8 +162,8 @@ const EXISTING_STORAGE_RECORD = {
         maturity: 90,
         description: (
             <>
-                Caching with pluggable stores (in-memory, Redis,
-                etc.), TTL policies, and stampede protection.
+                Caching with pluggable stores (in-memory, Redis, etc.), TTL
+                policies, and stampede protection.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -300,9 +298,9 @@ const EXISTING_WEB_RECORD = {
         maturity: 90,
         description: (
             <>
-                Framework-agnostic HTTP router built on the Hono router engine
-                — implements the Winter TC fetch standard with middleware
-                chains and typed path parameters.
+                Framework-agnostic HTTP router built on the Hono router engine —
+                implements the Winter TC fetch standard with middleware chains
+                and typed path parameters.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -310,6 +308,19 @@ const EXISTING_WEB_RECORD = {
 
 const EXISTING_UTILITIES_RECORD = {
     // ─── Existing: Utilities ─────────────────────────────────
+    COLLECTION: {
+        name: "Collection",
+        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
+        title: <>Collection</>,
+        link: "/docs/components/collection",
+        maturity: 90,
+        description: (
+            <>
+                Type-safe collection utilities with powerful query, transform,
+                and pagination primitives.
+            </>
+        ),
+    } satisfies ComponentItemProps,
     TIME_SPAN: {
         name: "TimeSpan",
         icon: <Clock size="1.5rem" strokeWidth={1.5} />,
@@ -319,8 +330,8 @@ const EXISTING_UTILITIES_RECORD = {
         description: (
             <>
                 Define, manipulate, and compare durations with a typed,
-                immutable API — integrates easily with time libraries like
-                Luxon and Dayjs.
+                immutable API — integrates easily with time libraries like Luxon
+                and Dayjs.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -354,17 +365,6 @@ const EXISTING_UTILITIES_RECORD = {
 
 const UPCOMING_FOUNDATION_RUNTIME_RECORD = {
     // ─── Upcoming: Foundation & Runtime ──────────────────────
-    DI_CONTAINER: {
-        name: "DI Container",
-        icon: <Box size="1.5rem" strokeWidth={1.5} />,
-        title: <>DI Container</>,
-        description: (
-            <>
-                A lightweight, type-safe dependency injection container for
-                wiring application components without tight coupling.
-            </>
-        ),
-    } satisfies ComponentItemProps,
     TRANSACTION_CONTEXT: {
         name: "Transaction Context",
         icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
@@ -630,8 +630,8 @@ const UPCOMING_INTEGRATIONS_RECORD = {
         description: (
             <>
                 Native and performant MongoDB-backed implementations of every
-                Eridu-tech component — rate limiters, circuit breakers, event bus,
-                message queues, job schedulers, request-reply, transaction
+                Eridu-tech component — rate limiters, circuit breakers, event
+                bus, message queues, job schedulers, request-reply, transaction
                 context, and cache — all using MongoDB as the persistence layer.
                 No additional dependencies required.
             </>
@@ -658,10 +658,10 @@ const UPCOMING_INTEGRATIONS_RECORD = {
         title: <>SSH Deployment</>,
         description: (
             <>
-                Deploy and manage Eridu-tech applications on any VPS or bare-metal
-                server via SSH. Push builds, manage processes, configure
-                environment, and run health checks — all from a single CLI
-                command, no Docker or orchestration required.
+                Deploy and manage Eridu-tech applications on any VPS or
+                bare-metal server via SSH. Push builds, manage processes,
+                configure environment, and run health checks — all from a single
+                CLI command, no Docker or orchestration required.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -769,9 +769,9 @@ const UPCOMING_DEV_TOOLING_RECORD = {
         description: (
             <>
                 Predefined CLI commands to scaffold Eridu-tech projects and
-                components. Initialize a new Eridu-tech project from scratch or add
-                individual components (DI, Cache, Scheduler, Auth, etc.) to an
-                existing project — with sensible defaults, config files, and
+                components. Initialize a new Eridu-tech project from scratch or
+                add individual components (DI, Cache, Scheduler, Auth, etc.) to
+                an existing project — with sensible defaults, config files, and
                 boilerplate code generated automatically.
             </>
         ),
@@ -796,8 +796,8 @@ export const COMPONENT_RECORD = {
 // ─── Existing — Production-Ready Components ──────────────────────
 
 export const FOUNDATION_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.DI_CONTAINER,
     COMPONENT_RECORD.MIDDLEWARE_AND_AOP,
-    COMPONENT_RECORD.COLLECTION,
     COMPONENT_RECORD.SERDE,
     COMPONENT_RECORD.CODEC,
     COMPONENT_RECORD.EXECUTION_CONTEXT,
@@ -831,6 +831,7 @@ export const WEB_EXISTING_ITEMS: ComponentItemProps[] = [
 ];
 
 export const UTILITIES_EXISTING_ITEMS: ComponentItemProps[] = [
+    COMPONENT_RECORD.COLLECTION,
     COMPONENT_RECORD.TIME_SPAN,
     COMPONENT_RECORD.FILE_SIZE,
     COMPONENT_RECORD.BACKOFF_POLICIES,
@@ -849,7 +850,6 @@ export const EXISTING_ITEMS: ComponentItemProps[] = [
 // ─── Foundation & Runtime ────────────────────────────────────────
 
 export const FOUNDATION_RUNTIME_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.DI_CONTAINER,
     COMPONENT_RECORD.TRANSACTION_CONTEXT,
     COMPONENT_RECORD.CLI_COMMAND,
     COMPONENT_RECORD.STRUCTURED_CONCURRENCY,
@@ -907,7 +907,6 @@ export const DEV_TOOLING_ITEMS: ComponentItemProps[] = [
 // ─── Homepage preview subset ─────────────────────────────────────
 
 export const UPCOMING_ITEMS: ComponentItemProps[] = [
-    COMPONENT_RECORD.DI_CONTAINER,
     COMPONENT_RECORD.TRANSACTION_CONTEXT,
     COMPONENT_RECORD.CLI_COMMAND,
     COMPONENT_RECORD.STRUCTURED_CONCURRENCY,
@@ -931,15 +930,29 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
-    TEST_EVERYTHING_WITHOUT_DOCKER: {
-        name: "Test everything without Docker",
-        icon: <SiVitest size="1.5rem" />,
-        title: <>Test everything without Docker</>,
+    COMPOSABLE_AND_EXTENDABLE: {
+        name: "Composable and extendable",
+        icon: <Plug size="1.5rem" strokeWidth={1.5} />,
+        title: <>Composable and extendable</>,
         description: (
             <>
-                Every component ships with an in-memory adapter and built-in
-                Vitest helpers. Write fast, isolated tests — no external
-                services needed.
+                Agnostic AOP-style middlewares and adapter plugins let you
+                extend your own code or existing adapters with additional
+                behavior that isn't included by default, keeping every component
+                composable and extendable. Predefined plugins and middlewares
+                are included out of the box.
+            </>
+        ),
+    } satisfies FeatureItemProps,
+    UNIFIED_FOUNDATION: {
+        name: "Unified foundation",
+        icon: <Layers size="1.5rem" strokeWidth={1.5} />,
+        title: <>Unified foundation</>,
+        description: (
+            <>
+                Every component is built on a single shared foundation, reusing
+                common abstractions like Serde, Execution Context, and the AOP
+                middleware system, so they work together seamlessly.
             </>
         ),
     } satisfies FeatureItemProps,
@@ -954,39 +967,30 @@ export const FEATURE_ITEMS = {
             </>
         ),
     } satisfies FeatureItemProps,
-    TYPE_SAFE_FROM_DAY_ONE: {
-        name: "Type-safe from day one",
-        icon: <SiTypescript size="1.5rem" />,
-        title: <>Type-safe from day one</>,
+    SMALL_RUNTIME_FOOTPRINT: {
+        name: "Small runtime footprint",
+        icon: <Leaf size="1.5rem" strokeWidth={1.5} />,
+        title: <>Small runtime footprint</>,
         description: (
             <>
-                Full TypeScript support with precise generics, rich
-                intellisense, and auto-import friendly APIs — errors caught at
-                compile time, not runtime.
+                Every component is built from scratch in a modular way, keeping
+                the runtime minimal with no framework or component baggage. Only
+                the client libraries and drivers (Redis, Postgres, MongoDB, and
+                more) are optional peer dependencies, installed when you need
+                them.
             </>
         ),
     } satisfies FeatureItemProps,
-    STANDARD_SCHEMA_VALIDATION_BUILT_IN: {
-        name: "Standard schema validation built in",
-        icon: <ShieldCheck size="1.5rem" strokeWidth={1.5} />,
-        title: <>Standard schema validation built in</>,
+    BATTERY_INCLUDED: {
+        name: "Battery included",
+        icon: <Zap size="1.5rem" strokeWidth={1.5} />,
+        title: <>Battery included</>,
         description: (
             <>
-                First-class integration with{" "}
-                <a href="https://standardschema.dev/">Standard Schema</a>. Use{" "}
-                <a href="https://zod.dev/">Zod</a>, Valibot, or ArkType to
-                enforce both compile-time and runtime data safety.
-            </>
-        ),
-    } satisfies FeatureItemProps,
-    ESM_NATIVE_NO_COMMONJS_BAGGAGE: {
-        name: "ESM native. No CommonJS baggage.",
-        icon: <Package size="1.5rem" strokeWidth={1.5} />,
-        title: <>ESM native. No CommonJS baggage.</>,
-        description: (
-            <>
-                Built on modern JavaScript primitives. Fully compatible with
-                Node.js, Bun, Deno, and the modern bundler ecosystem.
+                eridu-tech aims to be battery included, shipping a broad set of
+                ready-to-use components and integrations out of the box so you
+                can start building without wiring different libraries everything
+                yourself.
             </>
         ),
     } satisfies FeatureItemProps,
@@ -1042,7 +1046,7 @@ export const PERFECT_FOR = {
         description: (
             <>
                 Share the same abstractions, middleware, and adapters across a
-                single deployable application. Some components or workers can be
+                single deployable application. Some components can be
                 used in microservices, but the library is primarily designed for
                 modular monolith architectures.
             </>
@@ -1063,7 +1067,7 @@ export const PERFECT_FOR = {
         title: <>Testing and local development:</>,
         description: (
             <>
-                Use in-memory and NoOp adapters for fast, deterministic tests,
+                Use in-memory adapters for fast, deterministic tests,
                 then swap to production infrastructure with configuration only.
             </>
         ),
@@ -1120,8 +1124,8 @@ export const NOT_IDEAL_FOR = {
         title: <>Frontend-only applications:</>,
         description: (
             <>
-                eridu-tech is designed for backend and server-side
-                development, not browser applications.
+                eridu-tech is designed for backend and server-side development,
+                not browser applications.
             </>
         ),
     } satisfies WhoIsThisForItem,

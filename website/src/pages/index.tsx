@@ -75,12 +75,16 @@ function StatsBar() {
                         value={String(COMPONENT_COUNT)}
                         label="Officially maintained components"
                     />
-                    <StatItem value="100%" label="TypeScript" />
+                    <StatItem value="45" label="Adapters" />
+                    <StatItem
+                        value="16"
+                        label="Adapter plugins"
+                    />
+                    <StatItem value="6" label="AOP-style Middlewares" />
                     <StatItem
                         value="4,640+"
-                        label="Integration & behavior tests"
+                        label="Integration & conformance tests"
                     />
-                    <StatItem value="0" label="Docker needed for tests" />
                 </div>
             </div>
         </div>
@@ -236,8 +240,9 @@ function FeatureSection({ items }: { items: FeatureItemProps[] }) {
                     <h2 className="daiso-section-title">Why eridu-tech?</h2>
                     <p className="daiso-section-subtitle">
                         Designed from the ground up for real-world backend
-                        challenges — no vendor lock-in, no Docker required for
-                        testing, no DI container overhead.
+                        challenges — vendor-agnostic, composable and extendable,
+                        built on a unified foundation, and compatible with your
+                        framework of choice.
                     </p>
                 </div>
                 <div className="row">
@@ -478,7 +483,7 @@ function UpcomingSection() {
                 <div className="text--center margin-top--lg">
                     <Link
                         className="button button--outline button--secondary"
-                        to="/docs/roadmap"
+                        to="/roadmap"
                     >
                         View full roadmap{" "}
                         <ArrowRight
@@ -575,13 +580,11 @@ function Header() {
         <header className="daiso-hero hero hero--primary">
             <div className="container">
                 <h1 className="hero__title">{siteConfig.title}</h1>
-                <p className="daiso-hero-badge margin-bottom--md">
-                    The adapter-first backend platform for TypeScript
-                </p>
                 <p className="hero__subtitle daiso-hero-tagline">
-                    Write business logic once.
-                    <br />
-                    Replace infrastructure anytime.
+                    Cradle of Composable Backends
+                </p>
+                <p className="daiso-hero-badge margin-bottom--md">
+                    Backend foundation for TypeScript.
                 </p>
             </div>
         </header>

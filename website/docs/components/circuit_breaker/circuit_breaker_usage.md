@@ -34,7 +34,7 @@ const circuitBreakerFactory = new CircuitBreakerFactory({
 ```
 
 :::info
-Here is a complete list of settings for the [`CircuitBreakerFactory`](https://eridu-tech.github.io/eridu-tech/types/CircuitBreaker.CircuitBreakerFactorySettingsBase.html) class.
+Here is a complete list of settings for the [`CircuitBreakerFactory`](https://eridu-tech.github.io/eridu-tech-core/types/CircuitBreaker.CircuitBreakerFactorySettingsBase.html) class.
 :::
 
 ## CircuitBreaker basics
@@ -151,7 +151,7 @@ await circuitBreaker.isolate();
 
 ### Checking circuit-breaker state
 
-You can get the circuit-breaker state by using the `getState` method, it returns [`CircuitBreakerState`](https://eridu-tech.github.io/eridu-tech/types/CircuitBreaker.CircuitBreakerState.html).
+You can get the circuit-breaker state by using the `getState` method, it returns [`CircuitBreakerState`](https://eridu-tech.github.io/eridu-tech-core/types/CircuitBreaker.CircuitBreakerState.html).
 
 ```ts
 import { CIRCUIT_BREAKER_STATE } from "eridu-tech/circuit-breaker/contracts";
@@ -274,4 +274,4 @@ await eventBus.addListener(
 
 ## Further information
 
-For further information refer to [`eridu-tech/circuit-breaker`](https://eridu-tech.github.io/eridu-tech/modules/CircuitBreaker.html) API docs.
+For further information refer to [`eridu-tech/circuit-breaker`](https://eridu-tech.github.io/eridu-tech-core/modules/CircuitBreaker.html) API docs.

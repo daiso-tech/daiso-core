@@ -20,46 +20,13 @@ import type {
     ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
 import type { ISerderRegister } from "@/serde/contracts/_module.js";
-import type { InvocableFn, OneOrMore } from "@/utilities/_module.js";
-
-/**
- * IMPORT_PATH: `"eridu-tech/file-storage"`
- * @group Derivables
- */
-export function defaultKeyValidator(key: string): string | null {
-    if (key.includes("../")) {
-        return `The key cannot contain "../"`;
-    }
-    if (key.includes("\n")) {
-        return `The key cannot contain "\\n"`;
-    }
-    if (key.includes("\t")) {
-        return `The key cannot contain "\\t"`;
-    }
-    if (key.trim() === "") {
-        return "The key cannot contain only spaces or be an empty string";
-    }
-    return null;
-}
-
-/**
- * IMPORT_PATH: `"eridu-tech/file-storage"`
- * @group Derivables
- */
-export type FileKeyValidator = InvocableFn<[key: string], string | null>;
+import type { OneOrMore } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/file-storage"`
  * @group Derivables
  */
 export type FileStorageSettingsBase = {
-    /**
-     * The default content type to be used when it cannot be infered by file extension.
-     *
-     * @default "application/octet-stream"
-     */
-    defaultContentType?: string;
-
     /**
      * Note this setting is only used by cloud object storage services like aws s3, azure, or google cloud storage.
      *
@@ -87,24 +54,6 @@ export type FileStorageSettingsBase = {
      * @default null
      */
     defaultContentLanguage?: string | null;
-
-    /**
-     * When `true`, all file keys are automatically converted to lowercase before storage and retrieval.
-     * Helps avoid case-sensitivity issues across different storage backends.
-     * @default false
-     */
-    onlyLowercase?: boolean;
-
-    /**
-     * You can pass a key validator. The method should return string error message if unvalid or null if valid.
-     * @default
-     * ```ts
-     * import { defaultKeyValidator } from "eridu-tech/file-storage";
-     *
-     * defaultKeyValidator
-     * ```
-     */
-    keyValidator?: FileKeyValidator;
 
     /**
      * You can pass partial {@link IFileUrlAdapter | `IFileUrlAdapter`} that can overide generating public url, signed upload and download url of the file storage adapter.
@@ -168,13 +117,10 @@ export class FileStorage implements IFileStorage {
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
-    private readonly defaultContentType: string;
     private readonly defaultContentDisposition: string | null;
     private readonly defaultContentEncoding: string | null;
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
-    private readonly onlyLowercase: boolean;
-    private readonly keyValidator: InvocableFn<[key: string], string | null>;
     private readonly context: IReadableContext;
 
     /**
@@ -196,11 +142,8 @@ export class FileStorage implements IFileStorage {
     constructor(settings: FileStorageSettings) {
         const {
             adapter,
-            onlyLowercase = false,
-            keyValidator = defaultKeyValidator,
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
-            defaultContentType = "application/octet-stream",
             defaultCacheControl = null,
             defaultContentDisposition = "inline",
             defaultContentEncoding = null,
@@ -210,10 +153,7 @@ export class FileStorage implements IFileStorage {
         } = settings;
 
         this.context = context;
-        this.onlyLowercase = onlyLowercase;
-        this.keyValidator = keyValidator;
         this.originalAdapter = adapter;
-        this.defaultContentType = defaultContentType;
         this.defaultContentDisposition = defaultContentDisposition;
         this.defaultContentEncoding = defaultContentEncoding;
         this.defaultCacheControl = defaultCacheControl;
@@ -227,10 +167,7 @@ export class FileStorage implements IFileStorage {
     private registerToSerde(): void {
         const transformer = new FileSerdeTransformer({
             context: this.context,
-            onlyLowercase: this.onlyLowercase,
-            keyValidator: this.keyValidator,
             originalAdapter: this.originalAdapter,
-            defaultContentType: this.defaultContentType,
             defaultCacheControl: this.defaultCacheControl,
             defaultContentDisposition: this.defaultContentDisposition,
             defaultContentEncoding: this.defaultContentEncoding,
@@ -246,10 +183,7 @@ export class FileStorage implements IFileStorage {
     create(key: string): IFile {
         return new File({
             context: this.context,
-            onlyLowercase: this.onlyLowercase,
-            keyValidator: this.keyValidator,
             originalAdapter: this.originalAdapter,
-            defaultContentType: this.defaultContentType,
             defaultCacheControl: this.defaultCacheControl,
             defaultContentDisposition: this.defaultContentDisposition,
             defaultContentEncoding: this.defaultContentEncoding,

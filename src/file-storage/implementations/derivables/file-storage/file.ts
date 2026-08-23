@@ -2,15 +2,12 @@
  * @module FileStorage
  */
 
-import { lookup } from "mime-types";
-
 import { TO_BYTES } from "@/file-size/contracts/_module.js";
 import { FileSize } from "@/file-size/implementations/_module.js";
 import {
     KeyExistsFileError,
     KeyNotFoundFileError,
     FILE_WRITE_ENUM,
-    InvalidKeyFileError,
 } from "@/file-storage/contracts/_module.js";
 import { resolveFileContent } from "@/file-storage/implementations/derivables/file-storage/resolve-file-content.js";
 import { ResolveFileStream } from "@/file-storage/implementations/derivables/file-storage/resolve-file-stream.js";
@@ -27,16 +24,12 @@ import type {
     FileStorageAdapterVariants,
     FileUploadUrlOptions,
 } from "@/file-storage/contracts/_module.js";
-import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
  * @internal
  */
 export type FileSettings = {
     originalKey: string;
-    onlyLowercase: boolean;
-    keyValidator: InvocableFn<[key: string], string | null>;
-    defaultContentType: string;
     originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
     key: string;
@@ -70,43 +63,33 @@ export class File implements IFile {
         };
     }
 
+    private static readonly DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly internalKey: string;
     private readonly serdeTransformerName: string;
-    private readonly defaultContentType: string;
     private readonly defaultContentDisposition: string | null;
     private readonly defaultContentEncoding: string | null;
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
-    private readonly onlyLowercase: boolean;
-    private readonly keyValidator: InvocableFn<[key: string], string | null>;
     private readonly context: IReadableContext;
-    private readonly originalKey: string;
 
     constructor(settings: FileSettings) {
         const {
-            onlyLowercase,
-            keyValidator,
             adapter,
             key,
             serdeTransformerName,
-            defaultContentType,
             defaultContentDisposition,
             defaultContentEncoding,
             defaultCacheControl,
             defaultContentLanguage,
             originalAdapter,
             context,
-            originalKey,
         } = settings;
 
-        this.originalKey = originalKey;
         this.context = context;
-        this.onlyLowercase = onlyLowercase;
-        this.keyValidator = keyValidator;
         this.originalAdapter = originalAdapter;
-        this.defaultContentType = defaultContentType;
         this.adapter = adapter;
         this.internalKey = key;
         this.serdeTransformerName = serdeTransformerName;
@@ -114,18 +97,6 @@ export class File implements IFile {
         this.defaultContentEncoding = defaultContentEncoding;
         this.defaultCacheControl = defaultCacheControl;
         this.defaultContentLanguage = defaultContentLanguage;
-        this.handleKey(this.internalKey);
-    }
-
-    private handleKey(key: string): string {
-        if (this.onlyLowercase) {
-            key = key.toLowerCase();
-        }
-        const validationMessage = this.keyValidator(key);
-        if (validationMessage !== null) {
-            throw InvalidKeyFileError.create(validationMessage);
-        }
-        return key;
     }
 
     internalGetSerdeTransformerName(): string {
@@ -208,7 +179,7 @@ export class File implements IFile {
             return null;
         }
         return {
-            contentType: metadata.contentType,
+            contentType: metadata.contentType ?? "application/octet-stream",
             etag: metadata.etag,
             updatedAt: metadata.updatedAt,
             fileSize: FileSize.fromBytes(metadata.fileSizeInBytes),
@@ -232,8 +203,7 @@ export class File implements IFile {
     }
 
     async add(content: WritableFileContent): Promise<boolean> {
-        const { data, contentType = this.getContentType(this.internalKey) } =
-            content;
+        const { data, contentType = File.DEFAULT_CONTENT_TYPE } = content;
         const resolvedData = resolveFileContent(data);
         return await this.adapter.add(
             this.internalKey,
@@ -257,19 +227,11 @@ export class File implements IFile {
         }
     }
 
-    private getContentType(key: string): string {
-        let resolvedContentType = lookup(key);
-        if (resolvedContentType === false) {
-            resolvedContentType = this.defaultContentType;
-        }
-        return resolvedContentType;
-    }
-
     async addStream(stream: WritableFileStream): Promise<boolean> {
         const {
             data,
             fileSize = null,
-            contentType = this.getContentType(this.internalKey),
+            contentType = File.DEFAULT_CONTENT_TYPE,
         } = stream;
 
         return await this.adapter.addStream(
@@ -295,8 +257,7 @@ export class File implements IFile {
     }
 
     async update(content: WritableFileContent): Promise<boolean> {
-        const { data, contentType = this.getContentType(this.internalKey) } =
-            content;
+        const { data, contentType = File.DEFAULT_CONTENT_TYPE } = content;
         const resolvedData = resolveFileContent(data);
         return await this.adapter.update(
             this.internalKey,
@@ -324,7 +285,7 @@ export class File implements IFile {
         const {
             data,
             fileSize = null,
-            contentType = this.getContentType(this.internalKey),
+            contentType = File.DEFAULT_CONTENT_TYPE,
         } = stream;
         return await this.adapter.updateStream(
             this.internalKey,
@@ -349,8 +310,7 @@ export class File implements IFile {
     }
 
     async put(content: WritableFileContent): Promise<boolean> {
-        const { data, contentType = this.getContentType(this.internalKey) } =
-            content;
+        const { data, contentType = File.DEFAULT_CONTENT_TYPE } = content;
         const resolvedData = resolveFileContent(data);
         return await this.adapter.put(
             this.internalKey,
@@ -371,7 +331,7 @@ export class File implements IFile {
         const {
             data,
             fileSize = null,
-            contentType = this.getContentType(this.internalKey),
+            contentType = File.DEFAULT_CONTENT_TYPE,
         } = stream;
         return await this.adapter.putStream(
             this.internalKey,
@@ -490,7 +450,10 @@ export class File implements IFile {
     async getSignedUploadUrl(
         options: FileUploadUrlOptions = {},
     ): Promise<string> {
-        const { ttl = TimeSpan.fromMinutes(10), contentType = null } = options;
+        const {
+            ttl = TimeSpan.fromMinutes(10),
+            contentType = File.DEFAULT_CONTENT_TYPE,
+        } = options;
         return await this.adapter.getSignedUploadUrl(
             this.internalKey,
             {
@@ -506,7 +469,7 @@ export class File implements IFile {
     ): Promise<string | null> {
         const {
             ttl: expiration = TimeSpan.fromMinutes(10),
-            contentType = null,
+            contentType = File.DEFAULT_CONTENT_TYPE,
             contentDisposition = null,
         } = options;
         return await this.adapter.getSignedDownloadUrl(

@@ -52,7 +52,9 @@ export class NoOpContext implements ICopyableContext {
     }
 
     getOrFail<TValue>(token: ContextToken<TValue>): TValue {
-        throw NotFoundExecutionContextError.create(token.id);
+        throw NotFoundExecutionContextError.create(
+            token.id.description ?? String(token.id),
+        );
     }
 
     add<TValue>(

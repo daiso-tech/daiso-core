@@ -8,7 +8,6 @@ import { join, normalize } from "node:path";
 import { pipeline } from "node:stream/promises";
 
 import etag from "etag";
-import { lookup } from "mime-types";
 
 import { Base64Codec } from "@/codec/implementations/base-64-codec/_module.js";
 import { FILE_WRITE_ENUM } from "@/file-storage/contracts/_module.js";
@@ -185,13 +184,9 @@ export class FsFileStorageAdapter
         try {
             const normalizeKey = this.normalizeKey(key);
             const stat = await fs.stat(normalizeKey);
-            let contentType = lookup(key);
-            if (contentType === false) {
-                contentType = "application/octet-stream";
-            }
             return {
                 etag: etag(stat),
-                contentType,
+                contentType: null,
                 fileSizeInBytes: stat.size,
                 updatedAt: stat.mtime,
             } satisfies FileAdapterMetadata;

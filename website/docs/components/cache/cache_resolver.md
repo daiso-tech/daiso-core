@@ -100,4 +100,4 @@ Note that the `CacheResolver` is immutable, meaning any configuration override r
 
 ## Further information
 
-For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech/modules/Cache.html) API docs.
+For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech-core/modules/Cache.html) API docs.

@@ -53,46 +53,27 @@ const adapter = new DatabaseCircuitBreakerAdapter({
     adapter: new MemoryCircuitBreakerStorageAdapter(),
 });
 
-// Apply the prefix plugin
+// Apply the prefix plugin to the adapter
 const prefixedAdapter = withPlugin(
     adapter,
     withCircuitBreakerPrefix("service-a:"),
 );
-
-// The key "api:users" is automatically prefixed to "service-a:api:users"
-const state = await prefixedAdapter.getState(context, "api:users");
-```
-
-#### Using with CircuitBreakerFactory
-
-The plugin can be applied directly to the adapter passed to the `CircuitBreakerFactory` constructor:
-
-```ts
-import { CircuitBreakerFactory } from "eridu-tech/circuit-breaker";
-import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
-import { withPlugin } from "eridu-tech/middleware";
-import { withCircuitBreakerPrefix } from "eridu-tech/circuit-breaker/plugins";
-
-const adapter = new DatabaseCircuitBreakerAdapter({ ... });
-const prefixedAdapter = withPlugin(adapter, withCircuitBreakerPrefix("v1:"));
-
-const factory = new CircuitBreakerFactory({
-    adapter: prefixedAdapter,
-});
 ```
 
 ### Before/after behavior
 
 **Before** — Circuit keys are used as-is:
 
-```
-adapter.getState(context, "api:users")  →  looks up circuit "api:users"
+```ts
+adapter.getState("api:users", context);
+// -> looks up circuit "api:users"
 ```
 
 **After** — Circuit keys are automatically prefixed:
 
-```
-adapter.getState(context, "api:users")  →  looks up circuit "env:api:users"
+```ts
+prefixedAdapter.getState("api:users", context);
+// -> looks up circuit "service-a:api:users"
 ```
 
 :::danger

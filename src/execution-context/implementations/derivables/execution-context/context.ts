@@ -27,12 +27,12 @@ import type { Invocable, Lazyable, Option } from "@/utilities/_module.js";
  * @internal
  */
 export class Context implements ICopyableContext {
-    constructor(private readonly map: Map<string, unknown>) {}
+    constructor(private readonly map: Map<symbol, unknown>) {}
 
     copy(): ICopyableContext {
         return new Context(
             new Map(
-                [...this.map].map<[string, unknown]>(([key, value]) => {
+                [...this.map].map<[symbol, unknown]>(([key, value]) => {
                     if (Array.isArray(value)) {
                         return [key, [...(value as Array<unknown>)]];
                     }
@@ -103,7 +103,9 @@ export class Context implements ICopyableContext {
     getOrFail<TValue>(token: ContextToken<TValue>): TValue {
         const value = this.get(token);
         if (value === null) {
-            throw NotFoundExecutionContextError.create(token.id);
+            throw NotFoundExecutionContextError.create(
+                token.id.description ?? String(token.id),
+            );
         }
         return value;
     }

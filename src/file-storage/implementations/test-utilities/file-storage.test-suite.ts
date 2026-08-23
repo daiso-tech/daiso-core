@@ -265,7 +265,7 @@ export function fileStorageTestSuite(
 
                     expect(result).toEqual({
                         etag: expect.any(String) as string,
-                        contentType: "application/json",
+                        contentType: "application/octet-stream",
                         fileSize: FileSize.fromBytes(data.byteLength),
                         updatedAt: expect.any(Date) as Date,
                     } satisfies FileMetadata);
@@ -278,7 +278,7 @@ export function fileStorageTestSuite(
 
                     expect(result).toEqual({
                         etag: expect.any(String) as string,
-                        contentType: "text/plain",
+                        contentType: "application/octet-stream",
                         fileSize: FileSize.fromBytes(data.byteLength),
                         updatedAt: expect.any(Date) as Date,
                     } satisfies FileMetadata);
@@ -363,7 +363,7 @@ export function fileStorageTestSuite(
 
                     expect(result).toEqual({
                         etag: expect.any(String) as string,
-                        contentType: "text/plain",
+                        contentType: "application/octet-stream",
                         fileSize: FileSize.fromBytes(data.byteLength),
                         updatedAt: expect.any(Date) as Date,
                     } satisfies FileMetadata);
@@ -382,7 +382,7 @@ export function fileStorageTestSuite(
 
                     expect(result).toEqual({
                         etag: expect.any(String) as string,
-                        contentType: "text/plain",
+                        contentType: "application/octet-stream",
                         fileSize: FileSize.fromBytes(data.byteLength),
                         updatedAt: expect.any(Date) as Date,
                     } satisfies FileMetadata);
@@ -503,7 +503,7 @@ export function fileStorageTestSuite(
 
                     expect(result).toEqual({
                         etag: expect.any(String) as string,
-                        contentType: "application/json",
+                        contentType: "application/octet-stream",
                         fileSize: FileSize.fromBytes(data.byteLength),
                         updatedAt: expect.any(Date) as Date,
                     } satisfies FileMetadata);
@@ -516,7 +516,7 @@ export function fileStorageTestSuite(
 
                     expect(result).toEqual({
                         etag: expect.any(String) as string,
-                        contentType: "text/plain",
+                        contentType: "application/octet-stream",
                         fileSize: FileSize.fromBytes(data.byteLength),
                         updatedAt: expect.any(Date) as Date,
                     } satisfies FileMetadata);
@@ -601,7 +601,7 @@ export function fileStorageTestSuite(
 
                     expect(result).toEqual({
                         etag: expect.any(String) as string,
-                        contentType: "text/plain",
+                        contentType: "application/octet-stream",
                         fileSize: FileSize.fromBytes(data.byteLength),
                         updatedAt: expect.any(Date) as Date,
                     } satisfies FileMetadata);
@@ -620,7 +620,7 @@ export function fileStorageTestSuite(
 
                     expect(result).toEqual({
                         etag: expect.any(String) as string,
-                        contentType: "text/plain",
+                        contentType: "application/octet-stream",
                         fileSize: FileSize.fromBytes(data.byteLength),
                         updatedAt: expect.any(Date) as Date,
                     } satisfies FileMetadata);

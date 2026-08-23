@@ -178,4 +178,4 @@ export class MyFileSize implements IFileSize {
 
 ## Further information
 
-For further information refer to [`eridu-tech/file-size`](https://eridu-tech.github.io/eridu-tech/modules/FileSize.html) API docs.
+For further information refer to [`eridu-tech/file-size`](https://eridu-tech.github.io/eridu-tech-core/modules/FileSize.html) API docs.

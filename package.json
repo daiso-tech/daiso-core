@@ -1,7 +1,7 @@
 {
     "name": "eridu-tech",
     "private": false,
-    "version": "0.58.0",
+    "version": "0.59.0",
     "author": "Yousif Abdulkarim",
     "license": "Apache-2.0",
     "type": "module",
@@ -204,6 +204,14 @@
         "./config-accessor/contracts": {
             "types": "./dist/config-accessor/contracts/_module-exports.d.ts",
             "import": "./dist/config-accessor/contracts/_module-exports.js"
+        },
+        "./di": {
+            "types": "./dist/di/implementations/eager/_module-exports.d.ts",
+            "import": "./dist/di/implementations/eager/_module-exports.js"
+        },
+        "./di/contracts": {
+            "types": "./dist/di/contracts/_module-exports.d.ts",
+            "import": "./dist/di/contracts/_module-exports.js"
         },
         "./env-accessor": {
             "types": "./dist/env-accessor/implementations/_module-exports.d.ts",
@@ -607,6 +615,7 @@
         "mysql2": "^3.23.2",
         "pg": "^8.22.0",
         "publint": "^0.3.22",
+        "raw-loader": "^4.0.2",
         "rimraf": "^6.1.3",
         "testcontainers": "^12.0.4",
         "tsc-alias": "^1.9.1",
@@ -644,6 +653,7 @@
         "@lukeed/ms": "^2.0.2",
         "escape-string-regexp": "^5.0.0",
         "etag": "^1.8.1",
+        "file-type": "^22.0.1",
         "mime-types": "^3.0.2",
         "superjson": "^2.2.6",
         "type-fest": "^5.8.0",

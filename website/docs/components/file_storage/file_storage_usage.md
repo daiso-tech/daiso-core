@@ -33,7 +33,7 @@ const fileStorage = new FileStorage({
 ```
 
 :::info
-Here is a complete list of settings for the [`FileStorage`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.FileStorage.html) class.
+Here is a complete list of settings for the [`FileStorage`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.FileStorage.html) class.
 :::
 
 ## FileStorage basics
@@ -331,7 +331,7 @@ const metadata = await fileStorage.create("file.txt").getMetadata();
 console.log(metadata);
 ```
 
-The `getMetadata` returns [FileMetadata](https://eridu-tech.github.io/eridu-tech/types/FileStorage.FileMetadata.html) type.
+The `getMetadata` returns [FileMetadata](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.FileMetadata.html) type.
 
 ## Patterns
 
@@ -580,14 +580,14 @@ await eventBus.addListener("sending-file-over-network", ({ file }) => {
 
 The library includes 3 additional contracts:
 
-- [`IReadableFile`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.IReadableFile.html) - Allows only for reading a file.
+- [`IReadableFile`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IReadableFile.html) - Allows only for reading a file.
 
-- [`IFile`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.IFile.html) - Allows for both reading and manipulating the file.
+- [`IFile`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IFile.html) - Allows for both reading and manipulating the file.
 
-- [`IFileFactory`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.IFileFactory.html) - Allows only for creation of file.
+- [`IFileFactory`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IFileFactory.html) - Allows only for creation of file.
 
-- [`IFileStorage`](https://eridu-tech.github.io/eridu-tech/types/FileStorage.IFileStorage.html) - Allows for creation and removal of files.
+- [`IFileStorage`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IFileStorage.html) - Allows for creation and removal of files.
 
 ## Further information
 
-For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech-core/modules/FileStorage.html) API docs.

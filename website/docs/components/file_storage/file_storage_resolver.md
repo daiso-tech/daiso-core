@@ -71,4 +71,4 @@ Note that the `FileStorageResolver` is immutable, meaning any configuration over
 
 ## Further information
 
-For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech-core/modules/FileStorage.html) API docs.

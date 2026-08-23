@@ -26,12 +26,23 @@ npm install eridu-tech
 
 ## ✨ Why eridu-tech?
 
-- **Switch infrastructure without rewriting business logic**: The adapter pattern keeps your code decoupled from vendors. Use Redis today, Postgres tomorrow — no refactoring required.
-- **Test everything without Docker**: Every component ships with an in-memory adapter and built-in Vitest helpers. Write fast, isolated tests without external services.
-- **Bring your own framework**: No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.
-- **Type-safe from day one**: Full TypeScript support with precise generics, rich intellisense, and auto-import friendly APIs — errors caught at compile time, not runtime.
-- **Standard schema validation built in**: First-class integration with [Standard Schema](https://standardschema.dev/). Use [Zod](https://zod.dev/), Valibot, or ArkType to enforce both compile-time and runtime data safety.
-- **ESM native. No CommonJS baggage.**: Built on modern JavaScript primitives. Fully compatible with Node.js, Bun, Deno, and the modern bundler ecosystem.
+### Switch infrastructure without rewriting business logic
+The adapter pattern keeps your code decoupled from vendors. Use Redis today, Postgres tomorrow — no refactoring required.
+
+### Composable and extendable
+Agnostic AOP-style middlewares and adapter plugins let you extend your own code or existing adapters with additional behavior that isn't included by default, keeping every component composable and extendable. Predefined plugins and middlewares are included out of the box.
+
+### Unified foundation
+Every component is built on a single shared foundation, reusing common abstractions like Serde, Execution Context, and the AOP middleware system, so they work together seamlessly.
+
+### Bring your own framework
+No DI container required. Plug directly into Express, NestJS, AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.
+
+### Small runtime footprint
+Every component is built from scratch in a modular way, keeping the runtime minimal with no framework or component baggage. Only the client libraries and drivers (Redis, Postgres, MongoDB, and more) are optional peer dependencies, installed when you need them.
+
+### Battery included
+eridu-tech aims to be battery included, shipping a broad set of ready-to-use components and integrations out of the box so you can start building without wiring different libraries everything yourself.
 
 ---
 
@@ -128,8 +139,8 @@ A growing collection of officially maintained components. Every component ships 
 
 ### Foundation
 
+- [**DI Container**](https://www.eridu-tech.io/docs/components/di) — `Near-stable` — A lightweight, type-safe dependency injection container for wiring application components without tight coupling.
 - [**Middleware and AOP**](https://www.eridu-tech.io/docs/components/middleware) — `Near-stable` — Composable middleware pipeline with before/after hooks, error handling — the foundation for every component's plugin system.
-- [**Collection**](https://www.eridu-tech.io/docs/components/collection) — `Near-stable` — Type-safe collection utilities with powerful query, transform, and pagination primitives.
 - [**Serde**](https://www.eridu-tech.io/docs/components/serde) — `Experimental` — Serialize and deserialize data with a built-in SuperJSON adapter (Date, Map, Set, BigInt) and custom serializers — the backbone for all data interchange across the ecosystem.
 - [**Codec**](https://www.eridu-tech.io/docs/components/codec) — `Experimental` — Encode and decode data with a unified, type-safe interface — includes a built-in Base64 codec and lets you build custom codecs for any protocol.
 - [**Execution Context**](https://www.eridu-tech.io/docs/components/execution_context) — `Near-stable` — Type-safe, composable context propagation for request IDs, user info, and tracing metadata across async boundaries — without thread-local hacks.
@@ -139,7 +150,7 @@ A growing collection of officially maintained components. Every component ships 
 ### Storage
 
 - [**Cache**](https://www.eridu-tech.io/docs/components/cache/cache_usage) — `Near-stable` — Caching with pluggable stores (in-memory, Redis, etc.), TTL policies, and stampede protection.
-- [**File Storage**](https://www.eridu-tech.io/docs/components/file_storage/file_storage_usage) — `Near-stable` — Abstract file storage with adapters for local disk, S3-compatible, and other backends — upload, stream, and serve with one API.
+- [**File Storage**](https://www.eridu-tech.io/docs/components/file_storage/file_storage_usage) — `Near-stable` — Abstract file storage with adapters for local disk, S3-compatible, and other backends — upload, stream, and serve with one API. Composable plugins add key validation, key lowercasing, and content-type inference from the file key extension or the actual file bytes (via `file-type`).
 
 ### Resilience
 
@@ -169,7 +180,6 @@ A growing collection of officially maintained components. Every component ships 
 
 Components currently in design or development — not yet available in any release.
 
-- **DI Container** — A lightweight, type-safe dependency injection container for wiring application components without tight coupling.
 - **Transaction Context** — Coordinate database transactions across components with the after-commit pattern. Foundation for reliable messaging — powers the Outbox, Inbox, Scheduler, and Notifications.
 - **CLI Command** — A unified API for defining and executing CLI commands with a transport adapter architecture. Run commands locally via child processes, remotely over SSH or HTTP, inside Docker containers, or through custom transports — all from the same command definition.
 - **Structured concurrency** — Run async tasks in structured scopes where child tasks are tied to their parent's lifetime — with automatic cancellation, error propagation, and resource cleanup.

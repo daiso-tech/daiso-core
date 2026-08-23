@@ -331,9 +331,9 @@ const noOpLockAdapter = new NoOpLockAdapter();
 ```
 
 :::info
-The `NoOpLockAdapter` is useful when you want to mock out or disable your [`LockFactory`](https://eridu-tech.github.io/eridu-tech/classes/Lock.LockFactory.html) instance.
+The `NoOpLockAdapter` is useful when you want to mock out or disable your [`LockFactory`](https://eridu-tech.github.io/eridu-tech-core/classes/Lock.LockFactory.html) instance.
 :::
 
 ## Further information
 
-For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech/modules/Lock.html) API docs.
+For further information refer to [`eridu-tech/lock`](https://eridu-tech.github.io/eridu-tech-core/modules/Lock.html) API docs.

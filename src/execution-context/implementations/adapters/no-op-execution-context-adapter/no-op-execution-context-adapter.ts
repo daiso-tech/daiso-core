@@ -18,6 +18,8 @@ import type { InvocableFn } from "@/utilities/_module.js";
  *
  * Use this adapter when you want to disable context functionality or in environments
  * where context propagation is not necessary.
+ *
+ * @group Adapters
  */
 export class NoOpExecutionContextAdapter<
     TValue,
