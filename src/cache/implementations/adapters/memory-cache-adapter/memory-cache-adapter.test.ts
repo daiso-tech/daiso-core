@@ -28,7 +28,7 @@ describe("class: MemoryCacheAdapter", () => {
             await adapter.add(
                 "expired",
                 "1",
-                TimeSpan.fromMilliseconds(100),
+                TimeSpan.fromMilliseconds(100).toEndDate(),
                 noOpContext,
             );
 
@@ -48,7 +48,7 @@ describe("class: MemoryCacheAdapter", () => {
             await adapter.add(
                 "unexpired",
                 "2",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 noOpContext,
             );
 
@@ -84,7 +84,7 @@ describe("class: MemoryCacheAdapter", () => {
             await adapter.add(
                 "unexpired",
                 "2",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 noOpContext,
             );
 
@@ -117,7 +117,7 @@ describe("class: MemoryCacheAdapter", () => {
             await adapter.add(
                 "b",
                 "2",
-                TimeSpan.fromMilliseconds(100),
+                TimeSpan.fromMilliseconds(100).toEndDate(),
                 noOpContext,
             );
 

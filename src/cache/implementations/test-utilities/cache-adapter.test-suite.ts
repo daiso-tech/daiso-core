@@ -125,7 +125,7 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.get("a", context)).toBeNull();
             });
             test("Should return null when key is experied", async () => {
-                await adapter.add("a", 1, TTL, context);
+                await adapter.add("a", 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 expect(await adapter.get("a", context)).toBeNull();
             });
@@ -140,7 +140,7 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.getAndRemove("a", context)).toBeNull();
             });
             test("Should return null when key is expired", async () => {
-                await adapter.add("a", 1, TTL, context);
+                await adapter.add("a", 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 expect(await adapter.getAndRemove("a", context)).toBeNull();
             });
@@ -177,7 +177,7 @@ export function cacheAdapterTestSuite(
             });
             test("Should return value to add when key is expired", async () => {
                 const key = "a";
-                await adapter.add(key, 1, TTL, context);
+                await adapter.add(key, 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
 
                 const valueToAdd = -1;
@@ -192,7 +192,7 @@ export function cacheAdapterTestSuite(
             });
             test("Should persist value when key is expired", async () => {
                 const key = "a";
-                await adapter.add(key, 1, TTL, context);
+                await adapter.add(key, 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
 
                 const valueToAdd = -1;
@@ -234,7 +234,7 @@ export function cacheAdapterTestSuite(
                 const longTtl = TimeSpan.fromMinutes(5);
 
                 const value = 1;
-                await adapter.add(key, value, longTtl, context);
+                await adapter.add(key, value, longTtl.toEndDate(), context);
 
                 const valueToAdd = -1;
                 const result = await adapter.getOrAdd(
@@ -251,7 +251,7 @@ export function cacheAdapterTestSuite(
                 const longTtl = TimeSpan.fromMinutes(5);
 
                 const value = 1;
-                await adapter.add(key, value, longTtl, context);
+                await adapter.add(key, value, longTtl.toEndDate(), context);
 
                 const valueToAdd = -1;
                 await adapter.getOrAdd(key, valueToAdd, null, context);
@@ -267,7 +267,7 @@ export function cacheAdapterTestSuite(
                 expect(result).toBe(true);
             });
             test("Should return true when key is expired", async () => {
-                await adapter.add("a", 1, TTL, context);
+                await adapter.add("a", 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 expect(await adapter.add("a", 1, null, context)).toBe(true);
             });
@@ -277,7 +277,7 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.get("a", context)).toBe(1);
             });
             test("Should persist values when key is expired", async () => {
-                await adapter.add("a", -1, TTL, context);
+                await adapter.add("a", -1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 await adapter.add("a", 1, null, context);
                 expect(await adapter.get("a", context)).toBe(1);
@@ -312,7 +312,7 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.put("a", -1, null, context)).toBe(false);
             });
             test("Should return false when key is expired", async () => {
-                await adapter.add("a", 1, TTL, context);
+                await adapter.add("a", 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 expect(await adapter.put("a", -1, null, context)).toBe(false);
             });
@@ -322,7 +322,7 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.get("a", context)).toBe(-1);
             });
             test("Should persist values when key is expired", async () => {
-                await adapter.add("a", 1, TTL, context);
+                await adapter.add("a", 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 await adapter.put("a", -1, null, context);
                 await delayWithBuffer(TTL.divide(2));
@@ -330,10 +330,10 @@ export function cacheAdapterTestSuite(
             });
             test("Should replace the ttl value", async () => {
                 const ttlA = TimeSpan.fromMilliseconds(100);
-                await adapter.add("a", 1, ttlA, context);
+                await adapter.add("a", 1, ttlA.toEndDate(), context);
                 await delayWithBuffer(TTL.divide(2));
                 const ttlB = TimeSpan.fromMilliseconds(50);
-                await adapter.put("a", -1, ttlB, context);
+                await adapter.put("a", -1, ttlB.toEndDate(), context);
                 await delayWithBuffer(ttlB);
                 expect(await adapter.get("a", context)).toBeNull();
             });
@@ -355,7 +355,7 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.update("a", -1, context)).toBe(false);
             });
             test("Should return false when key is expired", async () => {
-                await adapter.add("a", 1, TTL, context);
+                await adapter.add("a", 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 expect(await adapter.update("a", -1, context)).toBe(false);
             });
@@ -365,7 +365,7 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.get("a", context)).toBeNull();
             });
             test("Should not persist value when key is expired", async () => {
-                await adapter.add("a", 1, TTL, context);
+                await adapter.add("a", 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 await adapter.update("a", -1, context);
                 expect(await adapter.get("a", context)).toBeNull();
@@ -388,7 +388,7 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.increment("a", 1, context)).toBe(false);
             });
             test("Should return false when key is expired", async () => {
-                await adapter.add("a", 1, TTL, context);
+                await adapter.add("a", 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 expect(await adapter.increment("a", 1, context)).toBe(false);
             });
@@ -398,7 +398,7 @@ export function cacheAdapterTestSuite(
                 expect(await adapter.get("a", context)).toBeNull();
             });
             test("Should not persist increment when key is expired", async () => {
-                await adapter.add("a", 1, TTL, context);
+                await adapter.add("a", 1, TTL.toEndDate(), context);
                 await delayWithBuffer(TTL);
                 await adapter.increment("a", 1, context);
                 expect(await adapter.get("a", context)).toBeNull();
