@@ -253,8 +253,10 @@ export class KyselySharedLockAdapter
         }
     }
 
-    private async removeAllExpiredReaders(): Promise<void> {
-        await this.kysely
+    private static async removeAllExpiredReaders(
+        kysely: Kysely<KyselySharedLockTables>,
+    ): Promise<void> {
+        await kysely
             .deleteFrom("readerSemaphore")
             .where((eb) => {
                 const hasUnexpiredSlots = eb
@@ -284,18 +286,20 @@ export class KyselySharedLockAdapter
             .execute();
     }
 
-    private async removeAllExpiredWriters(): Promise<void> {
-        await this.kysely
+    private static async removeAllExpiredWriters(
+        kysely: Kysely<KyselySharedLockTables>,
+    ): Promise<void> {
+        await kysely
             .deleteFrom("writerLock")
             .where("writerLock.expiration", "<=", Date.now())
             .execute();
     }
 
     async removeAllExpired(): Promise<void> {
-        await Promise.all([
-            this.removeAllExpiredWriters(),
-            this.removeAllExpiredReaders(),
-        ]);
+        await this.transaction(async (trx) => {
+            await KyselySharedLockAdapter.removeAllExpiredWriters(trx);
+            await KyselySharedLockAdapter.removeAllExpiredReaders(trx);
+        });
     }
 
     async acquireWriter(
@@ -836,10 +840,11 @@ export class KyselySharedLockAdapter
         return writerReleased || readerReleased;
     }
 
-    private async getWriterState(
+    private static async getWriterState(
+        kysely: Kysely<KyselySharedLockTables>,
         key: string,
     ): Promise<IWriterLockAdapterState | null> {
-        const writerRow = await this.kysely
+        const writerRow = await kysely
             .selectFrom("writerLock")
             .where("writerLock.key", "=", key)
             .select(["writerLock.owner", "writerLock.expiration"])
@@ -866,10 +871,11 @@ export class KyselySharedLockAdapter
         };
     }
 
-    private async getReaderState(
+    private static async getReaderState(
+        kysely: Kysely<KyselySharedLockTables>,
         key: string,
     ): Promise<IReaderSemaphoreAdapterState | null> {
-        const semaphore = await this.kysely
+        const semaphore = await kysely
             .selectFrom("readerSemaphore")
             .where("readerSemaphore.key", "=", key)
             .select("readerSemaphore.limit")
@@ -879,7 +885,7 @@ export class KyselySharedLockAdapter
             return null;
         }
 
-        const slots = await this.kysely
+        const slots = await kysely
             .selectFrom("readerSemaphoreSlot")
             .where("readerSemaphoreSlot.key", "=", key)
             .select([
@@ -918,15 +924,21 @@ export class KyselySharedLockAdapter
         key: string,
         _context: IReadableContext,
     ): Promise<ISharedLockAdapterState | null> {
-        const [writer, reader] = await Promise.all([
-            this.getWriterState(key),
-            this.getReaderState(key),
-        ]);
+        return await this.transaction(async (trx) => {
+            const writer = await KyselySharedLockAdapter.getWriterState(
+                trx,
+                key,
+            );
+            const reader = await KyselySharedLockAdapter.getReaderState(
+                trx,
+                key,
+            );
 
-        if (writer === null && reader === null) {
-            return null;
-        }
+            if (writer === null && reader === null) {
+                return null;
+            }
 
-        return { writer, reader };
+            return { writer, reader };
+        });
     }
 }
