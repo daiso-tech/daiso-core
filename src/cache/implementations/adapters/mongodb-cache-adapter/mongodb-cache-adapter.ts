@@ -21,7 +21,6 @@ import type { IReadableContext } from "@/execution-context/contracts/_module.js"
 import type { ISerde } from "@/serde/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
 
 /**
@@ -160,7 +159,7 @@ export class MongodbCacheAdapter<TType = unknown>
     async getOrAdd(
         key: string,
         valueToAdd: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<TType> {
         const hasExpirationQuery = {
@@ -190,7 +189,7 @@ export class MongodbCacheAdapter<TType = unknown>
                         expiration: {
                             $cond: {
                                 if: hasExpirationAndExpiredQuery,
-                                then: ttl?.toEndDate() ?? null,
+                                then: ttl ?? null,
                                 else: "$expiration",
                             },
                         },
@@ -336,7 +335,7 @@ export class MongodbCacheAdapter<TType = unknown>
     async add(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         const hasExpirationQuery = {
@@ -366,7 +365,7 @@ export class MongodbCacheAdapter<TType = unknown>
                         expiration: {
                             $cond: {
                                 if: hasExpirationAndExpiredQuery,
-                                then: ttl?.toEndDate() ?? null,
+                                then: ttl ?? null,
                                 else: "$expiration",
                             },
                         },
@@ -387,7 +386,7 @@ export class MongodbCacheAdapter<TType = unknown>
     async put(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         const document = await this.collection.findOneAndUpdate(
@@ -397,7 +396,7 @@ export class MongodbCacheAdapter<TType = unknown>
             {
                 $set: {
                     value: this.serde.serialize(value),
-                    expiration: ttl?.toEndDate() ?? null,
+                    expiration: ttl ?? null,
                 },
             },
             {

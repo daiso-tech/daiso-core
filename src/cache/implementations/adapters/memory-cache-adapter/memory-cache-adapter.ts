@@ -5,7 +5,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
 
 /**
@@ -103,17 +102,13 @@ export class MemoryCacheAdapter<TType = unknown>
         return Promise.resolve(cacheEntry.value);
     }
 
-    private internalAdd(
-        key: string,
-        value: TType,
-        ttl: TimeSpan | null,
-    ): boolean {
+    private internalAdd(key: string, value: TType, ttl: Date | null): boolean {
         if (this.hasKey(key)) {
             return false;
         }
         this.map.set(key, {
             value,
-            expiration: ttl?.toEndDate() ?? null,
+            expiration: ttl ?? null,
         });
         return true;
     }
@@ -121,7 +116,7 @@ export class MemoryCacheAdapter<TType = unknown>
     add(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(this.internalAdd(key, value, ttl));
@@ -130,7 +125,7 @@ export class MemoryCacheAdapter<TType = unknown>
     getOrAdd(
         key: string,
         valueToAdd: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<TType> {
         const cacheEntry = this.internalGet(key);
@@ -144,13 +139,13 @@ export class MemoryCacheAdapter<TType = unknown>
     put(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         const hasKey = this.hasKey(key);
         this.map.set(key, {
             value,
-            expiration: ttl?.toEndDate() ?? null,
+            expiration: ttl ?? null,
         });
         return Promise.resolve(hasKey);
     }
