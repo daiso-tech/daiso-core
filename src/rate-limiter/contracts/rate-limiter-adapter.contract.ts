@@ -5,7 +5,6 @@
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Low-level state snapshot for rate limiter operations.
@@ -30,10 +29,10 @@ export type IRateLimiterAdapterState = {
     attempt: number;
 
     /**
-     * Time span until the rate limiter resets to initial state.
-     * Attempts counter and blocking status will reset after this duration.
+     * The date and time when the rate limiter resets to its initial state.
+     * Attempts counter and blocking status will reset at this time.
      */
-    resetTime: TimeSpan;
+    resetTime: Date;
 };
 
 /**
