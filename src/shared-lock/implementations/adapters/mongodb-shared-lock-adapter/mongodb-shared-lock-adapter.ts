@@ -273,10 +273,10 @@ export class MongodbSharedLockAdapter
     async acquireWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const expiration = ttl?.toEndDate() ?? null;
+        const expiration = ttl ?? null;
         const isExpiredQuery = {
             $and: [
                 {
@@ -474,7 +474,7 @@ export class MongodbSharedLockAdapter
     async refreshWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const isUnexpiredQuery = {
@@ -504,14 +504,14 @@ export class MongodbSharedLockAdapter
                         "writer.expiration": {
                             $cond: {
                                 if: isUnexpiredQuery,
-                                then: ttl.toEndDate(),
+                                then: ttl,
                                 else: "$writer.expiration",
                             },
                         },
                         expiration: {
                             $cond: {
                                 if: isUnexpiredQuery,
-                                then: ttl.toEndDate(),
+                                then: ttl,
                                 else: "$expiration",
                             },
                         },
@@ -698,8 +698,7 @@ export class MongodbSharedLockAdapter
                                         [
                                             {
                                                 id: lockId,
-                                                expiration:
-                                                    ttl?.toEndDate() ?? null,
+                                                expiration: ttl ?? null,
                                             } satisfies MongodbReaderSemaphoreSlotEntryDocument,
                                         ],
                                     ],
@@ -866,7 +865,7 @@ export class MongodbSharedLockAdapter
     async refreshReader(
         key: string,
         slotId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const isExpireableQuery = {
@@ -906,7 +905,7 @@ export class MongodbSharedLockAdapter
                                         },
                                         then: {
                                             id: "$$slot.id",
-                                            expiration: ttl.toEndDate(),
+                                            expiration: ttl,
                                         },
                                         else: "$$slot",
                                     },

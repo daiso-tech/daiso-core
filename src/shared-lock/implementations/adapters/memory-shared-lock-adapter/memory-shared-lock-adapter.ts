@@ -14,7 +14,6 @@ import type {
     IWriterLockAdapterState,
     IReaderSemaphoreAdapterState,
 } from "@/shared-lock/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
 
 /**
@@ -160,7 +159,7 @@ export class MemorySharedLockAdapter
     acquireWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         const lockEntry = this.getWriter(key);
@@ -174,7 +173,7 @@ export class MemorySharedLockAdapter
             readerSemaphore: null,
             writerLock: {
                 owner: lockId,
-                expiration: ttl?.toEndDate() ?? null,
+                expiration: ttl ?? null,
             },
         });
         return Promise.resolve(true);
@@ -211,7 +210,7 @@ export class MemorySharedLockAdapter
     refreshWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const lockEntry = this.getWriter(key);
@@ -224,7 +223,7 @@ export class MemorySharedLockAdapter
         if (lockEntry.expiration === null) {
             return Promise.resolve(false);
         }
-        lockEntry.expiration = ttl.toEndDate();
+        lockEntry.expiration = ttl;
         return Promise.resolve(true);
     }
 
@@ -256,7 +255,7 @@ export class MemorySharedLockAdapter
         if (ttl === null) {
             semaphoreEntry.slots.set(lockId, null);
         } else {
-            semaphoreEntry.slots.set(lockId, ttl.toEndDate());
+            semaphoreEntry.slots.set(lockId, ttl);
         }
 
         return Promise.resolve(true);
@@ -308,7 +307,7 @@ export class MemorySharedLockAdapter
     refreshReader(
         key: string,
         slotId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const semaphoreEntry = this.getReader(key);
@@ -326,7 +325,7 @@ export class MemorySharedLockAdapter
             return Promise.resolve(false);
         }
 
-        semaphoreEntry.slots.set(slotId, ttl.toEndDate());
+        semaphoreEntry.slots.set(slotId, ttl);
 
         return Promise.resolve(true);
     }

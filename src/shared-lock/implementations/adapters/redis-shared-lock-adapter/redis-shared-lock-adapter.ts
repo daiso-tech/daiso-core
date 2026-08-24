@@ -12,7 +12,6 @@ import type {
     ISharedLockAdapterState,
     SharedLockAcquireSettings,
 } from "@/shared-lock/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * @internal
@@ -735,13 +734,13 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     async acquireWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_shared_lock_acquire_writer(
             key,
             lockId,
-            ttl?.toEndDate().getTime() ?? null,
+            ttl?.getTime() ?? null,
         );
         return result === 1;
     }
@@ -761,13 +760,13 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     async refreshWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_shared_lock_refresh_writer(
             key,
             lockId,
-            ttl.toEndDate().getTime(),
+            ttl.getTime(),
         );
         return result === 1;
     }
@@ -787,7 +786,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
             key,
             lockId,
             limit,
-            ttl?.toEndDate().getTime() ?? null,
+            ttl?.getTime() ?? null,
             Date.now(),
         );
         return result === 1;
@@ -809,13 +808,13 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
     async refreshReader(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_shared_lock_refresh_reader(
             key,
             lockId,
-            ttl.toEndDate().getTime(),
+            ttl.getTime(),
             Date.now(),
         );
         return result === 1;
