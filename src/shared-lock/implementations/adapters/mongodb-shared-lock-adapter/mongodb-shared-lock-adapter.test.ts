@@ -145,7 +145,12 @@ describe("class: MongodbSharedLockAdapter", () => {
             const ttl = TimeSpan.fromMinutes(5);
             const expiration = ttl.toEndDate();
 
-            await adapter.acquireWriter(key, lockId, ttl, noOpContext);
+            await adapter.acquireWriter(
+                key,
+                lockId,
+                ttl.toEndDate(),
+                noOpContext,
+            );
 
             const doc = await collection.findOne({
                 key,
@@ -213,7 +218,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             await adapter.acquireReader({
                 context: noOpContext,
                 key,
-                ttl,
+                ttl: ttl.toEndDate(),
                 lockId,
                 limit,
             });
@@ -256,7 +261,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             await adapter.acquireReader({
                 context: noOpContext,
                 key,
-                ttl: ttl2,
+                ttl: ttl2.toEndDate(),
                 lockId: lockId2,
                 limit,
             });
@@ -289,7 +294,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             await adapter.acquireReader({
                 context: noOpContext,
                 key,
-                ttl: ttl1,
+                ttl: ttl1.toEndDate(),
                 lockId: lockId1,
                 limit,
             });
@@ -332,7 +337,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             await adapter.acquireReader({
                 context: noOpContext,
                 key,
-                ttl: ttl1,
+                ttl: ttl1.toEndDate(),
                 lockId: lockId1,
                 limit,
             });
@@ -343,7 +348,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             await adapter.acquireReader({
                 context: noOpContext,
                 key,
-                ttl: ttl2,
+                ttl: ttl2.toEndDate(),
                 lockId: lockId2,
                 limit,
             });
@@ -377,7 +382,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             await adapter.acquireReader({
                 context: noOpContext,
                 key,
-                ttl: ttl1,
+                ttl: ttl1.toEndDate(),
                 lockId: lockId1,
                 limit,
             });
@@ -387,7 +392,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             await adapter.acquireReader({
                 context: noOpContext,
                 key,
-                ttl: ttl2,
+                ttl: ttl2.toEndDate(),
                 lockId: lockId2,
                 limit,
             });
@@ -420,7 +425,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             await adapter.acquireReader({
                 context: noOpContext,
                 key,
-                ttl: ttl1,
+                ttl: ttl1.toEndDate(),
                 lockId: lockId1,
                 limit,
             });
@@ -430,7 +435,7 @@ describe("class: MongodbSharedLockAdapter", () => {
             await adapter.acquireReader({
                 context: noOpContext,
                 key,
-                ttl: ttl2,
+                ttl: ttl2.toEndDate(),
                 lockId: lockId2,
                 limit,
             });

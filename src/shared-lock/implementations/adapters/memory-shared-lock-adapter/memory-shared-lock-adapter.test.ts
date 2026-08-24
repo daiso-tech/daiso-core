@@ -28,7 +28,7 @@ describe("class: MemorySharedLockAdapter", () => {
             await adapter.acquireWriter(
                 "expired",
                 "1",
-                TimeSpan.fromMilliseconds(100),
+                TimeSpan.fromMilliseconds(100).toEndDate(),
                 noOpContext,
             );
 
@@ -48,7 +48,7 @@ describe("class: MemorySharedLockAdapter", () => {
             await adapter.acquireWriter(
                 "unexpired",
                 "3",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 noOpContext,
             );
 
@@ -85,7 +85,7 @@ describe("class: MemorySharedLockAdapter", () => {
                 key: "expired",
                 lockId: "1",
                 limit: 4,
-                ttl: TimeSpan.fromMilliseconds(100),
+                ttl: TimeSpan.fromMilliseconds(100).toEndDate(),
             });
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -106,7 +106,7 @@ describe("class: MemorySharedLockAdapter", () => {
                 key: "unexpired",
                 lockId: "2",
                 limit: 4,
-                ttl: TimeSpan.fromMinutes(5),
+                ttl: TimeSpan.fromMinutes(5).toEndDate(),
             });
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -154,7 +154,7 @@ describe("class: MemorySharedLockAdapter", () => {
                 key: "reader-unexpired",
                 lockId: "1",
                 limit: 4,
-                ttl: TimeSpan.fromMinutes(5),
+                ttl: TimeSpan.fromMinutes(5).toEndDate(),
             });
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -177,7 +177,7 @@ describe("class: MemorySharedLockAdapter", () => {
                 key: "a",
                 lockId: "expired",
                 limit: 4,
-                ttl: TimeSpan.fromMilliseconds(100),
+                ttl: TimeSpan.fromMilliseconds(100).toEndDate(),
             });
             await adapter.acquireReader({
                 context: noOpContext,
@@ -218,14 +218,14 @@ describe("class: MemorySharedLockAdapter", () => {
             await adapter.acquireWriter(
                 "a",
                 "2",
-                TimeSpan.fromMilliseconds(100),
+                TimeSpan.fromMilliseconds(100).toEndDate(),
                 noOpContext,
             );
             await adapter.acquireWriter("b", "1", null, noOpContext);
             await adapter.acquireWriter(
                 "b",
                 "2",
-                TimeSpan.fromMilliseconds(100),
+                TimeSpan.fromMilliseconds(100).toEndDate(),
                 noOpContext,
             );
 
@@ -240,7 +240,7 @@ describe("class: MemorySharedLockAdapter", () => {
                 context: noOpContext,
                 key: "d",
                 lockId: "1",
-                ttl: TimeSpan.fromMilliseconds(100),
+                ttl: TimeSpan.fromMilliseconds(100).toEndDate(),
                 limit: 4,
             });
 
@@ -255,7 +255,7 @@ describe("class: MemorySharedLockAdapter", () => {
                 context: noOpContext,
                 key: "d",
                 lockId: "1",
-                ttl: TimeSpan.fromMilliseconds(100),
+                ttl: TimeSpan.fromMilliseconds(100).toEndDate(),
                 limit: 4,
             });
 
