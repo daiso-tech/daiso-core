@@ -9,7 +9,6 @@ import type {
     ILockAdapter,
     ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * @internal
@@ -204,13 +203,13 @@ export class RedisLockAdapter implements ILockAdapter {
     async acquire(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_lock_acquire(
             key,
             lockId,
-            ttl?.toEndDate().getTime() ?? null,
+            ttl?.getTime() ?? null,
         );
         return result === 1;
     }
@@ -235,13 +234,13 @@ export class RedisLockAdapter implements ILockAdapter {
     async refresh(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_lock_refresh(
             key,
             lockId,
-            ttl.toEndDate().getTime(),
+            ttl.getTime(),
         );
         return result === 1;
     }
