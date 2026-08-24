@@ -2,7 +2,6 @@
  * @module Cache
  */
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Low-level adapter contract for cache storage operations.
@@ -45,7 +44,7 @@ export type ICacheAdapter<TType = unknown> = {
     add(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         context: IReadableContext,
     ): Promise<boolean>;
 
@@ -63,7 +62,7 @@ export type ICacheAdapter<TType = unknown> = {
     getOrAdd(
         key: string,
         valueToAdd: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         context: IReadableContext,
     ): Promise<TType>;
 
@@ -80,7 +79,7 @@ export type ICacheAdapter<TType = unknown> = {
     put(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         context: IReadableContext,
     ): Promise<boolean>;
 
