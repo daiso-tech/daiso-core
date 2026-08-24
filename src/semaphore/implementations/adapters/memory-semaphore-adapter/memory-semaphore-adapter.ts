@@ -11,22 +11,7 @@ import type {
     SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
 import type { TimeSpan } from "@/time-span/implementations/_module.js";
-import type { IDeinitizable } from "@/utilities/_module.js";
-
-/**
- * IMPORT_PATH: `"eridu-tech/semaphore/memory-semaphore-adapter"`
- * @group Adapters
- */
-export type MemorySemaphoreAdapterData = {
-    limit: number;
-    slots: Map<
-        string,
-        {
-            timeoutId: string | number | NodeJS.Timeout | null;
-            expiration: Date | null;
-        }
-    >;
-};
+import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
 
 /**
  * Note the `MemorySemaphoreAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
@@ -36,7 +21,7 @@ export type MemorySemaphoreAdapterData = {
  * @group Adapters
  */
 export class MemorySemaphoreAdapter
-    implements ISemaphoreAdapter, IDeinitizable
+    implements ISemaphoreAdapter, IDeinitizable, IPrunable
 {
     /**
      *  @example
@@ -50,178 +35,158 @@ export class MemorySemaphoreAdapter
      * ```ts
      * import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
      *
-     * const map = new Map<any, any>();
+     * const map = new Map<string, any>();
      * const semaphoreAdapter = new MemorySemaphoreAdapter(map);
      * ```
      */
     constructor(
-        private readonly map = new Map<string, MemorySemaphoreAdapterData>(),
+        private readonly map = new Map<string, ISemaphoreAdapterState>(),
     ) {}
 
+    private static isSlotExpired(expiration: Date | null): boolean {
+        return expiration !== null && expiration <= new Date();
+    }
+
+    private static removeExpiredSlots(semaphore: ISemaphoreAdapterState): void {
+        for (const [key, slot] of semaphore.acquiredSlots) {
+            if (!MemorySemaphoreAdapter.isSlotExpired(slot)) {
+                continue;
+            }
+            semaphore.acquiredSlots.delete(key);
+        }
+    }
+
+    private get(key: string): ISemaphoreAdapterState | null {
+        const semaphore = this.map.get(key);
+        if (semaphore === undefined) {
+            return null;
+        }
+        MemorySemaphoreAdapter.removeExpiredSlots(semaphore);
+        if (semaphore.acquiredSlots.size === 0) {
+            return null;
+        }
+        return semaphore;
+    }
+
     /**
-     * Removes all in-memory semaphore data.
+     * Removes all in-memory shared-lock data.
      */
-    async deInit(): Promise<void> {
-        for (const [key, semaphoreData] of this.map) {
-            for (const [slotId, slotData] of semaphoreData.slots) {
-                if (slotData.timeoutId !== null) {
-                    clearTimeout(slotData.timeoutId);
-                }
-                semaphoreData.slots.delete(slotId);
+    removeAllExpired(): Promise<void> {
+        for (const [key] of this.map) {
+            const semaphore = this.get(key);
+            if (semaphore !== null) {
+                continue;
             }
             this.map.delete(key);
         }
         return Promise.resolve();
     }
 
-    async acquire(settings: SemaphoreAcquireSettings): Promise<boolean> {
-        const { key, slotId, limit, ttl } = settings;
-        let semaphore = this.map.get(key);
+    deInit(): Promise<void> {
+        this.map.clear();
+        return Promise.resolve();
+    }
 
-        if (semaphore === undefined) {
-            semaphore = {
+    acquire(settings: SemaphoreAcquireSettings): Promise<boolean> {
+        const { key, slotId, limit, ttl } = settings;
+        let semaphoreEntry = this.get(key);
+
+        if (semaphoreEntry === null) {
+            semaphoreEntry = {
                 limit,
-                slots: new Map(),
+                acquiredSlots: new Map(),
             };
-            this.map.set(key, semaphore);
+            this.map.set(key, semaphoreEntry);
         }
 
-        if (semaphore.slots.size >= semaphore.limit) {
+        if (semaphoreEntry.acquiredSlots.size >= semaphoreEntry.limit) {
             return Promise.resolve(false);
         }
 
-        if (semaphore.slots.has(slotId)) {
+        if (semaphoreEntry.acquiredSlots.has(slotId)) {
             return Promise.resolve(true);
         }
 
         if (ttl === null) {
-            semaphore.slots.set(slotId, {
-                timeoutId: null,
-                expiration: null,
-            });
+            semaphoreEntry.acquiredSlots.set(slotId, null);
         } else {
-            const timeoutId = setTimeout(() => {
-                semaphore.slots.delete(slotId);
-            }, ttl.toMilliseconds());
-
-            semaphore.slots.set(slotId, {
-                timeoutId,
-                expiration: ttl.toEndDate(),
-            });
+            semaphoreEntry.acquiredSlots.set(slotId, ttl.toEndDate());
         }
-
-        this.map.set(key, semaphore);
 
         return Promise.resolve(true);
     }
-    async release(
+
+    release(
         key: string,
         slotId: string,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const semaphore = this.map.get(key);
-        if (!semaphore) {
+        const semaphoreEntry = this.get(key);
+        if (semaphoreEntry === null) {
             return Promise.resolve(false);
         }
 
-        const slot = semaphore.slots.get(slotId);
+        const slot = semaphoreEntry.acquiredSlots.get(slotId);
         if (slot === undefined) {
             return Promise.resolve(false);
         }
-        // Check expiration: if expired, cannot release
-        if (slot.expiration !== null && slot.expiration <= new Date()) {
-            return Promise.resolve(false);
-        }
 
-        if (slot.timeoutId !== null) {
-            clearTimeout(slot.timeoutId);
-        }
+        semaphoreEntry.acquiredSlots.delete(slotId);
 
-        semaphore.slots.delete(slotId);
-        this.map.set(key, semaphore);
-
-        if (semaphore.slots.size === 0) {
+        if (semaphoreEntry.acquiredSlots.size === 0) {
             this.map.delete(key);
         }
 
         return Promise.resolve(true);
     }
-    async forceReleaseAll(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        const semaphore = this.map.get(key);
-        if (semaphore === undefined) {
+
+    forceReleaseAll(key: string, _context: IReadableContext): Promise<boolean> {
+        const semaphoreEntry = this.get(key);
+        if (semaphoreEntry === null) {
             return Promise.resolve(false);
         }
-        const hasSlots = semaphore.slots.size > 0;
-        for (const [slotId, slot] of semaphore.slots) {
-            // Check expiration: if expired, skip force release
-            if (slot.expiration !== null && slot.expiration <= new Date()) {
-                continue;
-            }
-            clearTimeout(slot.timeoutId ?? undefined);
-            semaphore.slots.delete(slotId);
-        }
+        const hasSlots = semaphoreEntry.acquiredSlots.size > 0;
         this.map.delete(key);
         return Promise.resolve(hasSlots);
     }
 
-    async refresh(
+    refresh(
         key: string,
         slotId: string,
         ttl: TimeSpan,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const semaphore = this.map.get(key);
-        if (!semaphore) {
+        const semaphoreEntry = this.get(key);
+        if (semaphoreEntry === null) {
             return Promise.resolve(false);
         }
-        const slot = semaphore.slots.get(slotId);
-        if (slot === undefined) {
+        const expiration = semaphoreEntry.acquiredSlots.get(slotId);
+        if (expiration === undefined) {
             return Promise.resolve(false);
         }
-        // Check expiration: if expired, cannot refresh
-        if (slot.expiration !== null && slot.expiration <= new Date()) {
-            return Promise.resolve(false);
-        }
-        if (slot.timeoutId === null) {
+        if (expiration === null) {
             return Promise.resolve(false);
         }
 
-        clearTimeout(slot.timeoutId);
-        const timeoutId = setTimeout(() => {
-            semaphore.slots.delete(slotId);
-            this.map.set(key, semaphore);
-        }, ttl.toMilliseconds());
-
-        semaphore.slots.set(slotId, {
-            timeoutId,
-            expiration: ttl.toEndDate(),
-        });
-        this.map.set(key, semaphore);
+        semaphoreEntry.acquiredSlots.set(slotId, ttl.toEndDate());
 
         return Promise.resolve(true);
     }
 
-    async getState(
+    getState(
         key: string,
         _context: IReadableContext,
     ): Promise<ISemaphoreAdapterState | null> {
-        const semaphore = this.map.get(key);
-        if (semaphore === undefined) {
+        const semaphoreEntry = this.get(key);
+        if (semaphoreEntry === null) {
             return Promise.resolve(null);
         }
-        if (semaphore.slots.size === 0) {
+        if (semaphoreEntry.acquiredSlots.size === 0) {
             return Promise.resolve(null);
         }
         return Promise.resolve({
-            limit: semaphore.limit,
-            acquiredSlots: new Map(
-                [...semaphore.slots.entries()].map(
-                    ([key_, value]) => [key_, value.expiration] as const,
-                ),
-            ),
+            limit: semaphoreEntry.limit,
+            acquiredSlots: semaphoreEntry.acquiredSlots,
         });
     }
 }

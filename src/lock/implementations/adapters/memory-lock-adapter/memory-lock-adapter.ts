@@ -10,23 +10,7 @@ import type {
     ILockAdapterState,
 } from "@/lock/contracts/_module.js";
 import type { TimeSpan } from "@/time-span/implementations/_module.js";
-import type { IDeinitizable } from "@/utilities/_module.js";
-
-/**
- * IMPORT_PATH: `"eridu-tech/lock/memory-lock-adapter"`
- * @group Adapters
- */
-export type MemoryLockData =
-    | {
-          owner: string;
-          hasExpiration: true;
-          timeoutId: string | number | NodeJS.Timeout;
-          expiration: Date;
-      }
-    | {
-          owner: string;
-          hasExpiration: false;
-      };
+import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
 
 /**
  * Note the `MemoryLockAdapter` is limited to single process usage and cannot be shared across multiple servers or different processes.
@@ -35,7 +19,9 @@ export type MemoryLockData =
  * IMPORT_PATH: `"eridu-tech/lock/memory-lock-adapter"`
  * @group Adapters
  */
-export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
+export class MemoryLockAdapter
+    implements ILockAdapter, IDeinitizable, IPrunable
+{
     /**
      *  @example
      * ```ts
@@ -48,159 +34,121 @@ export class MemoryLockAdapter implements ILockAdapter, IDeinitizable {
      * ```ts
      * import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
      *
-     * const map = new Map<any, any>();
+     * const map = new Map<string, any>();
      * const lockAdapter = new MemoryLockAdapter(map);
      * ```
      */
-    constructor(private readonly map = new Map<string, MemoryLockData>()) {}
+    constructor(private readonly map = new Map<string, ILockAdapterState>()) {}
+
+    private get(key: string): ILockAdapterState | null {
+        const lockEntry = this.map.get(key);
+        if (lockEntry === undefined) {
+            return null;
+        }
+        if (lockEntry.expiration === null) {
+            return lockEntry;
+        }
+        if (lockEntry.expiration <= new Date()) {
+            return null;
+        }
+        return lockEntry;
+    }
 
     /**
-     * Removes all in-memory lock data.
+     * Removes all in-memory shared-lock data.
      */
-    async deInit(): Promise<void> {
-        for (const [key, lockData] of this.map) {
-            if (lockData.hasExpiration) {
-                clearTimeout(lockData.timeoutId);
+    removeAllExpired(): Promise<void> {
+        for (const key of this.map.keys()) {
+            if (this.get(key) !== null) {
+                continue;
             }
+
             this.map.delete(key);
         }
         return Promise.resolve();
     }
 
-    async acquire(
+    /**
+     * Removes all in-memory lock data.
+     */
+    deInit(): Promise<void> {
+        this.map.clear();
+        return Promise.resolve();
+    }
+
+    acquire(
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        let lock = this.map.get(key);
-        if (lock !== undefined) {
-            return Promise.resolve(lock.owner === lockId);
+        const existingEntry = this.get(key);
+        if (existingEntry !== null && existingEntry.owner !== lockId) {
+            return Promise.resolve(false);
         }
-
-        if (ttl === null) {
-            lock = {
-                owner: lockId,
-                hasExpiration: false,
-            };
-            this.map.set(key, lock);
-        } else {
-            const timeoutId = setTimeout(() => {
-                this.map.delete(key);
-            }, ttl.toMilliseconds());
-            lock = {
-                owner: lockId,
-                hasExpiration: true,
-                timeoutId,
-                expiration: ttl.toEndDate(),
-            };
-            this.map.set(key, lock);
-        }
-
+        this.map.set(key, {
+            owner: lockId,
+            expiration: ttl?.toEndDate() ?? null,
+        });
         return Promise.resolve(true);
     }
 
-    async release(
+    release(
         key: string,
         lockId: string,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const lock = this.map.get(key);
-        if (lock === undefined) {
+        const lockEntry = this.get(key);
+        if (lockEntry === null) {
             return Promise.resolve(false);
         }
-        if (lock.owner !== lockId) {
+        if (lockEntry.owner !== lockId) {
             return Promise.resolve(false);
-        }
-        // Check expiration: if expired, cannot release
-        if (lock.hasExpiration && lock.expiration <= new Date()) {
-            return Promise.resolve(false);
-        }
-
-        if (lock.hasExpiration) {
-            clearTimeout(lock.timeoutId);
         }
         this.map.delete(key);
-
         return Promise.resolve(true);
     }
 
-    async forceRelease(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        const lock = this.map.get(key);
-
-        if (lock === undefined) {
+    forceRelease(key: string, _context: IReadableContext): Promise<boolean> {
+        const lockEntry = this.get(key);
+        if (lockEntry === null) {
             return Promise.resolve(false);
         }
-        // Check expiration: if expired, cannot force release
-        if (lock.hasExpiration && lock.expiration <= new Date()) {
-            return Promise.resolve(false);
-        }
-
-        if (lock.hasExpiration) {
-            clearTimeout(lock.timeoutId);
-        }
-
         this.map.delete(key);
-
         return Promise.resolve(true);
     }
 
-    async refresh(
+    refresh(
         key: string,
         lockId: string,
         ttl: TimeSpan,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const lock = this.map.get(key);
-        if (lock === undefined) {
+        const lockEntry = this.get(key);
+        if (lockEntry === null) {
             return Promise.resolve(false);
         }
-        if (lock.owner !== lockId) {
+        if (lockEntry.owner !== lockId) {
             return Promise.resolve(false);
         }
-        // Check expiration: if expired, cannot refresh
-        if (lock.hasExpiration && lock.expiration <= new Date()) {
+        if (lockEntry.expiration === null) {
             return Promise.resolve(false);
         }
-        if (!lock.hasExpiration) {
-            return Promise.resolve(false);
-        }
-
-        clearTimeout(lock.timeoutId);
-        const timeoutId = setTimeout(() => {
-            this.map.delete(key);
-        }, ttl.toMilliseconds());
-        this.map.set(key, {
-            ...lock,
-            timeoutId,
-        });
-
+        lockEntry.expiration = ttl.toEndDate();
         return Promise.resolve(true);
     }
 
-    async getState(
+    getState(
         key: string,
         _context: IReadableContext,
     ): Promise<ILockAdapterState | null> {
-        const lockData = this.map.get(key);
-        if (lockData === undefined) {
-            return Promise.resolve(null);
-        }
-        if (!lockData.hasExpiration) {
-            return Promise.resolve({
-                owner: lockData.owner,
-                expiration: null,
-            });
-        }
-        if (lockData.expiration <= new Date()) {
+        const lockEntry = this.get(key);
+        if (lockEntry === null) {
             return Promise.resolve(null);
         }
         return Promise.resolve({
-            owner: lockData.owner,
-            expiration: lockData.expiration,
+            owner: lockEntry.owner,
+            expiration: lockEntry.expiration,
         });
     }
 }

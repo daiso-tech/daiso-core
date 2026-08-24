@@ -143,7 +143,7 @@ describe("function: linearBackoff", () => {
             minDelay: TimeSpan.fromMilliseconds(500),
             maxDelay: TimeSpan.fromSeconds(60),
             jitter: 0.5,
-            _mathRandom: () => 0.5,
+            internalMathRandom: () => 0.5,
         });
 
         // attempt=2: 500 * 2 = 1000, jitter: (1 - 0.5 * 0.5) * 1000 = 750

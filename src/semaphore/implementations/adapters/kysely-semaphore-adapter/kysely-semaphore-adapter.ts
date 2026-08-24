@@ -105,7 +105,7 @@ export class KyselySemaphoreAdapter
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    private _transaction<TValue>(
+    private transaction<TValue>(
         trxFn: InvocableFn<
             [trx: Kysely<KyselySemaphoreTables>],
             Promise<TValue>
@@ -218,7 +218,7 @@ export class KyselySemaphoreAdapter
     async acquire(settings: SemaphoreAcquireSettings): Promise<boolean> {
         const { context: _context, key, slotId, limit, ttl } = settings;
 
-        return await this._transaction(async (trx) => {
+        return await this.transaction(async (trx) => {
             // Create the semaphore if it doesn't exist (never overwrite limit
             // when slots are still held — the stored limit governs admission).
             await trx
@@ -301,7 +301,7 @@ export class KyselySemaphoreAdapter
         _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("semaphoreSlot")
                     .where("semaphoreSlot.key", "=", key)
@@ -350,7 +350,7 @@ export class KyselySemaphoreAdapter
         _context: IReadableContext,
     ): Promise<boolean> {
         if (this.isMysql) {
-            return await this._transaction(async (trx) => {
+            return await this.transaction(async (trx) => {
                 const existing = await trx
                     .selectFrom("semaphoreSlot")
                     .where("semaphoreSlot.key", "=", key)

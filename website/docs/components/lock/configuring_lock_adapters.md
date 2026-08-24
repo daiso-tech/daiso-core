@@ -59,6 +59,28 @@ const memoryLockAdapter = new MemoryLockAdapter(map);
 Note the `MemoryLockAdapter` is limited to single process usage and cannot be shared across multiple servers or processes.
 :::
 
+### Settings
+
+To clean up expired lock keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
+
+```ts
+import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
+
+const memoryLockAdapter = new MemoryLockAdapter();
+
+// Remove all expired lock keys manually.
+await memoryLockAdapter.removeAllExpired();
+```
+
+:::info
+To remove the lock map and all stored lock data, use `deInit` method:
+
+```ts
+await memoryLockAdapter.deInit();
+```
+
+:::
+
 ## MongodbLockAdapter
 
 To use the `MongodbLockAdapter`, you'll need to:

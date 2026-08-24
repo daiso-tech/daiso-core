@@ -82,11 +82,12 @@ export class FileSerdeTransformer implements ISerdeTransformer<
         }
 
         const isSerdTransformerNameMathcing =
-            this.serdeTransformerName === value._getSerdeTransformerName();
+            this.serdeTransformerName ===
+            value.internalGetSerdeTransformerName();
 
         const isAdapterMatching =
             getConstructorName(this.originalAdapter) ===
-            getConstructorName(value._getAdapter());
+            getConstructorName(value.internalGetAdapter());
 
         return isSerdTransformerNameMathcing && isAdapterMatching;
     }
@@ -109,6 +110,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
     }
 
     serialize(deserializedValue: File): ISerializedFile {
-        return File._serialize(deserializedValue);
+        return File.internalSerialize(deserializedValue);
     }
 }

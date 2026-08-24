@@ -84,11 +84,12 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
         }
 
         const isSerdTransformerNameMathcing =
-            this.serdeTransformerName === value._getSerdeTransformerName();
+            this.serdeTransformerName ===
+            value.internalGetSerdeTransformerName();
 
         const isAdapterMatching =
             getConstructorName(this.adapter) ===
-            getConstructorName(value._getAdapter());
+            getConstructorName(value.internalGetAdapter());
 
         return isSerdTransformerNameMathcing && isAdapterMatching;
     }
@@ -110,6 +111,6 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
     }
 
     serialize(deserializedValue: CircuitBreaker): ISerializedCircuitBreaker {
-        return CircuitBreaker._serialize(deserializedValue);
+        return CircuitBreaker.internalSerialize(deserializedValue);
     }
 }

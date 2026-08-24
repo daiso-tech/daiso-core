@@ -24,7 +24,7 @@ import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
  * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */
-export type MongodbSemaphoreSlotSubDocument = {
+export type MongodbSemaphoreSlotEntryDocument = {
     id: string;
     expiration: Date | null;
 };
@@ -33,11 +33,11 @@ export type MongodbSemaphoreSlotSubDocument = {
  * IMPORT_PATH: `"eridu-tech/semaphore/mongodb-semaphore-adapter"`
  * @group Adapters
  */
-export type MongodbSemaphoreDocument = {
+export type MongodbSemaphoreEntryDocument = {
     _id: ObjectId;
     key: string;
     limit: number;
-    slots: Array<MongodbSemaphoreSlotSubDocument>;
+    slots: Array<MongodbSemaphoreSlotEntryDocument>;
     expiration: Date | null;
 };
 
@@ -75,10 +75,11 @@ export type MongodbSemaphoreAdapterSettings = {
 export class MongodbSemaphoreAdapter
     implements ISemaphoreAdapter, IDeinitizable, IInitizable
 {
-    private static isSlotNotExpired = (slot: MongodbSemaphoreSlotSubDocument) =>
-        slot.expiration === null || slot.expiration > new Date();
+    private static isSlotNotExpired = (
+        slot: MongodbSemaphoreSlotEntryDocument,
+    ) => slot.expiration === null || slot.expiration > new Date();
 
-    private readonly collection: Collection<MongodbSemaphoreDocument>;
+    private readonly collection: Collection<MongodbSemaphoreEntryDocument>;
 
     /**
      * @example
@@ -314,7 +315,7 @@ export class MongodbSemaphoreAdapter
                                                 id: slotId,
                                                 expiration:
                                                     ttl?.toEndDate() ?? null,
-                                            } satisfies MongodbSemaphoreSlotSubDocument,
+                                            } satisfies MongodbSemaphoreSlotEntryDocument,
                                         ],
                                     ],
                                 },

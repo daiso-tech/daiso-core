@@ -56,10 +56,10 @@ export class File implements IFile {
     /**
      * @internal
      */
-    static _serialize(deserializedValue: File): ISerializedFile {
+    static internalSerialize(deserializedValue: File): ISerializedFile {
         return {
             version: "1",
-            key: deserializedValue._key,
+            key: deserializedValue.internalKey,
         };
     }
 
@@ -67,7 +67,7 @@ export class File implements IFile {
 
     private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
-    private readonly _key: string;
+    private readonly internalKey: string;
     private readonly serdeTransformerName: string;
     private readonly defaultContentDisposition: string | null;
     private readonly defaultContentEncoding: string | null;
@@ -91,7 +91,7 @@ export class File implements IFile {
         this.context = context;
         this.originalAdapter = originalAdapter;
         this.adapter = adapter;
-        this._key = key;
+        this.internalKey = key;
         this.serdeTransformerName = serdeTransformerName;
         this.defaultContentDisposition = defaultContentDisposition;
         this.defaultContentEncoding = defaultContentEncoding;
@@ -99,11 +99,11 @@ export class File implements IFile {
         this.defaultContentLanguage = defaultContentLanguage;
     }
 
-    _getSerdeTransformerName(): string {
+    internalGetSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _getAdapter(): FileStorageAdapterVariants {
+    internalGetAdapter(): FileStorageAdapterVariants {
         return this.originalAdapter;
     }
 
@@ -118,19 +118,19 @@ export class File implements IFile {
     async getTextOrFail(): Promise<string> {
         const text = await this.getText();
         if (text === null) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
         return text;
     }
 
     async getBytes(): Promise<Uint8Array | null> {
-        return await this.adapter.getBytes(this._key, this.context);
+        return await this.adapter.getBytes(this.internalKey, this.context);
     }
 
     async getBytesOrFail(): Promise<Uint8Array> {
         const bytes = await this.getBytes();
         if (bytes === null) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
         return bytes;
     }
@@ -146,13 +146,16 @@ export class File implements IFile {
     async getArrayBufferOrFail(): Promise<ArrayBuffer> {
         const arrayBuffer = await this.getArrayBuffer();
         if (arrayBuffer === null) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
         return arrayBuffer;
     }
 
     async getReadableStream(): Promise<ReadableStream<Uint8Array> | null> {
-        const stream = await this.adapter.getStream(this._key, this.context);
+        const stream = await this.adapter.getStream(
+            this.internalKey,
+            this.context,
+        );
         if (stream === null) {
             return null;
         }
@@ -162,14 +165,14 @@ export class File implements IFile {
     async getReadableStreamOrFail(): Promise<ReadableStream<Uint8Array>> {
         const stream = await this.getReadableStream();
         if (stream === null) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
         return stream;
     }
 
     async getMetadata(): Promise<FileMetadata | null> {
         const metadata = await this.adapter.getMetaData(
-            this._key,
+            this.internalKey,
             this.context,
         );
         if (metadata === null) {
@@ -186,13 +189,13 @@ export class File implements IFile {
     async getMetadataOrFail(): Promise<FileMetadata> {
         const metadata = await this.getMetadata();
         if (metadata === null) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
         return metadata;
     }
 
     async exists(): Promise<boolean> {
-        return await this.adapter.exists(this._key, this.context);
+        return await this.adapter.exists(this.internalKey, this.context);
     }
 
     async missing(): Promise<boolean> {
@@ -203,7 +206,7 @@ export class File implements IFile {
         const { data, contentType = File.DEFAULT_CONTENT_TYPE } = content;
         const resolvedData = resolveFileContent(data);
         return await this.adapter.add(
-            this._key,
+            this.internalKey,
             {
                 data: resolvedData,
                 contentType,
@@ -220,7 +223,7 @@ export class File implements IFile {
     async addOrFail(content: WritableFileContent): Promise<void> {
         const hasAdded = await this.add(content);
         if (!hasAdded) {
-            throw KeyExistsFileError.create(this._key, this.context);
+            throw KeyExistsFileError.create(this.internalKey, this.context);
         }
     }
 
@@ -232,7 +235,7 @@ export class File implements IFile {
         } = stream;
 
         return await this.adapter.addStream(
-            this._key,
+            this.internalKey,
             {
                 data: new ResolveFileStream(data),
                 fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
@@ -249,7 +252,7 @@ export class File implements IFile {
     async addStreamOrFail(stream: WritableFileStream): Promise<void> {
         const hasAdded = await this.addStream(stream);
         if (!hasAdded) {
-            throw KeyExistsFileError.create(this._key, this.context);
+            throw KeyExistsFileError.create(this.internalKey, this.context);
         }
     }
 
@@ -257,7 +260,7 @@ export class File implements IFile {
         const { data, contentType = File.DEFAULT_CONTENT_TYPE } = content;
         const resolvedData = resolveFileContent(data);
         return await this.adapter.update(
-            this._key,
+            this.internalKey,
             {
                 data: resolvedData,
                 contentType,
@@ -274,7 +277,7 @@ export class File implements IFile {
     async updateOrFail(content: WritableFileContent): Promise<void> {
         const hasUpdated = await this.update(content);
         if (!hasUpdated) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
     }
 
@@ -285,7 +288,7 @@ export class File implements IFile {
             contentType = File.DEFAULT_CONTENT_TYPE,
         } = stream;
         return await this.adapter.updateStream(
-            this._key,
+            this.internalKey,
             {
                 data: new ResolveFileStream(data),
                 fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
@@ -302,7 +305,7 @@ export class File implements IFile {
     async updateStreamOrFail(stream: WritableFileStream): Promise<void> {
         const hasUpdated = await this.updateStream(stream);
         if (!hasUpdated) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
     }
 
@@ -310,7 +313,7 @@ export class File implements IFile {
         const { data, contentType = File.DEFAULT_CONTENT_TYPE } = content;
         const resolvedData = resolveFileContent(data);
         return await this.adapter.put(
-            this._key,
+            this.internalKey,
             {
                 data: resolvedData,
                 contentType,
@@ -331,7 +334,7 @@ export class File implements IFile {
             contentType = File.DEFAULT_CONTENT_TYPE,
         } = stream;
         return await this.adapter.putStream(
-            this._key,
+            this.internalKey,
             {
                 data: new ResolveFileStream(data),
                 fileSizeInBytes: fileSize?.[TO_BYTES]() ?? null,
@@ -346,19 +349,19 @@ export class File implements IFile {
     }
 
     async remove(): Promise<boolean> {
-        return await this.adapter.removeMany([this._key], this.context);
+        return await this.adapter.removeMany([this.internalKey], this.context);
     }
 
     async removeOrFail(): Promise<void> {
         const hasFound = await this.remove();
         if (!hasFound) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
     }
 
     async copy(destination: string): Promise<boolean> {
         const result = await this.adapter.copy(
-            this._key,
+            this.internalKey,
             destination,
             this.context,
         );
@@ -367,21 +370,21 @@ export class File implements IFile {
 
     async copyOrFail(destination: string): Promise<void> {
         const result = await this.adapter.copy(
-            this._key,
+            this.internalKey,
             destination,
             this.context,
         );
         if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
-            throw KeyExistsFileError.create(this._key, this.context);
+            throw KeyExistsFileError.create(this.internalKey, this.context);
         }
         if (result === FILE_WRITE_ENUM.NOT_FOUND) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
     }
 
     async copyAndReplace(destination: string): Promise<boolean> {
         return await this.adapter.copyAndReplace(
-            this._key,
+            this.internalKey,
             destination,
             this.context,
         );
@@ -390,13 +393,13 @@ export class File implements IFile {
     async copyAndReplaceOrFail(destination: string): Promise<void> {
         const hasCopied = await this.copyAndReplace(destination);
         if (!hasCopied) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
     }
 
     async move(destination: string): Promise<boolean> {
         const result = await this.adapter.move(
-            this._key,
+            this.internalKey,
             destination,
             this.context,
         );
@@ -405,21 +408,21 @@ export class File implements IFile {
 
     async moveOrFail(destination: string): Promise<void> {
         const result = await this.adapter.move(
-            this._key,
+            this.internalKey,
             destination,
             this.context,
         );
         if (result === FILE_WRITE_ENUM.KEY_EXISTS) {
-            throw KeyExistsFileError.create(this._key, this.context);
+            throw KeyExistsFileError.create(this.internalKey, this.context);
         }
         if (result === FILE_WRITE_ENUM.NOT_FOUND) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
     }
 
     async moveAndReplace(destination: string): Promise<boolean> {
         return await this.adapter.moveAndReplace(
-            this._key,
+            this.internalKey,
             destination,
             this.context,
         );
@@ -428,18 +431,18 @@ export class File implements IFile {
     async moveAndReplaceOrFail(destination: string): Promise<void> {
         const hasCopied = await this.moveAndReplace(destination);
         if (!hasCopied) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
     }
 
     async getPublicUrl(): Promise<string | null> {
-        return await this.adapter.getPublicUrl(this._key, this.context);
+        return await this.adapter.getPublicUrl(this.internalKey, this.context);
     }
 
     async getPublicUrlOrFail(): Promise<string> {
         const url = await this.getPublicUrl();
         if (url === null) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
         return url;
     }
@@ -452,7 +455,7 @@ export class File implements IFile {
             contentType = File.DEFAULT_CONTENT_TYPE,
         } = options;
         return await this.adapter.getSignedUploadUrl(
-            this._key,
+            this.internalKey,
             {
                 expirationInSeconds: TimeSpan.fromTimeSpan(ttl).toSeconds(),
                 contentType,
@@ -470,7 +473,7 @@ export class File implements IFile {
             contentDisposition = null,
         } = options;
         return await this.adapter.getSignedDownloadUrl(
-            this._key,
+            this.internalKey,
             {
                 expirationInSeconds:
                     TimeSpan.fromTimeSpan(expiration).toSeconds(),
@@ -486,12 +489,12 @@ export class File implements IFile {
     ): Promise<string> {
         const url = await this.getSignedDownloadUrl(options);
         if (url === null) {
-            throw KeyNotFoundFileError.create(this._key, this.context);
+            throw KeyNotFoundFileError.create(this.internalKey, this.context);
         }
         return url;
     }
 
     get key(): string {
-        return this._key;
+        return this.internalKey;
     }
 }

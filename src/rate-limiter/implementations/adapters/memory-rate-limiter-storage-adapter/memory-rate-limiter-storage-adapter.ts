@@ -10,7 +10,11 @@ import type {
     IRateLimiterStorageAdapter,
     IRateLimiterStorageAdapterTransaction,
 } from "@/rate-limiter/contracts/_module.js";
-import type { IDeinitizable, InvocableFn } from "@/utilities/_module.js";
+import type {
+    IDeinitizable,
+    InvocableFn,
+    IPrunable,
+} from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter"`
@@ -18,7 +22,6 @@ import type { IDeinitizable, InvocableFn } from "@/utilities/_module.js";
  */
 export type MemoryRateLimiterData<TType = unknown> = {
     state: TType;
-    timeoutId: string | number | NodeJS.Timeout;
     expiration: Date;
 };
 
@@ -29,7 +32,7 @@ export type MemoryRateLimiterData<TType = unknown> = {
  * @group Adapters
  */
 export class MemoryRateLimiterStorageAdapter<TType>
-    implements IRateLimiterStorageAdapter<TType>, IDeinitizable
+    implements IRateLimiterStorageAdapter<TType>, IDeinitizable, IPrunable
 {
     /**
      * @example
@@ -43,11 +46,17 @@ export class MemoryRateLimiterStorageAdapter<TType>
         private readonly map = new Map<string, MemoryRateLimiterData<TType>>(),
     ) {}
 
-    deInit(): Promise<void> {
-        for (const [key, { timeoutId }] of this.map) {
-            clearTimeout(timeoutId);
+    removeAllExpired(): Promise<void> {
+        for (const [key, entry] of this.map) {
+            if (entry.expiration > new Date()) {
+                continue;
+            }
             this.map.delete(key);
         }
+        return Promise.resolve();
+    }
+
+    deInit(): Promise<void> {
         this.map.clear();
         return Promise.resolve();
     }
@@ -66,14 +75,9 @@ export class MemoryRateLimiterStorageAdapter<TType>
                 expiration: Date,
                 _nestedContext: IReadableContext,
             ): Promise<void> => {
-                const ttl = expiration.getTime() - Date.now();
-                const timeoutId = setTimeout(() => {
-                    this.map.delete(key);
-                }, ttl);
                 this.map.set(key, {
                     state,
                     expiration,
-                    timeoutId,
                 });
                 return Promise.resolve();
             },
@@ -105,7 +109,6 @@ export class MemoryRateLimiterStorageAdapter<TType>
         if (data === undefined) {
             return Promise.resolve();
         }
-        clearTimeout(data.timeoutId);
         this.map.delete(key);
         return Promise.resolve();
     }

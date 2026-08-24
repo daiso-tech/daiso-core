@@ -53,7 +53,7 @@ export class MemoryFileStorageAdapter
      * ```ts
      * import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
      *
-     * const map = new Map<any, any>();
+     * const map = new Map<string, any>();
      * const fileStorageAdapter = new MemoryFileStorageAdapter(map);
      * ```
      */
@@ -251,7 +251,7 @@ export class MemoryFileStorageAdapter
         return Promise.resolve(exists);
     }
 
-    private _copy(
+    private internalCopy(
         source: string,
         destination: string,
         _context: IReadableContext,
@@ -277,10 +277,10 @@ export class MemoryFileStorageAdapter
         destination: string,
         context: IReadableContext,
     ): Promise<FileWriteEnum> {
-        return this._copy(source, destination, context);
+        return this.internalCopy(source, destination, context);
     }
 
-    private _copyAndReplace(
+    private internalCopyAndReplace(
         source: string,
         destination: string,
         _context: IReadableContext,
@@ -303,10 +303,10 @@ export class MemoryFileStorageAdapter
         destination: string,
         context: IReadableContext,
     ): Promise<boolean> {
-        return this._copyAndReplace(source, destination, context);
+        return this.internalCopyAndReplace(source, destination, context);
     }
 
-    private _removeMany(
+    private internalRemoveMany(
         keys: Array<string>,
         _context: IReadableContext,
     ): Promise<boolean> {
@@ -325,9 +325,9 @@ export class MemoryFileStorageAdapter
         destination: string,
         context: IReadableContext,
     ): Promise<FileWriteEnum> {
-        const result = await this._copy(source, destination, context);
+        const result = await this.internalCopy(source, destination, context);
         if (result === FILE_WRITE_ENUM.SUCCESS) {
-            await this._removeMany([source], context);
+            await this.internalRemoveMany([source], context);
         }
         return result;
     }
@@ -337,13 +337,13 @@ export class MemoryFileStorageAdapter
         destination: string,
         context: IReadableContext,
     ): Promise<boolean> {
-        const hasMoved = await this._copyAndReplace(
+        const hasMoved = await this.internalCopyAndReplace(
             source,
             destination,
             context,
         );
         if (hasMoved) {
-            await this._removeMany([source], context);
+            await this.internalRemoveMany([source], context);
         }
         return hasMoved;
     }
@@ -352,7 +352,7 @@ export class MemoryFileStorageAdapter
         keys: Array<string>,
         context: IReadableContext,
     ): Promise<boolean> {
-        return this._removeMany(keys, context);
+        return this.internalRemoveMany(keys, context);
     }
 
     removeByPrefix(prefix: string, _context: IReadableContext): Promise<void> {

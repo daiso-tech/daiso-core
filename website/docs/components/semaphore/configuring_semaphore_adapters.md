@@ -59,6 +59,28 @@ const memorySemaphoreAdapter = new MemorySemaphoreAdapter(map);
 Note the `MemorySemaphoreAdapter` is limited to single process usage and cannot be shared across multiple servers or processes.
 :::
 
+### Settings
+
+To clean up expired semaphore keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
+
+```ts
+import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
+
+const memorySemaphoreAdapter = new MemorySemaphoreAdapter();
+
+// Remove all expired semaphore keys manually.
+await memorySemaphoreAdapter.removeAllExpired();
+```
+
+:::info
+To remove the semaphore map and all stored semaphore data, use `deInit` method:
+
+```ts
+await memorySemaphoreAdapter.deInit();
+```
+
+:::
+
 ## MongodbSemaphoreAdapter
 
 To use the `MongodbSemaphoreAdapter`, you'll need to:

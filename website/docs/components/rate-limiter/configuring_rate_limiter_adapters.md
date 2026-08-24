@@ -331,6 +331,19 @@ const memoryRateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter(
 `MemoryRateLimiterStorageAdapter` lets you test your app without external dependencies like `Redis`, ideal for local development, unit tests, integration tests and fast E2E test for the backend application.
 :::
 
+### Settings
+
+To clean up expired rate-limiter records, call `removeAllExpired` at a regular interval (for example, using a cron job):
+
+```ts
+import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
+
+const memoryRateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter();
+
+// Remove all expired rate-limiter records manually.
+await memoryRateLimiterStorageAdapter.removeAllExpired();
+```
+
 ## MongodbRateLimiterStorageAdapter
 
 To use the `MongodbRateLimiterStorageAdapter`, you'll need to:

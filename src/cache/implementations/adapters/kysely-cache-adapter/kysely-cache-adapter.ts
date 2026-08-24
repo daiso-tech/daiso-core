@@ -21,7 +21,7 @@ import type {
  * IMPORT_PATH: `"eridu-tech/cache/kysely-cache-adapter"`
  * @group Adapters
  */
-export type KyselyCacheTable = {
+export type KyselyCacheEntryTable = {
     key: string;
     value: string;
     // In ms since unix epoch
@@ -33,7 +33,7 @@ export type KyselyCacheTable = {
  * @group Adapters
  */
 export type KyselyCacheTables = {
-    cache: KyselyCacheTable;
+    cache: KyselyCacheEntryTable;
 };
 
 /**
@@ -154,7 +154,7 @@ export class KyselyCacheAdapter<TType = unknown>
         }
     }
 
-    private _transaction<TValue>(
+    private transaction<TValue>(
         _context: IReadableContext,
         trxFn: InvocableFn<[trx: Kysely<KyselyCacheTables>], Promise<TValue>>,
     ): Promise<TValue> {
@@ -186,7 +186,7 @@ export class KyselyCacheAdapter<TType = unknown>
         _context: IReadableContext,
     ): Promise<TType | null> {
         if (this.isMysql) {
-            return await this._transaction(_context, async (trx) => {
+            return await this.transaction(_context, async (trx) => {
                 const row = await trx
                     .selectFrom("cache")
                     .where("cache.key", "=", key)
@@ -236,7 +236,7 @@ export class KyselyCacheAdapter<TType = unknown>
         ttl: TimeSpan | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        return await this._transaction(_context, async (trx) => {
+        return await this.transaction(_context, async (trx) => {
             const existing = await trx
                 .selectFrom("cache")
                 .where("cache.key", "=", key)
@@ -286,7 +286,7 @@ export class KyselyCacheAdapter<TType = unknown>
         ttl: TimeSpan | null,
         _context: IReadableContext,
     ): Promise<TType> {
-        return await this._transaction(_context, async (trx) => {
+        return await this.transaction(_context, async (trx) => {
             const existing = await trx
                 .selectFrom("cache")
                 .where("cache.key", "=", key)
@@ -336,7 +336,7 @@ export class KyselyCacheAdapter<TType = unknown>
         ttl: TimeSpan | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        return await this._transaction(_context, async (trx) => {
+        return await this.transaction(_context, async (trx) => {
             const existing = await trx
                 .selectFrom("cache")
                 .where("cache.key", "=", key)
@@ -405,7 +405,7 @@ export class KyselyCacheAdapter<TType = unknown>
         value: number,
         _context: IReadableContext,
     ): Promise<boolean> {
-        return await this._transaction(_context, async (trx) => {
+        return await this.transaction(_context, async (trx) => {
             const existing = await trx
                 .selectFrom("cache")
                 .where("cache.key", "=", key)

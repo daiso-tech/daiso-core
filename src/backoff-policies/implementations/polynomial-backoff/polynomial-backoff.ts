@@ -61,7 +61,7 @@ export type PolynomialBackoffSettings = {
      * @internal
      * Should only be used for testing
      */
-    _mathRandom?: () => number;
+    internalMathRandom?: () => number;
 };
 
 /**
@@ -75,7 +75,7 @@ export function resolvePolynomialBackoffSettings(
         minDelay = TimeSpan.fromMilliseconds(500),
         degree = 2,
         jitter = 0.5,
-        _mathRandom = Math.random,
+        internalMathRandom = Math.random,
     } = settings;
 
     if (!(minDelay[TO_MILLISECONDS]() > 0)) {
@@ -98,7 +98,7 @@ export function resolvePolynomialBackoffSettings(
         minDelay,
         degree,
         jitter,
-        _mathRandom,
+        internalMathRandom,
     };
 }
 
@@ -120,7 +120,7 @@ export function polynomialBackoff(
                 settings = dynamicSettings;
             }
         }
-        const { maxDelay, minDelay, degree, jitter, _mathRandom } =
+        const { maxDelay, minDelay, degree, jitter, internalMathRandom } =
             resolvePolynomialBackoffSettings(settings);
         const polynomial = Math.min(
             maxDelay[TO_MILLISECONDS](),
@@ -130,7 +130,7 @@ export function polynomialBackoff(
             withJitter({
                 jitter,
                 value: polynomial,
-                randomValue: _mathRandom(),
+                randomValue: internalMathRandom(),
             }),
         );
     };
@@ -148,7 +148,7 @@ export type SerializedPolynomialBackoffSettings = {
 
     jitter?: number | null;
 
-    _mathRandom?: number;
+    internalMathRandom?: number;
 };
 
 /**
@@ -157,13 +157,13 @@ export type SerializedPolynomialBackoffSettings = {
 export function serializePolynomialBackoffSettings(
     settings: PolynomialBackoffSettings,
 ): Required<SerializedPolynomialBackoffSettings> {
-    const { maxDelay, minDelay, degree, jitter, _mathRandom } =
+    const { maxDelay, minDelay, degree, jitter, internalMathRandom } =
         resolvePolynomialBackoffSettings(settings);
     return {
         maxDelay: maxDelay[TO_MILLISECONDS](),
         minDelay: minDelay[TO_MILLISECONDS](),
         degree,
         jitter,
-        _mathRandom: _mathRandom(),
+        internalMathRandom: internalMathRandom(),
     };
 }

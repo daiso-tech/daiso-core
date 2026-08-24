@@ -55,7 +55,7 @@ export type MongodbCacheAdapterSettings = {
  * IMPORT_PATH: `"eridu-tech/cache/mongodb-cache-adapter"`
  * @group Adapters
  */
-export type MongodbCacheDocument = {
+export type MongodbCacheEntryDocument = {
     _id: ObjectId;
     key: string;
     value: number | string;
@@ -73,18 +73,18 @@ export class MongodbCacheAdapter<TType = unknown>
 {
     private static filterUnexpiredKeys(
         keys: Array<string>,
-    ): Filter<MongodbCacheDocument> {
-        const hasNoExpiration: Filter<MongodbCacheDocument> = {
+    ): Filter<MongodbCacheEntryDocument> {
+        const hasNoExpiration: Filter<MongodbCacheEntryDocument> = {
             expiration: {
                 $eq: null,
             },
         };
-        const hasExpiration: Filter<MongodbCacheDocument> = {
+        const hasExpiration: Filter<MongodbCacheEntryDocument> = {
             expiration: {
                 $ne: null,
             },
         };
-        const hasNotExpired: Filter<MongodbCacheDocument> = {
+        const hasNotExpired: Filter<MongodbCacheEntryDocument> = {
             expiration: {
                 $gt: new Date(),
             },
@@ -122,7 +122,7 @@ export class MongodbCacheAdapter<TType = unknown>
     }
 
     private readonly serde: ISerde<string | number>;
-    private readonly collection: Collection<MongodbCacheDocument>;
+    private readonly collection: Collection<MongodbCacheEntryDocument>;
 
     /**
      * @example
@@ -269,7 +269,9 @@ export class MongodbCacheAdapter<TType = unknown>
         }
     }
 
-    private getDocValue(document: MongodbCacheDocument | null): TType | null {
+    private getDocValue(
+        document: MongodbCacheEntryDocument | null,
+    ): TType | null {
         if (document === null) {
             return null;
         }
@@ -319,7 +321,7 @@ export class MongodbCacheAdapter<TType = unknown>
         return this.getDocValue(document);
     }
 
-    private isDocExpired(document: MongodbCacheDocument | null): boolean {
+    private isDocExpired(document: MongodbCacheEntryDocument | null): boolean {
         if (document === null) {
             return true;
         }

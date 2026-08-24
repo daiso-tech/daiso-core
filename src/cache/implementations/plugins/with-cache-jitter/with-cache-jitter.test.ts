@@ -29,7 +29,7 @@ describe("function: withCacheJitter", () => {
                 adapter,
                 withCacheJitter({
                     defaultJitter: 0.2,
-                    _mathRandom: mathRandom,
+                    internalMathRandom: mathRandom,
                 }),
             );
 
@@ -48,7 +48,7 @@ describe("function: withCacheJitter", () => {
 
             const enhanced = withPlugin(
                 adapter,
-                withCacheJitter({ _mathRandom: mathRandom }),
+                withCacheJitter({ internalMathRandom: mathRandom }),
             );
 
             await enhanced.add("myKey", "value", null, context);
@@ -67,7 +67,7 @@ describe("function: withCacheJitter", () => {
 
             const enhanced = withPlugin(
                 adapter,
-                withCacheJitter({ _mathRandom: mathRandom }),
+                withCacheJitter({ internalMathRandom: mathRandom }),
             );
 
             const ttl = TimeSpan.fromMinutes(1);
@@ -92,7 +92,7 @@ describe("function: withCacheJitter", () => {
                 adapter,
                 withCacheJitter({
                     defaultJitter: 0.5,
-                    _mathRandom: mathRandom,
+                    internalMathRandom: mathRandom,
                 }),
             );
 
@@ -111,7 +111,7 @@ describe("function: withCacheJitter", () => {
 
             const enhanced = withPlugin(
                 adapter,
-                withCacheJitter({ _mathRandom: mathRandom }),
+                withCacheJitter({ internalMathRandom: mathRandom }),
             );
 
             await enhanced.put("myKey", "value", null, context);
@@ -134,7 +134,7 @@ describe("function: withCacheJitter", () => {
                 adapter,
                 withCacheJitter({
                     defaultJitter: 0.2,
-                    _mathRandom: mathRandom,
+                    internalMathRandom: mathRandom,
                 }),
             );
 
@@ -153,7 +153,7 @@ describe("function: withCacheJitter", () => {
 
             const enhanced = withPlugin(
                 adapter,
-                withCacheJitter({ _mathRandom: mathRandom }),
+                withCacheJitter({ internalMathRandom: mathRandom }),
             );
 
             await enhanced.getOrAdd("myKey", "value", null, context);

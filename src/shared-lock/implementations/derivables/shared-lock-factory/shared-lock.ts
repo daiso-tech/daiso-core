@@ -63,20 +63,22 @@ export class SharedLock implements ISharedLock {
     /**
      * @internal
      */
-    static _serialize(deserializedValue: SharedLock): ISerializedSharedLock {
+    static internalSerialize(
+        deserializedValue: SharedLock,
+    ): ISerializedSharedLock {
         return {
             version: "1",
-            key: deserializedValue._key,
+            key: deserializedValue.internalKey,
             limit: deserializedValue.limit,
             lockId: deserializedValue.lockId,
-            ttlInMs: deserializedValue._ttl?.toMilliseconds() ?? null,
+            ttlInMs: deserializedValue.internalTtl?.toMilliseconds() ?? null,
         };
     }
 
     private readonly adapter: ISharedLockAdapter;
-    private readonly _key: string;
+    private readonly internalKey: string;
     private readonly lockId: string;
-    private _ttl: TimeSpan | null;
+    private internalTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly limit: number;
@@ -94,21 +96,21 @@ export class SharedLock implements ISharedLock {
             key,
         } = settings;
 
-        this._key = key;
+        this.internalKey = key;
         this.context = context;
         this.limit = limit;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.lockId = lockId;
-        this._ttl = ttl;
+        this.internalTtl = ttl;
         this.defaultRefreshTime = defaultRefreshTime;
     }
 
-    _getSerdeTransformerName(): string {
+    internalGetSerdeTransformerName(): string {
         return this.serdeTransformerName;
     }
 
-    _getAdapter(): ISharedLockAdapter {
+    internalGetAdapter(): ISharedLockAdapter {
         return this.adapter;
     }
 
@@ -126,23 +128,23 @@ export class SharedLock implements ISharedLock {
     async acquireReader(): Promise<boolean> {
         return await this.adapter.acquireReader({
             context: this.context,
-            key: this._key,
+            key: this.internalKey,
             lockId: this.lockId,
             limit: this.limit,
-            ttl: this._ttl,
+            ttl: this.internalTtl,
         });
     }
 
     async acquireReaderOrFail(): Promise<void> {
         const hasAcquired = await this.acquireReader();
         if (!hasAcquired) {
-            throw LimitReachedReaderSemaphoreError.create(this._key);
+            throw LimitReachedReaderSemaphoreError.create(this.internalKey);
         }
     }
 
     async releaseReader(): Promise<boolean> {
         return await this.adapter.releaseReader(
-            this._key,
+            this.internalKey,
             this.lockId,
             this.context,
         );
@@ -152,7 +154,7 @@ export class SharedLock implements ISharedLock {
         const hasReleased = await this.releaseReader();
         if (!hasReleased) {
             throw FailedReleaseReaderSemaphoreError.create(
-                this._key,
+                this.internalKey,
                 this.lockId,
             );
         }
@@ -160,7 +162,7 @@ export class SharedLock implements ISharedLock {
 
     async forceReleaseAllReaders(): Promise<boolean> {
         return await this.adapter.forceReleaseAllReaders(
-            this._key,
+            this.internalKey,
             this.context,
         );
     }
@@ -169,13 +171,13 @@ export class SharedLock implements ISharedLock {
         ttl: ITimeSpan = this.defaultRefreshTime,
     ): Promise<boolean> {
         const hasRefreshed = await this.adapter.refreshReader(
-            this._key,
+            this.internalKey,
             this.lockId,
             TimeSpan.fromTimeSpan(ttl),
             this.context,
         );
         if (hasRefreshed) {
-            this._ttl = TimeSpan.fromTimeSpan(ttl);
+            this.internalTtl = TimeSpan.fromTimeSpan(ttl);
         }
         return hasRefreshed;
     }
@@ -184,7 +186,7 @@ export class SharedLock implements ISharedLock {
         const hasRefreshed = await this.refreshReader(ttl);
         if (!hasRefreshed) {
             throw FailedRefreshReaderSemaphoreError.create(
-                this._key,
+                this.internalKey,
                 this.lockId,
             );
         }
@@ -203,9 +205,9 @@ export class SharedLock implements ISharedLock {
 
     async acquireWriter(): Promise<boolean> {
         return await this.adapter.acquireWriter(
-            this._key,
+            this.internalKey,
             this.lockId,
-            this._ttl,
+            this.internalTtl,
             this.context,
         );
     }
@@ -213,13 +215,13 @@ export class SharedLock implements ISharedLock {
     async acquireWriterOrFail(): Promise<void> {
         const hasAcquired = await this.acquireWriter();
         if (!hasAcquired) {
-            throw FailedAcquireWriterLockError.create(this._key);
+            throw FailedAcquireWriterLockError.create(this.internalKey);
         }
     }
 
     async releaseWriter(): Promise<boolean> {
         return await this.adapter.releaseWriter(
-            this._key,
+            this.internalKey,
             this.lockId,
             this.context,
         );
@@ -228,25 +230,31 @@ export class SharedLock implements ISharedLock {
     async releaseWriterOrFail(): Promise<void> {
         const hasRelased = await this.releaseWriter();
         if (!hasRelased) {
-            throw FailedReleaseWriterLockError.create(this._key, this.lockId);
+            throw FailedReleaseWriterLockError.create(
+                this.internalKey,
+                this.lockId,
+            );
         }
     }
 
     async forceReleaseWriter(): Promise<boolean> {
-        return await this.adapter.forceReleaseWriter(this._key, this.context);
+        return await this.adapter.forceReleaseWriter(
+            this.internalKey,
+            this.context,
+        );
     }
 
     async refreshWriter(
         ttl: ITimeSpan = this.defaultRefreshTime,
     ): Promise<boolean> {
         const hasRefreshed = await this.adapter.refreshWriter(
-            this._key,
+            this.internalKey,
             this.lockId,
             TimeSpan.fromTimeSpan(ttl),
             this.context,
         );
         if (hasRefreshed) {
-            this._ttl = TimeSpan.fromTimeSpan(ttl);
+            this.internalTtl = TimeSpan.fromTimeSpan(ttl);
         }
         return hasRefreshed;
     }
@@ -254,12 +262,15 @@ export class SharedLock implements ISharedLock {
     async refreshWriterOrFail(ttl?: ITimeSpan): Promise<void> {
         const hasRefreshed = await this.refreshWriter(ttl);
         if (!hasRefreshed) {
-            throw FailedRefreshWriterLockError.create(this._key, this.lockId);
+            throw FailedRefreshWriterLockError.create(
+                this.internalKey,
+                this.lockId,
+            );
         }
     }
 
     get key(): string {
-        return this._key;
+        return this.internalKey;
     }
 
     get id(): string {
@@ -267,11 +278,11 @@ export class SharedLock implements ISharedLock {
     }
 
     get ttl(): TimeSpan | null {
-        return this._ttl;
+        return this.internalTtl;
     }
 
     async forceRelease(): Promise<boolean> {
-        return await this.adapter.forceRelease(this._key, this.context);
+        return await this.adapter.forceRelease(this.internalKey, this.context);
     }
 
     private extractWriterState(
@@ -348,7 +359,10 @@ export class SharedLock implements ISharedLock {
     }
 
     async getState(): Promise<ISharedLockState> {
-        const state = await this.adapter.getState(this._key, this.context);
+        const state = await this.adapter.getState(
+            this.internalKey,
+            this.context,
+        );
         if (state === null) {
             return {
                 type: SHARED_LOCK_STATE.EXPIRED,

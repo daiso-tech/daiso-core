@@ -44,7 +44,7 @@ export type ConstantBackoffSettings = {
      * @internal
      * Should only be used for testing
      */
-    _mathRandom?: () => number;
+    internalMathRandom?: () => number;
 };
 
 /**
@@ -56,7 +56,7 @@ export function resolveConstantBackoffSettings(
     const {
         delay = TimeSpan.fromSeconds(1),
         jitter = 0.5,
-        _mathRandom = Math.random,
+        internalMathRandom = Math.random,
     } = settings;
 
     if (!(delay[TO_MILLISECONDS]() > 0)) {
@@ -69,7 +69,7 @@ export function resolveConstantBackoffSettings(
     return {
         delay,
         jitter,
-        _mathRandom,
+        internalMathRandom,
     };
 }
 
@@ -91,13 +91,13 @@ export function constantBackoff(
                 settings = dynamicSettings;
             }
         }
-        const { delay, jitter, _mathRandom } =
+        const { delay, jitter, internalMathRandom } =
             resolveConstantBackoffSettings(settings);
         return TimeSpan.fromMilliseconds(
             withJitter({
                 jitter,
                 value: delay[TO_MILLISECONDS](),
-                randomValue: _mathRandom(),
+                randomValue: internalMathRandom(),
             }),
         );
     };
@@ -111,7 +111,7 @@ export type SerializedConstantBackoffSettings = {
 
     jitter?: number | null;
 
-    _mathRandom?: number;
+    internalMathRandom?: number;
 };
 
 /**
@@ -120,11 +120,11 @@ export type SerializedConstantBackoffSettings = {
 export function serializeConstantBackoffSettings(
     settings: ConstantBackoffSettings,
 ): Required<SerializedConstantBackoffSettings> {
-    const { delay, jitter, _mathRandom } =
+    const { delay, jitter, internalMathRandom } =
         resolveConstantBackoffSettings(settings);
     return {
         delay: delay[TO_MILLISECONDS](),
         jitter,
-        _mathRandom: _mathRandom(),
+        internalMathRandom: internalMathRandom(),
     };
 }

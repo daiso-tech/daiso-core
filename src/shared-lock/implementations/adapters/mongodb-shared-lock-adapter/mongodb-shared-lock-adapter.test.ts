@@ -10,7 +10,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
 
-import type { MongodbSharedLockDocument } from "@/shared-lock/implementations/adapters/mongodb-shared-lock-adapter/mongodb-shared-lock-adapter.js";
+import type { MongodbSharedLockEntryDocument } from "@/shared-lock/implementations/adapters/mongodb-shared-lock-adapter/mongodb-shared-lock-adapter.js";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbSharedLockAdapter", () => {
@@ -102,7 +102,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "shared-locks";
             const collection =
-                database.collection<MongodbSharedLockDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -122,14 +124,16 @@ describe("class: MongodbSharedLockAdapter", () => {
             expect(doc).toEqual(
                 expect.objectContaining({
                     expiration: null,
-                } satisfies Partial<MongodbSharedLockDocument>),
+                } satisfies Partial<MongodbSharedLockEntryDocument>),
             );
         });
         test("Should set expiration field to Date when given expiration", async () => {
             const database = client.db("database");
             const collectionName = "shared-locks";
             const collection =
-                database.collection<MongodbSharedLockDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -159,7 +163,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -183,14 +189,16 @@ describe("class: MongodbSharedLockAdapter", () => {
             expect(doc).toEqual(
                 expect.objectContaining({
                     expiration: null,
-                } satisfies Partial<MongodbSharedLockDocument>),
+                } satisfies Partial<MongodbSharedLockEntryDocument>),
             );
         });
         test("Should set expiration of the first acquired slot when slot is unexpired", async () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -222,7 +230,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -256,14 +266,16 @@ describe("class: MongodbSharedLockAdapter", () => {
             expect(doc).toEqual(
                 expect.objectContaining({
                     expiration: null,
-                } satisfies Partial<MongodbSharedLockDocument>),
+                } satisfies Partial<MongodbSharedLockEntryDocument>),
             );
         });
         test("Should set expiration to null when first slot is unexpired and seconds slot is unexpireable", async () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -297,14 +309,16 @@ describe("class: MongodbSharedLockAdapter", () => {
             expect(doc).toEqual(
                 expect.objectContaining({
                     expiration: null,
-                } satisfies Partial<MongodbSharedLockDocument>),
+                } satisfies Partial<MongodbSharedLockEntryDocument>),
             );
         });
         test("Should set expiration to longest expiration when first slot is unexpired and seconds slot is unexpired and has longest expiration", async () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -346,7 +360,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,
@@ -388,7 +404,9 @@ describe("class: MongodbSharedLockAdapter", () => {
             const database = client.db("database");
             const collectionName = "semaphores";
             const collection =
-                database.collection<MongodbSharedLockDocument>(collectionName);
+                database.collection<MongodbSharedLockEntryDocument>(
+                    collectionName,
+                );
             const adapter = new MongodbSharedLockAdapter({
                 database,
                 collectionName,

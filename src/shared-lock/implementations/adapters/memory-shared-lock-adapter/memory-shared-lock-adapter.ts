@@ -2,12 +2,7 @@
  * @module SharedLock
  */
 
-import {
-    OPTION,
-    optionNone,
-    optionSome,
-    UnexpectedError,
-} from "@/utilities/_module.js";
+import { UnexpectedError } from "@/utilities/_module.js";
 
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
@@ -16,39 +11,28 @@ import type {
     ISharedLockAdapter,
     ISharedLockAdapterState,
     SharedLockAcquireSettings,
+    IWriterLockAdapterState,
+    IReaderSemaphoreAdapterState,
 } from "@/shared-lock/contracts/_module.js";
 import type { TimeSpan } from "@/time-span/implementations/_module.js";
-import type { IDeinitizable, Option } from "@/utilities/_module.js";
+import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/shared-lock/memory-shared-lock-adapter"`
  * @group Adapters
  */
-export type MemorySharedWriterLockData =
-    | {
-          owner: string;
-          hasExpiration: true;
-          timeoutId: string | number | NodeJS.Timeout;
-          expiration: Date;
-      }
-    | {
-          owner: string;
-          hasExpiration: false;
-      };
+export type MemorySharedWriterLockEntryData = {
+    owner: string;
+    expiration: Date | null;
+};
 
 /**
  * IMPORT_PATH: `"eridu-tech/shared-lock/memory-shared-lock-adapter"`
  * @group Adapters
  */
-export type MemorySharedReaderSemaphoreData = {
+export type MemorySharedReaderSemaphoreEntryData = {
     limit: number;
-    slots: Map<
-        string,
-        {
-            timeoutId: string | number | NodeJS.Timeout | null;
-            expiration: Date | null;
-        }
-    >;
+    slots: Map<string, Date | null>;
 };
 
 /**
@@ -56,8 +40,8 @@ export type MemorySharedReaderSemaphoreData = {
  * @group Adapters
  */
 export type MemorySharedLockData = {
-    writerLock: MemorySharedWriterLockData | null;
-    readerSemaphore: MemorySharedReaderSemaphoreData | null;
+    writerLock: MemorySharedWriterLockEntryData | null;
+    readerSemaphore: MemorySharedReaderSemaphoreEntryData | null;
 };
 
 /**
@@ -68,7 +52,7 @@ export type MemorySharedLockData = {
  * @group Adapters
  */
 export class MemorySharedLockAdapter
-    implements ISharedLockAdapter, IDeinitizable
+    implements ISharedLockAdapter, IDeinitizable, IPrunable
 {
     /**
      *  @example
@@ -82,7 +66,7 @@ export class MemorySharedLockAdapter
      * ```ts
      * import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
      *
-     * const map = new Map<any, any>();
+     * const map = new Map<string, any>();
      * const sharedLockAdapter = new MemorySharedLockAdapter(map);
      * ```
      */
@@ -90,494 +74,310 @@ export class MemorySharedLockAdapter
         private readonly map = new Map<string, MemorySharedLockData>(),
     ) {}
 
-    /**
-     * Removes all in-memory shared-lock data.
-     */
-    async deInit(): Promise<void> {
-        for (const [key, sharedLock] of this.map) {
-            const writerLock = sharedLock.writerLock;
-            if (writerLock !== null && writerLock.hasExpiration) {
-                clearTimeout(writerLock.timeoutId);
+    private getWriter(
+        key: string,
+    ): MemorySharedWriterLockEntryData | "not-found" | "reader-active" {
+        const sharedLockEntry = this.map.get(key);
+        if (sharedLockEntry === undefined) {
+            return "not-found";
+        }
+        const { writerLock, readerSemaphore } = sharedLockEntry;
+        if (readerSemaphore !== null && writerLock !== null) {
+            throw new UnexpectedError("!!__MESSAGE__!!");
+        }
+        if (readerSemaphore !== null) {
+            return "reader-active";
+        }
+        if (writerLock === null) {
+            return "not-found";
+        }
+        if (writerLock.expiration === null) {
+            return writerLock;
+        }
+        if (writerLock.expiration <= new Date()) {
+            return "not-found";
+        }
+        return writerLock;
+    }
+
+    private static isSlotExpired(expiration: Date | null): boolean {
+        return expiration !== null && expiration <= new Date();
+    }
+
+    private static removeExpiredSlots(
+        sharedLock: MemorySharedReaderSemaphoreEntryData,
+    ): void {
+        for (const [key, slot] of sharedLock.slots) {
+            if (!MemorySharedLockAdapter.isSlotExpired(slot)) {
+                continue;
+            }
+            sharedLock.slots.delete(key);
+        }
+    }
+
+    private getReader(
+        key: string,
+    ): MemorySharedReaderSemaphoreEntryData | "not-found" | "writer-active" {
+        const sharedLock = this.map.get(key);
+        if (sharedLock === undefined) {
+            return "not-found";
+        }
+        const { writerLock, readerSemaphore } = sharedLock;
+        if (readerSemaphore !== null && writerLock !== null) {
+            throw new UnexpectedError("!!__MESSAGE__!!");
+        }
+        if (writerLock !== null) {
+            return "writer-active";
+        }
+        if (readerSemaphore === null) {
+            return "not-found";
+        }
+        MemorySharedLockAdapter.removeExpiredSlots(readerSemaphore);
+        if (readerSemaphore.slots.size === 0) {
+            return "not-found";
+        }
+        return readerSemaphore;
+    }
+
+    removeAllExpired(): Promise<void> {
+        for (const key of this.map.keys()) {
+            if (this.getWriter(key) === "not-found") {
+                this.map.delete(key);
             }
 
-            const readerSemaphore = sharedLock.readerSemaphore;
-            if (readerSemaphore !== null) {
-                for (const [_, { timeoutId }] of readerSemaphore.slots) {
-                    if (timeoutId !== null) {
-                        clearTimeout(timeoutId);
-                    }
-                }
+            if (this.getReader(key) === "not-found") {
+                this.map.delete(key);
             }
-
-            this.map.delete(key);
         }
         return Promise.resolve();
     }
 
-    async acquireWriter(
+    deInit(): Promise<void> {
+        this.map.clear();
+        return Promise.resolve();
+    }
+
+    acquireWriter(
         key: string,
         lockId: string,
         ttl: TimeSpan | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const sharedLock = this.map.get(key);
-        const readerSemaphore = sharedLock?.readerSemaphore ?? null;
-        if (readerSemaphore !== null) {
+        const lockEntry = this.getWriter(key);
+        if (lockEntry === "reader-active") {
             return Promise.resolve(false);
         }
-        let writerLock = sharedLock?.writerLock ?? null;
-
-        if (writerLock !== null) {
-            return Promise.resolve(writerLock.owner === lockId);
+        if (lockEntry !== "not-found" && lockEntry.owner !== lockId) {
+            return Promise.resolve(false);
         }
-
-        if (ttl === null) {
-            writerLock = {
+        this.map.set(key, {
+            readerSemaphore: null,
+            writerLock: {
                 owner: lockId,
-                hasExpiration: false,
-            };
-            this.map.set(key, {
-                writerLock,
-                readerSemaphore: null,
-            });
-        } else {
-            const timeoutId = setTimeout(() => {
-                this.map.delete(key);
-            }, ttl.toMilliseconds());
-            writerLock = {
-                owner: lockId,
-                hasExpiration: true,
-                timeoutId,
-                expiration: ttl.toEndDate(),
-            };
-            this.map.set(key, {
-                writerLock,
-                readerSemaphore: null,
-            });
-        }
-
+                expiration: ttl?.toEndDate() ?? null,
+            },
+        });
         return Promise.resolve(true);
     }
 
-    async releaseWriter(
+    releaseWriter(
         key: string,
         lockId: string,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const sharedLock = this.map.get(key);
-        const readerSemaphore = sharedLock?.readerSemaphore ?? null;
-        if (readerSemaphore !== null) {
+        const lockEntry = this.getWriter(key);
+        if (lockEntry === "not-found" || lockEntry === "reader-active") {
             return Promise.resolve(false);
         }
-        const writerLock = sharedLock?.writerLock ?? null;
-
-        if (writerLock === null) {
+        if (lockEntry.owner !== lockId) {
             return Promise.resolve(false);
-        }
-        if (writerLock.owner !== lockId) {
-            return Promise.resolve(false);
-        }
-        // Check expiration: if expired, cannot release
-        if (writerLock.hasExpiration && writerLock.expiration <= new Date()) {
-            return Promise.resolve(false);
-        }
-
-        if (writerLock.hasExpiration) {
-            clearTimeout(writerLock.timeoutId);
         }
         this.map.delete(key);
-
-        return Promise.resolve(true);
-    }
-
-    private async _forceReleaseWriter(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        const sharedLock = this.map.get(key);
-        const readerSemaphore = sharedLock?.readerSemaphore ?? null;
-        if (readerSemaphore !== null) {
-            return Promise.resolve(false);
-        }
-        const writerLock = sharedLock?.writerLock ?? null;
-
-        if (writerLock === null) {
-            return Promise.resolve(false);
-        }
-        // Check expiration: if expired, cannot force release
-        if (writerLock.hasExpiration && writerLock.expiration <= new Date()) {
-            return Promise.resolve(false);
-        }
-
-        if (writerLock.hasExpiration) {
-            clearTimeout(writerLock.timeoutId);
-        }
-
-        this.map.delete(key);
-
         return Promise.resolve(true);
     }
 
     forceReleaseWriter(
         key: string,
-        context: IReadableContext,
+        _context: IReadableContext,
     ): Promise<boolean> {
-        return this._forceReleaseWriter(key, context);
+        const lockEntry = this.getWriter(key);
+        if (lockEntry === "not-found" || lockEntry === "reader-active") {
+            return Promise.resolve(false);
+        }
+        this.map.delete(key);
+        return Promise.resolve(true);
     }
 
-    async refreshWriter(
+    refreshWriter(
         key: string,
         lockId: string,
         ttl: TimeSpan,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const sharedLock = this.map.get(key);
-        const readerSemaphore = sharedLock?.readerSemaphore ?? null;
-        if (readerSemaphore !== null) {
+        const lockEntry = this.getWriter(key);
+        if (lockEntry === "not-found" || lockEntry == "reader-active") {
             return Promise.resolve(false);
         }
-        const writerLock = sharedLock?.writerLock ?? null;
-
-        if (writerLock === null) {
+        if (lockEntry.owner !== lockId) {
             return Promise.resolve(false);
         }
-        if (writerLock.owner !== lockId) {
+        if (lockEntry.expiration === null) {
             return Promise.resolve(false);
         }
-        // Check expiration: if expired, cannot refresh
-        if (writerLock.hasExpiration && writerLock.expiration <= new Date()) {
-            return Promise.resolve(false);
-        }
-        if (!writerLock.hasExpiration) {
-            return Promise.resolve(false);
-        }
-
-        clearTimeout(writerLock.timeoutId);
-        const timeoutId = setTimeout(() => {
-            this.map.delete(key);
-        }, ttl.toMilliseconds());
-        this.map.set(key, {
-            readerSemaphore: null,
-            writerLock: {
-                ...writerLock,
-                timeoutId,
-            },
-        });
-
+        lockEntry.expiration = ttl.toEndDate();
         return Promise.resolve(true);
     }
 
-    async acquireReader(settings: SharedLockAcquireSettings): Promise<boolean> {
+    acquireReader(settings: SharedLockAcquireSettings): Promise<boolean> {
         const { key, lockId, limit, ttl } = settings;
-        const sharedLock = this.map.get(key);
-        const writerLock = sharedLock?.writerLock ?? null;
-        if (writerLock !== null) {
+        let semaphoreEntry = this.getReader(key);
+        if (semaphoreEntry === "writer-active") {
             return Promise.resolve(false);
         }
-        let readerSemaphore = sharedLock?.readerSemaphore ?? null;
-
-        if (readerSemaphore === null) {
-            readerSemaphore = {
+        if (semaphoreEntry === "not-found") {
+            semaphoreEntry = {
                 limit,
                 slots: new Map(),
             };
             this.map.set(key, {
-                readerSemaphore,
                 writerLock: null,
+                readerSemaphore: semaphoreEntry,
             });
         }
 
-        if (readerSemaphore.slots.size >= readerSemaphore.limit) {
+        if (semaphoreEntry.slots.size >= semaphoreEntry.limit) {
             return Promise.resolve(false);
         }
 
-        if (readerSemaphore.slots.has(lockId)) {
+        if (semaphoreEntry.slots.has(lockId)) {
             return Promise.resolve(true);
         }
 
         if (ttl === null) {
-            readerSemaphore.slots.set(lockId, {
-                timeoutId: null,
-                expiration: null,
-            });
+            semaphoreEntry.slots.set(lockId, null);
         } else {
-            const timeoutId = setTimeout(() => {
-                readerSemaphore.slots.delete(lockId);
-            }, ttl.toMilliseconds());
-
-            readerSemaphore.slots.set(lockId, {
-                timeoutId,
-                expiration: ttl.toEndDate(),
-            });
+            semaphoreEntry.slots.set(lockId, ttl.toEndDate());
         }
-
-        this.map.set(key, {
-            readerSemaphore,
-            writerLock: null,
-        });
 
         return Promise.resolve(true);
     }
 
-    async releaseReader(
+    releaseReader(
         key: string,
-        lockId: string,
+        slotId: string,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const sharedLock = this.map.get(key);
-        const writerLock = sharedLock?.writerLock ?? null;
-        if (writerLock !== null) {
-            return Promise.resolve(false);
-        }
-        const readerSemaphore = sharedLock?.readerSemaphore ?? null;
-
-        if (readerSemaphore === null) {
+        const semaphoreEntry = this.getReader(key);
+        if (
+            semaphoreEntry === "not-found" ||
+            semaphoreEntry === "writer-active"
+        ) {
             return Promise.resolve(false);
         }
 
-        const slot = readerSemaphore.slots.get(lockId);
+        const slot = semaphoreEntry.slots.get(slotId);
         if (slot === undefined) {
             return Promise.resolve(false);
         }
-        // Check expiration: if expired, cannot release
-        if (slot.expiration !== null && slot.expiration <= new Date()) {
-            return Promise.resolve(false);
-        }
 
-        if (slot.timeoutId !== null) {
-            clearTimeout(slot.timeoutId);
-        }
+        semaphoreEntry.slots.delete(slotId);
 
-        readerSemaphore.slots.delete(lockId);
-        this.map.set(key, {
-            readerSemaphore,
-            writerLock: null,
-        });
-
-        if (readerSemaphore.slots.size === 0) {
+        if (semaphoreEntry.slots.size === 0) {
             this.map.delete(key);
         }
 
         return Promise.resolve(true);
     }
 
-    private async _forceReleaseAllReaders(
+    forceReleaseAllReaders(
         key: string,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const sharedLock = this.map.get(key);
-        const writerLock = sharedLock?.writerLock ?? null;
-        if (writerLock !== null) {
+        const semaphoreEntry = this.getReader(key);
+        if (
+            semaphoreEntry === "not-found" ||
+            semaphoreEntry === "writer-active"
+        ) {
             return Promise.resolve(false);
         }
-        const readerSemaphore = sharedLock?.readerSemaphore ?? null;
-
-        if (readerSemaphore === null) {
-            return Promise.resolve(false);
-        }
-        const hasSlots = readerSemaphore.slots.size > 0;
-        for (const [slotId, slot] of readerSemaphore.slots) {
-            // Check expiration: if expired, skip force release
-            if (slot.expiration !== null && slot.expiration <= new Date()) {
-                continue;
-            }
-            clearTimeout(slot.timeoutId ?? undefined);
-            readerSemaphore.slots.delete(slotId);
-        }
+        const hasSlots = semaphoreEntry.slots.size > 0;
         this.map.delete(key);
         return Promise.resolve(hasSlots);
     }
 
-    forceReleaseAllReaders(
+    refreshReader(
         key: string,
-        context: IReadableContext,
-    ): Promise<boolean> {
-        return this._forceReleaseAllReaders(key, context);
-    }
-
-    async refreshReader(
-        key: string,
-        lockId: string,
+        slotId: string,
         ttl: TimeSpan,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const sharedLock = this.map.get(key);
-        const writerLock = sharedLock?.writerLock ?? null;
-        if (writerLock !== null) {
+        const semaphoreEntry = this.getReader(key);
+        if (
+            semaphoreEntry === "not-found" ||
+            semaphoreEntry === "writer-active"
+        ) {
             return Promise.resolve(false);
         }
-        const readerSemaphore = sharedLock?.readerSemaphore ?? null;
-
-        if (!readerSemaphore) {
+        const expiratoin = semaphoreEntry.slots.get(slotId);
+        if (expiratoin === undefined) {
             return Promise.resolve(false);
         }
-        const slot = readerSemaphore.slots.get(lockId);
-        if (slot === undefined) {
-            return Promise.resolve(false);
-        }
-        // Check expiration: if expired, cannot refresh
-        if (slot.expiration !== null && slot.expiration <= new Date()) {
-            return Promise.resolve(false);
-        }
-        if (slot.timeoutId === null) {
+        if (expiratoin === null) {
             return Promise.resolve(false);
         }
 
-        clearTimeout(slot.timeoutId);
-        const timeoutId = setTimeout(() => {
-            readerSemaphore.slots.delete(lockId);
-            this.map.set(key, {
-                readerSemaphore,
-                writerLock: null,
-            });
-        }, ttl.toMilliseconds());
-
-        readerSemaphore.slots.set(lockId, {
-            timeoutId,
-            expiration: ttl.toEndDate(),
-        });
-        this.map.set(key, {
-            readerSemaphore,
-            writerLock: null,
-        });
+        semaphoreEntry.slots.set(slotId, ttl.toEndDate());
 
         return Promise.resolve(true);
     }
 
-    async forceRelease(
-        key: string,
-        context: IReadableContext,
-    ): Promise<boolean> {
-        const hasReleasedAllReaders = await this._forceReleaseAllReaders(
-            key,
-            context,
-        );
-        const hasReleasedWriter = await this._forceReleaseWriter(key, context);
-        return hasReleasedAllReaders || hasReleasedWriter;
+    forceRelease(key: string, _context: IReadableContext): Promise<boolean> {
+        const reader = this.getReader(key);
+        const writer = this.getWriter(key);
+        const hasSharedLock =
+            typeof reader !== "string" || typeof writer !== "string";
+        this.map.delete(key);
+
+        return Promise.resolve(hasSharedLock);
     }
 
-    private static extractReaderState(
-        writerLock: MemorySharedWriterLockData | null,
-        readerSemaphore: MemorySharedReaderSemaphoreData | null,
-    ): Option<ISharedLockAdapterState | null> {
-        if (
-            writerLock === null &&
-            readerSemaphore !== null &&
-            readerSemaphore.slots.size === 0
-        ) {
-            return optionSome(null);
+    private getWriterState(key: string): IWriterLockAdapterState | null {
+        const lockEntry = this.getWriter(key);
+        if (lockEntry === "not-found" || lockEntry === "reader-active") {
+            return null;
         }
-        if (
-            writerLock === null &&
-            readerSemaphore !== null &&
-            readerSemaphore.slots.size !== 0
-        ) {
-            return optionSome({
-                writer: null,
-                reader: {
-                    limit: readerSemaphore.limit,
-                    acquiredSlots: new Map(
-                        [...readerSemaphore.slots.entries()].map(
-                            ([key_, value]) =>
-                                [key_, value.expiration] as const,
-                        ),
-                    ),
-                },
-            });
-        }
-
-        return optionNone();
+        return {
+            owner: lockEntry.owner,
+            expiration: lockEntry.expiration,
+        };
     }
 
-    private static extractWriterState_(
-        writerLock: MemorySharedWriterLockData | null,
-        readerSemaphore: MemorySharedReaderSemaphoreData | null,
-    ): Option<ISharedLockAdapterState | null> {
+    private getReaderState(key: string): IReaderSemaphoreAdapterState | null {
+        const semaphoreEntry = this.getReader(key);
         if (
-            readerSemaphore === null &&
-            writerLock !== null &&
-            !writerLock.hasExpiration
+            semaphoreEntry === "not-found" ||
+            semaphoreEntry === "writer-active"
         ) {
-            return optionSome({
-                reader: null,
-                writer: {
-                    owner: writerLock.owner,
-                    expiration: null,
-                },
-            });
+            return null;
         }
-        if (
-            readerSemaphore === null &&
-            writerLock !== null &&
-            writerLock.hasExpiration
-        ) {
-            return optionSome({
-                reader: null,
-                writer: {
-                    owner: writerLock.owner,
-                    expiration: writerLock.expiration,
-                },
-            });
+        if (semaphoreEntry.slots.size === 0) {
+            return null;
         }
-
-        return optionNone();
+        return {
+            limit: semaphoreEntry.limit,
+            acquiredSlots: semaphoreEntry.slots,
+        };
     }
 
-    private static extractActiveWriterState(
-        writerLock: MemorySharedWriterLockData | null,
-        readerSemaphore: MemorySharedReaderSemaphoreData | null,
-    ): Option<ISharedLockAdapterState | null> {
-        const activeWriterStateOption =
-            MemorySharedLockAdapter.extractWriterState_(
-                writerLock,
-                readerSemaphore,
-            );
-        if (activeWriterStateOption.type === OPTION.SOME) {
-            return activeWriterStateOption;
-        }
-
-        if (
-            readerSemaphore === null &&
-            writerLock !== null &&
-            writerLock.hasExpiration &&
-            writerLock.expiration <= new Date()
-        ) {
-            return optionSome(null);
-        }
-
-        return optionNone();
-    }
-
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ISharedLockAdapterState | null> {
-        const sharedLock = this.map.get(key);
-
-        if (sharedLock === undefined) {
+    getState(key: string): Promise<ISharedLockAdapterState | null> {
+        const writerState = this.getWriterState(key);
+        const readerState = this.getReaderState(key);
+        if (writerState === null && readerState === null) {
             return Promise.resolve(null);
         }
-
-        const { writerLock, readerSemaphore } = sharedLock;
-
-        const writerState = MemorySharedLockAdapter.extractReaderState(
-            writerLock,
-            readerSemaphore,
-        );
-        if (writerState.type === OPTION.SOME) {
-            return writerState.value;
-        }
-
-        const readerState = MemorySharedLockAdapter.extractActiveWriterState(
-            writerLock,
-            readerSemaphore,
-        );
-        if (readerState.type === OPTION.SOME) {
-            return readerState.value;
-        }
-
-        throw new UnexpectedError(
-            "Invalid ISharedLockAdapterState, expected either the reader field must be defined or the writer field must be defined, but not both.",
-        );
+        return Promise.resolve({
+            writer: writerState,
+            reader: readerState,
+        });
     }
 }

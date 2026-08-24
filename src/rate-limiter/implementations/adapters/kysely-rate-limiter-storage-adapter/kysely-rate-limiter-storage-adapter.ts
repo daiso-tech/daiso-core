@@ -181,7 +181,7 @@ export class KyselyRateLimiterStorageAdapter<TType>
         this.kysely = kysely;
         this.serde = serde;
     }
-    private _transaction<TValue>(
+    private internalTransaction<TValue>(
         trxFn: InvocableFn<
             [trx: Kysely<KyselyRateLimiterStorageTables>],
             Promise<TValue>
@@ -260,7 +260,7 @@ export class KyselyRateLimiterStorageAdapter<TType>
         >,
         _context: IReadableContext,
     ): Promise<TValue> {
-        return await this._transaction(async (trx) => {
+        return await this.internalTransaction(async (trx) => {
             return await fn(
                 new KyselyRateLimiterStorageAdapterTransaction(trx, this.serde),
             );

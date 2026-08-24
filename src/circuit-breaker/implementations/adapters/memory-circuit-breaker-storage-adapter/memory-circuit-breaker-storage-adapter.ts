@@ -32,7 +32,7 @@ export class MemoryCircuitBreakerStorageAdapter<TType = unknown>
      * ```ts
      * import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
      *
-     * const map = new Map<any, any>();
+     * const map = new Map<string, any>();
      * const circuitBreakerStorageAdapter = new MemoryCircuitBreakerStorageAdapter(map);
      * ```
      */

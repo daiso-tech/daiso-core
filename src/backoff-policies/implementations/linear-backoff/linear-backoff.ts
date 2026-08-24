@@ -55,7 +55,7 @@ export type LinearBackoffSettings = {
      * @internal
      * Should only be used for testing
      */
-    _mathRandom?: () => number;
+    internalMathRandom?: () => number;
 };
 
 /**
@@ -68,7 +68,7 @@ export function resolveLinearBackoffSettings(
         maxDelay = TimeSpan.fromSeconds(60),
         minDelay = TimeSpan.fromMilliseconds(500),
         jitter = 0.5,
-        _mathRandom = Math.random,
+        internalMathRandom = Math.random,
     } = settings;
 
     if (!(minDelay[TO_MILLISECONDS]() > 0)) {
@@ -87,7 +87,7 @@ export function resolveLinearBackoffSettings(
         maxDelay,
         minDelay,
         jitter,
-        _mathRandom,
+        internalMathRandom,
     };
 }
 
@@ -109,7 +109,7 @@ export function linearBackoff(
                 settings = dynamicSettings;
             }
         }
-        const { maxDelay, minDelay, jitter, _mathRandom } =
+        const { maxDelay, minDelay, jitter, internalMathRandom } =
             resolveLinearBackoffSettings(settings);
         const linear = Math.min(
             maxDelay[TO_MILLISECONDS](),
@@ -119,7 +119,7 @@ export function linearBackoff(
             withJitter({
                 jitter,
                 value: linear,
-                randomValue: _mathRandom(),
+                randomValue: internalMathRandom(),
             }),
         );
     };
@@ -135,7 +135,7 @@ export type SerializedLinearBackoffSettings = {
 
     jitter?: number | null;
 
-    _mathRandom?: number;
+    internalMathRandom?: number;
 };
 
 /**
@@ -144,13 +144,13 @@ export type SerializedLinearBackoffSettings = {
 export function serializeLinearBackoffSettings(
     settings: LinearBackoffSettings,
 ): Required<SerializedLinearBackoffSettings> {
-    const { maxDelay, minDelay, jitter, _mathRandom } =
+    const { maxDelay, minDelay, jitter, internalMathRandom } =
         resolveLinearBackoffSettings(settings);
 
     return {
         maxDelay: maxDelay[TO_MILLISECONDS](),
         minDelay: minDelay[TO_MILLISECONDS](),
         jitter,
-        _mathRandom: _mathRandom(),
+        internalMathRandom: internalMathRandom(),
     };
 }

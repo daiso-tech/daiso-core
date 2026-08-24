@@ -61,11 +61,12 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
         }
 
         const isSerdTransformerNameMathcing =
-            value._getSerdeTransformerName() === this.serdeTransformerName;
+            value.internalGetSerdeTransformerName() ===
+            this.serdeTransformerName;
 
         const isAdapterMatching =
             getConstructorName(this.adapter) ===
-            getConstructorName(value._getAdapter());
+            getConstructorName(value.internalGetAdapter());
 
         return isSerdTransformerNameMathcing && isAdapterMatching;
     }
@@ -85,6 +86,6 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
     }
 
     serialize(deserializedValue: SharedLock): ISerializedSharedLock {
-        return SharedLock._serialize(deserializedValue);
+        return SharedLock.internalSerialize(deserializedValue);
     }
 }

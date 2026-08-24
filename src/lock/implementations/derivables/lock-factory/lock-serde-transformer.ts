@@ -60,11 +60,12 @@ export class LockSerdeTransformer implements ISerdeTransformer<
         }
 
         const isSerdTransformerNameMathcing =
-            this.serdeTransformerName === value._getSerdeTransformerName();
+            this.serdeTransformerName ===
+            value.internalGetSerdeTransformerName();
 
         const isAdapterMatching =
             getConstructorName(this.adapter) ===
-            getConstructorName(value._getAdapter());
+            getConstructorName(value.internalGetAdapter());
 
         return isSerdTransformerNameMathcing && isAdapterMatching;
     }
@@ -84,6 +85,6 @@ export class LockSerdeTransformer implements ISerdeTransformer<
     }
 
     serialize(deserializedValue: Lock): ISerializedLock {
-        return Lock._serialize(deserializedValue);
+        return Lock.internalSerialize(deserializedValue);
     }
 }

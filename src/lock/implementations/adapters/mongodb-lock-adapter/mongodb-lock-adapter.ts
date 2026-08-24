@@ -39,7 +39,7 @@ export type MongodbLockAdapterSettings = {
  * IMPORT_PATH: `"eridu-tech/lock/mongodb-lock-adapter"`
  * @group Adapters
  */
-export type MongodbLockDocument = {
+export type MongodbLockEntryDocument = {
     _id: ObjectId;
     key: string;
     owner: string;
@@ -57,7 +57,7 @@ export type MongodbLockDocument = {
 export class MongodbLockAdapter
     implements ILockAdapter, IDeinitizable, IInitizable
 {
-    private readonly collection: Collection<MongodbLockDocument>;
+    private readonly collection: Collection<MongodbLockEntryDocument>;
 
     /**
      * @example
