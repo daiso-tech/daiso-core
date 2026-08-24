@@ -155,7 +155,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         return await this.adapter.getOrAdd(
             key,
             valueToAdd,
-            ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
+            ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
             this.context,
         );
     }
@@ -168,7 +168,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const hasAdded = await this.adapter.add(
             key,
             value,
-            ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
+            ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
             this.context,
         );
 
@@ -194,7 +194,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         const hasUpdated = await this.adapter.put(
             key,
             value,
-            ttl === null ? null : TimeSpan.fromTimeSpan(ttl),
+            ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
             this.context,
         );
         return hasUpdated;
