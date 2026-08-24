@@ -5,7 +5,6 @@
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ISemaphoreFactory } from "@/semaphore/contracts/semaphore-factory.contract.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Internal settings for semaphore slot acquisition operations.
@@ -37,10 +36,10 @@ export type SemaphoreAcquireSettings = {
     limit: number;
 
     /**
-     * Time-to-live duration for the acquired slot.
+     * Expiration date for the acquired slot.
      * `null` means the slot does not expire.
      */
-    ttl: TimeSpan | null;
+    ttl: Date | null;
 };
 
 /**
@@ -117,7 +116,7 @@ export type ISemaphoreAdapter = {
      *
      * @param key - Unique identifier for the semaphore
      * @param slotId - Unique identifier of the slot to refresh
-     * @param ttl - New time-to-live duration to set
+     * @param ttl - New expiration date to set
      * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if refresh succeeded, false if the slot is unexpirable, expired, or doesn't exist
@@ -125,7 +124,7 @@ export type ISemaphoreAdapter = {
     refresh(
         key: string,
         slotId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         context: IReadableContext,
     ): Promise<boolean>;
 
