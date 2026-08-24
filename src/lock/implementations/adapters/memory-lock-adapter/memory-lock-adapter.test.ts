@@ -28,7 +28,7 @@ describe("class: MemoryLockAdapter", () => {
             await adapter.acquire(
                 "expired",
                 "1",
-                TimeSpan.fromMilliseconds(100),
+                TimeSpan.fromMilliseconds(100).toEndDate(),
                 noOpContext,
             );
 
@@ -48,7 +48,7 @@ describe("class: MemoryLockAdapter", () => {
             await adapter.acquire(
                 "unexpired",
                 "3",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 noOpContext,
             );
 
@@ -84,7 +84,7 @@ describe("class: MemoryLockAdapter", () => {
             await adapter.acquire(
                 "unexpired",
                 "2",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 noOpContext,
             );
 
@@ -109,14 +109,14 @@ describe("class: MemoryLockAdapter", () => {
             await adapter.acquire(
                 "a",
                 "2",
-                TimeSpan.fromMilliseconds(100),
+                TimeSpan.fromMilliseconds(100).toEndDate(),
                 noOpContext,
             );
             await adapter.acquire("b", "1", null, noOpContext);
             await adapter.acquire(
                 "b",
                 "2",
-                TimeSpan.fromMilliseconds(100),
+                TimeSpan.fromMilliseconds(100).toEndDate(),
                 noOpContext,
             );
 
