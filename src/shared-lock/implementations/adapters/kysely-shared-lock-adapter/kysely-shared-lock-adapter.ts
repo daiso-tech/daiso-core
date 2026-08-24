@@ -78,14 +78,6 @@ export type KyselySharedLockAdapterSettings = {
      * The Kysely database instance with the required shared-lock schema tables applied.
      */
     kysely: Kysely<KyselySharedLockTables>;
-
-    /**
-     *  @default
-     * ```ts
-     * () => new Date()
-     * ```
-     */
-    currentDate?: () => Date;
 };
 
 /**
@@ -102,7 +94,6 @@ export class KyselySharedLockAdapter
 {
     private readonly kysely: Kysely<KyselySharedLockTables>;
     private readonly isMysql: boolean;
-    private readonly currentDate: () => Date;
 
     /**
      * @example
@@ -123,11 +114,10 @@ export class KyselySharedLockAdapter
      * ```
      */
     constructor(settings: KyselySharedLockAdapterSettings) {
-        const { kysely, currentDate = () => new Date() } = settings;
+        const { kysely } = settings;
         this.kysely = kysely;
         this.isMysql =
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
-        this.currentDate = currentDate;
     }
 
     private transaction<TValue>(
@@ -263,8 +253,10 @@ export class KyselySharedLockAdapter
         }
     }
 
-    private async removeAllExpiredReaders(): Promise<void> {
-        await this.kysely
+    private static async removeAllExpiredReaders(
+        kysely: Kysely<KyselySharedLockTables>,
+    ): Promise<void> {
+        await kysely
             .deleteFrom("readerSemaphore")
             .where((eb) => {
                 const hasUnexpiredSlots = eb
@@ -294,18 +286,20 @@ export class KyselySharedLockAdapter
             .execute();
     }
 
-    private async removeAllExpiredWriters(): Promise<void> {
-        await this.kysely
+    private static async removeAllExpiredWriters(
+        kysely: Kysely<KyselySharedLockTables>,
+    ): Promise<void> {
+        await kysely
             .deleteFrom("writerLock")
-            .where("writerLock.expiration", "<=", this.currentDate().getTime())
+            .where("writerLock.expiration", "<=", Date.now())
             .execute();
     }
 
     async removeAllExpired(): Promise<void> {
-        await Promise.all([
-            this.removeAllExpiredWriters(),
-            this.removeAllExpiredReaders(),
-        ]);
+        await this.transaction(async (trx) => {
+            await KyselySharedLockAdapter.removeAllExpiredWriters(trx);
+            await KyselySharedLockAdapter.removeAllExpiredReaders(trx);
+        });
     }
 
     async acquireWriter(
@@ -325,7 +319,7 @@ export class KyselySharedLockAdapter
             if (existing) {
                 const isExpired =
                     existing.expiration !== null &&
-                    Number(existing.expiration) <= this.currentDate().getTime();
+                    Number(existing.expiration) <= Date.now();
 
                 if (!isExpired && existing.owner !== lockId) {
                     return false;
@@ -339,11 +333,7 @@ export class KyselySharedLockAdapter
                 .where((eb) =>
                     eb.or([
                         eb("readerSemaphoreSlot.expiration", "is", null),
-                        eb(
-                            "readerSemaphoreSlot.expiration",
-                            ">",
-                            this.currentDate().getTime(),
-                        ),
+                        eb("readerSemaphoreSlot.expiration", ">", Date.now()),
                     ]),
                 )
                 .select((eb) => eb.fn.countAll().as("count"))
@@ -394,11 +384,7 @@ export class KyselySharedLockAdapter
                     .where((eb) =>
                         eb.or([
                             eb("writerLock.expiration", "is", null),
-                            eb(
-                                "writerLock.expiration",
-                                ">",
-                                this.currentDate().getTime(),
-                            ),
+                            eb("writerLock.expiration", ">", Date.now()),
                         ]),
                     )
                     .select("writerLock.key")
@@ -425,11 +411,7 @@ export class KyselySharedLockAdapter
             .where((eb) =>
                 eb.or([
                     eb("writerLock.expiration", "is", null),
-                    eb(
-                        "writerLock.expiration",
-                        ">",
-                        this.currentDate().getTime(),
-                    ),
+                    eb("writerLock.expiration", ">", Date.now()),
                 ]),
             )
             .returning("writerLock.key")
@@ -450,11 +432,7 @@ export class KyselySharedLockAdapter
                     .where((eb) =>
                         eb.or([
                             eb("writerLock.expiration", "is", null),
-                            eb(
-                                "writerLock.expiration",
-                                ">",
-                                this.currentDate().getTime(),
-                            ),
+                            eb("writerLock.expiration", ">", Date.now()),
                         ]),
                     )
                     .select("writerLock.key")
@@ -479,11 +457,7 @@ export class KyselySharedLockAdapter
             .where((eb) =>
                 eb.or([
                     eb("writerLock.expiration", "is", null),
-                    eb(
-                        "writerLock.expiration",
-                        ">",
-                        this.currentDate().getTime(),
-                    ),
+                    eb("writerLock.expiration", ">", Date.now()),
                 ]),
             )
             .returning("writerLock.key")
@@ -506,11 +480,7 @@ export class KyselySharedLockAdapter
             .where((eb) =>
                 eb.and([
                     eb("writerLock.expiration", "is not", null),
-                    eb(
-                        "writerLock.expiration",
-                        ">",
-                        this.currentDate().getTime(),
-                    ),
+                    eb("writerLock.expiration", ">", Date.now()),
                 ]),
             )
             .set({ expiration })
@@ -535,7 +505,7 @@ export class KyselySharedLockAdapter
 
         const isExpired =
             writer.expiration !== null &&
-            Number(writer.expiration) <= this.currentDate().getTime();
+            Number(writer.expiration) <= Date.now();
 
         return !isExpired;
     }
@@ -577,11 +547,7 @@ export class KyselySharedLockAdapter
             .where((eb) =>
                 eb.or([
                     eb("readerSemaphoreSlot.expiration", "is", null),
-                    eb(
-                        "readerSemaphoreSlot.expiration",
-                        ">",
-                        this.currentDate().getTime(),
-                    ),
+                    eb("readerSemaphoreSlot.expiration", ">", Date.now()),
                 ]),
             )
             .select((eb) => eb.fn.countAll().as("count"))
@@ -665,7 +631,7 @@ export class KyselySharedLockAdapter
                             eb(
                                 "readerSemaphoreSlot.expiration",
                                 ">",
-                                this.currentDate().getTime(),
+                                Date.now(),
                             ),
                         ]),
                     )
@@ -693,11 +659,7 @@ export class KyselySharedLockAdapter
             .where((eb) =>
                 eb.or([
                     eb("readerSemaphoreSlot.expiration", "is", null),
-                    eb(
-                        "readerSemaphoreSlot.expiration",
-                        ">",
-                        this.currentDate().getTime(),
-                    ),
+                    eb("readerSemaphoreSlot.expiration", ">", Date.now()),
                 ]),
             )
             .returning("readerSemaphoreSlot.id")
@@ -721,7 +683,7 @@ export class KyselySharedLockAdapter
                             eb(
                                 "readerSemaphoreSlot.expiration",
                                 ">",
-                                this.currentDate().getTime(),
+                                Date.now(),
                             ),
                         ]),
                     )
@@ -747,11 +709,7 @@ export class KyselySharedLockAdapter
             .where((eb) =>
                 eb.or([
                     eb("readerSemaphoreSlot.expiration", "is", null),
-                    eb(
-                        "readerSemaphoreSlot.expiration",
-                        ">",
-                        this.currentDate().getTime(),
-                    ),
+                    eb("readerSemaphoreSlot.expiration", ">", Date.now()),
                 ]),
             )
             .returning("readerSemaphoreSlot.id")
@@ -774,11 +732,7 @@ export class KyselySharedLockAdapter
             .where((eb) =>
                 eb.and([
                     eb("readerSemaphoreSlot.expiration", "is not", null),
-                    eb(
-                        "readerSemaphoreSlot.expiration",
-                        ">",
-                        this.currentDate().getTime(),
-                    ),
+                    eb("readerSemaphoreSlot.expiration", ">", Date.now()),
                 ]),
             )
             .set({ expiration })
@@ -796,11 +750,7 @@ export class KyselySharedLockAdapter
                     .where((eb) =>
                         eb.or([
                             eb("writerLock.expiration", "is", null),
-                            eb(
-                                "writerLock.expiration",
-                                ">",
-                                this.currentDate().getTime(),
-                            ),
+                            eb("writerLock.expiration", ">", Date.now()),
                         ]),
                     )
                     .select("writerLock.key")
@@ -825,11 +775,7 @@ export class KyselySharedLockAdapter
             .where((eb) =>
                 eb.or([
                     eb("writerLock.expiration", "is", null),
-                    eb(
-                        "writerLock.expiration",
-                        ">",
-                        this.currentDate().getTime(),
-                    ),
+                    eb("writerLock.expiration", ">", Date.now()),
                 ]),
             )
             .returning("writerLock.key")
@@ -850,7 +796,7 @@ export class KyselySharedLockAdapter
                             eb(
                                 "readerSemaphoreSlot.expiration",
                                 ">",
-                                this.currentDate().getTime(),
+                                Date.now(),
                             ),
                         ]),
                     )
@@ -876,11 +822,7 @@ export class KyselySharedLockAdapter
             .where((eb) =>
                 eb.or([
                     eb("readerSemaphoreSlot.expiration", "is", null),
-                    eb(
-                        "readerSemaphoreSlot.expiration",
-                        ">",
-                        this.currentDate().getTime(),
-                    ),
+                    eb("readerSemaphoreSlot.expiration", ">", Date.now()),
                 ]),
             )
             .returning("readerSemaphoreSlot.id")
@@ -898,10 +840,11 @@ export class KyselySharedLockAdapter
         return writerReleased || readerReleased;
     }
 
-    private async getWriterState(
+    private static async getWriterState(
+        kysely: Kysely<KyselySharedLockTables>,
         key: string,
     ): Promise<IWriterLockAdapterState | null> {
-        const writerRow = await this.kysely
+        const writerRow = await kysely
             .selectFrom("writerLock")
             .where("writerLock.key", "=", key)
             .select(["writerLock.owner", "writerLock.expiration"])
@@ -913,7 +856,7 @@ export class KyselySharedLockAdapter
 
         const isExpired =
             writerRow.expiration !== null &&
-            Number(writerRow.expiration) <= this.currentDate().getTime();
+            Number(writerRow.expiration) <= Date.now();
 
         if (isExpired) {
             return null;
@@ -928,10 +871,11 @@ export class KyselySharedLockAdapter
         };
     }
 
-    private async getReaderState(
+    private static async getReaderState(
+        kysely: Kysely<KyselySharedLockTables>,
         key: string,
     ): Promise<IReaderSemaphoreAdapterState | null> {
-        const semaphore = await this.kysely
+        const semaphore = await kysely
             .selectFrom("readerSemaphore")
             .where("readerSemaphore.key", "=", key)
             .select("readerSemaphore.limit")
@@ -941,7 +885,7 @@ export class KyselySharedLockAdapter
             return null;
         }
 
-        const slots = await this.kysely
+        const slots = await kysely
             .selectFrom("readerSemaphoreSlot")
             .where("readerSemaphoreSlot.key", "=", key)
             .select([
@@ -954,7 +898,7 @@ export class KyselySharedLockAdapter
         for (const slot of slots) {
             if (
                 slot.expiration !== null &&
-                Number(slot.expiration) <= this.currentDate().getTime()
+                Number(slot.expiration) <= Date.now()
             ) {
                 continue;
             }
@@ -980,15 +924,21 @@ export class KyselySharedLockAdapter
         key: string,
         _context: IReadableContext,
     ): Promise<ISharedLockAdapterState | null> {
-        const [writer, reader] = await Promise.all([
-            this.getWriterState(key),
-            this.getReaderState(key),
-        ]);
+        return await this.transaction(async (trx) => {
+            const writer = await KyselySharedLockAdapter.getWriterState(
+                trx,
+                key,
+            );
+            const reader = await KyselySharedLockAdapter.getReaderState(
+                trx,
+                key,
+            );
 
-        if (writer === null && reader === null) {
-            return null;
-        }
+            if (writer === null && reader === null) {
+                return null;
+            }
 
-        return { writer, reader };
+            return { writer, reader };
+        });
     }
 }
