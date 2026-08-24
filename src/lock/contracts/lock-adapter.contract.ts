@@ -5,7 +5,6 @@
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Represents the persistent state of a lock in storage.
@@ -42,7 +41,7 @@ export type ILockAdapter = {
      *
      * @param key - Unique identifier for the lock
      * @param lockId - Unique identifier for this acquirer (becomes the owner)
-     * @param ttl - Time-to-live duration or null for indefinite locks
+     * @param ttl - Expiration date for the lock, or null for an indefinite lock
      * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if lock was successfully acquired, false if already held by another owner
@@ -50,7 +49,7 @@ export type ILockAdapter = {
     acquire(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         context: IReadableContext,
     ): Promise<boolean>;
 
@@ -88,7 +87,7 @@ export type ILockAdapter = {
      *
      * @param key - Unique identifier for the lock
      * @param lockId - Unique identifier of the lock owner
-     * @param ttl - New time-to-live duration to set
+     * @param ttl - New expiration date to set
      * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if refresh succeeded, false if lock is unexpirable, expired, or not owned by lockId
@@ -96,7 +95,7 @@ export type ILockAdapter = {
     refresh(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         context: IReadableContext,
     ): Promise<boolean>;
 
