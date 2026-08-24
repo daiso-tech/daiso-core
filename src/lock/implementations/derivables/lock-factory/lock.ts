@@ -113,7 +113,7 @@ export class Lock implements ILock {
         return await this.adapter.acquire(
             this.internalKey,
             this.lockId,
-            this.internalTtl,
+            this.internalTtl?.toEndDate() ?? null,
             this.context,
         );
     }
@@ -148,7 +148,7 @@ export class Lock implements ILock {
         const hasRefreshed = await this.adapter.refresh(
             this.internalKey,
             this.lockId,
-            TimeSpan.fromTimeSpan(ttl),
+            TimeSpan.fromTimeSpan(ttl).toEndDate(),
             this.context,
         );
         if (hasRefreshed) {
