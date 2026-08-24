@@ -26,7 +26,7 @@ export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
         return Promise.resolve({
             success: true,
             attempt: 1,
-            resetTime: TimeSpan.fromMilliseconds(1),
+            resetTime: TimeSpan.fromMilliseconds(1).toStartDate(),
         });
     }
 
@@ -39,7 +39,7 @@ export class NoOpRateLimiterAdapter implements IRateLimiterAdapter {
             success: true,
             attempt: 1,
             limit,
-            resetTime: TimeSpan.fromMilliseconds(1),
+            resetTime: TimeSpan.fromMilliseconds(1).toStartDate(),
         });
     }
 

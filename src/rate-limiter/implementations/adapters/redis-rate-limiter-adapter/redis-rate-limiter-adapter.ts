@@ -13,7 +13,6 @@ import {
     resolveRateLimiterPolicySettings,
     serializeRateLimiterPolicySettingsEnum,
 } from "@/rate-limiter/implementations/policies/_module.js";
-import { TimeSpan } from "@/time-span/implementations/time-span.js";
 
 import type { Redis, Result } from "ioredis";
 
@@ -199,9 +198,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
         return {
             success: state.success,
             attempt: state.attempt,
-            resetTime: TimeSpan.fromDateRange({
-                end: new Date(state.resetTime),
-            }),
+            resetTime: new Date(state.resetTime),
         };
     }
 
@@ -221,9 +218,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
         return {
             success: state.success,
             attempt: state.attempt,
-            resetTime: TimeSpan.fromDateRange({
-                end: new Date(state.resetTime),
-            }),
+            resetTime: new Date(state.resetTime),
         };
     }
 
