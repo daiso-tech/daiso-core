@@ -313,8 +313,7 @@ export class MongodbSemaphoreAdapter
                                         [
                                             {
                                                 id: slotId,
-                                                expiration:
-                                                    ttl?.toEndDate() ?? null,
+                                                expiration: ttl ?? null,
                                             } satisfies MongodbSemaphoreSlotEntryDocument,
                                         ],
                                     ],
@@ -434,7 +433,7 @@ export class MongodbSemaphoreAdapter
     async refresh(
         key: string,
         slotId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const isExpireableQuery = {
@@ -468,7 +467,7 @@ export class MongodbSemaphoreAdapter
                                         },
                                         then: {
                                             id: "$$slot.id",
-                                            expiration: ttl.toEndDate(),
+                                            expiration: ttl,
                                         },
                                         else: "$$slot",
                                     },

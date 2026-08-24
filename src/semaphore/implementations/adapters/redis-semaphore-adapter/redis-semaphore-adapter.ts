@@ -10,7 +10,6 @@ import type {
     ISemaphoreAdapterState,
     SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * @internal
@@ -399,7 +398,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
             key,
             slotId,
             limit,
-            ttl?.toEndDate().getTime() ?? null,
+            ttl?.getTime() ?? null,
             Date.now(),
         );
         return result === 1;
@@ -433,13 +432,13 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
     async refresh(
         key: string,
         slotId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_semaphore_refresh(
             key,
             slotId,
-            ttl.toEndDate().getTime(),
+            ttl.getTime(),
             Date.now(),
         );
         return result === 1;

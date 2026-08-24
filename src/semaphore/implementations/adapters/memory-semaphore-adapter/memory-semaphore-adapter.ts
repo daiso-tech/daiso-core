@@ -10,7 +10,6 @@ import type {
     ISemaphoreAdapterState,
     SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
 
 /**
@@ -110,7 +109,7 @@ export class MemorySemaphoreAdapter
         if (ttl === null) {
             semaphoreEntry.acquiredSlots.set(slotId, null);
         } else {
-            semaphoreEntry.acquiredSlots.set(slotId, ttl.toEndDate());
+            semaphoreEntry.acquiredSlots.set(slotId, ttl);
         }
 
         return Promise.resolve(true);
@@ -153,7 +152,7 @@ export class MemorySemaphoreAdapter
     refresh(
         key: string,
         slotId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const semaphoreEntry = this.get(key);
@@ -168,7 +167,7 @@ export class MemorySemaphoreAdapter
             return Promise.resolve(false);
         }
 
-        semaphoreEntry.acquiredSlots.set(slotId, ttl.toEndDate());
+        semaphoreEntry.acquiredSlots.set(slotId, ttl);
 
         return Promise.resolve(true);
     }
