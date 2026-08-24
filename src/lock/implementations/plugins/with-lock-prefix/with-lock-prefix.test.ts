@@ -30,13 +30,18 @@ describe("function: withLockPrefix", () => {
             await enhanced.acquire(
                 "myKey",
                 "lockId",
-                TimeSpan.fromSeconds(30),
+                TimeSpan.fromSeconds(30).toEndDate(),
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["acquire"]>
-            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
+            >(
+                `${prefix}myKey`,
+                "lockId",
+                TimeSpan.fromSeconds(30).toEndDate(),
+                context,
+            );
         });
     });
 
@@ -77,13 +82,18 @@ describe("function: withLockPrefix", () => {
             await enhanced.refresh(
                 "myKey",
                 "lockId",
-                TimeSpan.fromSeconds(30),
+                TimeSpan.fromSeconds(30).toEndDate(),
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["refresh"]>
-            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
+            >(
+                `${prefix}myKey`,
+                "lockId",
+                TimeSpan.fromSeconds(30).toEndDate(),
+                context,
+            );
         });
     });
 
