@@ -32,7 +32,7 @@ describe("function: withSemaphorePrefix", () => {
                 key: "myKey",
                 slotId: "slot1",
                 limit: 5,
-                ttl: TimeSpan.fromSeconds(30),
+                ttl: TimeSpan.fromSeconds(30).toEndDate(),
             });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
@@ -42,7 +42,7 @@ describe("function: withSemaphorePrefix", () => {
                 key: `${prefix}myKey`,
                 slotId: "slot1",
                 limit: 5,
-                ttl: TimeSpan.fromSeconds(30),
+                ttl: TimeSpan.fromSeconds(30).toEndDate(),
             });
         });
     });
@@ -84,13 +84,18 @@ describe("function: withSemaphorePrefix", () => {
             await enhanced.refresh(
                 "myKey",
                 "slot1",
-                TimeSpan.fromSeconds(30),
+                TimeSpan.fromSeconds(30).toEndDate(),
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["refresh"]>
-            >(`${prefix}myKey`, "slot1", TimeSpan.fromSeconds(30), context);
+            >(
+                `${prefix}myKey`,
+                "slot1",
+                TimeSpan.fromSeconds(30).toEndDate(),
+                context,
+            );
         });
     });
 
