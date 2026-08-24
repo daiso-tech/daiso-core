@@ -72,21 +72,21 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
                 key: key1,
                 slotId: "1",
                 limit,
-                ttl: expiredTtl,
+                ttl: expiredTtl.toEndDate(),
             });
             await adapter.acquire({
                 context: noOpContext,
                 key: key1,
                 slotId: "2",
                 limit,
-                ttl: expiredTtl,
+                ttl: expiredTtl.toEndDate(),
             });
             await adapter.acquire({
                 context: noOpContext,
                 key: key1,
                 slotId: "3",
                 limit,
-                ttl: expiredTtl,
+                ttl: expiredTtl.toEndDate(),
             });
 
             await adapter.acquire({
@@ -94,21 +94,21 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
                 key: key2,
                 slotId: "1",
                 limit,
-                ttl: expiredTtl,
+                ttl: expiredTtl.toEndDate(),
             });
             await adapter.acquire({
                 context: noOpContext,
                 key: key2,
                 slotId: "2",
                 limit,
-                ttl: expiredTtl,
+                ttl: expiredTtl.toEndDate(),
             });
             await adapter.acquire({
                 context: noOpContext,
                 key: key2,
                 slotId: "3",
                 limit,
-                ttl: expiredTtl,
+                ttl: expiredTtl.toEndDate(),
             });
 
             await adapter.removeAllExpired();

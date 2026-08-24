@@ -153,7 +153,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             await adapter.acquire({
                 context: noOpContext,
                 key,
-                ttl,
+                ttl: ttl.toEndDate(),
                 slotId,
                 limit,
             });
@@ -196,7 +196,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             await adapter.acquire({
                 context: noOpContext,
                 key,
-                ttl: ttl2,
+                ttl: ttl2.toEndDate(),
                 slotId: slotId2,
                 limit,
             });
@@ -229,7 +229,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             await adapter.acquire({
                 context: noOpContext,
                 key,
-                ttl: ttl1,
+                ttl: ttl1.toEndDate(),
                 slotId: slotId1,
                 limit,
             });
@@ -272,7 +272,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             await adapter.acquire({
                 context: noOpContext,
                 key,
-                ttl: ttl1,
+                ttl: ttl1.toEndDate(),
                 slotId: slotId1,
                 limit,
             });
@@ -283,7 +283,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             await adapter.acquire({
                 context: noOpContext,
                 key,
-                ttl: ttl2,
+                ttl: ttl2.toEndDate(),
                 slotId: slotId2,
                 limit,
             });
@@ -318,7 +318,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             await adapter.acquire({
                 context: noOpContext,
                 key,
-                ttl: ttl1,
+                ttl: ttl1.toEndDate(),
                 slotId: slotId1,
                 limit,
             });
@@ -328,7 +328,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             await adapter.acquire({
                 context: noOpContext,
                 key,
-                ttl: ttl2,
+                ttl: ttl2.toEndDate(),
                 slotId: slotId2,
                 limit,
             });
@@ -362,7 +362,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             await adapter.acquire({
                 context: noOpContext,
                 key,
-                ttl: ttl1,
+                ttl: ttl1.toEndDate(),
                 slotId: slotId1,
                 limit,
             });
@@ -372,7 +372,7 @@ describe("class: MongodbSemaphoreAdapter", () => {
             await adapter.acquire({
                 context: noOpContext,
                 key,
-                ttl: ttl2,
+                ttl: ttl2.toEndDate(),
                 slotId: slotId2,
                 limit,
             });
