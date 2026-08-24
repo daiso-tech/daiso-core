@@ -58,13 +58,18 @@ describe("function: withSharedLockPrefix", () => {
             await enhanced.acquireWriter(
                 "myKey",
                 "lockId",
-                TimeSpan.fromSeconds(30),
+                TimeSpan.fromSeconds(30).toEndDate(),
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["acquireWriter"]>
-            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
+            >(
+                `${prefix}myKey`,
+                "lockId",
+                TimeSpan.fromSeconds(30).toEndDate(),
+                context,
+            );
         });
     });
 
@@ -91,13 +96,18 @@ describe("function: withSharedLockPrefix", () => {
             await enhanced.refreshWriter(
                 "myKey",
                 "lockId",
-                TimeSpan.fromSeconds(30),
+                TimeSpan.fromSeconds(30).toEndDate(),
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshWriter"]>
-            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
+            >(
+                `${prefix}myKey`,
+                "lockId",
+                TimeSpan.fromSeconds(30).toEndDate(),
+                context,
+            );
         });
     });
 
@@ -126,7 +136,7 @@ describe("function: withSharedLockPrefix", () => {
                 key: "myKey",
                 lockId: "lock1",
                 limit: 5,
-                ttl: TimeSpan.fromSeconds(30),
+                ttl: TimeSpan.fromSeconds(30).toEndDate(),
             });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
@@ -136,7 +146,7 @@ describe("function: withSharedLockPrefix", () => {
                 key: `${prefix}myKey`,
                 lockId: "lock1",
                 limit: 5,
-                ttl: TimeSpan.fromSeconds(30),
+                ttl: TimeSpan.fromSeconds(30).toEndDate(),
             });
         });
     });
@@ -164,13 +174,18 @@ describe("function: withSharedLockPrefix", () => {
             await enhanced.refreshReader(
                 "myKey",
                 "lockId",
-                TimeSpan.fromSeconds(30),
+                TimeSpan.fromSeconds(30).toEndDate(),
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshReader"]>
-            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
+            >(
+                `${prefix}myKey`,
+                "lockId",
+                TimeSpan.fromSeconds(30).toEndDate(),
+                context,
+            );
         });
     });
 
