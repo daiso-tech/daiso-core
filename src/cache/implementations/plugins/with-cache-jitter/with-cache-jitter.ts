@@ -2,7 +2,6 @@
  * @module Cache
  */
 
-import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { withJitter } from "@/utilities/_module.js";
 
 import type { ICacheAdapter } from "@/cache/contracts/_module.js";
@@ -52,15 +51,15 @@ export function withCacheJitter(
 ): PluginFn<ICacheAdapter> {
     const { defaultJitter = 0.2, internalMathRandom = () => Math.random() } =
         settings;
-    function ttlWithJitter(ttl: TimeSpan | null): TimeSpan | null {
+    function ttlWithJitter(ttl: Date | null): Date | null {
         if (ttl === null) {
             return null;
         }
-        return TimeSpan.fromMilliseconds(
+        return new Date(
             withJitter({
                 jitter: defaultJitter,
                 randomValue: internalMathRandom(),
-                value: ttl.toMilliseconds(),
+                value: ttl.getTime(),
             }),
         );
     }

@@ -30,13 +30,18 @@ describe("function: withCachePrefix", () => {
             await enhanced.add(
                 "myKey",
                 "value",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["add"]>
-            >(`${prefix}myKey`, "value", TimeSpan.fromMinutes(5), context);
+            >(
+                `${prefix}myKey`,
+                "value",
+                TimeSpan.fromMinutes(5).toEndDate(),
+                context,
+            );
         });
     });
     describe("method: get", () => {
@@ -87,13 +92,18 @@ describe("function: withCachePrefix", () => {
             await enhanced.put(
                 "myKey",
                 "value",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["put"]>
-            >(`${prefix}myKey`, "value", TimeSpan.fromMinutes(5), context);
+            >(
+                `${prefix}myKey`,
+                "value",
+                TimeSpan.fromMinutes(5).toEndDate(),
+                context,
+            );
         });
     });
     describe("method: removeByPrefix", () => {
@@ -144,13 +154,18 @@ describe("function: withCachePrefix", () => {
             await enhanced.getOrAdd(
                 "myKey",
                 "value",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["getOrAdd"]>
-            >(`${prefix}myKey`, "value", TimeSpan.fromMinutes(5), context);
+            >(
+                `${prefix}myKey`,
+                "value",
+                TimeSpan.fromMinutes(5).toEndDate(),
+                context,
+            );
         });
     });
 });

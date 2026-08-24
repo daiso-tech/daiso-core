@@ -37,7 +37,7 @@ describe("function: withCacheWriteLock", () => {
             await enhanced.add(
                 "myKey",
                 "value",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
@@ -61,7 +61,7 @@ describe("function: withCacheWriteLock", () => {
             await enhanced.put(
                 "myKey",
                 "value",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
@@ -213,7 +213,7 @@ describe("function: withCacheWriteLock", () => {
             await enhanced.add(
                 "myKey",
                 "value",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
             expect(createSpy).toHaveBeenCalledWith("myKey");

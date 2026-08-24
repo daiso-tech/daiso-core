@@ -39,14 +39,19 @@ describe("function: withCacheSchema", () => {
             await enhanced.add(
                 "myKey",
                 "validValue",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
             expect(validateSpy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["add"]>
-            >("myKey", "validValue", TimeSpan.fromMinutes(5), context);
+            >(
+                "myKey",
+                "validValue",
+                TimeSpan.fromMinutes(5).toEndDate(),
+                context,
+            );
         });
         test("Should throw when input validation fails", async () => {
             const validateSpy = vi.spyOn(
@@ -62,7 +67,7 @@ describe("function: withCacheSchema", () => {
                 enhanced.add(
                     "myKey",
                     "invalidValue",
-                    TimeSpan.fromMinutes(5),
+                    TimeSpan.fromMinutes(5).toEndDate(),
                     context,
                 ),
             ).rejects.toThrow(ValidationError);
@@ -85,7 +90,7 @@ describe("function: withCacheSchema", () => {
             await enhanced.add(
                 "myKey",
                 "validValue",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
@@ -108,14 +113,19 @@ describe("function: withCacheSchema", () => {
             await enhanced.put(
                 "myKey",
                 "validValue",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
             expect(validateSpy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["put"]>
-            >("myKey", "validValue", TimeSpan.fromMinutes(5), context);
+            >(
+                "myKey",
+                "validValue",
+                TimeSpan.fromMinutes(5).toEndDate(),
+                context,
+            );
         });
         test("Should throw when input validation fails", async () => {
             const validateSpy = vi.spyOn(
@@ -131,7 +141,7 @@ describe("function: withCacheSchema", () => {
                 enhanced.put(
                     "myKey",
                     "invalidValue",
-                    TimeSpan.fromMinutes(5),
+                    TimeSpan.fromMinutes(5).toEndDate(),
                     context,
                 ),
             ).rejects.toThrow(ValidationError);
@@ -154,7 +164,7 @@ describe("function: withCacheSchema", () => {
             await enhanced.put(
                 "myKey",
                 "validValue",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
@@ -454,14 +464,19 @@ describe("function: withCacheSchema", () => {
             await enhanced.getOrAdd(
                 "myKey",
                 "validValue",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
             expect(validateSpy).toHaveReturnedTimes(2);
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["getOrAdd"]>
-            >("myKey", "validValue", TimeSpan.fromMinutes(5), context);
+            >(
+                "myKey",
+                "validValue",
+                TimeSpan.fromMinutes(5).toEndDate(),
+                context,
+            );
         });
         test("Should throw when input validation fails", async () => {
             const validateSpy = vi.spyOn(
@@ -477,7 +492,7 @@ describe("function: withCacheSchema", () => {
                 enhanced.getOrAdd(
                     "myKey",
                     "invalidValue",
-                    TimeSpan.fromMinutes(5),
+                    TimeSpan.fromMinutes(5).toEndDate(),
                     context,
                 ),
             ).rejects.toThrow(ValidationError);
@@ -500,7 +515,7 @@ describe("function: withCacheSchema", () => {
             await enhanced.getOrAdd(
                 "myKey",
                 "validValue",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 context,
             );
 
