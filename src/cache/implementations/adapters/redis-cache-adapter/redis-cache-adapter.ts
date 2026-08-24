@@ -118,7 +118,7 @@ export class RedisCacheAdapter<
                 if ttl == -1 then
                     redis.call("set", key, newValue)
                 else
-                    redis.call("set", key, newValue, "PX", ttl)
+                    redis.call("set", key, newValue, "PXAT", ttl)
                 end
                 return newValue
                 `,
@@ -132,7 +132,7 @@ export class RedisCacheAdapter<
         _context: IReadableContext,
     ): Promise<TType> {
         const serializedValue = this.serde.serialize(valueToAdd);
-        const ttlInMs = ttl?.toMilliseconds() ?? -1;
+        const ttlInMs = ttl?.toEndDate().getTime() ?? -1;
         const result = await this.database.eridu_cache_get_or_add(
             key,
             serializedValue,
@@ -196,8 +196,8 @@ export class RedisCacheAdapter<
         const result = await this.database.set(
             key,
             this.serde.serialize(value),
-            "PX",
-            ttl.toMilliseconds(),
+            "PXAT",
+            ttl.toEndDate().getTime(),
             "NX",
         );
         return result === "OK";
@@ -220,8 +220,8 @@ export class RedisCacheAdapter<
         const result = await this.database.set(
             key,
             this.serde.serialize(value),
-            "PX",
-            ttl.toMilliseconds(),
+            "PXAT",
+            ttl.toEndDate().getTime(),
             "GET",
         );
         return result !== null;
