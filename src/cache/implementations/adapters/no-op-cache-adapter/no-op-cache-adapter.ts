@@ -5,7 +5,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * The `NoOpCacheAdapter` will do nothing and is used for easily mocking {@link ICache | `ICache`} for testing.
@@ -18,7 +17,7 @@ export class NoOpCacheAdapter<TType = unknown> implements ICacheAdapter<TType> {
     getOrAdd(
         _key: string,
         valueToAdd: TType,
-        _ttl: TimeSpan | null,
+        _ttl: Date | null,
         _context: IReadableContext,
     ): Promise<TType> {
         return Promise.resolve(valueToAdd);
@@ -38,7 +37,7 @@ export class NoOpCacheAdapter<TType = unknown> implements ICacheAdapter<TType> {
     add(
         _key: string,
         _value: TType,
-        _ttl: TimeSpan | null,
+        _ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
@@ -47,7 +46,7 @@ export class NoOpCacheAdapter<TType = unknown> implements ICacheAdapter<TType> {
     put(
         _key: string,
         _value: TType,
-        _ttl: TimeSpan | null,
+        _ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);

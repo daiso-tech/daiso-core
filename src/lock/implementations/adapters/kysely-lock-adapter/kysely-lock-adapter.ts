@@ -11,7 +11,6 @@ import type {
     ILockAdapter,
     ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type {
     IDeinitizable,
     IInitizable,
@@ -193,7 +192,7 @@ export class KyselyLockAdapter
     async acquire(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         return await this.transaction(async (trx) => {
@@ -213,7 +212,7 @@ export class KyselyLockAdapter
                 }
             }
 
-            const expiration = ttl?.toEndDate().getTime() ?? null;
+            const expiration = ttl?.getTime() ?? null;
 
             await trx
                 .insertInto("lock")
@@ -339,10 +338,10 @@ export class KyselyLockAdapter
     async refresh(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const expiration = ttl.toEndDate().getTime();
+        const expiration = ttl.getTime();
         const result = await this.kysely
             .updateTable("lock")
             .where("lock.key", "=", key)

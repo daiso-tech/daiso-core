@@ -9,7 +9,6 @@ import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ILockFactory,
 } from "@/lock/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * The `NoOpLockAdapter` will do nothing and is used for easily mocking {@link ILockFactory | `ILockFactory`} for testing.
@@ -21,7 +20,7 @@ export class NoOpLockAdapter implements ILockAdapter {
     acquire(
         _key: string,
         _lockId: string,
-        _ttl: TimeSpan | null,
+        _ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
@@ -42,7 +41,7 @@ export class NoOpLockAdapter implements ILockAdapter {
     refresh(
         _key: string,
         _lockId: string,
-        _ttl: TimeSpan,
+        _ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);

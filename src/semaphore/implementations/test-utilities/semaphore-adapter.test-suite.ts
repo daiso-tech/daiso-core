@@ -1,8 +1,6 @@
 /**
  * @module Semaphore
  */
-import { vi } from "vitest";
-
 import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -132,13 +130,14 @@ export function semaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const ttl = TimeSpan.fromMilliseconds(50);
+                const currentDate = new Date();
 
                 await adapter.acquire({
                     context,
                     key,
                     slotId,
                     limit,
-                    ttl,
+                    ttl: ttl.toEndDate(currentDate),
                 });
                 await delayWithBuffer(ttl);
 
@@ -147,7 +146,7 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId,
                     limit,
-                    ttl,
+                    ttl: ttl.toEndDate(currentDate),
                 });
 
                 expect(result).toBe(true);
@@ -228,7 +227,7 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId: slotId2,
                     limit,
-                    ttl: ttl2,
+                    ttl: ttl2.toEndDate(),
                 });
                 await delayWithBuffer(ttl2);
 
@@ -272,20 +271,21 @@ export function semaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const ttl = TimeSpan.fromMilliseconds(50);
+                const currentDate = new Date();
 
                 await adapter.acquire({
                     context,
                     key,
                     slotId,
                     limit,
-                    ttl,
+                    ttl: ttl.toEndDate(currentDate),
                 });
                 const result = await adapter.acquire({
                     context,
                     key,
                     slotId,
                     limit,
-                    ttl,
+                    ttl: ttl.toEndDate(currentDate),
                 });
 
                 expect(result).toBe(true);
@@ -326,6 +326,7 @@ export function semaphoreAdapterTestSuite(
                 const key = "a";
                 const limit = 2;
                 const ttl = TimeSpan.fromMilliseconds(50);
+                const currentDate = new Date();
 
                 const slotId1 = "1";
                 await adapter.acquire({
@@ -333,14 +334,14 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId: slotId1,
                     limit,
-                    ttl,
+                    ttl: ttl.toEndDate(currentDate),
                 });
                 await adapter.acquire({
                     context,
                     key,
                     slotId: slotId1,
                     limit,
-                    ttl,
+                    ttl: ttl.toEndDate(currentDate),
                 });
 
                 const slotId2 = "2";
@@ -349,7 +350,7 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId: slotId2,
                     limit,
-                    ttl,
+                    ttl: ttl.toEndDate(currentDate),
                 });
 
                 expect(result).toBe(true);
@@ -447,7 +448,7 @@ export function semaphoreAdapterTestSuite(
                     context,
                     key,
                     slotId,
-                    ttl,
+                    ttl: ttl.toEndDate(),
                     limit,
                 });
                 await delayWithBuffer(ttl);
@@ -466,7 +467,7 @@ export function semaphoreAdapterTestSuite(
                     context,
                     key,
                     slotId,
-                    ttl,
+                    ttl: ttl.toEndDate(),
                     limit,
                 });
                 const result = await adapter.release(key, slotId, context);
@@ -638,7 +639,7 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId,
                     limit,
-                    ttl,
+                    ttl: ttl.toEndDate(),
                 });
                 await delayWithBuffer(ttl);
 
@@ -711,7 +712,7 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId: slotId2,
                     limit,
-                    ttl: ttl2,
+                    ttl: ttl2.toEndDate(),
                 });
 
                 await adapter.forceReleaseAll(key, context);
@@ -822,7 +823,7 @@ export function semaphoreAdapterTestSuite(
                 const result = await adapter.refresh(
                     noneExistingKey,
                     slotId,
-                    newTtl,
+                    newTtl.toEndDate(),
                     context,
                 );
 
@@ -847,7 +848,7 @@ export function semaphoreAdapterTestSuite(
                 const result = await adapter.refresh(
                     key,
                     noneExistingSlotId,
-                    newTtl,
+                    newTtl.toEndDate(),
                     context,
                 );
 
@@ -858,12 +859,14 @@ export function semaphoreAdapterTestSuite(
                 const slotId = "b";
                 const limit = 2;
                 const ttl = TimeSpan.fromMilliseconds(50);
+                const currentDate = new Date();
+
                 await adapter.acquire({
                     context,
                     key,
                     slotId,
                     limit,
-                    ttl,
+                    ttl: ttl.toEndDate(currentDate),
                 });
                 await delayWithBuffer(ttl);
 
@@ -871,7 +874,7 @@ export function semaphoreAdapterTestSuite(
                 const result = await adapter.refresh(
                     key,
                     slotId,
-                    newTtl,
+                    newTtl.toEndDate(currentDate),
                     context,
                 );
 
@@ -894,7 +897,7 @@ export function semaphoreAdapterTestSuite(
                 const result = await adapter.refresh(
                     key,
                     slotId,
-                    newTtl,
+                    newTtl.toEndDate(),
                     context,
                 );
 
@@ -904,20 +907,21 @@ export function semaphoreAdapterTestSuite(
                 const key = "a";
                 const slotId = "b";
                 const ttl = TimeSpan.fromMilliseconds(50);
+                const currentDate = new Date();
                 const limit = 2;
 
                 await adapter.acquire({
                     context,
                     key,
                     slotId,
-                    ttl,
+                    ttl: ttl.toEndDate(currentDate),
                     limit,
                 });
                 const newTtl = TimeSpan.fromMilliseconds(100);
                 const result = await adapter.refresh(
                     key,
                     slotId,
-                    newTtl,
+                    newTtl.toEndDate(currentDate),
                     context,
                 );
 
@@ -948,7 +952,12 @@ export function semaphoreAdapterTestSuite(
                 });
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
-                await adapter.refresh(key, slotId2, newTtl, context);
+                await adapter.refresh(
+                    key,
+                    slotId2,
+                    newTtl.toEndDate(),
+                    context,
+                );
                 await delayWithBuffer(newTtl);
 
                 const slotId3 = "3";
@@ -976,17 +985,23 @@ export function semaphoreAdapterTestSuite(
                 });
 
                 const ttl2 = TimeSpan.fromMilliseconds(50);
+                const currentDate = new Date();
                 const slotId2 = "2";
                 await adapter.acquire({
                     context,
                     key,
                     slotId: slotId2,
-                    ttl: ttl2,
+                    ttl: ttl2.toEndDate(currentDate),
                     limit,
                 });
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
-                await adapter.refresh(key, slotId2, newTtl, context);
+                await adapter.refresh(
+                    key,
+                    slotId2,
+                    newTtl.toEndDate(currentDate),
+                    context,
+                );
                 await delayWithBuffer(newTtl.divide(2));
 
                 const slotId3 = "3";
@@ -994,7 +1009,7 @@ export function semaphoreAdapterTestSuite(
                     context,
                     key,
                     slotId: slotId3,
-                    ttl: ttl2,
+                    ttl: ttl2.toEndDate(currentDate),
                     limit,
                 });
                 expect(result1).toBe(false);
@@ -1004,7 +1019,7 @@ export function semaphoreAdapterTestSuite(
                     context,
                     key,
                     slotId: slotId3,
-                    ttl: ttl2,
+                    ttl: ttl2.toEndDate(currentDate),
                     limit,
                 });
                 expect(result2).toBe(true);
@@ -1028,7 +1043,7 @@ export function semaphoreAdapterTestSuite(
                     key,
                     limit,
                     slotId,
-                    ttl,
+                    ttl: ttl.toEndDate(),
                 });
                 await delayWithBuffer(ttl);
 
@@ -1136,7 +1151,7 @@ export function semaphoreAdapterTestSuite(
                     key,
                     limit,
                     slotId: slotId2,
-                    ttl: ttl2,
+                    ttl: ttl2.toEndDate(),
                 });
 
                 const state = await adapter.getState(key, context);
@@ -1177,20 +1192,15 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId = "a";
                 const ttl = TimeSpan.fromMinutes(5);
-                let expiration: Date;
-                try {
-                    vi.useFakeTimers();
-                    expiration = ttl.toEndDate();
-                    await adapter.acquire({
-                        context,
-                        key,
-                        limit,
-                        slotId,
-                        ttl,
-                    });
-                } finally {
-                    vi.useRealTimers();
-                }
+                const currentDate = new Date();
+                const expiration = ttl.toEndDate(currentDate);
+                await adapter.acquire({
+                    context,
+                    key,
+                    limit,
+                    slotId,
+                    ttl: ttl.toEndDate(currentDate),
+                });
 
                 const state = await adapter.getState(key, context);
 

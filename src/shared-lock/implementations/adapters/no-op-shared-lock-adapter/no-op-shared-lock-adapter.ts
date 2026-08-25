@@ -10,7 +10,6 @@ import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ISharedLockFactory,
 } from "@/shared-lock/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * The `NoOpSharedLockAdapter` will do nothing and is used for easily mocking {@link ISharedLockFactory | `ISharedLockFactory`} for testing.
@@ -22,7 +21,7 @@ export class NoOpSharedLockAdapter implements ISharedLockAdapter {
     acquireWriter(
         _key: string,
         _lockId: string,
-        _ttl: TimeSpan | null,
+        _ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
@@ -46,7 +45,7 @@ export class NoOpSharedLockAdapter implements ISharedLockAdapter {
     refreshWriter(
         _key: string,
         _lockId: string,
-        _ttl: TimeSpan,
+        _ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
@@ -74,7 +73,7 @@ export class NoOpSharedLockAdapter implements ISharedLockAdapter {
     refreshReader(
         _key: string,
         _lockId: string,
-        _ttl: TimeSpan,
+        _ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);

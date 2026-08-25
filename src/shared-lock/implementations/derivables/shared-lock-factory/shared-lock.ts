@@ -131,7 +131,7 @@ export class SharedLock implements ISharedLock {
             key: this.internalKey,
             lockId: this.lockId,
             limit: this.limit,
-            ttl: this.internalTtl,
+            ttl: this.internalTtl?.toEndDate() ?? null,
         });
     }
 
@@ -173,7 +173,7 @@ export class SharedLock implements ISharedLock {
         const hasRefreshed = await this.adapter.refreshReader(
             this.internalKey,
             this.lockId,
-            TimeSpan.fromTimeSpan(ttl),
+            TimeSpan.fromTimeSpan(ttl).toEndDate(),
             this.context,
         );
         if (hasRefreshed) {
@@ -207,7 +207,7 @@ export class SharedLock implements ISharedLock {
         return await this.adapter.acquireWriter(
             this.internalKey,
             this.lockId,
-            this.internalTtl,
+            this.internalTtl?.toEndDate() ?? null,
             this.context,
         );
     }
@@ -250,7 +250,7 @@ export class SharedLock implements ISharedLock {
         const hasRefreshed = await this.adapter.refreshWriter(
             this.internalKey,
             this.lockId,
-            TimeSpan.fromTimeSpan(ttl),
+            TimeSpan.fromTimeSpan(ttl).toEndDate(),
             this.context,
         );
         if (hasRefreshed) {

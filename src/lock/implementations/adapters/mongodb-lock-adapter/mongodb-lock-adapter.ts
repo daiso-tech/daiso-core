@@ -9,7 +9,6 @@ import type {
     ILockAdapter,
     ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
 
 /**
@@ -138,10 +137,10 @@ export class MongodbLockAdapter
     async acquire(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const expiration = ttl?.toEndDate() ?? null;
+        const expiration = ttl ?? null;
         const isExpiredQuery = {
             $and: [
                 {
@@ -258,7 +257,7 @@ export class MongodbLockAdapter
     async refresh(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const isUnexpiredQuery = {
@@ -282,7 +281,7 @@ export class MongodbLockAdapter
                         expiration: {
                             $cond: {
                                 if: isUnexpiredQuery,
-                                then: ttl.toEndDate(),
+                                then: ttl,
                                 else: "$expiration",
                             },
                         },

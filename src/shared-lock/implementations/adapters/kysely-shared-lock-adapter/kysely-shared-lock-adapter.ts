@@ -14,7 +14,6 @@ import type {
     IWriterLockAdapterState,
     SharedLockAcquireSettings,
 } from "@/shared-lock/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type {
     IDeinitizable,
     IInitizable,
@@ -305,7 +304,7 @@ export class KyselySharedLockAdapter
     async acquireWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         return await this.transaction(async (trx) => {
@@ -344,7 +343,7 @@ export class KyselySharedLockAdapter
                 return false;
             }
 
-            const expiration = ttl?.toEndDate().getTime() ?? null;
+            const expiration = ttl?.getTime() ?? null;
             await trx
                 .insertInto("writerLock")
                 .values({ key, owner: lockId, expiration })
@@ -469,10 +468,10 @@ export class KyselySharedLockAdapter
     async refreshWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const expiration = ttl.toEndDate().getTime();
+        const expiration = ttl.getTime();
         const result = await this.kysely
             .updateTable("writerLock")
             .where("writerLock.key", "=", key)
@@ -560,9 +559,9 @@ export class KyselySharedLockAdapter
         trx: Kysely<KyselySharedLockTables>,
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
     ): Promise<void> {
-        const expiration = ttl?.toEndDate().getTime() ?? null;
+        const expiration = ttl?.getTime() ?? null;
         await trx
             .insertInto("readerSemaphoreSlot")
             .values({ key, id: lockId, expiration })
@@ -721,10 +720,10 @@ export class KyselySharedLockAdapter
     async refreshReader(
         key: string,
         slotId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const expiration = ttl.toEndDate().getTime();
+        const expiration = ttl.getTime();
         const result = await this.kysely
             .updateTable("readerSemaphoreSlot")
             .where("readerSemaphoreSlot.key", "=", key)

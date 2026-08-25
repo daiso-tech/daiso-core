@@ -64,7 +64,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: true,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMilliseconds(1),
+                        resetTime: TimeSpan.fromMilliseconds(1).toEndDate(),
                     };
                     const updateStateSpy = vi
                         .spyOn(adapter, "updateState")
@@ -94,7 +94,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: true,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMilliseconds(1),
+                        resetTime: TimeSpan.fromMilliseconds(1).toEndDate(),
                     };
                     const updateStateSpy = vi
                         .spyOn(adapter, "updateState")
@@ -116,7 +116,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: true,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMilliseconds(1),
+                        resetTime: TimeSpan.fromMilliseconds(1).toEndDate(),
                     };
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve(state),
@@ -146,7 +146,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: true,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMilliseconds(1),
+                        resetTime: TimeSpan.fromMilliseconds(1).toEndDate(),
                     };
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve(state),
@@ -168,7 +168,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: false,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMinutes(5),
+                        resetTime: TimeSpan.fromMinutes(5).toEndDate(),
                     };
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve(state),
@@ -196,7 +196,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: true,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMilliseconds(1),
+                        resetTime: TimeSpan.fromMilliseconds(1).toEndDate(),
                     };
                     const updateStateSpy = vi
                         .spyOn(adapter, "updateState")
@@ -226,7 +226,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: true,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMilliseconds(1),
+                        resetTime: TimeSpan.fromMilliseconds(1).toEndDate(),
                     };
                     const updateStateSpy = vi
                         .spyOn(adapter, "updateState")
@@ -248,7 +248,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: true,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMilliseconds(1),
+                        resetTime: TimeSpan.fromMilliseconds(1).toEndDate(),
                     };
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve(state),
@@ -278,7 +278,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: true,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMilliseconds(1),
+                        resetTime: TimeSpan.fromMilliseconds(1).toEndDate(),
                     };
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve(state),
@@ -300,7 +300,7 @@ describe("class: RateLimiterFactory", () => {
                     const state: IRateLimiterAdapterState = {
                         success: false,
                         attempt: 1,
-                        resetTime: TimeSpan.fromMinutes(5),
+                        resetTime: TimeSpan.fromMinutes(5).toEndDate(),
                     };
                     vi.spyOn(adapter, "updateState").mockImplementation(() =>
                         Promise.resolve(state),
@@ -373,7 +373,7 @@ describe("class: RateLimiterFactory", () => {
                     Promise.resolve({
                         success: true,
                         attempt,
-                        resetTime,
+                        resetTime: resetTime.toEndDate(),
                     } satisfies IRateLimiterAdapterState),
                 );
 
@@ -399,7 +399,7 @@ describe("class: RateLimiterFactory", () => {
                     Promise.resolve({
                         success: false,
                         attempt,
-                        resetTime,
+                        resetTime: resetTime.toEndDate(),
                     } satisfies IRateLimiterAdapterState),
                 );
 

@@ -7,7 +7,6 @@ import { InternalRateLimiterPolicy } from "@/rate-limiter/implementations/adapte
 import { RateLimiterStateManager } from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/rate-limiter-state-manager.js";
 import { RateLimiterStorage } from "@/rate-limiter/implementations/adapters/database-rate-limiter-adapter/rate-limiter-storage.js";
 import { FixedWindowLimiter } from "@/rate-limiter/implementations/policies/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
@@ -110,9 +109,7 @@ export class DatabaseRateLimiterAdapter<
         return {
             success: state.success,
             attempt: state.attempt,
-            resetTime: TimeSpan.fromDateRange({
-                end: state.resetTime,
-            }),
+            resetTime: state.resetTime,
         };
     }
 
@@ -139,9 +136,7 @@ export class DatabaseRateLimiterAdapter<
         return {
             success: state.success,
             attempt: state.attempt,
-            resetTime: TimeSpan.fromDateRange({
-                end: state.resetTime,
-            }),
+            resetTime: state.resetTime,
         };
     }
 

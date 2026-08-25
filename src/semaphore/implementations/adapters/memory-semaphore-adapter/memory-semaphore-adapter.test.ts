@@ -30,7 +30,7 @@ describe("class: MemorySemaphoreAdapter", () => {
                 key: "expired",
                 slotId: "1",
                 limit: 4,
-                ttl: TimeSpan.fromMilliseconds(100),
+                ttl: TimeSpan.fromMilliseconds(100).toEndDate(),
             });
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -51,7 +51,7 @@ describe("class: MemorySemaphoreAdapter", () => {
                 key: "unexpired",
                 slotId: "1",
                 limit: 4,
-                ttl: TimeSpan.fromMinutes(5),
+                ttl: TimeSpan.fromMinutes(5).toEndDate(),
             });
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -100,7 +100,7 @@ describe("class: MemorySemaphoreAdapter", () => {
                 key: "unexpired",
                 slotId: "1",
                 limit: 4,
-                ttl: TimeSpan.fromMinutes(5),
+                ttl: TimeSpan.fromMinutes(5).toEndDate(),
             });
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -123,7 +123,7 @@ describe("class: MemorySemaphoreAdapter", () => {
                 key: "a",
                 slotId: "expired",
                 limit: 4,
-                ttl: TimeSpan.fromMilliseconds(100),
+                ttl: TimeSpan.fromMilliseconds(100).toEndDate(),
             });
             await adapter.acquire({
                 context: noOpContext,

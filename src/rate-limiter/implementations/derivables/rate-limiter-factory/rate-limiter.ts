@@ -6,6 +6,7 @@ import {
     BlockedRateLimiterError,
     RATE_LIMITER_STATE,
 } from "@/rate-limiter/contracts/_module.js";
+import { TimeSpan } from "@/time-span/implementations/time-span.js";
 import {
     callErrorPolicyOnThrow,
     callInvocable,
@@ -120,7 +121,9 @@ export class RateLimiter implements IRateLimiter {
                 usedAttempts: state.attempt,
                 remainingAttempts: this.limit - state.attempt,
                 limit: this.limit,
-                resetAfter: state.resetTime,
+                resetAfter: TimeSpan.fromDateRange({
+                    end: state.resetTime,
+                }),
             } satisfies RateLimiterAllowedState;
         }
 
@@ -129,7 +132,9 @@ export class RateLimiter implements IRateLimiter {
             limit: this.limit,
             totalAttempts: state.attempt,
             exceedAttempts: state.attempt - this.limit,
-            retryAfter: state.resetTime,
+            retryAfter: TimeSpan.fromDateRange({
+                end: state.resetTime,
+            }),
         } satisfies RateLimiterBlockedState;
     }
 

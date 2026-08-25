@@ -5,7 +5,6 @@
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * Represents the persistent state of a writer lock in storage.
@@ -97,10 +96,10 @@ export type SharedLockAcquireSettings = {
     limit: number;
 
     /**
-     * Time-to-live duration for the acquired lock.
+     * Expiration date for the acquired lock.
      * `null` means the lock does not expire.
      */
-    ttl: TimeSpan | null;
+    ttl: Date | null;
 };
 
 /**
@@ -118,7 +117,7 @@ export type ISharedLockAdapter = {
      *
      * @param key - Unique identifier for the shared lock
      * @param lockId - Unique identifier for this acquirer (becomes the owner)
-     * @param ttl - Time-to-live duration or null for indefinite locks
+     * @param ttl - Expiration date for the lock, or null for an indefinite lock
      * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if the writer lock was successfully acquired, false if already held by another owner
@@ -126,7 +125,7 @@ export type ISharedLockAdapter = {
     acquireWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         context: IReadableContext,
     ): Promise<boolean>;
 
@@ -167,7 +166,7 @@ export type ISharedLockAdapter = {
      *
      * @param key - Unique identifier for the shared lock
      * @param lockId - Unique identifier of the lock owner
-     * @param ttl - New time-to-live duration to set
+     * @param ttl - New expiration date to set
      * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if refresh succeeded, false if the lock is unexpirable, expired, or not owned by lockId
@@ -175,7 +174,7 @@ export type ISharedLockAdapter = {
     refreshWriter(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         context: IReadableContext,
     ): Promise<boolean>;
 
@@ -226,7 +225,7 @@ export type ISharedLockAdapter = {
      *
      * @param key - Unique identifier for the shared lock
      * @param slotId - Unique identifier of the reader slot to refresh
-     * @param ttl - New time-to-live duration to set
+     * @param ttl - New expiration date to set
      * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if refresh succeeded, false if the slot is unexpirable, expired, or doesn't exist
@@ -234,7 +233,7 @@ export type ISharedLockAdapter = {
     refreshReader(
         key: string,
         slotId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         context: IReadableContext,
     ): Promise<boolean>;
 

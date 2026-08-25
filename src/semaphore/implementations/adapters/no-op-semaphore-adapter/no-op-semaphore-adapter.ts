@@ -10,7 +10,6 @@ import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ISemaphoreFactory,
 } from "@/semaphore/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 /**
  * The `NoOpSemaphoreAdapter` will do nothing and is used for easily mocking {@link ISemaphoreFactory | `ISemaphoreFactory`} for testing.
@@ -51,7 +50,7 @@ export class NoOpSemaphoreAdapter implements ISemaphoreAdapter {
     refresh(
         _key: string,
         _slotId: string,
-        _ttl: TimeSpan,
+        _ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);

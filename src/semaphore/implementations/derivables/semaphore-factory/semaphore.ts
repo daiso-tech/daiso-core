@@ -119,7 +119,7 @@ export class Semaphore implements ISemaphore {
             key: this.internalKey,
             slotId: this.slotId,
             limit: this.limit,
-            ttl: this.internalTtl,
+            ttl: this.internalTtl?.toEndDate() ?? null,
         });
     }
 
@@ -159,7 +159,7 @@ export class Semaphore implements ISemaphore {
         const hasRefreshed = await this.adapter.refresh(
             this.internalKey,
             this.slotId,
-            TimeSpan.fromTimeSpan(ttl),
+            TimeSpan.fromTimeSpan(ttl).toEndDate(),
             this.context,
         );
         if (hasRefreshed) {

@@ -12,7 +12,6 @@ import type {
     ISemaphoreAdapterState,
     SemaphoreAcquireSettings,
 } from "@/semaphore/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type {
     IDeinitizable,
     IInitizable,
@@ -275,7 +274,7 @@ export class KyselySemaphoreAdapter
             }
 
             // Upsert the slot
-            const expiration = ttl?.toEndDate().getTime() ?? null;
+            const expiration = ttl?.getTime() ?? null;
             await trx
                 .insertInto("semaphoreSlot")
                 .values({ key, id: slotId, expiration })
@@ -394,10 +393,10 @@ export class KyselySemaphoreAdapter
     async refresh(
         key: string,
         slotId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
-        const expiration = ttl.toEndDate().getTime();
+        const expiration = ttl.getTime();
         const result = await this.kysely
             .updateTable("semaphoreSlot")
             .where("semaphoreSlot.key", "=", key)

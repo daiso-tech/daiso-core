@@ -7,7 +7,6 @@ import { NoOpContext } from "@/execution-context/implementations/derivables/exec
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { ValidationError } from "@/utilities/_module.js";
 
 import type { ICacheAdapter } from "@/cache/contracts/_module.js";
@@ -15,6 +14,7 @@ import type { ICacheAdapter } from "@/cache/contracts/_module.js";
 describe("function: withCacheSchema", () => {
     const context = new NoOpContext();
     const adapter = new NoOpCacheAdapter<string>();
+    const currentDate = new Date();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
     const passingSchema = z.string();
     const failingSchema = z.string().min(100);
@@ -36,17 +36,12 @@ describe("function: withCacheSchema", () => {
                 withCacheSchema({ schema: passingSchema }),
             );
 
-            await enhanced.add(
-                "myKey",
-                "validValue",
-                TimeSpan.fromMinutes(5),
-                context,
-            );
+            await enhanced.add("myKey", "validValue", currentDate, context);
 
             expect(validateSpy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["add"]>
-            >("myKey", "validValue", TimeSpan.fromMinutes(5), context);
+            >("myKey", "validValue", currentDate, context);
         });
         test("Should throw when input validation fails", async () => {
             const validateSpy = vi.spyOn(
@@ -59,12 +54,7 @@ describe("function: withCacheSchema", () => {
             );
 
             await expect(
-                enhanced.add(
-                    "myKey",
-                    "invalidValue",
-                    TimeSpan.fromMinutes(5),
-                    context,
-                ),
+                enhanced.add("myKey", "invalidValue", currentDate, context),
             ).rejects.toThrow(ValidationError);
             expect(validateSpy).toHaveBeenCalledOnce();
         });
@@ -82,12 +72,7 @@ describe("function: withCacheSchema", () => {
                 }),
             );
 
-            await enhanced.add(
-                "myKey",
-                "validValue",
-                TimeSpan.fromMinutes(5),
-                context,
-            );
+            await enhanced.add("myKey", "validValue", currentDate, context);
 
             expect(validateSpy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledOnce();
@@ -105,17 +90,12 @@ describe("function: withCacheSchema", () => {
                 withCacheSchema({ schema: passingSchema }),
             );
 
-            await enhanced.put(
-                "myKey",
-                "validValue",
-                TimeSpan.fromMinutes(5),
-                context,
-            );
+            await enhanced.put("myKey", "validValue", currentDate, context);
 
             expect(validateSpy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["put"]>
-            >("myKey", "validValue", TimeSpan.fromMinutes(5), context);
+            >("myKey", "validValue", currentDate, context);
         });
         test("Should throw when input validation fails", async () => {
             const validateSpy = vi.spyOn(
@@ -128,12 +108,7 @@ describe("function: withCacheSchema", () => {
             );
 
             await expect(
-                enhanced.put(
-                    "myKey",
-                    "invalidValue",
-                    TimeSpan.fromMinutes(5),
-                    context,
-                ),
+                enhanced.put("myKey", "invalidValue", currentDate, context),
             ).rejects.toThrow(ValidationError);
             expect(validateSpy).toHaveBeenCalledOnce();
         });
@@ -151,12 +126,7 @@ describe("function: withCacheSchema", () => {
                 }),
             );
 
-            await enhanced.put(
-                "myKey",
-                "validValue",
-                TimeSpan.fromMinutes(5),
-                context,
-            );
+            await enhanced.put("myKey", "validValue", currentDate, context);
 
             expect(validateSpy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledOnce();
@@ -454,14 +424,14 @@ describe("function: withCacheSchema", () => {
             await enhanced.getOrAdd(
                 "myKey",
                 "validValue",
-                TimeSpan.fromMinutes(5),
+                currentDate,
                 context,
             );
 
             expect(validateSpy).toHaveReturnedTimes(2);
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["getOrAdd"]>
-            >("myKey", "validValue", TimeSpan.fromMinutes(5), context);
+            >("myKey", "validValue", currentDate, context);
         });
         test("Should throw when input validation fails", async () => {
             const validateSpy = vi.spyOn(
@@ -477,7 +447,7 @@ describe("function: withCacheSchema", () => {
                 enhanced.getOrAdd(
                     "myKey",
                     "invalidValue",
-                    TimeSpan.fromMinutes(5),
+                    currentDate,
                     context,
                 ),
             ).rejects.toThrow(ValidationError);
@@ -500,7 +470,7 @@ describe("function: withCacheSchema", () => {
             await enhanced.getOrAdd(
                 "myKey",
                 "validValue",
-                TimeSpan.fromMinutes(5),
+                currentDate,
                 context,
             );
 

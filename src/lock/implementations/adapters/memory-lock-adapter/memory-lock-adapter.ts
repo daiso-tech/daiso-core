@@ -9,7 +9,6 @@ import type {
     ILockAdapter,
     ILockAdapterState,
 } from "@/lock/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
 
 /**
@@ -79,7 +78,7 @@ export class MemoryLockAdapter
     acquire(
         key: string,
         lockId: string,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         const existingEntry = this.get(key);
@@ -88,7 +87,7 @@ export class MemoryLockAdapter
         }
         this.map.set(key, {
             owner: lockId,
-            expiration: ttl?.toEndDate() ?? null,
+            expiration: ttl ?? null,
         });
         return Promise.resolve(true);
     }
@@ -121,7 +120,7 @@ export class MemoryLockAdapter
     refresh(
         key: string,
         lockId: string,
-        ttl: TimeSpan,
+        ttl: Date,
         _context: IReadableContext,
     ): Promise<boolean> {
         const lockEntry = this.get(key);
@@ -134,7 +133,7 @@ export class MemoryLockAdapter
         if (lockEntry.expiration === null) {
             return Promise.resolve(false);
         }
-        lockEntry.expiration = ttl.toEndDate();
+        lockEntry.expiration = ttl;
         return Promise.resolve(true);
     }
 

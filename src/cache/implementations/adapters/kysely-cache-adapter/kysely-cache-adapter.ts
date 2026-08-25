@@ -9,7 +9,6 @@ import type { Kysely } from "kysely";
 import type { ICacheAdapter } from "@/cache/contracts/_module.js";
 import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerde } from "@/serde/contracts/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type {
     IDeinitizable,
     IInitizable,
@@ -233,7 +232,7 @@ export class KyselyCacheAdapter<TType = unknown>
     async add(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         return await this.transaction(_context, async (trx) => {
@@ -253,7 +252,7 @@ export class KyselyCacheAdapter<TType = unknown>
             }
 
             const serializedValue = this.serde.serialize(value);
-            const expiration = ttl?.toEndDate().getTime() ?? null;
+            const expiration = ttl?.getTime() ?? null;
 
             await trx
                 .insertInto("cache")
@@ -283,7 +282,7 @@ export class KyselyCacheAdapter<TType = unknown>
     async getOrAdd(
         key: string,
         valueToAdd: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<TType> {
         return await this.transaction(_context, async (trx) => {
@@ -303,7 +302,7 @@ export class KyselyCacheAdapter<TType = unknown>
             }
 
             const serializedValue = this.serde.serialize(valueToAdd);
-            const expiration = ttl?.toEndDate().getTime() ?? null;
+            const expiration = ttl?.getTime() ?? null;
 
             await trx
                 .insertInto("cache")
@@ -333,7 +332,7 @@ export class KyselyCacheAdapter<TType = unknown>
     async put(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         return await this.transaction(_context, async (trx) => {
@@ -352,7 +351,7 @@ export class KyselyCacheAdapter<TType = unknown>
             }
 
             const serializedValue = this.serde.serialize(value);
-            const expiration = ttl?.toEndDate().getTime() ?? null;
+            const expiration = ttl?.getTime() ?? null;
 
             await trx
                 .insertInto("cache")

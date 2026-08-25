@@ -73,19 +73,19 @@ describe("mysql class: KyselyLockAdapter", () => {
             await adapter.acquire(
                 "a",
                 "owner",
-                TimeSpan.fromMilliseconds(-1),
+                TimeSpan.fromMilliseconds(-1).toEndDate(),
                 noOpContext,
             );
             await adapter.acquire(
                 "b",
                 "owner",
-                TimeSpan.fromMilliseconds(-1),
+                TimeSpan.fromMilliseconds(-1).toEndDate(),
                 noOpContext,
             );
             await adapter.acquire(
                 "c",
                 "owner",
-                TimeSpan.fromMinutes(5),
+                TimeSpan.fromMinutes(5).toEndDate(),
                 noOpContext,
             );
 

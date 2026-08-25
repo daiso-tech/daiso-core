@@ -149,7 +149,7 @@ export function fixedWindowLimiterTestSuite(
                 expect(state).toEqual({
                     success: true,
                     attempt: 3,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return AllowedState attempt when 4 attempts occurs during window time", async () => {
@@ -163,7 +163,7 @@ export function fixedWindowLimiterTestSuite(
                 expect(state).toEqual({
                     success: true,
                     attempt: 4,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return null when 4 attempts occurs during window time and resetTime is awaited", async () => {
@@ -172,7 +172,11 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(KEY, LIMIT, context);
 
                 const state1 = await adapter.updateState(KEY, LIMIT, context);
-                await delayWithBuffer(state1.resetTime);
+                await delayWithBuffer(
+                    TimeSpan.fromDateRange({
+                        end: state1.resetTime,
+                    }),
+                );
 
                 const state2 = await adapter.getState(KEY, context);
                 expect(state2).toBeNull();
@@ -189,7 +193,7 @@ export function fixedWindowLimiterTestSuite(
                 expect(state).toEqual({
                     success: false,
                     attempt: 1,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return BlockedState attempt when 6 attempts occurs during window time", async () => {
@@ -205,7 +209,7 @@ export function fixedWindowLimiterTestSuite(
                 expect(state).toEqual({
                     success: false,
                     attempt: 2,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return null when 6 attempts occurs during window time and resetTime is awaited", async () => {
@@ -216,7 +220,11 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(KEY, LIMIT, context);
 
                 const state1 = await adapter.updateState(KEY, LIMIT, context);
-                await delayWithBuffer(state1.resetTime);
+                await delayWithBuffer(
+                    TimeSpan.fromDateRange({
+                        end: state1.resetTime,
+                    }),
+                );
 
                 const state2 = await adapter.getState(KEY, context);
                 expect(state2).toBeNull();
@@ -232,7 +240,7 @@ export function fixedWindowLimiterTestSuite(
                 expect(state).toEqual({
                     success: true,
                     attempt: 3,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return AllowedState with incremented attempt when 4 attempts occurs during window time", async () => {
@@ -245,7 +253,7 @@ export function fixedWindowLimiterTestSuite(
                 expect(state).toEqual({
                     success: true,
                     attempt: 4,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return reseted AllowedState when 4 attempts occurs during window time and resetTime is awaited", async () => {
@@ -254,13 +262,17 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(KEY, LIMIT, context);
 
                 const state1 = await adapter.updateState(KEY, LIMIT, context);
-                await delayWithBuffer(state1.resetTime);
+                await delayWithBuffer(
+                    TimeSpan.fromDateRange({
+                        end: state1.resetTime,
+                    }),
+                );
 
                 const state2 = await adapter.updateState(KEY, LIMIT, context);
                 expect(state2).toEqual({
                     success: true,
                     attempt: 1,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return BlockedState when 5 attempts occurs during window time", async () => {
@@ -274,7 +286,7 @@ export function fixedWindowLimiterTestSuite(
                 expect(state).toEqual({
                     success: false,
                     attempt: 1,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return BlockedState with incremented attempt when 6 attempts occurs during window time", async () => {
@@ -289,7 +301,7 @@ export function fixedWindowLimiterTestSuite(
                 expect(state).toEqual({
                     success: false,
                     attempt: 2,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
             test("Should return reseted AllowedState when 6 attempts occurs during window time and resetTime is awaited", async () => {
@@ -300,13 +312,17 @@ export function fixedWindowLimiterTestSuite(
                 await adapter.updateState(KEY, LIMIT, context);
 
                 const state1 = await adapter.updateState(KEY, LIMIT, context);
-                await delayWithBuffer(state1.resetTime);
+                await delayWithBuffer(
+                    TimeSpan.fromDateRange({
+                        end: state1.resetTime,
+                    }),
+                );
 
                 const state2 = await adapter.updateState(KEY, LIMIT, context);
                 expect(state2).toEqual({
                     success: true,
                     attempt: 1,
-                    resetTime: expect.any(TimeSpan) as TimeSpan,
+                    resetTime: expect.any(Date) as Date,
                 } satisfies IRateLimiterAdapterState);
             });
         });

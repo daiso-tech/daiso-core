@@ -6,7 +6,6 @@ import { withLockPrefix } from "@/lock/implementations/plugins/with-lock-prefix/
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 import type { ILockAdapter } from "@/lock/contracts/_module.js";
 
@@ -14,6 +13,7 @@ describe("function: withLockPrefix", () => {
     const context = new NoOpContext();
     const adapter = new NoOpLockAdapter();
     const prefix = "test-prefix:";
+    const currentDate = new Date();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
     beforeEach(() => {
@@ -27,16 +27,11 @@ describe("function: withLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.acquire(
-                "myKey",
-                "lockId",
-                TimeSpan.fromSeconds(30),
-                context,
-            );
+            await enhanced.acquire("myKey", "lockId", currentDate, context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["acquire"]>
-            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
+            >(`${prefix}myKey`, "lockId", currentDate, context);
         });
     });
 
@@ -74,16 +69,11 @@ describe("function: withLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withLockPrefix(prefix));
 
-            await enhanced.refresh(
-                "myKey",
-                "lockId",
-                TimeSpan.fromSeconds(30),
-                context,
-            );
+            await enhanced.refresh("myKey", "lockId", currentDate, context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ILockAdapter["refresh"]>
-            >(`${prefix}myKey`, "lockId", TimeSpan.fromSeconds(30), context);
+            >(`${prefix}myKey`, "lockId", currentDate, context);
         });
     });
 

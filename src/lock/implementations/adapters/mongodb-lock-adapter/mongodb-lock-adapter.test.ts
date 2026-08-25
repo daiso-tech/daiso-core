@@ -142,7 +142,7 @@ describe("class: MongodbLockAdapter", () => {
             const ttl = TimeSpan.fromMinutes(5);
             const expiration = ttl.toEndDate();
 
-            await adapter.acquire(key, lockId, ttl, noOpContext);
+            await adapter.acquire(key, lockId, ttl.toEndDate(), noOpContext);
 
             const doc = await collection.findOne({
                 key,

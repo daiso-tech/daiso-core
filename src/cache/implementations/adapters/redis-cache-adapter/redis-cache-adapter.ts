@@ -14,7 +14,6 @@ import type { IReadableContext } from "@/execution-context/contracts/_module.js"
 import type { ISerde } from "@/serde/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
-import type { TimeSpan } from "@/time-span/implementations/_module.js";
 
 declare module "ioredis" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -128,11 +127,11 @@ export class RedisCacheAdapter<
     async getOrAdd(
         key: string,
         valueToAdd: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<TType> {
         const serializedValue = this.serde.serialize(valueToAdd);
-        const ttlInMs = ttl?.toEndDate().getTime() ?? -1;
+        const ttlInMs = ttl?.getTime() ?? -1;
         const result = await this.database.eridu_cache_get_or_add(
             key,
             serializedValue,
@@ -182,7 +181,7 @@ export class RedisCacheAdapter<
     async add(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         if (ttl === null) {
@@ -197,7 +196,7 @@ export class RedisCacheAdapter<
             key,
             this.serde.serialize(value),
             "PXAT",
-            ttl.toEndDate().getTime(),
+            ttl.getTime(),
             "NX",
         );
         return result === "OK";
@@ -206,7 +205,7 @@ export class RedisCacheAdapter<
     async put(
         key: string,
         value: TType,
-        ttl: TimeSpan | null,
+        ttl: Date | null,
         _context: IReadableContext,
     ): Promise<boolean> {
         if (ttl === null) {
@@ -221,7 +220,7 @@ export class RedisCacheAdapter<
             key,
             this.serde.serialize(value),
             "PXAT",
-            ttl.toEndDate().getTime(),
+            ttl.getTime(),
             "GET",
         );
         return result !== null;
