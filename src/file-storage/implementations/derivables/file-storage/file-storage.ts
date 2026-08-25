@@ -2,8 +2,6 @@
  * @module FileStorage
  */
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
@@ -11,7 +9,6 @@ import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { CORE, resolveOneOrMore } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     FileStorageAdapterVariants,
     IFile,
@@ -77,18 +74,6 @@ export type FileStorageSettingsBase = {
      * @default ""
      */
     serdeTransformerName?: string;
-
-    /**
-     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
 };
 
 /**
@@ -121,7 +106,6 @@ export class FileStorage implements IFileStorage {
     private readonly defaultContentEncoding: string | null;
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
-    private readonly context: IReadableContext;
 
     /**
      * @example
@@ -149,10 +133,8 @@ export class FileStorage implements IFileStorage {
             defaultContentEncoding = null,
             defaultContentLanguage = null,
             urlAdapter = {},
-            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.context = context;
         this.originalAdapter = adapter;
         this.defaultContentDisposition = defaultContentDisposition;
         this.defaultContentEncoding = defaultContentEncoding;
@@ -166,7 +148,6 @@ export class FileStorage implements IFileStorage {
 
     private registerToSerde(): void {
         const transformer = new FileSerdeTransformer({
-            context: this.context,
             originalAdapter: this.originalAdapter,
             defaultCacheControl: this.defaultCacheControl,
             defaultContentDisposition: this.defaultContentDisposition,
@@ -182,7 +163,6 @@ export class FileStorage implements IFileStorage {
 
     create(key: string): IFile {
         return new File({
-            context: this.context,
             originalAdapter: this.originalAdapter,
             defaultCacheControl: this.defaultCacheControl,
             defaultContentDisposition: this.defaultContentDisposition,
@@ -196,13 +176,13 @@ export class FileStorage implements IFileStorage {
     }
 
     async clear(): Promise<void> {
-        await this.adapter.removeByPrefix("", this.context);
+        await this.adapter.removeByPrefix("");
     }
 
     async removeMany(files: Array<IFile>): Promise<boolean> {
         const keys = files.map((file) => {
             return file.key;
         });
-        return await this.adapter.removeMany(keys, this.context);
+        return await this.adapter.removeMany(keys);
     }
 }
