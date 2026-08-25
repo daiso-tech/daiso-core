@@ -101,16 +101,12 @@ export function withEventBusSchema(
         enhance(
             adapter,
             "dispatch",
-            async ({ args: [eventName, eventData, context], next }) => {
+            async ({ args: [eventName, eventData], next }) => {
                 const schema = eventMapSchema[eventName];
                 if (schema !== undefined) {
-                    return next([
-                        eventName,
-                        await validate(schema, eventData),
-                        context,
-                    ]);
+                    return next([eventName, await validate(schema, eventData)]);
                 }
-                return next([eventName, eventData, context]);
+                return next([eventName, eventData]);
             },
         );
 
@@ -118,7 +114,7 @@ export function withEventBusSchema(
             enhance(
                 adapter,
                 "addListener",
-                async ({ args: [eventName, listener, context], next }) => {
+                async ({ args: [eventName, listener], next }) => {
                     const schema = eventMapSchema[eventName];
                     if (schema !== undefined) {
                         const wrappedListener: EventListenerFn<
@@ -126,9 +122,9 @@ export function withEventBusSchema(
                         > = async (event) => {
                             return listener(await validate(schema, event));
                         };
-                        return next([eventName, wrappedListener, context]);
+                        return next([eventName, wrappedListener]);
                     }
-                    return next([eventName, listener, context]);
+                    return next([eventName, listener]);
                 },
             );
         }
