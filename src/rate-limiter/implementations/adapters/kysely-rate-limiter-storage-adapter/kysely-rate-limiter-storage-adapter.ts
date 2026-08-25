@@ -6,7 +6,6 @@ import { MysqlAdapter } from "kysely";
 
 import type { Kysely } from "kysely";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IRateLimiterData,
     IRateLimiterStorageAdapter,
@@ -79,12 +78,7 @@ class KyselyRateLimiterStorageAdapterTransaction<
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    async upsert(
-        key: string,
-        state: TType,
-        expiration: Date,
-        _context: IReadableContext,
-    ): Promise<void> {
+    async upsert(key: string, state: TType, expiration: Date): Promise<void> {
         const expirationAsMs = expiration.getTime();
         const serializedState = this.serde.serialize(state);
         await this.kysely
@@ -113,10 +107,7 @@ class KyselyRateLimiterStorageAdapterTransaction<
             .execute();
     }
 
-    async find(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<IRateLimiterData<TType> | null> {
+    async find(key: string): Promise<IRateLimiterData<TType> | null> {
         return await find(this.kysely, this.serde, key);
     }
 }
@@ -258,7 +249,6 @@ export class KyselyRateLimiterStorageAdapter<TType>
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
-        _context: IReadableContext,
     ): Promise<TValue> {
         return await this.internalTransaction(async (trx) => {
             return await fn(
@@ -267,14 +257,11 @@ export class KyselyRateLimiterStorageAdapter<TType>
         });
     }
 
-    async find(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<IRateLimiterData<TType> | null> {
+    async find(key: string): Promise<IRateLimiterData<TType> | null> {
         return await find(this.kysely, this.serde, key);
     }
 
-    async remove(key: string, _context: IReadableContext): Promise<void> {
+    async remove(key: string): Promise<void> {
         await this.kysely
             .deleteFrom("rateLimiter")
             .where("rateLimiter.key", "=", key)

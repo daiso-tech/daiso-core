@@ -5,7 +5,6 @@
 import { RATE_LIMITER_STATE } from "@/rate-limiter/contracts/_module.js";
 
 import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IRateLimiterData,
     IRateLimiterStorageAdapter,
@@ -38,7 +37,6 @@ export type IRateLimiterStorageState = {
  * @internal
  */
 export type AtomicUpdateArgs<TMetrics> = {
-    context: IReadableContext;
     key: string;
     update: InvocableFn<
         [currentState: AllRateLimiterState<TMetrics>],
@@ -96,7 +94,7 @@ export class RateLimiterStorage<TMetrics = unknown> {
         const currentDate = new Date();
         const state = await this.adapter.transaction(async (trx) => {
             let currentState = RateLimiterStorage.resolveStorageData(
-                await trx.find(args.key, args.context),
+                await trx.find(args.key),
             );
             if (currentState === null) {
                 currentState = this.rateLimiterPolicy.initialState(currentDate);
@@ -111,20 +109,16 @@ export class RateLimiterStorage<TMetrics = unknown> {
                     backoffPolicy: this.backoffPolicy,
                     currentDate,
                 }),
-                args.context,
             );
 
             return newState;
-        }, args.context);
+        });
         return this.toAdapterState(state);
     }
 
-    async find(
-        context: IReadableContext,
-        key: string,
-    ): Promise<IRateLimiterStorageState | null> {
+    async find(key: string): Promise<IRateLimiterStorageState | null> {
         const state = RateLimiterStorage.resolveStorageData(
-            await this.adapter.find(key, context),
+            await this.adapter.find(key),
         );
         if (state === null) {
             return null;
@@ -132,7 +126,7 @@ export class RateLimiterStorage<TMetrics = unknown> {
         return this.toAdapterState(state);
     }
 
-    async remove(context: IReadableContext, key: string): Promise<void> {
-        await this.adapter.remove(key, context);
+    async remove(key: string): Promise<void> {
+        await this.adapter.remove(key);
     }
 }
