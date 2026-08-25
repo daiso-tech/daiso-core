@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
 import { withFileStorageInferContentTypeOnWrite } from "@/file-storage/implementations/plugins/with-file-storage-infer-content-type-on-write/with-file-storage-infer-content-type-on-write.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -13,7 +12,6 @@ import type {
 } from "@/file-storage/contracts/_module.js";
 
 describe("function: withFileStorageInferContentTypeOnWrite", () => {
-    const context = new NoOpContext();
     const adapter = new NoOpFileStorageAdapter();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
@@ -30,27 +28,19 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.getSignedDownloadUrl(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "application/octet-stream",
-                    contentDisposition: null,
-                },
-                context,
-            );
+            await enhanced.getSignedDownloadUrl("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: "application/octet-stream",
+                contentDisposition: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedDownloadUrl"]>
-            >(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "text/plain",
-                    contentDisposition: null,
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: "text/plain",
+                contentDisposition: null,
+            });
         });
         test("Should keep a null content type", async () => {
             const spy = vi.spyOn(adapter, "getSignedDownloadUrl");
@@ -60,27 +50,19 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.getSignedDownloadUrl(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                    contentDisposition: null,
-                },
-                context,
-            );
+            await enhanced.getSignedDownloadUrl("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: null,
+                contentDisposition: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedDownloadUrl"]>
-            >(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                    contentDisposition: null,
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: null,
+                contentDisposition: null,
+            });
         });
         test("Should keep the provided content type when the extension is unknown", async () => {
             const spy = vi.spyOn(adapter, "getSignedDownloadUrl");
@@ -97,20 +79,15 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                     contentType: "application/octet-stream",
                     contentDisposition: null,
                 },
-                context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedDownloadUrl"]>
-            >(
-                "folder/file.unknownExtension",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "application/octet-stream",
-                    contentDisposition: null,
-                },
-                context,
-            );
+            >("folder/file.unknownExtension", {
+                expirationInSeconds: 3600,
+                contentType: "application/octet-stream",
+                contentDisposition: null,
+            });
         });
         test("Should not infer the content type when inference is disabled", async () => {
             const spy = vi.spyOn(adapter, "getSignedDownloadUrl");
@@ -122,27 +99,19 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 }),
             );
 
-            await enhanced.getSignedDownloadUrl(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "application/octet-stream",
-                    contentDisposition: null,
-                },
-                context,
-            );
+            await enhanced.getSignedDownloadUrl("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: "application/octet-stream",
+                contentDisposition: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedDownloadUrl"]>
-            >(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "application/octet-stream",
-                    contentDisposition: null,
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: "application/octet-stream",
+                contentDisposition: null,
+            });
         });
     });
     describe("method: getSignedUploadUrl", () => {
@@ -154,25 +123,17 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.getSignedUploadUrl(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "application/octet-stream",
-                },
-                context,
-            );
+            await enhanced.getSignedUploadUrl("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: "application/octet-stream",
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedUploadUrl"]>
-            >(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "text/plain",
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: "text/plain",
+            });
         });
         test("Should keep a null content type", async () => {
             const spy = vi.spyOn(adapter, "getSignedUploadUrl");
@@ -182,25 +143,17 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.getSignedUploadUrl(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                },
-                context,
-            );
+            await enhanced.getSignedUploadUrl("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedUploadUrl"]>
-            >(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: null,
+            });
         });
         test("Should keep the provided content type when the extension is unknown", async () => {
             const spy = vi.spyOn(adapter, "getSignedUploadUrl");
@@ -210,25 +163,17 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.getSignedUploadUrl(
-                "folder/file.unknownExtension",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "application/octet-stream",
-                },
-                context,
-            );
+            await enhanced.getSignedUploadUrl("folder/file.unknownExtension", {
+                expirationInSeconds: 3600,
+                contentType: "application/octet-stream",
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedUploadUrl"]>
-            >(
-                "folder/file.unknownExtension",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "application/octet-stream",
-                },
-                context,
-            );
+            >("folder/file.unknownExtension", {
+                expirationInSeconds: 3600,
+                contentType: "application/octet-stream",
+            });
         });
         test("Should not infer the content type when inference is disabled", async () => {
             const spy = vi.spyOn(adapter, "getSignedUploadUrl");
@@ -240,25 +185,17 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 }),
             );
 
-            await enhanced.getSignedUploadUrl(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "application/octet-stream",
-                },
-                context,
-            );
+            await enhanced.getSignedUploadUrl("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: "application/octet-stream",
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedUploadUrl"]>
-            >(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: "application/octet-stream",
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: "application/octet-stream",
+            });
         });
     });
     describe("method: add", () => {
@@ -279,18 +216,14 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.add("folder/file.txt", content, context);
+            await enhanced.add("folder/file.txt", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["add"]>
-            >(
-                "folder/file.txt",
-                {
-                    ...content,
-                    contentType: "text/plain",
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                ...content,
+                contentType: "text/plain",
+            });
         });
         test("Should keep the provided content type when the extension is unknown", async () => {
             const spy = vi.spyOn(adapter, "add");
@@ -309,15 +242,11 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.add(
-                "folder/file.unknownExtension",
-                content,
-                context,
-            );
+            await enhanced.add("folder/file.unknownExtension", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["add"]>
-            >("folder/file.unknownExtension", content, context);
+            >("folder/file.unknownExtension", content);
         });
     });
     describe("method: addStream", () => {
@@ -347,18 +276,14 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.addStream("folder/file.txt", content, context);
+            await enhanced.addStream("folder/file.txt", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["addStream"]>
-            >(
-                "folder/file.txt",
-                {
-                    ...content,
-                    contentType: "text/plain",
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                ...content,
+                contentType: "text/plain",
+            });
         });
         test("Should keep the provided content type when the extension is unknown", async () => {
             const spy = vi.spyOn(adapter, "addStream");
@@ -386,15 +311,11 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.addStream(
-                "folder/file.unknownExtension",
-                content,
-                context,
-            );
+            await enhanced.addStream("folder/file.unknownExtension", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["addStream"]>
-            >("folder/file.unknownExtension", content, context);
+            >("folder/file.unknownExtension", content);
         });
     });
     describe("method: update", () => {
@@ -415,18 +336,14 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.update("folder/file.txt", content, context);
+            await enhanced.update("folder/file.txt", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["update"]>
-            >(
-                "folder/file.txt",
-                {
-                    ...content,
-                    contentType: "text/plain",
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                ...content,
+                contentType: "text/plain",
+            });
         });
         test("Should keep the provided content type when the extension is unknown", async () => {
             const spy = vi.spyOn(adapter, "update");
@@ -445,15 +362,11 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.update(
-                "folder/file.unknownExtension",
-                content,
-                context,
-            );
+            await enhanced.update("folder/file.unknownExtension", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["update"]>
-            >("folder/file.unknownExtension", content, context);
+            >("folder/file.unknownExtension", content);
         });
     });
     describe("method: updateStream", () => {
@@ -483,18 +396,14 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.updateStream("folder/file.txt", content, context);
+            await enhanced.updateStream("folder/file.txt", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["updateStream"]>
-            >(
-                "folder/file.txt",
-                {
-                    ...content,
-                    contentType: "text/plain",
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                ...content,
+                contentType: "text/plain",
+            });
         });
         test("Should keep the provided content type when the extension is unknown", async () => {
             const spy = vi.spyOn(adapter, "updateStream");
@@ -525,12 +434,11 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
             await enhanced.updateStream(
                 "folder/file.unknownExtension",
                 content,
-                context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["updateStream"]>
-            >("folder/file.unknownExtension", content, context);
+            >("folder/file.unknownExtension", content);
         });
     });
     describe("method: put", () => {
@@ -551,18 +459,14 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.put("folder/file.txt", content, context);
+            await enhanced.put("folder/file.txt", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["put"]>
-            >(
-                "folder/file.txt",
-                {
-                    ...content,
-                    contentType: "text/plain",
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                ...content,
+                contentType: "text/plain",
+            });
         });
         test("Should keep the provided content type when the extension is unknown", async () => {
             const spy = vi.spyOn(adapter, "put");
@@ -581,15 +485,11 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 withFileStorageInferContentTypeOnWrite(),
             );
 
-            await enhanced.put(
-                "folder/file.unknownExtension",
-                content,
-                context,
-            );
+            await enhanced.put("folder/file.unknownExtension", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["put"]>
-            >("folder/file.unknownExtension", content, context);
+            >("folder/file.unknownExtension", content);
         });
     });
     describe("method: putStream", () => {
@@ -619,18 +519,14 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.putStream("folder/file.txt", content, context);
+            await enhanced.putStream("folder/file.txt", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["putStream"]>
-            >(
-                "folder/file.txt",
-                {
-                    ...content,
-                    contentType: "text/plain",
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                ...content,
+                contentType: "text/plain",
+            });
         });
         test("Should keep the provided content type when the extension is unknown", async () => {
             const spy = vi.spyOn(adapter, "putStream");
@@ -658,15 +554,11 @@ describe("function: withFileStorageInferContentTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.putStream(
-                "folder/file.unknownExtension",
-                content,
-                context,
-            );
+            await enhanced.putStream("folder/file.unknownExtension", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["putStream"]>
-            >("folder/file.unknownExtension", content, context);
+            >("folder/file.unknownExtension", content);
         });
     });
 });

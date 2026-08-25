@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { InvalidKeyFileError } from "@/file-storage/contracts/_module.js";
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
 import { withFileStorageKeyValidator } from "@/file-storage/implementations/plugins/with-file-storage-key-validator/with-file-storage-key-validator.js";
@@ -15,7 +14,6 @@ import type {
 import type { InvocableFn } from "@/utilities/_module.js";
 
 describe("function: withFileStorageKeyValidator", () => {
-    const context = new NoOpContext();
     const adapter = new NoOpFileStorageAdapter();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
     const succeedingKeyValidator = vi
@@ -38,11 +36,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.getPublicUrl("folder/file.txt", context);
+            await enhanced.getPublicUrl("folder/file.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getPublicUrl"]>
-            >("folder/file.txt", context);
+            >("folder/file.txt");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "getPublicUrl");
@@ -52,9 +50,9 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(failingKeyValidator),
             );
 
-            expect(() =>
-                enhanced.getPublicUrl("../secret.txt", context),
-            ).toThrow(InvalidKeyFileError);
+            expect(() => enhanced.getPublicUrl("../secret.txt")).toThrow(
+                InvalidKeyFileError,
+            );
             expect(spy).not.toHaveBeenCalled();
         });
     });
@@ -67,27 +65,19 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.getSignedDownloadUrl(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                    contentDisposition: null,
-                },
-                context,
-            );
+            await enhanced.getSignedDownloadUrl("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: null,
+                contentDisposition: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedDownloadUrl"]>
-            >(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                    contentDisposition: null,
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: null,
+                contentDisposition: null,
+            });
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "getSignedDownloadUrl");
@@ -98,15 +88,11 @@ describe("function: withFileStorageKeyValidator", () => {
             );
 
             expect(() =>
-                enhanced.getSignedDownloadUrl(
-                    "../secret.txt",
-                    {
-                        expirationInSeconds: 3600,
-                        contentType: null,
-                        contentDisposition: null,
-                    },
-                    context,
-                ),
+                enhanced.getSignedDownloadUrl("../secret.txt", {
+                    expirationInSeconds: 3600,
+                    contentType: null,
+                    contentDisposition: null,
+                }),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -120,25 +106,17 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.getSignedUploadUrl(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                },
-                context,
-            );
+            await enhanced.getSignedUploadUrl("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedUploadUrl"]>
-            >(
-                "folder/file.txt",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                expirationInSeconds: 3600,
+                contentType: null,
+            });
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "getSignedUploadUrl");
@@ -149,14 +127,10 @@ describe("function: withFileStorageKeyValidator", () => {
             );
 
             expect(() =>
-                enhanced.getSignedUploadUrl(
-                    "../secret.txt",
-                    {
-                        expirationInSeconds: 3600,
-                        contentType: null,
-                    },
-                    context,
-                ),
+                enhanced.getSignedUploadUrl("../secret.txt", {
+                    expirationInSeconds: 3600,
+                    contentType: null,
+                }),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -170,11 +144,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.exists("folder/file.txt", context);
+            await enhanced.exists("folder/file.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["exists"]>
-            >("folder/file.txt", context);
+            >("folder/file.txt");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "exists");
@@ -184,7 +158,7 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(failingKeyValidator),
             );
 
-            expect(() => enhanced.exists("../secret.txt", context)).toThrow(
+            expect(() => enhanced.exists("../secret.txt")).toThrow(
                 InvalidKeyFileError,
             );
             expect(spy).not.toHaveBeenCalled();
@@ -199,11 +173,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.getStream("folder/file.txt", context);
+            await enhanced.getStream("folder/file.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getStream"]>
-            >("folder/file.txt", context);
+            >("folder/file.txt");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "getStream");
@@ -213,7 +187,7 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(failingKeyValidator),
             );
 
-            expect(() => enhanced.getStream("../secret.txt", context)).toThrow(
+            expect(() => enhanced.getStream("../secret.txt")).toThrow(
                 InvalidKeyFileError,
             );
             expect(spy).not.toHaveBeenCalled();
@@ -228,11 +202,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.getBytes("folder/file.txt", context);
+            await enhanced.getBytes("folder/file.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getBytes"]>
-            >("folder/file.txt", context);
+            >("folder/file.txt");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "getBytes");
@@ -242,7 +216,7 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(failingKeyValidator),
             );
 
-            expect(() => enhanced.getBytes("../secret.txt", context)).toThrow(
+            expect(() => enhanced.getBytes("../secret.txt")).toThrow(
                 InvalidKeyFileError,
             );
             expect(spy).not.toHaveBeenCalled();
@@ -257,11 +231,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.getMetaData("folder/file.txt", context);
+            await enhanced.getMetaData("folder/file.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("folder/file.txt", context);
+            >("folder/file.txt");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "getMetaData");
@@ -271,9 +245,9 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(failingKeyValidator),
             );
 
-            expect(() =>
-                enhanced.getMetaData("../secret.txt", context),
-            ).toThrow(InvalidKeyFileError);
+            expect(() => enhanced.getMetaData("../secret.txt")).toThrow(
+                InvalidKeyFileError,
+            );
             expect(spy).not.toHaveBeenCalled();
         });
     });
@@ -295,11 +269,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.add("folder/file.txt", content, context);
+            await enhanced.add("folder/file.txt", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["add"]>
-            >("folder/file.txt", content, context);
+            >("folder/file.txt", content);
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "add");
@@ -318,9 +292,9 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(failingKeyValidator),
             );
 
-            expect(() =>
-                enhanced.add("../secret.txt", content, context),
-            ).toThrow(InvalidKeyFileError);
+            expect(() => enhanced.add("../secret.txt", content)).toThrow(
+                InvalidKeyFileError,
+            );
             expect(spy).not.toHaveBeenCalled();
         });
     });
@@ -342,35 +316,27 @@ describe("function: withFileStorageKeyValidator", () => {
                         }),
                 }),
             };
-            await enhanced.addStream(
-                "folder/file.txt",
-                {
-                    data: stream,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            await enhanced.addStream("folder/file.txt", {
+                data: stream,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["addStream"]>
-            >(
-                "folder/file.txt",
-                {
-                    data: stream,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                data: stream,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "addStream");
@@ -390,19 +356,15 @@ describe("function: withFileStorageKeyValidator", () => {
                 }),
             };
             expect(() =>
-                enhanced.addStream(
-                    "../secret.txt",
-                    {
-                        data: stream,
-                        fileSizeInBytes: null,
-                        contentType: "text/plain",
-                        contentLanguage: null,
-                        contentEncoding: null,
-                        contentDisposition: null,
-                        cacheControl: null,
-                    },
-                    context,
-                ),
+                enhanced.addStream("../secret.txt", {
+                    data: stream,
+                    fileSizeInBytes: null,
+                    contentType: "text/plain",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                }),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -425,11 +387,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.update("folder/file.txt", content, context);
+            await enhanced.update("folder/file.txt", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["update"]>
-            >("folder/file.txt", content, context);
+            >("folder/file.txt", content);
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "update");
@@ -448,9 +410,9 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(failingKeyValidator),
             );
 
-            expect(() =>
-                enhanced.update("../secret.txt", content, context),
-            ).toThrow(InvalidKeyFileError);
+            expect(() => enhanced.update("../secret.txt", content)).toThrow(
+                InvalidKeyFileError,
+            );
             expect(spy).not.toHaveBeenCalled();
         });
     });
@@ -472,35 +434,27 @@ describe("function: withFileStorageKeyValidator", () => {
                         }),
                 }),
             };
-            await enhanced.updateStream(
-                "folder/file.txt",
-                {
-                    data: stream2,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            await enhanced.updateStream("folder/file.txt", {
+                data: stream2,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["updateStream"]>
-            >(
-                "folder/file.txt",
-                {
-                    data: stream2,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                data: stream2,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "updateStream");
@@ -520,19 +474,15 @@ describe("function: withFileStorageKeyValidator", () => {
                 }),
             };
             expect(() =>
-                enhanced.updateStream(
-                    "../secret.txt",
-                    {
-                        data: stream2,
-                        fileSizeInBytes: null,
-                        contentType: "text/plain",
-                        contentLanguage: null,
-                        contentEncoding: null,
-                        contentDisposition: null,
-                        cacheControl: null,
-                    },
-                    context,
-                ),
+                enhanced.updateStream("../secret.txt", {
+                    data: stream2,
+                    fileSizeInBytes: null,
+                    contentType: "text/plain",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                }),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -555,11 +505,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.put("folder/file.txt", content, context);
+            await enhanced.put("folder/file.txt", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["put"]>
-            >("folder/file.txt", content, context);
+            >("folder/file.txt", content);
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "put");
@@ -578,9 +528,9 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(failingKeyValidator),
             );
 
-            expect(() =>
-                enhanced.put("../secret.txt", content, context),
-            ).toThrow(InvalidKeyFileError);
+            expect(() => enhanced.put("../secret.txt", content)).toThrow(
+                InvalidKeyFileError,
+            );
             expect(spy).not.toHaveBeenCalled();
         });
     });
@@ -602,35 +552,27 @@ describe("function: withFileStorageKeyValidator", () => {
                         }),
                 }),
             };
-            await enhanced.putStream(
-                "folder/file.txt",
-                {
-                    data: stream3,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            await enhanced.putStream("folder/file.txt", {
+                data: stream3,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["putStream"]>
-            >(
-                "folder/file.txt",
-                {
-                    data: stream3,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            >("folder/file.txt", {
+                data: stream3,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "putStream");
@@ -650,19 +592,15 @@ describe("function: withFileStorageKeyValidator", () => {
                 }),
             };
             expect(() =>
-                enhanced.putStream(
-                    "../secret.txt",
-                    {
-                        data: stream3,
-                        fileSizeInBytes: null,
-                        contentType: "text/plain",
-                        contentLanguage: null,
-                        contentEncoding: null,
-                        contentDisposition: null,
-                        cacheControl: null,
-                    },
-                    context,
-                ),
+                enhanced.putStream("../secret.txt", {
+                    data: stream3,
+                    fileSizeInBytes: null,
+                    contentType: "text/plain",
+                    contentLanguage: null,
+                    contentEncoding: null,
+                    contentDisposition: null,
+                    cacheControl: null,
+                }),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -676,11 +614,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.copy("folder/src.txt", "folder/dest.txt", context);
+            await enhanced.copy("folder/src.txt", "folder/dest.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["copy"]>
-            >("folder/src.txt", "folder/dest.txt", context);
+            >("folder/src.txt", "folder/dest.txt");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "copy");
@@ -691,7 +629,7 @@ describe("function: withFileStorageKeyValidator", () => {
             );
 
             expect(() =>
-                enhanced.copy("../src.txt", "folder/dest.txt", context),
+                enhanced.copy("../src.txt", "folder/dest.txt"),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -705,15 +643,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.copyAndReplace(
-                "folder/src.txt",
-                "folder/dest.txt",
-                context,
-            );
+            await enhanced.copyAndReplace("folder/src.txt", "folder/dest.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["copyAndReplace"]>
-            >("folder/src.txt", "folder/dest.txt", context);
+            >("folder/src.txt", "folder/dest.txt");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "copyAndReplace");
@@ -724,11 +658,7 @@ describe("function: withFileStorageKeyValidator", () => {
             );
 
             expect(() =>
-                enhanced.copyAndReplace(
-                    "../src.txt",
-                    "folder/dest.txt",
-                    context,
-                ),
+                enhanced.copyAndReplace("../src.txt", "folder/dest.txt"),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -742,11 +672,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.move("folder/src.txt", "folder/dest.txt", context);
+            await enhanced.move("folder/src.txt", "folder/dest.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["move"]>
-            >("folder/src.txt", "folder/dest.txt", context);
+            >("folder/src.txt", "folder/dest.txt");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "move");
@@ -757,7 +687,7 @@ describe("function: withFileStorageKeyValidator", () => {
             );
 
             expect(() =>
-                enhanced.move("../src.txt", "folder/dest.txt", context),
+                enhanced.move("../src.txt", "folder/dest.txt"),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -771,15 +701,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.moveAndReplace(
-                "folder/src.txt",
-                "folder/dest.txt",
-                context,
-            );
+            await enhanced.moveAndReplace("folder/src.txt", "folder/dest.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["moveAndReplace"]>
-            >("folder/src.txt", "folder/dest.txt", context);
+            >("folder/src.txt", "folder/dest.txt");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "moveAndReplace");
@@ -790,11 +716,7 @@ describe("function: withFileStorageKeyValidator", () => {
             );
 
             expect(() =>
-                enhanced.moveAndReplace(
-                    "../src.txt",
-                    "folder/dest.txt",
-                    context,
-                ),
+                enhanced.moveAndReplace("../src.txt", "folder/dest.txt"),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -808,14 +730,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.removeMany(
-                ["folder/a.txt", "folder/b.txt"],
-                context,
-            );
+            await enhanced.removeMany(["folder/a.txt", "folder/b.txt"]);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["removeMany"]>
-            >(["folder/a.txt", "folder/b.txt"], context);
+            >(["folder/a.txt", "folder/b.txt"]);
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "removeMany");
@@ -826,7 +745,7 @@ describe("function: withFileStorageKeyValidator", () => {
             );
 
             expect(() =>
-                enhanced.removeMany(["folder/a.txt", "../b.txt"], context),
+                enhanced.removeMany(["folder/a.txt", "../b.txt"]),
             ).toThrow(InvalidKeyFileError);
             expect(spy).not.toHaveBeenCalled();
         });
@@ -840,11 +759,11 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(succeedingKeyValidator),
             );
 
-            await enhanced.removeByPrefix("folder/", context);
+            await enhanced.removeByPrefix("folder/");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["removeByPrefix"]>
-            >("folder/", context);
+            >("folder/");
         });
         test("Should throw on an invalid key", () => {
             const spy = vi.spyOn(adapter, "removeByPrefix");
@@ -854,7 +773,7 @@ describe("function: withFileStorageKeyValidator", () => {
                 withFileStorageKeyValidator(failingKeyValidator),
             );
 
-            expect(() => enhanced.removeByPrefix("../", context)).toThrow(
+            expect(() => enhanced.removeByPrefix("../")).toThrow(
                 InvalidKeyFileError,
             );
             expect(spy).not.toHaveBeenCalled();
