@@ -70,10 +70,7 @@ export function withFileStorageInferContentTypeOnWrite(
             enhance(
                 adapter,
                 "getSignedDownloadUrl",
-                ({
-                    args: [key, { contentType, ...restSettings }, context],
-                    next,
-                }) => {
+                ({ args: [key, { contentType, ...restSettings }], next }) => {
                     return next([
                         key,
                         {
@@ -83,7 +80,6 @@ export function withFileStorageInferContentTypeOnWrite(
                                     : inferContentType(key),
                             ...restSettings,
                         },
-                        context,
                     ]);
                 },
             );
@@ -92,10 +88,7 @@ export function withFileStorageInferContentTypeOnWrite(
             enhance(
                 adapter,
                 "getSignedUploadUrl",
-                ({
-                    args: [key, { contentType, ...restSettings }, context],
-                    next,
-                }) => {
+                ({ args: [key, { contentType, ...restSettings }], next }) => {
                     return next([
                         key,
                         {
@@ -105,92 +98,77 @@ export function withFileStorageInferContentTypeOnWrite(
                                     : inferContentType(key),
                             ...restSettings,
                         },
-                        context,
                     ]);
                 },
             );
         }
-        enhance(
-            adapter,
-            "add",
-            ({ args: [key, { ...restContent }, context], next }) => {
-                return next([
-                    key,
-                    {
-                        ...restContent,
-                        contentType: inferContentType(key),
-                    },
-                    context,
-                ]);
-            },
-        );
+        enhance(adapter, "add", ({ args: [key, { ...restContent }], next }) => {
+            return next([
+                key,
+                {
+                    ...restContent,
+                    contentType: inferContentType(key),
+                },
+            ]);
+        });
         enhance(
             adapter,
             "addStream",
-            ({ args: [key, { ...restContent }, context], next }) => {
+            ({ args: [key, { ...restContent }], next }) => {
                 return next([
                     key,
                     {
                         ...restContent,
                         contentType: inferContentType(key),
                     },
-                    context,
                 ]);
             },
         );
         enhance(
             adapter,
             "update",
-            ({ args: [key, { ...restContent }, context], next }) => {
+            ({ args: [key, { ...restContent }], next }) => {
                 return next([
                     key,
                     {
                         ...restContent,
                         contentType: inferContentType(key),
                     },
-                    context,
                 ]);
             },
         );
         enhance(
             adapter,
             "updateStream",
-            ({ args: [key, { ...restContent }, context], next }) => {
+            ({ args: [key, { ...restContent }], next }) => {
                 return next([
                     key,
                     {
                         ...restContent,
                         contentType: inferContentType(key),
                     },
-                    context,
                 ]);
             },
         );
-        enhance(
-            adapter,
-            "put",
-            ({ args: [key, { ...restContent }, context], next }) => {
-                return next([
-                    key,
-                    {
-                        ...restContent,
-                        contentType: inferContentType(key),
-                    },
-                    context,
-                ]);
-            },
-        );
+        enhance(adapter, "put", ({ args: [key, { ...restContent }], next }) => {
+            return next([
+                key,
+                {
+                    ...restContent,
+                    contentType: inferContentType(key),
+                },
+            ]);
+        });
         enhance(
             adapter,
             "putStream",
-            ({ args: [key, { ...restContent }, context], next }) => {
+            ({ args: [key, { ...restContent }], next }) => {
                 return next([
                     key,
                     {
                         ...restContent,
                         contentType: inferContentType(key),
                     },
-                    context,
                 ]);
             },
         );
