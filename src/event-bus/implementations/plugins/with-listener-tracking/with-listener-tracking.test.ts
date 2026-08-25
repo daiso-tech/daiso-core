@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { MemoryEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { withListenerTracking } from "@/event-bus/implementations/plugins/with-listener-tracking/with-listener-tracking.js";
-import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
@@ -11,7 +10,6 @@ import type { IEventBusAdapter } from "@/event-bus/contracts/_module.js";
 import type { PluginFn } from "@/middleware/contracts/_module.js";
 
 describe("function: withListenerTracking", () => {
-    const context = new NoOpContext();
     let adapter: IEventBusAdapter;
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
@@ -35,12 +33,12 @@ describe("function: withListenerTracking", () => {
         const listener = vi.fn();
         const payload = { value: 42 };
 
-        await enhancedAdapter.addListener("test.event", listener, context);
-        await enhancedAdapter.dispatch("test.event", payload, context);
+        await enhancedAdapter.addListener("test.event", listener);
+        await enhancedAdapter.dispatch("test.event", payload);
         expect(listener).toHaveBeenCalledExactlyOnceWith(payload);
 
-        await enhancedAdapter.removeListener("test.event", listener, context);
-        await enhancedAdapter.dispatch("test.event", payload, context);
+        await enhancedAdapter.removeListener("test.event", listener);
+        await enhancedAdapter.dispatch("test.event", payload);
         expect(listener).toHaveBeenCalledTimes(1);
     });
     test("Should pass through removeListener unchanged for a listener that was never added", async () => {
@@ -56,9 +54,9 @@ describe("function: withListenerTracking", () => {
 
         const listener = vi.fn();
 
-        await enhancedAdapter.removeListener("ghost.event", listener, context);
+        await enhancedAdapter.removeListener("ghost.event", listener);
 
-        await enhancedAdapter.dispatch("ghost.event", {}, context);
+        await enhancedAdapter.dispatch("ghost.event", {});
         expect(listener).not.toHaveBeenCalled();
     });
     test("Should independently track multiple distinct listeners for the same event", async () => {
@@ -73,20 +71,16 @@ describe("function: withListenerTracking", () => {
         const listenerB = vi.fn();
         const payload = { data: true };
 
-        await enhancedAdapter.addListener("shared.event", listenerA, context);
-        await enhancedAdapter.addListener("shared.event", listenerB, context);
+        await enhancedAdapter.addListener("shared.event", listenerA);
+        await enhancedAdapter.addListener("shared.event", listenerB);
 
-        await enhancedAdapter.dispatch("shared.event", payload, context);
+        await enhancedAdapter.dispatch("shared.event", payload);
         expect(listenerA).toHaveBeenCalledOnce();
         expect(listenerB).toHaveBeenCalledOnce();
 
-        await enhancedAdapter.removeListener(
-            "shared.event",
-            listenerA,
-            context,
-        );
+        await enhancedAdapter.removeListener("shared.event", listenerA);
 
-        await enhancedAdapter.dispatch("shared.event", payload, context);
+        await enhancedAdapter.dispatch("shared.event", payload);
         expect(listenerA).toHaveBeenCalledTimes(1);
         expect(listenerB).toHaveBeenCalledTimes(2);
     });
@@ -100,29 +94,21 @@ describe("function: withListenerTracking", () => {
 
         const listener = vi.fn();
 
-        await enhancedAdapter.addListener("event.alpha", listener, context);
-        await enhancedAdapter.addListener("event.beta", listener, context);
+        await enhancedAdapter.addListener("event.alpha", listener);
+        await enhancedAdapter.addListener("event.beta", listener);
 
-        await enhancedAdapter.dispatch(
-            "event.alpha",
-            {
-                key: "alpha",
-            },
-            context,
-        );
+        await enhancedAdapter.dispatch("event.alpha", {
+            key: "alpha",
+        });
         expect(listener).toHaveBeenCalledTimes(1);
 
-        await enhancedAdapter.removeListener("event.alpha", listener, context);
-        await enhancedAdapter.dispatch(
-            "event.alpha",
-            {
-                key: "alpha",
-            },
-            context,
-        );
+        await enhancedAdapter.removeListener("event.alpha", listener);
+        await enhancedAdapter.dispatch("event.alpha", {
+            key: "alpha",
+        });
         expect(listener).toHaveBeenCalledTimes(1);
 
-        await enhancedAdapter.dispatch("event.beta", { key: "beta" }, context);
+        await enhancedAdapter.dispatch("event.beta", { key: "beta" });
         expect(listener).toHaveBeenCalledTimes(2);
     });
     test("Should chain multiple withListenerTracking calls correctly", async () => {
@@ -134,12 +120,12 @@ describe("function: withListenerTracking", () => {
         const listener = vi.fn();
         const payload = { value: true };
 
-        await enhancedAdapter.addListener("chain.event", listener, context);
-        await enhancedAdapter.dispatch("chain.event", payload, context);
+        await enhancedAdapter.addListener("chain.event", listener);
+        await enhancedAdapter.dispatch("chain.event", payload);
         expect(listener).toHaveBeenCalledOnce();
 
-        await enhancedAdapter.removeListener("chain.event", listener, context);
-        await enhancedAdapter.dispatch("chain.event", payload, context);
+        await enhancedAdapter.removeListener("chain.event", listener);
+        await enhancedAdapter.dispatch("chain.event", payload);
         expect(listener).toHaveBeenCalledTimes(1);
     });
     test("Should chain multiple withListenerTracking calls with multiple distinct listeners", async () => {
@@ -151,20 +137,16 @@ describe("function: withListenerTracking", () => {
         const listenerA = vi.fn();
         const listenerB = vi.fn();
 
-        await enhancedAdapter.addListener("multi.listener", listenerA, context);
-        await enhancedAdapter.addListener("multi.listener", listenerB, context);
+        await enhancedAdapter.addListener("multi.listener", listenerA);
+        await enhancedAdapter.addListener("multi.listener", listenerB);
 
-        await enhancedAdapter.dispatch("multi.listener", { n: 1 }, context);
+        await enhancedAdapter.dispatch("multi.listener", { n: 1 });
         expect(listenerA).toHaveBeenCalledOnce();
         expect(listenerB).toHaveBeenCalledOnce();
 
-        await enhancedAdapter.removeListener(
-            "multi.listener",
-            listenerA,
-            context,
-        );
+        await enhancedAdapter.removeListener("multi.listener", listenerA);
 
-        await enhancedAdapter.dispatch("multi.listener", { n: 2 }, context);
+        await enhancedAdapter.dispatch("multi.listener", { n: 2 });
         expect(listenerA).toHaveBeenCalledTimes(1);
         expect(listenerB).toHaveBeenCalledTimes(2);
     });
@@ -179,14 +161,14 @@ describe("function: withListenerTracking", () => {
         const listener = vi.fn();
         const payload = { id: 1 };
 
-        await enhancedAdapter.addListener("test.event", listener, context);
-        await enhancedAdapter.dispatch("test.event", payload, context);
+        await enhancedAdapter.addListener("test.event", listener);
+        await enhancedAdapter.dispatch("test.event", payload);
         expect(listener).toHaveBeenCalledOnce();
 
-        await enhancedAdapter.removeListener("test.event", listener, context);
-        await enhancedAdapter.removeListener("test.event", listener, context);
+        await enhancedAdapter.removeListener("test.event", listener);
+        await enhancedAdapter.removeListener("test.event", listener);
 
-        await enhancedAdapter.dispatch("test.event", payload, context);
+        await enhancedAdapter.dispatch("test.event", payload);
         expect(listener).toHaveBeenCalledTimes(1);
     });
 });
