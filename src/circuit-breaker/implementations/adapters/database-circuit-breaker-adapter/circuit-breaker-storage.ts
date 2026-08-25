@@ -11,7 +11,6 @@ import type {
     InternalCircuitBreakerPolicy,
 } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
 import type { DatabaseCircuitBreakerUpdateStateFn } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/types.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * @internal
@@ -27,38 +26,34 @@ export class CircuitBreakerStorage<TMetrics = unknown> {
     async atomicUpdate(
         key: string,
         update: DatabaseCircuitBreakerUpdateStateFn<TMetrics>,
-        context: IReadableContext,
     ): Promise<CircuitBreakerStateTransition> {
         const currentDate = new Date();
         return await this.adapter.transaction(async (trx) => {
             const currentState =
-                (await trx.find(key, context)) ??
+                (await trx.find(key)) ??
                 this.circuitBreakerPolicy.initialState();
 
             const newState = update(currentState, currentDate);
 
             if (!this.circuitBreakerPolicy.isEqual(currentState, newState)) {
-                await trx.upsert(key, newState, context);
+                await trx.upsert(key, newState);
             }
 
             return {
                 from: currentState.type,
                 to: newState.type,
             };
-        }, context);
+        });
     }
 
-    async find(
-        key: string,
-        context: IReadableContext,
-    ): Promise<AllCircuitBreakerState<TMetrics>> {
+    async find(key: string): Promise<AllCircuitBreakerState<TMetrics>> {
         return (
-            (await this.adapter.find(key, context)) ??
+            (await this.adapter.find(key)) ??
             this.circuitBreakerPolicy.initialState()
         );
     }
 
-    async remove(key: string, context: IReadableContext): Promise<void> {
-        await this.adapter.remove(key, context);
+    async remove(key: string): Promise<void> {
+        await this.adapter.remove(key);
     }
 }

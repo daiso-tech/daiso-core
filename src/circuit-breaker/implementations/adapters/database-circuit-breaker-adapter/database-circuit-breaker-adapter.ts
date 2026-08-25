@@ -17,7 +17,6 @@ import type {
     ICircuitBreakerPolicy,
 } from "@/circuit-breaker/contracts/_module.js";
 import type { AllCircuitBreakerState } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * Configuration for `DatabaseCircuitBreakerAdapter`.
@@ -101,50 +100,40 @@ export class DatabaseCircuitBreakerAdapter<
         );
     }
 
-    async getState(
-        key: string,
-        context: IReadableContext,
-    ): Promise<CircuitBreakerState> {
-        const state = await this.circuitBreakerStorage.find(key, context);
+    async getState(key: string): Promise<CircuitBreakerState> {
+        const state = await this.circuitBreakerStorage.find(key);
         return state.type;
     }
 
-    async updateState(
-        key: string,
-        context: IReadableContext,
-    ): Promise<CircuitBreakerStateTransition> {
+    async updateState(key: string): Promise<CircuitBreakerStateTransition> {
         return await this.circuitBreakerStorage.atomicUpdate(
             key,
             this.circuitBreakerStateManager.updateState,
-            context,
         );
     }
 
-    async trackFailure(key: string, context: IReadableContext): Promise<void> {
+    async trackFailure(key: string): Promise<void> {
         await this.circuitBreakerStorage.atomicUpdate(
             key,
             this.circuitBreakerStateManager.trackFailure,
-            context,
         );
     }
 
-    async trackSuccess(key: string, context: IReadableContext): Promise<void> {
+    async trackSuccess(key: string): Promise<void> {
         await this.circuitBreakerStorage.atomicUpdate(
             key,
             this.circuitBreakerStateManager.trackSuccess,
-            context,
         );
     }
 
-    async reset(key: string, context: IReadableContext): Promise<void> {
-        await this.circuitBreakerStorage.remove(key, context);
+    async reset(key: string): Promise<void> {
+        await this.circuitBreakerStorage.remove(key);
     }
 
-    async isolate(key: string, context: IReadableContext): Promise<void> {
+    async isolate(key: string): Promise<void> {
         await this.circuitBreakerStorage.atomicUpdate(
             key,
             this.circuitBreakerStateManager.isolate,
-            context,
         );
     }
 }
