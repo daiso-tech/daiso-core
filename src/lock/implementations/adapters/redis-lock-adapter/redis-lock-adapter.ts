@@ -4,7 +4,6 @@
 
 import type { Result, Redis } from "ioredis";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ILockAdapter,
     ILockAdapterState,
@@ -204,7 +203,6 @@ export class RedisLockAdapter implements ILockAdapter {
         key: string,
         lockId: string,
         ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_lock_acquire(
             key,
@@ -214,29 +212,17 @@ export class RedisLockAdapter implements ILockAdapter {
         return result === 1;
     }
 
-    async release(
-        key: string,
-        lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async release(key: string, lockId: string): Promise<boolean> {
         const result = await this.database.eridu_lock_release(key, lockId);
         return result === 1;
     }
 
-    async forceRelease(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceRelease(key: string): Promise<boolean> {
         const result = await this.database.del(key);
         return result > 0;
     }
 
-    async refresh(
-        key: string,
-        lockId: string,
-        ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async refresh(key: string, lockId: string, ttl: Date): Promise<boolean> {
         const result = await this.database.eridu_lock_refresh(
             key,
             lockId,
@@ -245,10 +231,7 @@ export class RedisLockAdapter implements ILockAdapter {
         return result === 1;
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ILockAdapterState | null> {
+    async getState(key: string): Promise<ILockAdapterState | null> {
         const json = JSON.parse(
             await this.database.eridu_lock_get_state(key),
         ) as IRedisJsonLockState | null;

@@ -2,7 +2,6 @@
  * @module Lock
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ILockFactory,
@@ -75,12 +74,7 @@ export class MemoryLockAdapter
         return Promise.resolve();
     }
 
-    acquire(
-        key: string,
-        lockId: string,
-        ttl: Date | null,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    acquire(key: string, lockId: string, ttl: Date | null): Promise<boolean> {
         const existingEntry = this.get(key);
         if (existingEntry !== null && existingEntry.owner !== lockId) {
             return Promise.resolve(false);
@@ -92,11 +86,7 @@ export class MemoryLockAdapter
         return Promise.resolve(true);
     }
 
-    release(
-        key: string,
-        lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    release(key: string, lockId: string): Promise<boolean> {
         const lockEntry = this.get(key);
         if (lockEntry === null) {
             return Promise.resolve(false);
@@ -108,7 +98,7 @@ export class MemoryLockAdapter
         return Promise.resolve(true);
     }
 
-    forceRelease(key: string, _context: IReadableContext): Promise<boolean> {
+    forceRelease(key: string): Promise<boolean> {
         const lockEntry = this.get(key);
         if (lockEntry === null) {
             return Promise.resolve(false);
@@ -117,12 +107,7 @@ export class MemoryLockAdapter
         return Promise.resolve(true);
     }
 
-    refresh(
-        key: string,
-        lockId: string,
-        ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    refresh(key: string, lockId: string, ttl: Date): Promise<boolean> {
         const lockEntry = this.get(key);
         if (lockEntry === null) {
             return Promise.resolve(false);
@@ -137,10 +122,7 @@ export class MemoryLockAdapter
         return Promise.resolve(true);
     }
 
-    getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ILockAdapterState | null> {
+    getState(key: string): Promise<ILockAdapterState | null> {
         const lockEntry = this.get(key);
         if (lockEntry === null) {
             return Promise.resolve(null);
