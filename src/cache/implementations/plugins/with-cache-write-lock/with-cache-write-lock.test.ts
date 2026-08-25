@@ -9,12 +9,12 @@ import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 describe("function: withCacheWriteLock", () => {
     const context = new NoOpContext();
     const lockFactory = new LockFactory({ adapter: new NoOpLockAdapter() });
     const adapter = new NoOpCacheAdapter();
+    const currentDate = new Date();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
     beforeEach(() => {
@@ -34,12 +34,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.add(
-                "myKey",
-                "value",
-                TimeSpan.fromMinutes(5).toEndDate(),
-                context,
-            );
+            await enhanced.add("myKey", "value", currentDate, context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -58,12 +53,7 @@ describe("function: withCacheWriteLock", () => {
                 withCacheWriteLock({ lockFactory }),
             );
 
-            await enhanced.put(
-                "myKey",
-                "value",
-                TimeSpan.fromMinutes(5).toEndDate(),
-                context,
-            );
+            await enhanced.put("myKey", "value", currentDate, context);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(createSpy).toHaveBeenCalledWith("myKey");
@@ -210,12 +200,7 @@ describe("function: withCacheWriteLock", () => {
                 }),
             );
 
-            await enhanced.add(
-                "myKey",
-                "value",
-                TimeSpan.fromMinutes(5).toEndDate(),
-                context,
-            );
+            await enhanced.add("myKey", "value", currentDate, context);
             expect(createSpy).toHaveBeenCalledWith("myKey");
             expect(runSpy).toHaveBeenCalledTimes(1);
 

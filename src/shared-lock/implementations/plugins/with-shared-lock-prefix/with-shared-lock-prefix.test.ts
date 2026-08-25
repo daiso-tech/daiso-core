@@ -6,7 +6,6 @@ import { useFactory } from "@/middleware/implementations/use-factory/_module.js"
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { NoOpSharedLockAdapter } from "@/shared-lock/implementations/adapters/_module.js";
 import { withSharedLockPrefix } from "@/shared-lock/implementations/plugins/with-shared-lock-prefix/with-shared-lock-prefix.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 import type { ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
 
@@ -14,6 +13,7 @@ describe("function: withSharedLockPrefix", () => {
     const context = new NoOpContext();
     const adapter = new NoOpSharedLockAdapter();
     const prefix = "test-prefix:";
+    const currentDate = new Date();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
     beforeEach(() => {
@@ -58,18 +58,13 @@ describe("function: withSharedLockPrefix", () => {
             await enhanced.acquireWriter(
                 "myKey",
                 "lockId",
-                TimeSpan.fromSeconds(30).toEndDate(),
+                currentDate,
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["acquireWriter"]>
-            >(
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30).toEndDate(),
-                context,
-            );
+            >(`${prefix}myKey`, "lockId", currentDate, context);
         });
     });
 
@@ -96,18 +91,13 @@ describe("function: withSharedLockPrefix", () => {
             await enhanced.refreshWriter(
                 "myKey",
                 "lockId",
-                TimeSpan.fromSeconds(30).toEndDate(),
+                currentDate,
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshWriter"]>
-            >(
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30).toEndDate(),
-                context,
-            );
+            >(`${prefix}myKey`, "lockId", currentDate, context);
         });
     });
 
@@ -136,7 +126,7 @@ describe("function: withSharedLockPrefix", () => {
                 key: "myKey",
                 lockId: "lock1",
                 limit: 5,
-                ttl: TimeSpan.fromSeconds(30).toEndDate(),
+                ttl: currentDate,
             });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
@@ -146,7 +136,7 @@ describe("function: withSharedLockPrefix", () => {
                 key: `${prefix}myKey`,
                 lockId: "lock1",
                 limit: 5,
-                ttl: TimeSpan.fromSeconds(30).toEndDate(),
+                ttl: currentDate,
             });
         });
     });
@@ -174,18 +164,13 @@ describe("function: withSharedLockPrefix", () => {
             await enhanced.refreshReader(
                 "myKey",
                 "lockId",
-                TimeSpan.fromSeconds(30).toEndDate(),
+                currentDate,
                 context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshReader"]>
-            >(
-                `${prefix}myKey`,
-                "lockId",
-                TimeSpan.fromSeconds(30).toEndDate(),
-                context,
-            );
+            >(`${prefix}myKey`, "lockId", currentDate, context);
         });
     });
 

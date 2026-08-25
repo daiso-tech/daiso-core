@@ -6,7 +6,6 @@ import { useFactory } from "@/middleware/implementations/use-factory/_module.js"
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
 import { NoOpSemaphoreAdapter } from "@/semaphore/implementations/adapters/_module.js";
 import { withSemaphorePrefix } from "@/semaphore/implementations/plugins/with-semaphore-prefix/with-semaphore-prefix.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 import type { ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
 
@@ -14,6 +13,7 @@ describe("function: withSemaphorePrefix", () => {
     const context = new NoOpContext();
     const adapter = new NoOpSemaphoreAdapter();
     const prefix = "test-prefix:";
+    const currentDate = new Date();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
     beforeEach(() => {
@@ -32,7 +32,7 @@ describe("function: withSemaphorePrefix", () => {
                 key: "myKey",
                 slotId: "slot1",
                 limit: 5,
-                ttl: TimeSpan.fromSeconds(30).toEndDate(),
+                ttl: currentDate,
             });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
@@ -42,7 +42,7 @@ describe("function: withSemaphorePrefix", () => {
                 key: `${prefix}myKey`,
                 slotId: "slot1",
                 limit: 5,
-                ttl: TimeSpan.fromSeconds(30).toEndDate(),
+                ttl: currentDate,
             });
         });
     });
@@ -81,21 +81,11 @@ describe("function: withSemaphorePrefix", () => {
 
             const enhanced = withPlugin(adapter, withSemaphorePrefix(prefix));
 
-            await enhanced.refresh(
-                "myKey",
-                "slot1",
-                TimeSpan.fromSeconds(30).toEndDate(),
-                context,
-            );
+            await enhanced.refresh("myKey", "slot1", currentDate, context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISemaphoreAdapter["refresh"]>
-            >(
-                `${prefix}myKey`,
-                "slot1",
-                TimeSpan.fromSeconds(30).toEndDate(),
-                context,
-            );
+            >(`${prefix}myKey`, "slot1", currentDate, context);
         });
     });
 

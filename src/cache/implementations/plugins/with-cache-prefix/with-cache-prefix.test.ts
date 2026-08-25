@@ -6,7 +6,6 @@ import { NoOpContext } from "@/execution-context/implementations/derivables/exec
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
-import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 import type { ICacheAdapter } from "@/cache/contracts/_module.js";
 
@@ -14,6 +13,7 @@ describe("function: withCachePrefix", () => {
     const context = new NoOpContext();
     const adapter = new NoOpCacheAdapter();
     const prefix = "test-prefix:";
+    const currentDate = new Date();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
     beforeEach(() => {
@@ -27,21 +27,11 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.add(
-                "myKey",
-                "value",
-                TimeSpan.fromMinutes(5).toEndDate(),
-                context,
-            );
+            await enhanced.add("myKey", "value", currentDate, context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["add"]>
-            >(
-                `${prefix}myKey`,
-                "value",
-                TimeSpan.fromMinutes(5).toEndDate(),
-                context,
-            );
+            >(`${prefix}myKey`, "value", currentDate, context);
         });
     });
     describe("method: get", () => {
@@ -89,21 +79,11 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.put(
-                "myKey",
-                "value",
-                TimeSpan.fromMinutes(5).toEndDate(),
-                context,
-            );
+            await enhanced.put("myKey", "value", currentDate, context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["put"]>
-            >(
-                `${prefix}myKey`,
-                "value",
-                TimeSpan.fromMinutes(5).toEndDate(),
-                context,
-            );
+            >(`${prefix}myKey`, "value", currentDate, context);
         });
     });
     describe("method: removeByPrefix", () => {
@@ -151,21 +131,11 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.getOrAdd(
-                "myKey",
-                "value",
-                TimeSpan.fromMinutes(5).toEndDate(),
-                context,
-            );
+            await enhanced.getOrAdd("myKey", "value", currentDate, context);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["getOrAdd"]>
-            >(
-                `${prefix}myKey`,
-                "value",
-                TimeSpan.fromMinutes(5).toEndDate(),
-                context,
-            );
+            >(`${prefix}myKey`, "value", currentDate, context);
         });
     });
 });
