@@ -6,13 +6,10 @@ import {
     KeyNotFoundCacheError,
     KeyExistsCacheError,
 } from "@/cache/contracts/_module.js";
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { resolveAsyncLazyable } from "@/utilities/_module.js";
 
 import type { ICache, ICacheAdapter } from "@/cache/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 import type { AsyncLazyable, NoneFunc } from "@/utilities/_module.js";
 
@@ -29,18 +26,6 @@ export type CacheSettingsBase = {
      * @default null
      */
     defaultTtl?: ITimeSpan | null;
-
-    /**
-     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
 };
 
 /**
@@ -64,7 +49,6 @@ export type CacheSettings = CacheSettingsBase & {
 export class Cache<TType = unknown> implements ICache<TType> {
     private readonly adapter: ICacheAdapter<TType>;
     private readonly defaultTtl: TimeSpan | null;
-    private readonly context: IReadableContext;
 
     /**
      *
@@ -96,13 +80,8 @@ export class Cache<TType = unknown> implements ICache<TType> {
      * ```
      */
     constructor(settings: CacheSettings) {
-        const {
-            adapter,
-            defaultTtl = null,
-            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
-        } = settings;
+        const { adapter, defaultTtl = null } = settings;
 
-        this.context = context;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
         this.adapter = adapter;
@@ -119,7 +98,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async get(key: string): Promise<TType | null> {
-        return await this.adapter.get(key, this.context);
+        return await this.adapter.get(key);
     }
 
     async getOrFail(key: string): Promise<TType> {
@@ -131,7 +110,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async getAndRemove(key: string): Promise<TType | null> {
-        return await this.adapter.getAndRemove(key, this.context);
+        return await this.adapter.getAndRemove(key);
     }
 
     async getOr(
@@ -156,7 +135,6 @@ export class Cache<TType = unknown> implements ICache<TType> {
             key,
             valueToAdd,
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
     }
 
@@ -169,7 +147,6 @@ export class Cache<TType = unknown> implements ICache<TType> {
             key,
             value,
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
 
         return hasAdded;
@@ -195,13 +172,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
             key,
             value,
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
         return hasUpdated;
     }
 
     async update(key: string, value: TType): Promise<boolean> {
-        const hasUpdated = await this.adapter.update(key, value, this.context);
+        const hasUpdated = await this.adapter.update(key, value);
 
         return hasUpdated;
     }
@@ -217,11 +193,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         key: string,
         value = 1 as Extract<TType, number>,
     ): Promise<boolean> {
-        const hasUpdated = await this.adapter.increment(
-            key,
-            value,
-            this.context,
-        );
+        const hasUpdated = await this.adapter.increment(key, value);
 
         return hasUpdated;
     }
@@ -254,7 +226,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async remove(key: string): Promise<boolean> {
-        const hasRemoved = await this.adapter.removeMany([key], this.context);
+        const hasRemoved = await this.adapter.removeMany([key]);
 
         return hasRemoved;
     }
@@ -271,14 +243,11 @@ export class Cache<TType = unknown> implements ICache<TType> {
         if (keysArr.length === 0) {
             return true;
         }
-        const hasRemovedAtLeastOne = await this.adapter.removeMany(
-            keys,
-            this.context,
-        );
+        const hasRemovedAtLeastOne = await this.adapter.removeMany(keys);
         return hasRemovedAtLeastOne;
     }
 
     async clear(): Promise<void> {
-        await this.adapter.removeByPrefix("", this.context);
+        await this.adapter.removeByPrefix("");
     }
 }
