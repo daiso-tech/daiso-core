@@ -20,7 +20,6 @@ import type {
     ICircuitBreakerPolicy,
 } from "@/circuit-breaker/contracts/_module.js";
 import type { CircuitBreakerFactorySettingsBase } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 import type { ErrorPolicy, WaitUntil } from "@/utilities/_module.js";
 
@@ -168,15 +167,6 @@ export class DatabaseCircuitBreakerFactoryResolver<
         return new DatabaseCircuitBreakerFactoryResolver({
             ...this.settings,
             waitUntil,
-        });
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): DatabaseCircuitBreakerFactoryResolver<TAdapters> {
-        return new DatabaseCircuitBreakerFactoryResolver({
-            ...this.settings,
-            context,
         });
     }
 
