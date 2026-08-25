@@ -4,7 +4,6 @@
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
 
 /**
@@ -76,7 +75,7 @@ export class MemoryCacheAdapter<TType = unknown>
         return Promise.resolve();
     }
 
-    get(key: string, _context: IReadableContext): Promise<TType | null> {
+    get(key: string): Promise<TType | null> {
         const cacheEntry = this.internalGet(key);
         if (cacheEntry === null) {
             return Promise.resolve(null);
@@ -84,10 +83,7 @@ export class MemoryCacheAdapter<TType = unknown>
         return Promise.resolve(cacheEntry.value);
     }
 
-    getAndRemove(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<TType | null> {
+    getAndRemove(key: string): Promise<TType | null> {
         const cacheEntry = this.map.get(key);
         this.map.delete(key);
         if (cacheEntry === undefined) {
@@ -113,21 +109,11 @@ export class MemoryCacheAdapter<TType = unknown>
         return true;
     }
 
-    add(
-        key: string,
-        value: TType,
-        ttl: Date | null,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    add(key: string, value: TType, ttl: Date | null): Promise<boolean> {
         return Promise.resolve(this.internalAdd(key, value, ttl));
     }
 
-    getOrAdd(
-        key: string,
-        valueToAdd: TType,
-        ttl: Date | null,
-        _context: IReadableContext,
-    ): Promise<TType> {
+    getOrAdd(key: string, valueToAdd: TType, ttl: Date | null): Promise<TType> {
         const cacheEntry = this.internalGet(key);
         if (cacheEntry === null) {
             this.internalAdd(key, valueToAdd, ttl);
@@ -136,12 +122,7 @@ export class MemoryCacheAdapter<TType = unknown>
         return Promise.resolve(cacheEntry.value);
     }
 
-    put(
-        key: string,
-        value: TType,
-        ttl: Date | null,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    put(key: string, value: TType, ttl: Date | null): Promise<boolean> {
         const hasKey = this.hasKey(key);
         this.map.set(key, {
             value,
@@ -156,11 +137,7 @@ export class MemoryCacheAdapter<TType = unknown>
         return hasKey;
     }
 
-    update(
-        key: string,
-        value: TType,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    update(key: string, value: TType): Promise<boolean> {
         const cacheEntry = this.internalGet(key);
         if (cacheEntry === null) {
             this.internalRemove(key);
@@ -173,11 +150,7 @@ export class MemoryCacheAdapter<TType = unknown>
         return Promise.resolve(true);
     }
 
-    increment(
-        key: string,
-        value: number,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    increment(key: string, value: number): Promise<boolean> {
         const cacheEntry = this.internalGet(key);
         if (cacheEntry === null) {
             this.internalRemove(key);
@@ -198,10 +171,7 @@ export class MemoryCacheAdapter<TType = unknown>
         return Promise.resolve(true);
     }
 
-    removeMany(
-        keys: Array<string>,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    removeMany(keys: Array<string>): Promise<boolean> {
         let hasRemoved = false;
         for (const key of keys) {
             if (this.internalRemove(key)) {
@@ -211,7 +181,7 @@ export class MemoryCacheAdapter<TType = unknown>
         return Promise.resolve(hasRemoved);
     }
 
-    removeByPrefix(prefix: string, _context: IReadableContext): Promise<void> {
+    removeByPrefix(prefix: string): Promise<void> {
         if (prefix === "") {
             this.map.clear();
             return Promise.resolve();
