@@ -4,7 +4,6 @@
 
 import { FILE_WRITE_ENUM } from "@/file-storage/contracts/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISignedFileStorageAdapter,
     FileAdapterMetadata,
@@ -23,17 +22,13 @@ import type {
  * @group Adapters
  */
 export class NoOpFileStorageAdapter implements ISignedFileStorageAdapter {
-    getPublicUrl(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<string | null> {
+    getPublicUrl(_key: string): Promise<string | null> {
         return Promise.resolve(null);
     }
 
     getSignedDownloadUrl(
         _key: string,
         _settings: FileAdapterSignedDownloadUrlSettings,
-        _context: IReadableContext,
     ): Promise<string | null> {
         return Promise.resolve(null);
     }
@@ -41,48 +36,33 @@ export class NoOpFileStorageAdapter implements ISignedFileStorageAdapter {
     getSignedUploadUrl(
         _key: string,
         _settings: FileAdapterSignedUploadUrlSettings,
-        _context: IReadableContext,
     ): Promise<string> {
         return Promise.resolve("");
     }
 
-    exists(_key: string, _context: IReadableContext): Promise<boolean> {
+    exists(_key: string): Promise<boolean> {
         return Promise.resolve(false);
     }
 
-    getStream(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<FileAdapterStream | null> {
+    getStream(_key: string): Promise<FileAdapterStream | null> {
         return Promise.resolve(null);
     }
 
-    getBytes(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<Uint8Array | null> {
+    getBytes(_key: string): Promise<Uint8Array | null> {
         return Promise.resolve(null);
     }
 
-    getMetaData(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<FileAdapterMetadata | null> {
+    getMetaData(_key: string): Promise<FileAdapterMetadata | null> {
         return Promise.resolve(null);
     }
 
-    add(
-        _key: string,
-        _content: WritableFileAdapterContent,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    add(_key: string, _content: WritableFileAdapterContent): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     addStream(
         _key: string,
         _stream: WritableFileAdapterStream,
-        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
@@ -90,7 +70,6 @@ export class NoOpFileStorageAdapter implements ISignedFileStorageAdapter {
     update(
         _key: string,
         _content: WritableFileAdapterContent,
-        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
@@ -98,67 +77,42 @@ export class NoOpFileStorageAdapter implements ISignedFileStorageAdapter {
     updateStream(
         _key: string,
         _stream: WritableFileAdapterStream,
-        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    put(
-        _key: string,
-        _content: WritableFileAdapterContent,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    put(_key: string, _content: WritableFileAdapterContent): Promise<boolean> {
         return Promise.resolve(true);
     }
 
     putStream(
         _key: string,
         _stream: WritableFileAdapterStream,
-        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    copy(
-        _source: string,
-        _destination: string,
-        _context: IReadableContext,
-    ): Promise<FileWriteEnum> {
+    copy(_source: string, _destination: string): Promise<FileWriteEnum> {
         return Promise.resolve(FILE_WRITE_ENUM.SUCCESS);
     }
 
-    copyAndReplace(
-        _source: string,
-        _destination: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    copyAndReplace(_source: string, _destination: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    move(
-        _source: string,
-        _destination: string,
-        _context: IReadableContext,
-    ): Promise<FileWriteEnum> {
+    move(_source: string, _destination: string): Promise<FileWriteEnum> {
         return Promise.resolve(FILE_WRITE_ENUM.SUCCESS);
     }
 
-    moveAndReplace(
-        _source: string,
-        _destination: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    moveAndReplace(_source: string, _destination: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    removeMany(
-        _keys: Array<string>,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    removeMany(_keys: Array<string>): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    removeByPrefix(_prefix: string, _context: IReadableContext): Promise<void> {
+    removeByPrefix(_prefix: string): Promise<void> {
         return Promise.resolve();
     }
 }
