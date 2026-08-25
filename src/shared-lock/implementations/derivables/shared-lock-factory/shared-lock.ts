@@ -20,7 +20,6 @@ import {
     UnexpectedError,
 } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISharedLock,
     ISharedLockAdapter,
@@ -53,7 +52,6 @@ export type SharedLockSettings = {
     lockId: string;
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
-    context: IReadableContext;
 };
 
 /**
@@ -82,7 +80,6 @@ export class SharedLock implements ISharedLock {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
     private readonly limit: number;
-    private readonly context: IReadableContext;
 
     constructor(settings: SharedLockSettings) {
         const {
@@ -92,12 +89,10 @@ export class SharedLock implements ISharedLock {
             serdeTransformerName,
             defaultRefreshTime,
             limit,
-            context,
             key,
         } = settings;
 
         this.internalKey = key;
-        this.context = context;
         this.limit = limit;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
@@ -127,7 +122,6 @@ export class SharedLock implements ISharedLock {
 
     async acquireReader(): Promise<boolean> {
         return await this.adapter.acquireReader({
-            context: this.context,
             key: this.internalKey,
             lockId: this.lockId,
             limit: this.limit,
@@ -143,11 +137,7 @@ export class SharedLock implements ISharedLock {
     }
 
     async releaseReader(): Promise<boolean> {
-        return await this.adapter.releaseReader(
-            this.internalKey,
-            this.lockId,
-            this.context,
-        );
+        return await this.adapter.releaseReader(this.internalKey, this.lockId);
     }
 
     async releaseReaderOrFail(): Promise<void> {
@@ -161,10 +151,7 @@ export class SharedLock implements ISharedLock {
     }
 
     async forceReleaseAllReaders(): Promise<boolean> {
-        return await this.adapter.forceReleaseAllReaders(
-            this.internalKey,
-            this.context,
-        );
+        return await this.adapter.forceReleaseAllReaders(this.internalKey);
     }
 
     async refreshReader(
@@ -174,7 +161,6 @@ export class SharedLock implements ISharedLock {
             this.internalKey,
             this.lockId,
             TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
         if (hasRefreshed) {
             this.internalTtl = TimeSpan.fromTimeSpan(ttl);
@@ -208,7 +194,6 @@ export class SharedLock implements ISharedLock {
             this.internalKey,
             this.lockId,
             this.internalTtl?.toEndDate() ?? null,
-            this.context,
         );
     }
 
@@ -220,11 +205,7 @@ export class SharedLock implements ISharedLock {
     }
 
     async releaseWriter(): Promise<boolean> {
-        return await this.adapter.releaseWriter(
-            this.internalKey,
-            this.lockId,
-            this.context,
-        );
+        return await this.adapter.releaseWriter(this.internalKey, this.lockId);
     }
 
     async releaseWriterOrFail(): Promise<void> {
@@ -238,10 +219,7 @@ export class SharedLock implements ISharedLock {
     }
 
     async forceReleaseWriter(): Promise<boolean> {
-        return await this.adapter.forceReleaseWriter(
-            this.internalKey,
-            this.context,
-        );
+        return await this.adapter.forceReleaseWriter(this.internalKey);
     }
 
     async refreshWriter(
@@ -251,7 +229,6 @@ export class SharedLock implements ISharedLock {
             this.internalKey,
             this.lockId,
             TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
         if (hasRefreshed) {
             this.internalTtl = TimeSpan.fromTimeSpan(ttl);
@@ -282,7 +259,7 @@ export class SharedLock implements ISharedLock {
     }
 
     async forceRelease(): Promise<boolean> {
-        return await this.adapter.forceRelease(this.internalKey, this.context);
+        return await this.adapter.forceRelease(this.internalKey);
     }
 
     private extractWriterState(
@@ -359,10 +336,7 @@ export class SharedLock implements ISharedLock {
     }
 
     async getState(): Promise<ISharedLockState> {
-        const state = await this.adapter.getState(
-            this.internalKey,
-            this.context,
-        );
+        const state = await this.adapter.getState(this.internalKey);
         if (state === null) {
             return {
                 type: SHARED_LOCK_STATE.EXPIRED,

@@ -4,8 +4,6 @@
 
 import { v4 } from "uuid";
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { SharedLockSerdeTransformer } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock-serde-transformer.js";
@@ -13,7 +11,6 @@ import { SharedLock } from "@/shared-lock/implementations/derivables/shared-lock
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { CORE, resolveOneOrMore, callInvocable } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerderRegister } from "@/serde/contracts/_module.js";
 import type {
     ISharedLock,
@@ -79,18 +76,6 @@ export type SharedLockFactorySettingsBase = {
      * ```
      */
     defaultRefreshTime?: ITimeSpan;
-
-    /**
-     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
 };
 
 /**
@@ -124,7 +109,6 @@ export class SharedLockFactory implements ISharedLockFactory {
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
-    private readonly context: IReadableContext;
 
     /**
      * @example
@@ -161,10 +145,8 @@ export class SharedLockFactory implements ISharedLockFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             adapter,
             serdeTransformerName = "",
-            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.context = context;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
         this.creatLockId = createLockId;
@@ -178,7 +160,6 @@ export class SharedLockFactory implements ISharedLockFactory {
 
     private registerToSerde(): void {
         const transformer = new SharedLockSerdeTransformer({
-            context: this.context,
             adapter: this.adapter,
             defaultRefreshTime: this.defaultRefreshTime,
             serdeTransformerName: this.serdeTransformerName,
@@ -217,7 +198,6 @@ export class SharedLockFactory implements ISharedLockFactory {
         } = settings;
 
         return new SharedLock({
-            context: this.context,
             limit,
             adapter: this.adapter,
             key,
