@@ -12,7 +12,6 @@ import {
 } from "@/utilities/_module.js";
 
 import type { BackoffPolicy } from "@/backoff-policies/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IRateLimiterFactoryResolver,
     IRateLimiterFactory,
@@ -157,15 +156,6 @@ export class DatabaseRateLimiterFactoryResolver<
         return new DatabaseRateLimiterFactoryResolver({
             ...this.settings,
             waitUntil,
-        });
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): DatabaseRateLimiterFactoryResolver<TAdapters> {
-        return new DatabaseRateLimiterFactoryResolver({
-            ...this.settings,
-            context,
         });
     }
 
