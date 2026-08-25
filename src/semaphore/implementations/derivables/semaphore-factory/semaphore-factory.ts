@@ -4,8 +4,6 @@
 
 import { v4 } from "uuid";
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { SemaphoreSerdeTransformer } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore-serde-transformer.js";
 import { Semaphore } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
@@ -18,7 +16,6 @@ import {
     resolveOneOrMore,
 } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISemaphore,
     ISemaphoreAdapter,
@@ -84,18 +81,6 @@ export type SemaphoreFactorySettingsBase = {
      * ```
      */
     defaultRefreshTime?: ITimeSpan;
-
-    /**
-     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
 };
 
 /**
@@ -129,7 +114,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly createSlotId: Invocable<[], string>;
-    private readonly context: IReadableContext;
 
     /**
      * @example
@@ -166,10 +150,8 @@ export class SemaphoreFactory implements ISemaphoreFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             adapter,
             serdeTransformerName = "",
-            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.context = context;
         this.createSlotId = createSlotId;
         this.serde = serde;
         this.defaultRefreshTime = TimeSpan.fromTimeSpan(defaultRefreshTime);
@@ -184,7 +166,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
 
     private registerToSerde(): void {
         const transformer = new SemaphoreSerdeTransformer({
-            context: this.context,
             adapter: this.adapter,
             defaultRefreshTime: this.defaultRefreshTime,
             serdeTransformerName: this.serdeTransformerName,
@@ -203,7 +184,6 @@ export class SemaphoreFactory implements ISemaphoreFactory {
         isPositiveNbr(limit);
 
         return new Semaphore({
-            context: this.context,
             slotId,
             limit,
             adapter: this.adapter,

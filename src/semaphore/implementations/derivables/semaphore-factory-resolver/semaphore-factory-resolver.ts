@@ -7,7 +7,6 @@ import {
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISemaphoreFactoryResolver,
     ISemaphoreFactory,
@@ -91,15 +90,6 @@ export class SemaphoreFactoryResolver<
         return new SemaphoreFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
-        });
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): SemaphoreFactoryResolver<TAdapters> {
-        return new SemaphoreFactoryResolver({
-            ...this.settings,
-            context,
         });
     }
 
