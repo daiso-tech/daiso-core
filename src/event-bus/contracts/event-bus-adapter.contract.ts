@@ -2,7 +2,6 @@
  * @module EventBus
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
@@ -25,11 +24,7 @@ export type IEventBusDispatcherAdapter = {
     /**
      * The `dispatch` method is used for dispatching one or multiple `events`.
      */
-    dispatch(
-        eventName: string,
-        eventData: BaseEvent,
-        context: IReadableContext,
-    ): Promise<void>;
+    dispatch(eventName: string, eventData: BaseEvent): Promise<void>;
 };
 
 /**
@@ -43,7 +38,6 @@ export type IEventBusListenableAdapter = {
     addListener(
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
-        context: IReadableContext,
     ): Promise<void>;
 
     /**
@@ -52,7 +46,6 @@ export type IEventBusListenableAdapter = {
     removeListener(
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
-        context: IReadableContext,
     ): Promise<void>;
 };
 
