@@ -2,7 +2,6 @@
  * @module Semaphore
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISemaphoreAdapter,
     ISemaphoreAdapterState,
@@ -18,10 +17,7 @@ import type {
  * @group Adapters
  */
 export class NoOpSemaphoreAdapter implements ISemaphoreAdapter {
-    getState(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<ISemaphoreAdapterState | null> {
+    getState(_key: string): Promise<ISemaphoreAdapterState | null> {
         return Promise.resolve({
             limit: Infinity,
             acquiredSlots: new Map(),
@@ -32,27 +28,15 @@ export class NoOpSemaphoreAdapter implements ISemaphoreAdapter {
         return Promise.resolve(true);
     }
 
-    release(
-        _key: string,
-        _slotId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    release(_key: string, _slotId: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    forceReleaseAll(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    forceReleaseAll(_key: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    refresh(
-        _key: string,
-        _slotId: string,
-        _ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    refresh(_key: string, _slotId: string, _ttl: Date): Promise<boolean> {
         return Promise.resolve(true);
     }
 }
