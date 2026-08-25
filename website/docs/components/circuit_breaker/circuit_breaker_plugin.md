@@ -65,14 +65,14 @@ const prefixedAdapter = withPlugin(
 **Before** — Circuit keys are used as-is:
 
 ```ts
-adapter.getState("api:users", context);
+adapter.getState("api:users");
 // -> looks up circuit "api:users"
 ```
 
 **After** — Circuit keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.getState("api:users", context);
+prefixedAdapter.getState("api:users");
 // -> looks up circuit "service-a:api:users"
 ```
 

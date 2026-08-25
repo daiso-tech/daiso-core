@@ -61,7 +61,7 @@ The plugin prefixes keys for the following methods:
 
 #### Copy and move behavior
 
-For the `copy`, `copyAndReplace`, `move`, and `moveAndReplace` methods, only the **source** key (the first string argument after context) is prefixed. The destination key is passed through unchanged. This allows copying/moving files to an un-prefixed location.
+For the `copy`, `copyAndReplace`, `move`, and `moveAndReplace` methods, booth the **destination** and **source** keys are prefixed.
 
 ### Usage
 
@@ -84,14 +84,14 @@ const prefixedAdapter = withPlugin(
 **Before** — File keys are used as-is:
 
 ```ts
-adapter.getBytes("uploads/report.pdf", context);
+adapter.getBytes("uploads/report.pdf");
 // -> retrieves "uploads/report.pdf"
 ```
 
 **After** — File keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.getBytes("uploads/report.pdf", context);
+prefixedAdapter.getBytes("uploads/report.pdf");
 // -> retrieves "tenant-42/uploads/report.pdf"
 ```
 
@@ -108,8 +108,8 @@ For more information about the `withPlugin` function and applying plugins to ada
 The `removeMany` method receives an array of keys. The plugin maps over the array, prefixing each entry:
 
 ```ts
-prefixedAdapter.removeMany(["a.pdf", "b.pdf"], context);
-// -> prefixedAdapter.removeMany(["tenant-42/a.pdf", "tenant-42/b.pdf"], context)
+prefixedAdapter.removeMany(["a.pdf", "b.pdf"]);
+// -> prefixedAdapter.removeMany(["tenant-42/a.pdf", "tenant-42/b.pdf"])
 ```
 
 ## withFileStorageLock plugin

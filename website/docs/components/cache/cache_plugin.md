@@ -64,14 +64,14 @@ const prefixedAdapter = withPlugin(adapter, withCachePrefix("tenant-42:"));
 **Before** — Keys are stored as-is:
 
 ```ts
-adapter.get("user:123", context);
+adapter.get("user:123");
 // -> looks up key "user:123"
 ```
 
 **After** — Keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.get("user:123", context);
+prefixedAdapter.get("user:123");
 // -> looks up key "tenant-42:user:123"
 ```
 
@@ -88,8 +88,8 @@ For more information about the `withPlugin` function and applying plugins to ada
 The `removeMany` method receives an array of keys. The plugin maps over the array, prefixing each entry:
 
 ```ts
-prefixedAdapter.removeMany(["a", "b", "c"], context);
-// -> prefixedAdapter.removeMany(["tenant-42:a", "tenant-42:b", "tenant-42:c"], context)
+prefixedAdapter.removeMany(["a", "b", "c"]);
+// -> prefixedAdapter.removeMany(["tenant-42:a", "tenant-42:b", "tenant-42:c"])
 ```
 
 ## withCacheJitter plugin

@@ -58,14 +58,14 @@ const prefixedAdapter = withPlugin(adapter, withLockPrefix("tenant-42:"));
 **Before** — Lock keys are used as-is:
 
 ```ts
-adapter.acquire("resource:42", "lock-id", ttl, context);
+adapter.acquire("resource:42", "lock-id", ttl);
 // -> acquires lock on "resource:42"
 ```
 
 **After** — Lock keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.acquire("resource:42", "lock-id", ttl, context);
+prefixedAdapter.acquire("resource:42", "lock-id", ttl);
 // -> acquires lock on "tenant-42:resource:42"
 ```
 

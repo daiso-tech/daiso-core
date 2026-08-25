@@ -44,10 +44,10 @@ The `acquire` method accepts a single settings object rather than positional arg
 
 ```ts
 // Before:
-adapter.acquire({ context, key: "my-key", slotId: "s1", limit: 5, ttl });
+adapter.acquire({ key: "my-key", slotId: "s1", limit: 5, ttl });
 
 // After plugin transforms:
-adapter.acquire({ context, key: "prefix:my-key", slotId: "s1", limit: 5, ttl });
+adapter.acquire({ key: "prefix:my-key", slotId: "s1", limit: 5, ttl });
 ```
 
 ### Usage
@@ -68,14 +68,14 @@ const prefixedAdapter = withPlugin(adapter, withSemaphorePrefix("pool-1:"));
 **Before** — Semaphore keys are used as-is:
 
 ```ts
-adapter.acquire({ context, key: "connections", ... })
+adapter.acquire({ key: "connections", ... })
 // -> acquires slot on "connections"
 ```
 
 **After** — Semaphore keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.acquire({ context, key: "connections", ... })
+prefixedAdapter.acquire({ key: "connections", ... })
 // -> acquires slot on "pool-1:connections"
 ```
 
