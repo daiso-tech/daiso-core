@@ -15,7 +15,6 @@ import type {
     IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
 import type { EventBusSettingsBase } from "@/event-bus/implementations/derivables/event-bus/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/event-bus"`
@@ -93,15 +92,6 @@ export class EventBusResolver<
     > {
         return new EventBusResolver({
             ...this.settings,
-        });
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): EventBusResolver<TAdapters, TEventMap> {
-        return new EventBusResolver({
-            ...this.settings,
-            context,
         });
     }
 
