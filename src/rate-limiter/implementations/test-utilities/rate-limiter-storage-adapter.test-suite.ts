@@ -2,13 +2,10 @@
  * @module RateLimiter
  */
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
 
 import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IRateLimiterData,
     IRateLimiterStorageAdapter,
@@ -25,17 +22,6 @@ export type RateLimiterStorageAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<IRateLimiterStorageAdapter>;
-
-    /**
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
 };
 
 /**
@@ -73,7 +59,6 @@ export function rateLimiterStorageAdapterTestSuite(
         createAdapter,
         describe,
         beforeEach: beforeEach_,
-        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: IRateLimiterStorageAdapter<string>;
 
@@ -92,9 +77,9 @@ export function rateLimiterStorageAdapterTestSuite(
                 );
 
                 const data = await adapter.transaction(async (trx) => {
-                    await trx.upsert(key, value, expiration, context);
-                    return await trx.find(key, context);
-                }, context);
+                    await trx.upsert(key, value, expiration);
+                    return await trx.find(key);
+                });
 
                 expect(data).toEqual({
                     state: value,
@@ -115,11 +100,10 @@ export function rateLimiterStorageAdapterTestSuite(
                         TimeSpan.fromMinutes(5).toEndDate(
                             new Date("2026-01-01"),
                         ),
-                        context,
                     );
-                    await trx.upsert(key, value, expiration, context);
-                    return await trx.find(key, context);
-                }, context);
+                    await trx.upsert(key, value, expiration);
+                    return await trx.find(key);
+                });
 
                 expect(data).toEqual({
                     state: value,
@@ -132,8 +116,8 @@ export function rateLimiterStorageAdapterTestSuite(
                 const noneExistingKey = "a";
 
                 const data = await adapter.transaction(async (trx) => {
-                    return await trx.find(noneExistingKey, context);
-                }, context);
+                    return await trx.find(noneExistingKey);
+                });
 
                 expect(data).toBeNull();
             });
@@ -142,7 +126,7 @@ export function rateLimiterStorageAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const noneExistingKey = "a";
 
-                const data = await adapter.find(noneExistingKey, context);
+                const data = await adapter.find(noneExistingKey);
 
                 expect(data).toBeNull();
             });
@@ -156,10 +140,10 @@ export function rateLimiterStorageAdapterTestSuite(
                 );
 
                 await adapter.transaction(async (trx) => {
-                    await trx.upsert(key, value, expiration, context);
-                }, context);
-                await adapter.remove(key, context);
-                const item = await adapter.find(key, context);
+                    await trx.upsert(key, value, expiration);
+                });
+                await adapter.remove(key);
+                const item = await adapter.find(key);
 
                 expect(item).toBeNull();
             });

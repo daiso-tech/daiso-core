@@ -3,8 +3,6 @@ import { Kysely, MysqlDialect } from "kysely";
 import { createPool } from "mysql2";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { KyselyRateLimiterStorageAdapter } from "@/rate-limiter/implementations/adapters/kysely-rate-limiter-storage-adapter/_module.js";
 import { rateLimiterStorageAdapterTestSuite } from "@/rate-limiter/implementations/test-utilities/_module.js";
 import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
@@ -22,7 +20,6 @@ describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
     let database: Pool;
     let container: StartedMySqlContainer;
     let kysely: Kysely<KyselyRateLimiterStorageTables>;
-    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
 
     beforeEach(async () => {
         container = await new MySqlContainer("mysql:9.3.0").start();
@@ -79,27 +76,24 @@ describe("mysql class: KyselyRateLimiterStorageAdapter", () => {
                     "a",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toStartDate(),
-                    noOpContext,
                 );
                 await trx.upsert(
                     "b",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toStartDate(),
-                    noOpContext,
                 );
                 await trx.upsert(
                     "c",
                     "owner",
                     TimeSpan.fromMilliseconds(50).toEndDate(),
-                    noOpContext,
                 );
-            }, noOpContext);
+            });
 
             await adapter.removeAllExpired();
 
-            expect(await adapter.find("a", noOpContext)).toBeNull();
-            expect(await adapter.find("b", noOpContext)).toBeNull();
-            expect(await adapter.find("c", noOpContext)).not.toBeNull();
+            expect(await adapter.find("a")).toBeNull();
+            expect(await adapter.find("b")).toBeNull();
+            expect(await adapter.find("c")).not.toBeNull();
         });
     });
     describe("method: init", () => {
