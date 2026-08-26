@@ -2,9 +2,16 @@
  * @module Cache
  */
 
+import { isInvocableFn } from "@/utilities/_module.js";
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
-import type { IDeinitizable, IPrunable } from "@/utilities/_module.js";
+import type {
+    IDeinitizable,
+    InvocableFn,
+    IPrunable,
+    Promisable,
+} from "@/utilities/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/cache/memory-cache-adapter"`
@@ -113,13 +120,20 @@ export class MemoryCacheAdapter<TType = unknown>
         return Promise.resolve(this.internalAdd(key, value, ttl));
     }
 
-    getOrAdd(key: string, valueToAdd: TType, ttl: Date | null): Promise<TType> {
+    async getOrAdd(
+        key: string,
+        valueToAdd: TType | InvocableFn<[], Promisable<TType>>,
+        ttl: Date | null,
+    ): Promise<TType> {
         const cacheEntry = this.internalGet(key);
         if (cacheEntry === null) {
+            if (isInvocableFn(valueToAdd)) {
+                valueToAdd = await valueToAdd();
+            }
             this.internalAdd(key, valueToAdd, ttl);
-            return Promise.resolve(valueToAdd);
+            return valueToAdd;
         }
-        return Promise.resolve(cacheEntry.value);
+        return cacheEntry.value;
     }
 
     put(key: string, value: TType, ttl: Date | null): Promise<boolean> {

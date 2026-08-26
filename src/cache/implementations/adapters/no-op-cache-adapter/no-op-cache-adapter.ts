@@ -2,8 +2,11 @@
  * @module Cache
  */
 
+import { isInvocableFn } from "@/utilities/_module.js";
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
+import type { InvocableFn, Promisable } from "@/utilities/_module.js";
 
 /**
  * The `NoOpCacheAdapter` will do nothing and is used for easily mocking {@link ICache | `ICache`} for testing.
@@ -13,11 +16,14 @@ import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
  * @group Adapters
  */
 export class NoOpCacheAdapter<TType = unknown> implements ICacheAdapter<TType> {
-    getOrAdd(
+    async getOrAdd(
         _key: string,
-        valueToAdd: TType,
+        valueToAdd: TType | InvocableFn<[], Promisable<TType>>,
         _ttl: Date | null,
     ): Promise<TType> {
+        if (isInvocableFn(valueToAdd)) {
+            valueToAdd = await valueToAdd();
+        }
         return Promise.resolve(valueToAdd);
     }
 

@@ -71,12 +71,14 @@ export type IReadableCache<TType = unknown> = {
 };
 
 /**
- * The `ICache` contract defines a way for storing and reading as key-value pairs independent of data storage.
+ * The `IWritableCache` contract defines a writable interface for caching key-value pairs.
+ * It provides methods to store, update, and remove cached values independent of the underlying cache storage backend (Redis, Memcached, database, etc.).
+ * Use this contract when you need read-write access to cache data.
  *
  * IMPORT_PATH: `"eridu-tech/cache/contracts"`
  * @group Contracts
  */
-export type ICache<TType = unknown> = IReadableCache<TType> & {
+export type IWritableCache<TType> = {
     /**
      * The `getAndRemove` method returns the value when `key` is found otherwise null will be returned.
      * The key will be removed after it is returned.
@@ -86,10 +88,14 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
 
     /**
      * The `getOrAdd` method retrieves the value for the given `key` if it exists,
-     * otherwise adds the `valueToAdd` to the cache and returns it.
+     * otherwise it evaluates `valueToAdd`, stores the result in the cache, and returns it.
+     *
+     * The `valueToAdd` can be a plain value, a sync function, or an async function that
+     * lazily produces the value to cache. When a function is provided, it is invoked only
+     * when the key is missing (or expired).
      *
      * @param key - The cache key to retrieve or add.
-     * @param valueToAdd - The value to store if the key is not found.
+     * @param valueToAdd - The value to store if the key is not found, or a function that lazily produces it.
      * @param ttl - Optional time-to-live for the cached item. If `null` is passed, the item will not expire.
      *
      * @returns The cached value if the key exists, or the newly added value.
@@ -97,7 +103,7 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
      */
     getOrAdd(
         key: string,
-        valueToAdd: TType,
+        valueToAdd: AsyncLazyable<TType>,
         ttl?: ITimeSpan | null,
     ): Promise<TType>;
 
@@ -225,3 +231,12 @@ export type ICache<TType = unknown> = IReadableCache<TType> & {
      */
     clear(): Promise<void>;
 };
+
+/**
+ * The `ICache` contract defines a way for storing and reading as key-value pairs independent of data storage.
+ *
+ * IMPORT_PATH: `"eridu-tech/cache/contracts"`
+ * @group Contracts
+ */
+export type ICache<TType = unknown> = IReadableCache<TType> &
+    IWritableCache<TType>;

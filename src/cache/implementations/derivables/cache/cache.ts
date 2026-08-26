@@ -7,7 +7,11 @@ import {
     KeyExistsCacheError,
 } from "@/cache/contracts/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { resolveAsyncLazyable } from "@/utilities/_module.js";
+import {
+    isInvocable,
+    resolveAsyncLazyable,
+    resolveInvocable,
+} from "@/utilities/_module.js";
 
 import type { ICache, ICacheAdapter } from "@/cache/contracts/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -128,12 +132,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
 
     async getOrAdd(
         key: string,
-        valueToAdd: TType,
+        valueToAdd: AsyncLazyable<TType>,
         ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<TType> {
         return await this.adapter.getOrAdd(
             key,
-            valueToAdd,
+            isInvocable(valueToAdd) ? resolveInvocable(valueToAdd) : valueToAdd,
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
         );
     }

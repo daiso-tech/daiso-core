@@ -4,6 +4,8 @@
 
 import { MysqlAdapter } from "kysely";
 
+import { isInvocableFn } from "@/utilities/_module.js";
+
 import type { Kysely } from "kysely";
 
 import type { ICacheAdapter } from "@/cache/contracts/_module.js";
@@ -13,6 +15,7 @@ import type {
     IInitizable,
     InvocableFn,
     IPrunable,
+    Promisable,
 } from "@/utilities/_module.js";
 
 /**
@@ -271,7 +274,7 @@ export class KyselyCacheAdapter<TType = unknown>
 
     async getOrAdd(
         key: string,
-        valueToAdd: TType,
+        valueToAdd: TType | InvocableFn<[], Promisable<TType>>,
         ttl: Date | null,
     ): Promise<TType> {
         return await this.transaction(async (trx) => {
@@ -288,6 +291,10 @@ export class KyselyCacheAdapter<TType = unknown>
                 if (!isExpired) {
                     return this.serde.deserialize(existing.value);
                 }
+            }
+
+            if (isInvocableFn(valueToAdd)) {
+                valueToAdd = await valueToAdd();
             }
 
             const serializedValue = this.serde.serialize(valueToAdd);
