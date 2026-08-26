@@ -19,11 +19,17 @@ describe("file: shared-lock.errors.ts", () => {
             expect(isReaderSemaphoreError(error)).toBe(true);
         });
         test("Should return true when given FailedRefreshReaderSemaphoreError instance", () => {
-            const error = FailedRefreshReaderSemaphoreError.create("a", "slot-1");
+            const error = FailedRefreshReaderSemaphoreError.create(
+                "a",
+                "slot-1",
+            );
             expect(isReaderSemaphoreError(error)).toBe(true);
         });
         test("Should return true when given FailedReleaseReaderSemaphoreError instance", () => {
-            const error = FailedReleaseReaderSemaphoreError.create("a", "slot-1");
+            const error = FailedReleaseReaderSemaphoreError.create(
+                "a",
+                "slot-1",
+            );
             expect(isReaderSemaphoreError(error)).toBe(true);
         });
         test("Should return false when given a writer lock error instance", () => {
