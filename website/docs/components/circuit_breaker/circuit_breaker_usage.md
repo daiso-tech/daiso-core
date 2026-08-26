@@ -253,7 +253,6 @@ const eventBus = new EventBus<EventMap>({
 const circuitBreakerFactory = new CircuitBreakerFactory({
     serde,
     adapter: new RedisCircuitBreakerAdapter({ databsae: redis }),
-    eventBus,
 });
 const circuitBreaker = circuitBreakerFactory.create("resource");
 

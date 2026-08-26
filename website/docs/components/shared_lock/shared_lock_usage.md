@@ -874,7 +874,6 @@ const eventBus = new EventBus<EventMap>({
 const sharedLockFactory = new SharedLockFactory({
     serde,
     adapter: new RedisSharedLockAdapter(redis),
-    eventBus,
 });
 const sharedLock = sharedLockFactory.create("resource", {
     limit: 2,

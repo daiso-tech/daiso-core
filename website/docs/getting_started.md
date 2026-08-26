@@ -6,9 +6,7 @@ sidebar_position: 1
 
 **Write business logic once. Replace infrastructure anytime.**
 
-eridu-tech is an adapter-first backend platform for TypeScript, purpose-built for developing and operating majestic modular monoliths. It provides a comprehensive ecosystem of officially maintained components—caching, locking, rate limiting, event buses, HTTP routing, resilience, and more—that integrate seamlessly with popular frameworks like Next.js, Nuxt, Express, and NestJS.
-
-Built on a unified architecture of a single serialization engine, a single execution context, and composable middleware, eridu-tech keeps your code decoupled from vendors. Switch infrastructure without rewriting business logic, test everything without Docker using in-memory adapters, and stay type-safe from day one.
+eridu-tech is an adapter-first backend foundation toolkit for TypeScript, purpose-built for developing majestic modular monoliths. It provides a comprehensive ecosystem of officially maintained components like caching, locking, rate limiting, event buses, HTTP routing, resilience, and more that integrate seamlessly with popular frameworks like Next.js, Nuxt, Express, and NestJS.
 
 This guide covers the basics: installation and configuration.
 

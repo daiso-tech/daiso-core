@@ -12,7 +12,7 @@ keywords:
 
 # FileStorage usage
 
-The `eridu-tech/FileStorage` component provides a way for managing files independent of underlying platform or storage.
+The `eridu-tech/file-storage` component provides a way for managing files independent of underlying platform or storage.
 
 ## Initial configuration
 
@@ -20,20 +20,24 @@ To begin using the `FileStorage` class, you'll need to create and configure an i
 
 ```ts
 import { TimeSpan } from "eridu-tech/time-span";
-import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
-import { FileStorage } from "eridu-tech/FileStorage";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
+import { FileStorage } from "eridu-tech/file-storage";
 
 const fileStorage = new FileStorage({
     // You can provide defaultContentType value by default is application/octet-stream
     defaultContentType: "text/plain",
 
     // You can choose the adapter to use
-    adapter: new MemoryFileStorageAdapter(),
+    adapter: new SignedFileStorageAdapter({
+        adapter: new MemoryFileStorageAdapter(),
+        urlAdapter: {},
+    }),
 });
 ```
 
 :::info
-Here is a complete list of settings for the [`FileStorage`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.FileStorage.html) class.
+Here is a complete list of settings for the [`FileStorage`](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.FileStorage.html) class.
 :::
 
 ## FileStorage basics
@@ -331,7 +335,7 @@ const metadata = await fileStorage.create("file.txt").getMetadata();
 console.log(metadata);
 ```
 
-The `getMetadata` returns [FileMetadata](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.FileMetadata.html) type.
+The `getMetadata` returns [FileMetadata](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.FileMetadata.html) type.
 
 ## Patterns
 
@@ -439,47 +443,6 @@ const publicUrl = await file.getPublicUrl();
 console.log(publicUrl);
 ```
 
-:::info
-Note since not all FileStorage adapters support signed or public URLs, you can manually override these behaviors using the `urlAdapter` setting:
-
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
-import {
-    FildeAdapterDownloadUrlSettings,
-    FildeAdapterUploadUrlSettings,
-} from "eridu-tech/FileStorage/contracts";
-import { FileStorage } from "eridu-tech/FileStorage";
-
-const fileStorage = new FileStorage({
-    // You can provide defaultContentType value by default is application/octet-stream
-    defaultContentType: "text/plain",
-
-    // You can choose the adapter to use
-    adapter: new MemoryFileStorageAdapter(),
-
-    urlAdapter: {
-        getPublicUrl(key: string): Promise<string | null> {
-            return null;
-        },
-        getSignedDownloadUrl(
-            key: string,
-            settings: FildeAdapterDownloadUrlSettings,
-        ): Promise<string | null> {
-            return null;
-        },
-        getSignedUploadUrl(
-            key: string,
-            settings: FildeAdapterUploadUrlSettings,
-        ): Promise<string> {
-            return "";
-        },
-    },
-});
-```
-
-:::
-
 ### File instance variables
 
 The `File` class exposes the key instance variable which is the filename:
@@ -496,7 +459,7 @@ console.log(file.key);
 File obejcts can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
 
 :::info
-Note when only file name will be saved when serialized and not it' content.
+Note only file name will be saved when serialized and not it' content.
 Which makes it efficient to send file over the network.
 :::
 
@@ -505,8 +468,9 @@ In order to serialize or deserialize a file object you need pass an object that 
 Manually serializing and deserializing the file object:
 
 ```ts
-import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
-import { FileStorage } from "eridu-tech/FileStorage";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
+import { FileStorage } from "eridu-tech/file-storage";
 import { Serde } from "eridu-tech/serde";
 import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
 
@@ -515,7 +479,10 @@ const serde = new Serde(new SuperJsonSerdeAdapter());
 const fileStorage = new FileStorage({
     // You can laso pass in an array of Serde class instances
     serde,
-    adapter: new MemoryFileStorageAdapter(),
+    adapter: new SignedFileStorageAdapter({
+        adapter: new MemoryFileStorageAdapter(),
+        urlAdapter: {},
+    }),
 });
 
 const file = fileStorage.create("file.txt");
@@ -534,9 +501,10 @@ Note you only need manuall serialization and deserialization when integrating wi
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the file object manually.
 
 ```ts
-import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
-import type { IFile } from "eridu-tech/FileStorage/contracts";
-import { FileStorage } from "eridu-tech/FileStorage";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
+import type { IFile } from "eridu-tech/file-storage/contracts";
+import { FileStorage } from "eridu-tech/file-storage";
 import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
 import { EventBus } from "eridu-tech/event-bus";
 import { Serde } from "eridu-tech/serde";
@@ -559,8 +527,10 @@ const eventBus = new EventBus<EventMap>({
 
 const fileStorage = new FileStorage({
     serde,
-    adapter: new MemoryFileStorageAdapter(),
-    eventBus,
+    adapter: new SignedFileStorageAdapter({
+        adapter: new MemoryFileStorageAdapter(),
+        urlAdapter: {},
+    }),
 });
 const file = fileStorage.create("file.txt");
 
@@ -580,14 +550,14 @@ await eventBus.addListener("sending-file-over-network", ({ file }) => {
 
 The library includes 3 additional contracts:
 
-- [`IReadableFile`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IReadableFile.html) - Allows only for reading a file.
+- [`IReadableFile`](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.IReadableFile.html) - Allows only for reading a file.
 
-- [`IFile`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IFile.html) - Allows for both reading and manipulating the file.
+- [`IFile`](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.IFile.html) - Allows for both reading and manipulating the file.
 
-- [`IFileFactory`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IFileFactory.html) - Allows only for creation of file.
+- [`IFileFactory`](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.IFileFactory.html) - Allows only for creation of file.
 
-- [`IFileStorage`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IFileStorage.html) - Allows for creation and removal of files.
+- [`IFileStorage`](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.IFileStorage.html) - Allows for creation and removal of files.
 
 ## Further information
 
-For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech-core/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/file-storage`](https://eridu-tech.github.io/eridu-tech-core/modules/file-storage.html) API docs.

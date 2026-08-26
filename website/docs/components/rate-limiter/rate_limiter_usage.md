@@ -199,7 +199,6 @@ const eventBus = new EventBus<EventMap>({
 const rateLimiterFactory = new RateLimiterFactory({
     serde,
     adapter: new RedisRateLimiterAdapter({ databsae: redis }),
-    eventBus,
 });
 const rateLimiter = rateLimiterFactory.create("resource");
 

@@ -14,6 +14,7 @@ tags:
     - Supabase Storage
     - Minio
     - NoOp
+    - Signed
 keywords:
     - FileStorage
     - Configuring adapters
@@ -26,6 +27,7 @@ keywords:
     - Supabase Storage
     - Minio
     - NoOp
+    - Signed
 ---
 
 # Configuring FileStorage adapters
@@ -35,7 +37,7 @@ keywords:
 To use the `MemoryFileStorageAdapter` you only need to create instance of it:
 
 ```ts
-import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
 
 const memoryFileStorageAdapter = new MemoryFileStorageAdapter();
 ```
@@ -43,7 +45,7 @@ const memoryFileStorageAdapter = new MemoryFileStorageAdapter();
 You can also provide an `Map` that will be used for storing the files in memory:
 
 ```ts
-import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
 
 const map = new Map<any, any>();
 const memoryFileStorageAdapter = new MemoryFileStorageAdapter(map);
@@ -62,7 +64,7 @@ Note this adapter doesnt have support for creating signed upload, signed downloa
 To use the `FsFileStorageAdapter` you only need to create instance of it:
 
 ```ts
-import { FsFileStorageAdapter } from "eridu-tech/FileStorage/fs-FileStorage-adapter";
+import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
 
 const fsFileStorageAdapter = new FsFileStorageAdapter();
 ```
@@ -70,7 +72,7 @@ const fsFileStorageAdapter = new FsFileStorageAdapter();
 You can configure the root folder:
 
 ```ts
-import { FsFileStorageAdapter } from "eridu-tech/FileStorage/fs-FileStorage-adapter";
+import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
 
 const fsFileStorageAdapter = new FsFileStorageAdapter({
     location: "/my-custom-location",
@@ -81,7 +83,7 @@ You can configure codec used for file names:
 
 ```ts
 import { Base64Codec } from "eridu-tech/codec/base-64-codec";
-import { FsFileStorageAdapter } from "eridu-tech/FileStorage/fs-FileStorage-adapter";
+import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
 
 const fsFileStorageAdapter = new FsFileStorageAdapter({
     codec: new Base64Codec(),
@@ -104,7 +106,7 @@ To use the `S3FileStorageAdapter`, you'll need to:
 1. Install the required dependency: [`@aws-sdk/client-s3`](https://www.npmjs.com/package/@aws-sdk/client-s3) package:
 
 ```ts
-import { S3FileStorageAdapter } from "eridu-tech/FileStorage/s3-FileStorage-adapter";
+import { S3FileStorageAdapter } from "eridu-tech/file-storage/s3-file-storage-adapter";
 
 const s3Client = new S3Client({
     credentials: {
@@ -124,7 +126,7 @@ Other settings:
 import {
     S3FileStorageAdapter,
     defaultPublicUrlGenerator,
-} from "eridu-tech/FileStorage/s3-FileStorage-adapter";
+} from "eridu-tech/file-storage/s3-file-storage-adapter";
 
 const s3Client = new S3Client({
     credentials: {
@@ -180,12 +182,77 @@ Note this adapter with object storage services that are compatible with aws s3 l
 - Minio
   :::
 
+## SignedFileStorageAdapter
+
+The `SignedFileStorageAdapter` merges a regular file storage adapter with a URL adapter into a single [`ISignedFileStorageAdapter`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.ISignedFileStorageAdapter.html).
+
+The `adapter` handles all file CRUD operations (create, read, update, delete, copy and move), while the `urlAdapter` handles public and signed URL generation.
+
+This is useful for storage backends where file operations and signed URL generation are handled separately, for example a database-backed storage adapter combined with an S3 URL adapter. Since `S3FileStorageAdapter` already implements signed URL generation, you typically use `SignedFileStorageAdapter` when you need to pair a regular adapter (that does not generate URLs) with your own URL generation logic.
+
+To use the `SignedFileStorageAdapter` you need to provide:
+
+- `adapter`: The underlying file storage adapter that handles file operations. It is not required to implement signed URL generation.
+- `urlAdapter`: A partial URL adapter for generating public and signed URLs. Only the URL methods your storage backend supports need to be provided.
+
+Basic usage:
+
+```ts
+import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+
+const signedFileStorageAdapter = new SignedFileStorageAdapter({
+    adapter: new MemoryFileStorageAdapter(),
+    urlAdapter: {},
+});
+```
+
+You can provide the URL methods that your storage backend supports:
+
+```ts
+import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+import type {
+    FileAdapterSignedDownloadUrlSettings,
+    FileAdapterSignedUploadUrlSettings,
+} from "eridu-tech/file-storage/contracts";
+
+const signedFileStorageAdapter = new SignedFileStorageAdapter({
+    adapter: new MemoryFileStorageAdapter(),
+    urlAdapter: {
+        async getPublicUrl(key: string): Promise<string | null> {
+            return `https://cdn.example.com/${key}`;
+        },
+        async getSignedDownloadUrl(
+            key: string,
+            settings: FileAdapterSignedDownloadUrlSettings,
+        ): Promise<string | null> {
+            return generateSignedDownloadUrl(key, settings);
+        },
+        async getSignedUploadUrl(
+            key: string,
+            settings: FileAdapterSignedUploadUrlSettings,
+        ): Promise<string> {
+            return generateSignedUploadUrl(key, settings);
+        },
+    },
+});
+```
+
+:::info
+Any omitted URL method falls back to a no-op implementation:
+
+- `getPublicUrl` returns `null`
+- `getSignedDownloadUrl` returns `null`
+- `getSignedUploadUrl` returns an empty string
+  :::
+
 ## NoOpFileStorageAdapter
 
 The `NoOpFileStorageAdapter` is a no-operation implementation, it performs no actions when called:
 
 ```ts
-import { NoOpFileStorageAdapter } from "eridu-tech/FileStorage/no-op-FileStorage-adpater";
+import { NoOpFileStorageAdapter } from "eridu-tech/file-storage/no-op-file-storage-adpater";
 
 const noOpFileStorageAdapter = new NoOpFileStorageAdapter();
 ```
@@ -196,4 +263,4 @@ The `NoOpFileStorageAdapter` is useful when you want to mock out or disable your
 
 ## Further information
 
-For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech-core/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/file-storage`](https://eridu-tech.github.io/eridu-tech-core/modules/file-storage.html) API docs.
