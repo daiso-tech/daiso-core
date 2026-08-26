@@ -86,7 +86,7 @@ const config: Config = {
                     editUrl:
                         "https://github.com/eridu-tech/eridu-tech-core/tree/main/website/",
                     remarkPlugins: [
-                        [codeImport, { rootDir: path.resolve(__dirname, "..") }],
+                        [codeImport, { rootDir: path.resolve(__dirname) }],
                     ],
                 },
                 blog: {
