@@ -6,7 +6,7 @@ import escapeStringRegexp from "escape-string-regexp";
 import { MongoServerError } from "mongodb";
 
 import { MongodbCacheAdapterSerde } from "@/cache/implementations/adapters/mongodb-cache-adapter/mongodb-cache-adapter-serde.js";
-import { UnexpectedError } from "@/utilities/_module.js";
+import { isInvocableFn, UnexpectedError } from "@/utilities/_module.js";
 
 import type {
     ObjectId,
@@ -20,7 +20,12 @@ import type { ICacheAdapter } from "@/cache/contracts/_module.js";
 import type { ISerde } from "@/serde/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
-import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
+    Promisable,
+} from "@/utilities/_module.js";
 
 /**
  * Configuration for `MongodbCacheAdapter`.
@@ -157,7 +162,7 @@ export class MongodbCacheAdapter<TType = unknown>
 
     async getOrAdd(
         key: string,
-        valueToAdd: TType,
+        valueToAdd: TType | InvocableFn<[], Promisable<TType>>,
         ttl: Date | null,
     ): Promise<TType> {
         const hasExpirationQuery = {
@@ -169,6 +174,9 @@ export class MongodbCacheAdapter<TType = unknown>
         const hasExpirationAndExpiredQuery = {
             $and: [hasExpirationQuery, hasExpiredQuery],
         };
+        if (isInvocableFn(valueToAdd)) {
+            valueToAdd = await valueToAdd();
+        }
         const serializedValue = this.serde.serialize(valueToAdd);
         const document = await this.collection.findOneAndUpdate(
             {
