@@ -62,14 +62,14 @@ const prefixedAdapter = withPlugin(
 **Before** — Rate-limiter keys are used as-is:
 
 ```ts
-adapter.getState("api:login", context);
+adapter.getState("api:login");
 // -> checks rate limit for "api:login"
 ```
 
 **After** — Rate-limiter keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.getState("api:login", context);
+prefixedAdapter.getState("api:login");
 // -> checks rate limit for "tenant-42:api:login"
 ```
 

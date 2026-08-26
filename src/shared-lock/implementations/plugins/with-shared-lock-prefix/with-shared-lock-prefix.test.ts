@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
@@ -10,7 +9,6 @@ import { withSharedLockPrefix } from "@/shared-lock/implementations/plugins/with
 import type { ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
 
 describe("function: withSharedLockPrefix", () => {
-    const context = new NoOpContext();
     const adapter = new NoOpSharedLockAdapter();
     const prefix = "test-prefix:";
     const currentDate = new Date();
@@ -27,11 +25,11 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.forceRelease("myKey", context);
+            await enhanced.forceRelease("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["forceRelease"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
 
@@ -41,11 +39,11 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.getState("myKey", context);
+            await enhanced.getState("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["getState"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
 
@@ -55,16 +53,11 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.acquireWriter(
-                "myKey",
-                "lockId",
-                currentDate,
-                context,
-            );
+            await enhanced.acquireWriter("myKey", "lockId", currentDate);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["acquireWriter"]>
-            >(`${prefix}myKey`, "lockId", currentDate, context);
+            >(`${prefix}myKey`, "lockId", currentDate);
         });
     });
 
@@ -74,11 +67,11 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.forceReleaseWriter("myKey", context);
+            await enhanced.forceReleaseWriter("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["forceReleaseWriter"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
 
@@ -88,16 +81,11 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.refreshWriter(
-                "myKey",
-                "lockId",
-                currentDate,
-                context,
-            );
+            await enhanced.refreshWriter("myKey", "lockId", currentDate);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshWriter"]>
-            >(`${prefix}myKey`, "lockId", currentDate, context);
+            >(`${prefix}myKey`, "lockId", currentDate);
         });
     });
 
@@ -107,11 +95,11 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.releaseWriter("myKey", "lockId", context);
+            await enhanced.releaseWriter("myKey", "lockId");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["releaseWriter"]>
-            >(`${prefix}myKey`, "lockId", context);
+            >(`${prefix}myKey`, "lockId");
         });
     });
 
@@ -122,7 +110,6 @@ describe("function: withSharedLockPrefix", () => {
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
             await enhanced.acquireReader({
-                context,
                 key: "myKey",
                 lockId: "lock1",
                 limit: 5,
@@ -132,7 +119,6 @@ describe("function: withSharedLockPrefix", () => {
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["acquireReader"]>
             >({
-                context,
                 key: `${prefix}myKey`,
                 lockId: "lock1",
                 limit: 5,
@@ -147,11 +133,11 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.forceReleaseAllReaders("myKey", context);
+            await enhanced.forceReleaseAllReaders("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["forceReleaseAllReaders"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
 
@@ -161,16 +147,11 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.refreshReader(
-                "myKey",
-                "lockId",
-                currentDate,
-                context,
-            );
+            await enhanced.refreshReader("myKey", "lockId", currentDate);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["refreshReader"]>
-            >(`${prefix}myKey`, "lockId", currentDate, context);
+            >(`${prefix}myKey`, "lockId", currentDate);
         });
     });
 
@@ -180,11 +161,11 @@ describe("function: withSharedLockPrefix", () => {
 
             const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
 
-            await enhanced.releaseReader("myKey", "lockId", context);
+            await enhanced.releaseReader("myKey", "lockId");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISharedLockAdapter["releaseReader"]>
-            >(`${prefix}myKey`, "lockId", context);
+            >(`${prefix}myKey`, "lockId");
         });
     });
 });

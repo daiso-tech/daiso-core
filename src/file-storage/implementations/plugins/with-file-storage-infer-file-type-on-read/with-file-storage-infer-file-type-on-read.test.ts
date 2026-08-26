@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
 import { withFileStorageInferFileTypeOnRead } from "@/file-storage/implementations/plugins/with-file-storage-infer-file-type-on-read/with-file-storage-infer-file-type-on-read.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -33,7 +32,6 @@ function iterableOf(chunk: Uint8Array): AsyncIterable<Uint8Array> {
 }
 
 describe("function: withFileStorageInferFileTypeOnRead", () => {
-    const context = new NoOpContext();
     const adapter = new NoOpFileStorageAdapter();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
     const metadata: FileAdapterMetadata = {
@@ -65,12 +63,12 @@ describe("function: withFileStorageInferFileTypeOnRead", () => {
                 withFileStorageInferFileTypeOnRead(),
             );
 
-            const result = await enhanced.getMetaData("myKey", context);
+            const result = await enhanced.getMetaData("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("myKey", context);
-            expect(streamSpy).toHaveBeenCalledWith("myKey", context);
+            >("myKey");
+            expect(streamSpy).toHaveBeenCalledWith("myKey");
             expect(result).toEqual({
                 ...metadata,
                 contentType: "application/zip",
@@ -89,12 +87,12 @@ describe("function: withFileStorageInferFileTypeOnRead", () => {
                 withFileStorageInferFileTypeOnRead(),
             );
 
-            const result = await enhanced.getMetaData("myKey", context);
+            const result = await enhanced.getMetaData("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("myKey", context);
-            expect(streamSpy).toHaveBeenCalledWith("myKey", context);
+            >("myKey");
+            expect(streamSpy).toHaveBeenCalledWith("myKey");
             expect(result).toEqual({
                 ...metadata,
                 contentType: "application/octet-stream",
@@ -113,12 +111,12 @@ describe("function: withFileStorageInferFileTypeOnRead", () => {
                 withFileStorageInferFileTypeOnRead(),
             );
 
-            const result = await enhanced.getMetaData("myKey", context);
+            const result = await enhanced.getMetaData("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("myKey", context);
-            expect(streamSpy).toHaveBeenCalledWith("myKey", context);
+            >("myKey");
+            expect(streamSpy).toHaveBeenCalledWith("myKey");
             expect(result).toEqual({ ...metadata, contentType: null });
         });
         test("Should not read the stream when the metadata content type is not null", async () => {
@@ -134,11 +132,11 @@ describe("function: withFileStorageInferFileTypeOnRead", () => {
                 withFileStorageInferFileTypeOnRead(),
             );
 
-            const result = await enhanced.getMetaData("myKey", context);
+            const result = await enhanced.getMetaData("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("myKey", context);
+            >("myKey");
             expect(streamSpy).not.toHaveBeenCalled();
             expect(result).toEqual(metadata);
         });
@@ -152,11 +150,11 @@ describe("function: withFileStorageInferFileTypeOnRead", () => {
                 withFileStorageInferFileTypeOnRead(),
             );
 
-            const result = await enhanced.getMetaData("myKey", context);
+            const result = await enhanced.getMetaData("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("myKey", context);
+            >("myKey");
             expect(result).toBeNull();
         });
     });

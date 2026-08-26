@@ -2,7 +2,6 @@
  * @module RateLimiter
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IRateLimiterFactory } from "@/rate-limiter/contracts/rate-limiter-factory.contract.js";
 
@@ -52,14 +51,10 @@ export type IRateLimiterAdapter = {
      * Returns the tracking metrics if the rate limiter exists, otherwise null.
      *
      * @param key Unique identifier for the rate limiter
-     * @param context Readable execution context for the operation
      *
      * @returns Current adapter state if found, or null if not yet initialized
      */
-    getState(
-        key: string,
-        context: IReadableContext,
-    ): Promise<IRateLimiterAdapterState | null>;
+    getState(key: string): Promise<IRateLimiterAdapterState | null>;
 
     /**
      * Updates the rate limiter state and checks against the configured limit.
@@ -68,15 +63,10 @@ export type IRateLimiterAdapter = {
      *
      * @param key Unique identifier for the rate limiter
      * @param limit Maximum allowed attempts in the current window
-     * @param context Readable execution context for the operation
      *
      * @returns Updated state with incremented attempt and success flag
      */
-    updateState(
-        key: string,
-        limit: number,
-        context: IReadableContext,
-    ): Promise<IRateLimiterAdapterState>;
+    updateState(key: string, limit: number): Promise<IRateLimiterAdapterState>;
 
     /**
      * Resets the rate limiter to its initial state.
@@ -84,7 +74,6 @@ export type IRateLimiterAdapter = {
      * Can be called even if the rate limiter has expired or was never initialized.
      *
      * @param key Unique identifier for the rate limiter to reset
-     * @param context Readable execution context for the operation
      */
-    reset(key: string, context: IReadableContext): Promise<void>;
+    reset(key: string): Promise<void>;
 };

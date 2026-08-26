@@ -2,7 +2,6 @@
  * @module Lock
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ILockFactory } from "@/lock/contracts/lock-factory.contract.js";
 
@@ -42,16 +41,10 @@ export type ILockAdapter = {
      * @param key - Unique identifier for the lock
      * @param lockId - Unique identifier for this acquirer (becomes the owner)
      * @param ttl - Expiration date for the lock, or null for an indefinite lock
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if lock was successfully acquired, false if already held by another owner
      */
-    acquire(
-        key: string,
-        lockId: string,
-        ttl: Date | null,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    acquire(key: string, lockId: string, ttl: Date | null): Promise<boolean>;
 
     /**
      * Releases a lock if owned by the specified lockId.
@@ -59,15 +52,10 @@ export type ILockAdapter = {
      *
      * @param key - Unique identifier for the lock
      * @param lockId - Unique identifier of the lock owner
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if lock was successfully released, false if not owned by lockId or doesn't exist
      */
-    release(
-        key: string,
-        lockId: string,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    release(key: string, lockId: string): Promise<boolean>;
 
     /**
      * Forcibly releases a lock regardless of ownership.
@@ -75,11 +63,10 @@ export type ILockAdapter = {
      * Bypasses ownership verification for situations where the owner is unavailable.
      *
      * @param key - Unique identifier for the lock
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if lock existed and was released, false if lock is already expired
      */
-    forceRelease(key: string, context: IReadableContext): Promise<boolean>;
+    forceRelease(key: string): Promise<boolean>;
 
     /**
      * Refreshes (extends) the time-to-live of an existing lock.
@@ -88,27 +75,17 @@ export type ILockAdapter = {
      * @param key - Unique identifier for the lock
      * @param lockId - Unique identifier of the lock owner
      * @param ttl - New expiration date to set
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if refresh succeeded, false if lock is unexpirable, expired, or not owned by lockId
      */
-    refresh(
-        key: string,
-        lockId: string,
-        ttl: Date,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    refresh(key: string, lockId: string, ttl: Date): Promise<boolean>;
 
     /**
      * Retrieves the current state of a lock.
      *
      * @param key - Unique identifier for the lock
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to the non-expired lock state if it exists; otherwise null for missing or expired locks
      */
-    getState(
-        key: string,
-        context: IReadableContext,
-    ): Promise<ILockAdapterState | null>;
+    getState(key: string): Promise<ILockAdapterState | null>;
 };

@@ -52,11 +52,10 @@ Reader methods that accept a key as a positional argument (`forceReleaseAllReade
 
 ```ts
 // Before:
-adapter.acquireReader({ context, key: "my-key", lockId: "l1", limit: 5, ttl });
+adapter.acquireReader({ key: "my-key", lockId: "l1", limit: 5, ttl });
 
 // After plugin transforms:
 adapter.acquireReader({
-    context,
     key: "prefix:my-key",
     lockId: "l1",
     limit: 5,
@@ -82,14 +81,14 @@ const prefixedAdapter = withPlugin(adapter, withSharedLockPrefix("tenant-42:"));
 **Before** — Shared lock keys are used as-is:
 
 ```ts
-adapter.acquireWriter("doc:42", "writer-1", ttl, context);
+adapter.acquireWriter("doc:42", "writer-1", ttl);
 // -> acquires writer lock on "doc:42"
 ```
 
 **After** — Shared lock keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.acquireWriter("doc:42", "writer-1", ttl, context);
+prefixedAdapter.acquireWriter("doc:42", "writer-1", ttl);
 // -> acquires writer lock on "tenant-42:doc:42"
 ```
 

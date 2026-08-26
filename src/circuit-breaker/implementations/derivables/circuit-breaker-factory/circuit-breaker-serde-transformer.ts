@@ -10,7 +10,6 @@ import type {
     ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
 import type { ISerializedCircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
 import type { TimeSpan } from "@/time-span/implementations/_module.js";
 import type { ErrorPolicy, OneOrMore, WaitUntil } from "@/utilities/_module.js";
@@ -26,7 +25,6 @@ export type CircuitBreakerSerdeTransformerSettings = {
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
     waitUntil: WaitUntil;
-    context: IReadableContext;
 };
 
 /**
@@ -43,7 +41,6 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
     private readonly waitUntil: WaitUntil;
-    private readonly context: IReadableContext;
 
     constructor(settings: CircuitBreakerSerdeTransformerSettings) {
         const {
@@ -54,10 +51,8 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
             serdeTransformerName,
             enableAsyncTracking,
             waitUntil,
-            context,
         } = settings;
 
-        this.context = context;
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.adapter = adapter;
@@ -98,7 +93,6 @@ export class CircuitBreakerSerdeTransformer implements ISerdeTransformer<
         const { key } = serializedValue;
 
         return new CircuitBreaker({
-            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             adapter: this.adapter,

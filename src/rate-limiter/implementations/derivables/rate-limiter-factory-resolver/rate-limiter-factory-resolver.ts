@@ -10,7 +10,6 @@ import {
     DefaultAdapterNotDefinedError,
 } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IRateLimiterFactoryResolver,
     IRateLimiterFactory,
@@ -106,15 +105,6 @@ export class RateLimiterFactoryResolver<
         return new RateLimiterFactoryResolver({
             ...this.settings,
             waitUntil,
-        });
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): RateLimiterFactoryResolver<TAdapters> {
-        return new RateLimiterFactoryResolver({
-            ...this.settings,
-            context,
         });
     }
 

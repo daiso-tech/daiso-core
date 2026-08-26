@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { MemoryRateLimiterStorageAdapter } from "@/rate-limiter/implementations/adapters/memory-rate-limiter-storage-adapter/_module.js";
 import { rateLimiterStorageAdapterTestSuite } from "@/rate-limiter/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/time-span.js";
@@ -21,18 +19,14 @@ describe("class: MemoryRateLimiterStorageAdapter", () => {
         test("Should remove expired rate limiters", async () => {
             const map = new Map<string, MemoryRateLimiterData>();
             const adapter = new MemoryRateLimiterStorageAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.transaction(async (trx) => {
                 await trx.upsert(
                     "expired",
                     1,
                     TimeSpan.fromMilliseconds(100).toEndDate(),
-                    noOpContext,
                 );
-            }, noOpContext);
+            });
 
             await delay(TimeSpan.fromMilliseconds(200));
 
@@ -43,18 +37,14 @@ describe("class: MemoryRateLimiterStorageAdapter", () => {
         test("Should keep unexpired rate limiters", async () => {
             const map = new Map<string, MemoryRateLimiterData>();
             const adapter = new MemoryRateLimiterStorageAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.transaction(async (trx) => {
                 await trx.upsert(
                     "unexpired",
                     2,
                     TimeSpan.fromMinutes(5).toEndDate(),
-                    noOpContext,
                 );
-            }, noOpContext);
+            });
 
             await delay(TimeSpan.fromMilliseconds(200));
 
@@ -65,24 +55,11 @@ describe("class: MemoryRateLimiterStorageAdapter", () => {
         test("Should not remove any rate limiters when none are expired", async () => {
             const map = new Map<string, MemoryRateLimiterData>();
             const adapter = new MemoryRateLimiterStorageAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.transaction(async (trx) => {
-                await trx.upsert(
-                    "a",
-                    1,
-                    TimeSpan.fromMinutes(5).toEndDate(),
-                    noOpContext,
-                );
-                await trx.upsert(
-                    "b",
-                    2,
-                    TimeSpan.fromMinutes(5).toEndDate(),
-                    noOpContext,
-                );
-            }, noOpContext);
+                await trx.upsert("a", 1, TimeSpan.fromMinutes(5).toEndDate());
+                await trx.upsert("b", 2, TimeSpan.fromMinutes(5).toEndDate());
+            });
 
             await delay(TimeSpan.fromMilliseconds(200));
 
@@ -97,29 +74,12 @@ describe("class: MemoryRateLimiterStorageAdapter", () => {
         test("Should clear rate limiter data", async () => {
             const map = new Map<string, MemoryRateLimiterData>();
             const adapter = new MemoryRateLimiterStorageAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
+
             await adapter.transaction(async (trx) => {
-                await trx.upsert(
-                    "a",
-                    1,
-                    TimeSpan.fromSeconds(2).toEndDate(),
-                    noOpContext,
-                );
-                await trx.upsert(
-                    "b",
-                    2,
-                    TimeSpan.fromSeconds(2).toEndDate(),
-                    noOpContext,
-                );
-                await trx.upsert(
-                    "c",
-                    3,
-                    TimeSpan.fromSeconds(2).toEndDate(),
-                    noOpContext,
-                );
-            }, noOpContext);
+                await trx.upsert("a", 1, TimeSpan.fromSeconds(2).toEndDate());
+                await trx.upsert("b", 2, TimeSpan.fromSeconds(2).toEndDate());
+                await trx.upsert("c", 3, TimeSpan.fromSeconds(2).toEndDate());
+            });
             await adapter.deInit();
 
             expect(map.size).toBe(0);

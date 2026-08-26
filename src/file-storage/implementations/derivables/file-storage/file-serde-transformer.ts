@@ -5,7 +5,6 @@
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
 import { getConstructorName } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     FileStorageAdapterVariants,
     ISignedFileStorageAdapter,
@@ -25,7 +24,6 @@ export type FileSerdeTransformerSettings = {
     originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
     serdeTransformerName: string;
-    context: IReadableContext;
 };
 
 /**
@@ -42,7 +40,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
     private readonly defaultContentEncoding: string | null;
     private readonly defaultCacheControl: string | null;
     private readonly defaultContentLanguage: string | null;
-    private readonly context: IReadableContext;
 
     constructor(settings: FileSerdeTransformerSettings) {
         const {
@@ -53,10 +50,8 @@ export class FileSerdeTransformer implements ISerdeTransformer<
             defaultContentEncoding,
             defaultContentLanguage,
             originalAdapter,
-            context,
         } = settings;
 
-        this.context = context;
         this.originalAdapter = originalAdapter;
         this.adapter = adapter;
         this.serdeTransformerName = serdeTransformerName;
@@ -97,7 +92,6 @@ export class FileSerdeTransformer implements ISerdeTransformer<
 
         return new File({
             originalKey: key,
-            context: this.context,
             originalAdapter: this.originalAdapter,
             defaultCacheControl: this.defaultCacheControl,
             defaultContentDisposition: this.defaultContentDisposition,

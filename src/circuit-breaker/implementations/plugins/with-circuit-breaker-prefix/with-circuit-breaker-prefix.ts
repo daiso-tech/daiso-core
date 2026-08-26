@@ -26,23 +26,23 @@ export function withCircuitBreakerPrefix(
         return prefix + key;
     }
     return (adapter, enhance) => {
-        enhance(adapter, "getState", ({ args: [key, context], next }) => {
-            return next([withPrefix(key), context]);
+        enhance(adapter, "getState", ({ args: [key], next }) => {
+            return next([withPrefix(key)]);
         });
-        enhance(adapter, "isolate", ({ args: [key, context], next }) => {
-            return next([withPrefix(key), context]);
+        enhance(adapter, "isolate", ({ args: [key], next }) => {
+            return next([withPrefix(key)]);
         });
-        enhance(adapter, "reset", ({ args: [key, context], next }) => {
-            return next([withPrefix(key), context]);
+        enhance(adapter, "reset", ({ args: [key], next }) => {
+            return next([withPrefix(key)]);
         });
-        enhance(adapter, "trackFailure", ({ args: [key, context], next }) => {
-            return next([withPrefix(key), context]);
+        enhance(adapter, "trackFailure", ({ args: [key], next }) => {
+            return next([withPrefix(key)]);
         });
-        enhance(adapter, "trackSuccess", ({ args: [key, context], next }) => {
-            return next([withPrefix(key), context]);
+        enhance(adapter, "trackSuccess", ({ args: [key], next }) => {
+            return next([withPrefix(key)]);
         });
-        enhance(adapter, "updateState", ({ args: [key, context], next }) => {
-            return next([withPrefix(key), context]);
+        enhance(adapter, "updateState", ({ args: [key], next }) => {
+            return next([withPrefix(key)]);
         });
     };
 }

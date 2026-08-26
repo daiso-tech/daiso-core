@@ -18,7 +18,6 @@ import type {
     ObjectId,
 } from "mongodb";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISharedLockAdapter,
     ISharedLockAdapterState,
@@ -274,7 +273,6 @@ export class MongodbSharedLockAdapter
         key: string,
         lockId: string,
         ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl ?? null;
         const isExpiredQuery = {
@@ -367,11 +365,7 @@ export class MongodbSharedLockAdapter
         return writerLock.expiration <= new Date();
     }
 
-    async releaseWriter(
-        key: string,
-        lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async releaseWriter(key: string, lockId: string): Promise<boolean> {
         const isWriterActive = {
             writer: {
                 $ne: null,
@@ -429,10 +423,7 @@ export class MongodbSharedLockAdapter
         return isNotExpired && isCurrentOwner;
     }
 
-    async forceReleaseWriter(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceReleaseWriter(key: string): Promise<boolean> {
         const sharedLock = await this.collection.findOneAndDelete(
             {
                 key,
@@ -475,7 +466,6 @@ export class MongodbSharedLockAdapter
         key: string,
         lockId: string,
         ttl: Date,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const isUnexpiredQuery = {
             $and: [
@@ -754,11 +744,7 @@ export class MongodbSharedLockAdapter
         return true;
     }
 
-    async releaseReader(
-        key: string,
-        slotId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async releaseReader(key: string, slotId: string): Promise<boolean> {
         const sharedLock = await this.collection.findOneAndUpdate(
             {
                 key,
@@ -820,10 +806,7 @@ export class MongodbSharedLockAdapter
         return false;
     }
 
-    async forceReleaseAllReaders(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceReleaseAllReaders(key: string): Promise<boolean> {
         const sharedLock = await this.collection.findOneAndDelete(
             {
                 key,
@@ -866,7 +849,6 @@ export class MongodbSharedLockAdapter
         key: string,
         slotId: string,
         ttl: Date,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const isExpireableQuery = {
             $ne: ["$$slot.expiration", null],
@@ -945,10 +927,7 @@ export class MongodbSharedLockAdapter
         return hasRefreshed;
     }
 
-    async forceRelease(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceRelease(key: string): Promise<boolean> {
         const sharedLock = await this.collection.findOneAndDelete({
             key,
         });
@@ -1047,10 +1026,7 @@ export class MongodbSharedLockAdapter
         return optionNone();
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ISharedLockAdapterState | null> {
+    async getState(key: string): Promise<ISharedLockAdapterState | null> {
         const sharedLock = await this.collection.findOne(
             { key },
             {

@@ -14,7 +14,6 @@ import type {
     ICacheResolver,
 } from "@/cache/contracts/_module.js";
 import type { CacheSettingsBase } from "@/cache/implementations/derivables/cache/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
@@ -89,15 +88,6 @@ export class CacheResolver<
 
     setType<TOutputType>(): CacheResolver<TAdapters, TOutputType> {
         return new CacheResolver(this.settings);
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): CacheResolver<TAdapters, TType> {
-        return new CacheResolver({
-            ...this.settings,
-            context,
-        });
     }
 
     /**

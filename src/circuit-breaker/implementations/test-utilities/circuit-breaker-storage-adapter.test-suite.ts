@@ -2,13 +2,9 @@
  * @module CircuitBreaker
  */
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
-
 import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
 
 import type { ICircuitBreakerStorageAdapter } from "@/circuit-breaker/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { Promisable } from "@/utilities/_module.js";
 
 /**
@@ -21,17 +17,6 @@ export type CircuitBreakerStorageAdapterTestSuiteSettings = {
     describe: SuiteAPI;
     beforeEach: typeof beforeEach;
     createAdapter: () => Promisable<ICircuitBreakerStorageAdapter>;
-
-    /**
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
 };
 
 /**
@@ -69,7 +54,6 @@ export function circuitBreakerStorageAdapterTestSuite(
         createAdapter,
         describe,
         beforeEach: beforeEach_,
-        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: ICircuitBreakerStorageAdapter<string>;
 
@@ -85,10 +69,10 @@ export function circuitBreakerStorageAdapterTestSuite(
                 const input = "b";
 
                 await adapter.transaction(async (trx) => {
-                    await trx.upsert(key, input, context);
-                }, context);
+                    await trx.upsert(key, input);
+                });
 
-                const value = await adapter.find(key, context);
+                const value = await adapter.find(key);
 
                 expect(value).toBe(input);
             });
@@ -98,11 +82,11 @@ export function circuitBreakerStorageAdapterTestSuite(
                 const input2 = "c";
 
                 await adapter.transaction(async (trx) => {
-                    await trx.upsert(key, input1, context);
-                    await trx.upsert(key, input2, context);
-                }, context);
+                    await trx.upsert(key, input1);
+                    await trx.upsert(key, input2);
+                });
 
-                const value = await adapter.find(key, context);
+                const value = await adapter.find(key);
                 expect(value).toBe(input2);
             });
         });
@@ -111,8 +95,8 @@ export function circuitBreakerStorageAdapterTestSuite(
                 const noneExistingKey = "a";
 
                 const value = await adapter.transaction(async (trx) => {
-                    return await trx.find(noneExistingKey, context);
-                }, context);
+                    return await trx.find(noneExistingKey);
+                });
 
                 expect(value).toBeNull();
             });
@@ -121,9 +105,9 @@ export function circuitBreakerStorageAdapterTestSuite(
                 const input = "b";
 
                 const value = await adapter.transaction(async (trx) => {
-                    await trx.upsert(key, input, context);
-                    return await trx.find(key, context);
-                }, context);
+                    await trx.upsert(key, input);
+                    return await trx.find(key);
+                });
 
                 expect(value).toBe(input);
             });
@@ -132,7 +116,7 @@ export function circuitBreakerStorageAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const noneExistingKey = "a";
 
-                const value = await adapter.find(noneExistingKey, context);
+                const value = await adapter.find(noneExistingKey);
 
                 expect(value).toBeNull();
             });
@@ -141,9 +125,9 @@ export function circuitBreakerStorageAdapterTestSuite(
                 const input = "b";
 
                 await adapter.transaction(async (trx) => {
-                    await trx.upsert(key, input, context);
-                }, context);
-                const value = await adapter.find(key, context);
+                    await trx.upsert(key, input);
+                });
+                const value = await adapter.find(key);
 
                 expect(value).toBe(input);
             });
@@ -153,12 +137,12 @@ export function circuitBreakerStorageAdapterTestSuite(
                 const key = "a";
 
                 await adapter.transaction(async (trx) => {
-                    await trx.upsert(key, "value", context);
-                }, context);
+                    await trx.upsert(key, "value");
+                });
 
-                await adapter.remove(key, context);
+                await adapter.remove(key);
 
-                const value = await adapter.find(key, context);
+                const value = await adapter.find(key);
                 expect(value).toBeNull();
             });
         });

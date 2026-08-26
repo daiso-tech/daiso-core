@@ -6,7 +6,6 @@ import { Lock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { getConstructorName } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ILockAdapter } from "@/lock/contracts/_module.js";
 import type { ISerializedLock } from "@/lock/implementations/derivables/lock-factory/lock.js";
 import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
@@ -19,7 +18,6 @@ export type LockSerdeTransformerSettings = {
     adapter: ILockAdapter;
     defaultRefreshTime: TimeSpan;
     serdeTransformerName: string;
-    context: IReadableContext;
 };
 
 /**
@@ -32,13 +30,10 @@ export class LockSerdeTransformer implements ISerdeTransformer<
     private readonly adapter: ILockAdapter;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
-    private readonly context: IReadableContext;
 
     constructor(settings: LockSerdeTransformerSettings) {
-        const { adapter, defaultRefreshTime, serdeTransformerName, context } =
-            settings;
+        const { adapter, defaultRefreshTime, serdeTransformerName } = settings;
 
-        this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.defaultRefreshTime = defaultRefreshTime;
@@ -74,7 +69,6 @@ export class LockSerdeTransformer implements ISerdeTransformer<
         const { key, ttlInMs, lockId } = serializedValue;
 
         return new Lock({
-            context: this.context,
             adapter: this.adapter,
             key,
             lockId,

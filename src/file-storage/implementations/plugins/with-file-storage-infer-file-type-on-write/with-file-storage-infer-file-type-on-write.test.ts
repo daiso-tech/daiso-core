@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
 import { withFileStorageInferFileTypeOnWrite } from "@/file-storage/implementations/plugins/with-file-storage-infer-file-type-on-write/with-file-storage-infer-file-type-on-write.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -33,7 +32,6 @@ function iterableOf(chunk: Uint8Array): AsyncIterable<Uint8Array> {
 }
 
 describe("function: withFileStorageInferFileTypeOnWrite", () => {
-    const context = new NoOpContext();
     const adapter = new NoOpFileStorageAdapter();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
     const zipBytes = new Uint8Array([
@@ -63,11 +61,11 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 withFileStorageInferFileTypeOnWrite(),
             );
 
-            await enhanced.add("myKey", content, context);
+            await enhanced.add("myKey", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["add"]>
-            >("myKey", { ...content, contentType: "application/zip" }, context);
+            >("myKey", { ...content, contentType: "application/zip" });
         });
         test("Should keep the provided content type when the file type is unknown", async () => {
             const spy = vi.spyOn(adapter, "add");
@@ -86,11 +84,11 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 withFileStorageInferFileTypeOnWrite(),
             );
 
-            await enhanced.add("myKey", content, context);
+            await enhanced.add("myKey", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["add"]>
-            >("myKey", content, context);
+            >("myKey", content);
         });
     });
     describe("method: addStream", () => {
@@ -111,7 +109,7 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.addStream("myKey", content, context);
+            await enhanced.addStream("myKey", content);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy.mock.calls[0]?.[1]).toMatchObject({
@@ -136,7 +134,7 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.addStream("myKey", content, context);
+            await enhanced.addStream("myKey", content);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy.mock.calls[0]?.[1]).toMatchObject({
@@ -172,11 +170,11 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 withFileStorageInferFileTypeOnWrite(),
             );
 
-            await enhanced.update("myKey", content, context);
+            await enhanced.update("myKey", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["update"]>
-            >("myKey", { ...content, contentType: "application/zip" }, context);
+            >("myKey", { ...content, contentType: "application/zip" });
         });
         test("Should keep the provided content type when the file type is unknown", async () => {
             const spy = vi.spyOn(adapter, "update");
@@ -195,11 +193,11 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 withFileStorageInferFileTypeOnWrite(),
             );
 
-            await enhanced.update("myKey", content, context);
+            await enhanced.update("myKey", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["update"]>
-            >("myKey", content, context);
+            >("myKey", content);
         });
     });
     describe("method: updateStream", () => {
@@ -221,7 +219,7 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.updateStream("myKey", content, context);
+            await enhanced.updateStream("myKey", content);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy.mock.calls[0]?.[1]).toMatchObject({
@@ -246,7 +244,7 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.updateStream("myKey", content, context);
+            await enhanced.updateStream("myKey", content);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy.mock.calls[0]?.[1]).toMatchObject({
@@ -282,11 +280,11 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 withFileStorageInferFileTypeOnWrite(),
             );
 
-            await enhanced.put("myKey", content, context);
+            await enhanced.put("myKey", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["put"]>
-            >("myKey", { ...content, contentType: "application/zip" }, context);
+            >("myKey", { ...content, contentType: "application/zip" });
         });
         test("Should keep the provided content type when the file type is unknown", async () => {
             const spy = vi.spyOn(adapter, "put");
@@ -305,11 +303,11 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 withFileStorageInferFileTypeOnWrite(),
             );
 
-            await enhanced.put("myKey", content, context);
+            await enhanced.put("myKey", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["put"]>
-            >("myKey", content, context);
+            >("myKey", content);
         });
     });
     describe("method: putStream", () => {
@@ -331,7 +329,7 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.putStream("myKey", content, context);
+            await enhanced.putStream("myKey", content);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy.mock.calls[0]?.[1]).toMatchObject({
@@ -356,7 +354,7 @@ describe("function: withFileStorageInferFileTypeOnWrite", () => {
                 contentDisposition: null,
                 cacheControl: null,
             };
-            await enhanced.putStream("myKey", content, context);
+            await enhanced.putStream("myKey", content);
 
             expect(spy).toHaveBeenCalledOnce();
             expect(spy.mock.calls[0]?.[1]).toMatchObject({

@@ -6,7 +6,6 @@ import { MysqlAdapter } from "kysely";
 
 import type { Kysely } from "kysely";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISemaphoreAdapter,
     ISemaphoreAdapterState,
@@ -215,7 +214,7 @@ export class KyselySemaphoreAdapter
     }
 
     async acquire(settings: SemaphoreAcquireSettings): Promise<boolean> {
-        const { context: _context, key, slotId, limit, ttl } = settings;
+        const { key, slotId, limit, ttl } = settings;
 
         return await this.transaction(async (trx) => {
             // Create the semaphore if it doesn't exist (never overwrite limit
@@ -294,11 +293,7 @@ export class KyselySemaphoreAdapter
         });
     }
 
-    async release(
-        key: string,
-        slotId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async release(key: string, slotId: string): Promise<boolean> {
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
@@ -344,10 +339,7 @@ export class KyselySemaphoreAdapter
         return result !== undefined;
     }
 
-    async forceReleaseAll(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceReleaseAll(key: string): Promise<boolean> {
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
@@ -390,12 +382,7 @@ export class KyselySemaphoreAdapter
         return result !== undefined;
     }
 
-    async refresh(
-        key: string,
-        slotId: string,
-        ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async refresh(key: string, slotId: string, ttl: Date): Promise<boolean> {
         const expiration = ttl.getTime();
         const result = await this.kysely
             .updateTable("semaphoreSlot")
@@ -413,10 +400,7 @@ export class KyselySemaphoreAdapter
         return Number(result[0]?.numUpdatedRows ?? 0n) > 0;
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ISemaphoreAdapterState | null> {
+    async getState(key: string): Promise<ISemaphoreAdapterState | null> {
         const semaphore = await this.kysely
             .selectFrom("semaphore")
             .where("semaphore.key", "=", key)

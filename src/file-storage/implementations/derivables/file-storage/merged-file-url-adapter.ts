@@ -3,7 +3,6 @@
  */
 import { NoOpFileUrlAdapter } from "@/file-storage/implementations/derivables/file-storage/no-op-file-url-adapter.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     FileAdapterSignedDownloadUrlSettings,
     FileAdapterSignedUploadUrlSettings,
@@ -18,43 +17,30 @@ export class MergedFileUrlAdapter implements IFileUrlAdapter {
 
     constructor(private readonly adapter: Partial<IFileUrlAdapter>) {}
 
-    async getPublicUrl(
-        key: string,
-        context: IReadableContext,
-    ): Promise<string | null> {
+    async getPublicUrl(key: string): Promise<string | null> {
         if (this.adapter.getPublicUrl === undefined) {
-            return this.noOpUrlAdapter.getPublicUrl(key, context);
+            return this.noOpUrlAdapter.getPublicUrl(key);
         }
-        return this.adapter.getPublicUrl(key, context);
+        return this.adapter.getPublicUrl(key);
     }
 
     async getSignedDownloadUrl(
         key: string,
         settings: FileAdapterSignedDownloadUrlSettings,
-        context: IReadableContext,
     ): Promise<string | null> {
         if (this.adapter.getSignedDownloadUrl === undefined) {
-            return this.noOpUrlAdapter.getSignedDownloadUrl(
-                key,
-                settings,
-                context,
-            );
+            return this.noOpUrlAdapter.getSignedDownloadUrl(key, settings);
         }
-        return this.adapter.getSignedDownloadUrl(key, settings, context);
+        return this.adapter.getSignedDownloadUrl(key, settings);
     }
 
     async getSignedUploadUrl(
         key: string,
         settings: FileAdapterSignedUploadUrlSettings,
-        context: IReadableContext,
     ): Promise<string> {
         if (this.adapter.getSignedUploadUrl === undefined) {
-            return this.noOpUrlAdapter.getSignedUploadUrl(
-                key,
-                settings,
-                context,
-            );
+            return this.noOpUrlAdapter.getSignedUploadUrl(key, settings);
         }
-        return this.adapter.getSignedUploadUrl(key, settings, context);
+        return this.adapter.getSignedUploadUrl(key, settings);
     }
 }

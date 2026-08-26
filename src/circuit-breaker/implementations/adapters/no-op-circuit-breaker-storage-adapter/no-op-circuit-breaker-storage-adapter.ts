@@ -8,7 +8,6 @@ import type {
     ICircuitBreakerStorageAdapter,
     ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
@@ -25,28 +24,21 @@ export class NoOpCircuitBreakerStorageAdapter<
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
-        _context: IReadableContext,
     ): Promise<TValue> {
         return Promise.resolve(
             fn({
-                find: (
-                    _key: string,
-                    _nestedContext: IReadableContext,
-                ): Promise<TType | null> => Promise.resolve(null),
-                upsert: (
-                    _key: string,
-                    _state: TType,
-                    _nestedContext: IReadableContext,
-                ) => Promise.resolve(),
+                find: (_key: string): Promise<TType | null> =>
+                    Promise.resolve(null),
+                upsert: (_key: string, _state: TType) => Promise.resolve(),
             }),
         );
     }
 
-    find(_key: string, _context: IReadableContext): Promise<TType | null> {
+    find(_key: string): Promise<TType | null> {
         return Promise.resolve(null);
     }
 
-    remove(_key: string, _context: IReadableContext): Promise<void> {
+    remove(_key: string): Promise<void> {
         return Promise.resolve();
     }
 }

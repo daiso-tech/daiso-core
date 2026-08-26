@@ -10,7 +10,6 @@ import type {
     ICircuitBreakerStorageAdapter,
     ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerde } from "@/serde/contracts/_module.js";
 import type {
     IDeinitizable,
@@ -91,11 +90,7 @@ class KyselyCircuitBreakerStorageAdapterTransaction<
             this.kysely.getExecutor().adapter instanceof MysqlAdapter;
     }
 
-    async upsert(
-        key: string,
-        state: TType,
-        _context: IReadableContext,
-    ): Promise<void> {
+    async upsert(key: string, state: TType): Promise<void> {
         const serializedState = this.serde.serialize(state);
         await this.kysely
             .insertInto("circuitBreaker")
@@ -118,7 +113,7 @@ class KyselyCircuitBreakerStorageAdapterTransaction<
             .execute();
     }
 
-    async find(key: string, _context: IReadableContext): Promise<TType | null> {
+    async find(key: string): Promise<TType | null> {
         return find(key, {
             serde: this.serde,
             kysely: this.kysely,
@@ -217,7 +212,6 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
             [transaction: ICircuitBreakerStorageAdapterTransaction],
             Promise<TValue>
         >,
-        _context: IReadableContext,
     ): Promise<TValue> {
         return await this.internalTransaction(async (trx) => {
             return await fn(
@@ -229,14 +223,14 @@ export class KyselyCircuitBreakerStorageAdapter<TType>
         });
     }
 
-    async find(key: string, _context: IReadableContext): Promise<TType | null> {
+    async find(key: string): Promise<TType | null> {
         return find(key, {
             serde: this.serde,
             kysely: this.kysely,
         });
     }
 
-    async remove(key: string, _context: IReadableContext): Promise<void> {
+    async remove(key: string): Promise<void> {
         await this.kysely
             .deleteFrom("circuitBreaker")
             .where("circuitBreaker.key", "=", key)

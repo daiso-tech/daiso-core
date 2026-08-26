@@ -11,7 +11,6 @@ import {
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { resolveLazyable } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ILock,
     ILockAdapter,
@@ -43,7 +42,6 @@ export type LockSettings = {
     lockId: string;
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
-    context: IReadableContext;
 };
 
 /**
@@ -68,7 +66,6 @@ export class Lock implements ILock {
     private internalTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
-    private readonly context: IReadableContext;
 
     constructor(settings: LockSettings) {
         const {
@@ -78,10 +75,8 @@ export class Lock implements ILock {
             ttl,
             serdeTransformerName,
             defaultRefreshTime,
-            context,
         } = settings;
 
-        this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.internalKey = key;
@@ -114,7 +109,6 @@ export class Lock implements ILock {
             this.internalKey,
             this.lockId,
             this.internalTtl?.toEndDate() ?? null,
-            this.context,
         );
     }
 
@@ -126,11 +120,7 @@ export class Lock implements ILock {
     }
 
     async release(): Promise<boolean> {
-        return await this.adapter.release(
-            this.internalKey,
-            this.lockId,
-            this.context,
-        );
+        return await this.adapter.release(this.internalKey, this.lockId);
     }
 
     async releaseOrFail(): Promise<void> {
@@ -141,7 +131,7 @@ export class Lock implements ILock {
     }
 
     async forceRelease(): Promise<boolean> {
-        return await this.adapter.forceRelease(this.internalKey, this.context);
+        return await this.adapter.forceRelease(this.internalKey);
     }
 
     async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
@@ -149,7 +139,6 @@ export class Lock implements ILock {
             this.internalKey,
             this.lockId,
             TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
         if (hasRefreshed) {
             this.internalTtl = TimeSpan.fromTimeSpan(ttl);
@@ -177,10 +166,7 @@ export class Lock implements ILock {
     }
 
     async getState(): Promise<ILockState> {
-        const state = await this.adapter.getState(
-            this.internalKey,
-            this.context,
-        );
+        const state = await this.adapter.getState(this.internalKey);
         if (state === null) {
             return {
                 type: LOCK_STATE.EXPIRED,

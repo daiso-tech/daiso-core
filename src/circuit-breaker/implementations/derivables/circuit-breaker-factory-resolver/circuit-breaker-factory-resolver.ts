@@ -17,7 +17,6 @@ import type {
     ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
 import type { CircuitBreakerFactorySettingsBase } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 import type { ErrorPolicy, WaitUntil } from "@/utilities/_module.js";
 
@@ -121,15 +120,6 @@ export class CircuitBreakerFactoryResolver<
         return new CircuitBreakerFactoryResolver({
             ...this.settings,
             waitUntil,
-        });
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): CircuitBreakerFactoryResolver<TAdapters> {
-        return new CircuitBreakerFactoryResolver({
-            ...this.settings,
-            context,
         });
     }
 

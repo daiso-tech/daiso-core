@@ -21,7 +21,6 @@ import type {
     ICircuitBreaker,
     ICircuitBreakerAdapter,
 } from "@/circuit-breaker/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     AsyncLazy,
     ErrorPolicy,
@@ -41,7 +40,6 @@ export type CircuitBreakerSettings = {
     trigger: CircuitBreakerTrigger;
     serdeTransformerName: string;
     waitUntil: WaitUntil;
-    context: IReadableContext;
 };
 
 /**
@@ -76,7 +74,6 @@ export class CircuitBreaker implements ICircuitBreaker {
     private readonly adapter: ICircuitBreakerAdapter;
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
-    private readonly context: IReadableContext;
 
     constructor(settings: CircuitBreakerSettings) {
         const {
@@ -88,10 +85,8 @@ export class CircuitBreaker implements ICircuitBreaker {
             slowCallTime,
             serdeTransformerName,
             waitUntil,
-            context,
         } = settings;
 
-        this.context = context;
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.internalKey = key;
@@ -115,29 +110,29 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     async getState(): Promise<CircuitBreakerState> {
-        return this.adapter.getState(this.internalKey, this.context);
+        return this.adapter.getState(this.internalKey);
     }
 
     private async trackFailure(): Promise<void> {
         if (this.enableAsyncTracking) {
             callInvocable(
                 this.waitUntil,
-                this.adapter.trackFailure(this.internalKey, this.context),
+                this.adapter.trackFailure(this.internalKey),
             );
             return;
         }
-        await this.adapter.trackFailure(this.internalKey, this.context);
+        await this.adapter.trackFailure(this.internalKey);
     }
 
     private async trackSuccess(): Promise<void> {
         if (this.enableAsyncTracking) {
             callInvocable(
                 this.waitUntil,
-                this.adapter.trackSuccess(this.internalKey, this.context),
+                this.adapter.trackSuccess(this.internalKey),
             );
             return;
         }
-        await this.adapter.trackSuccess(this.internalKey, this.context);
+        await this.adapter.trackSuccess(this.internalKey);
     }
 
     private async trackErrorWrapper<TValue = void>(
@@ -195,10 +190,7 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     private async guard(): Promise<void> {
-        const transition = await this.adapter.updateState(
-            this.internalKey,
-            this.context,
-        );
+        const transition = await this.adapter.updateState(this.internalKey);
 
         const isInOpenState = transition.to === CIRCUIT_BREAKER_STATE.OPEN;
         if (isInOpenState) {
@@ -224,10 +216,10 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     async reset(): Promise<void> {
-        await this.adapter.reset(this.internalKey, this.context);
+        await this.adapter.reset(this.internalKey);
     }
 
     async isolate(): Promise<void> {
-        await this.adapter.isolate(this.internalKey, this.context);
+        await this.adapter.isolate(this.internalKey);
     }
 }

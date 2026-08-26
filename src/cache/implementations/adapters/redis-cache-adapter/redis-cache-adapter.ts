@@ -10,7 +10,6 @@ import { ClearIterable } from "@/cache/implementations/adapters/redis-cache-adap
 import type { Redis, Result } from "ioredis";
 
 import type { ICacheAdapter } from "@/cache/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerde } from "@/serde/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
@@ -128,7 +127,6 @@ export class RedisCacheAdapter<
         key: string,
         valueToAdd: TType,
         ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<TType> {
         const serializedValue = this.serde.serialize(valueToAdd);
         const ttlInMs = ttl?.getTime() ?? -1;
@@ -159,7 +157,7 @@ export class RedisCacheAdapter<
         });
     }
 
-    async get(key: string, _context: IReadableContext): Promise<TType | null> {
+    async get(key: string): Promise<TType | null> {
         const value = await this.database.get(key);
         if (value === null) {
             return null;
@@ -167,10 +165,7 @@ export class RedisCacheAdapter<
         return await this.serde.deserialize(value);
     }
 
-    async getAndRemove(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<TType | null> {
+    async getAndRemove(key: string): Promise<TType | null> {
         const value = await this.database.getdel(key);
         if (value === null) {
             return null;
@@ -178,12 +173,7 @@ export class RedisCacheAdapter<
         return this.serde.deserialize(value);
     }
 
-    async add(
-        key: string,
-        value: TType,
-        ttl: Date | null,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async add(key: string, value: TType, ttl: Date | null): Promise<boolean> {
         if (ttl === null) {
             const result = await this.database.set(
                 key,
@@ -202,12 +192,7 @@ export class RedisCacheAdapter<
         return result === "OK";
     }
 
-    async put(
-        key: string,
-        value: TType,
-        ttl: Date | null,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async put(key: string, value: TType, ttl: Date | null): Promise<boolean> {
         if (ttl === null) {
             const result = await this.database.set(
                 key,
@@ -226,11 +211,7 @@ export class RedisCacheAdapter<
         return result !== null;
     }
 
-    async update(
-        key: string,
-        value: TType,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async update(key: string, value: TType): Promise<boolean> {
         const result = await this.database.set(
             key,
             this.serde.serialize(value),
@@ -239,11 +220,7 @@ export class RedisCacheAdapter<
         return result === "OK";
     }
 
-    async increment(
-        key: string,
-        value: number,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async increment(key: string, value: number): Promise<boolean> {
         try {
             const redisResult = await this.database.eridu_cache_increment(
                 key,
@@ -261,24 +238,18 @@ export class RedisCacheAdapter<
         }
     }
 
-    async removeMany(
-        keys: Array<string>,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async removeMany(keys: Array<string>): Promise<boolean> {
         const deleteResult = await this.database.del(...keys);
         return deleteResult > 0;
     }
 
-    private async removeAll(_context: IReadableContext): Promise<void> {
+    private async removeAll(): Promise<void> {
         await this.database.flushdb();
     }
 
-    async removeByPrefix(
-        prefix: string,
-        context: IReadableContext,
-    ): Promise<void> {
+    async removeByPrefix(prefix: string): Promise<void> {
         if (prefix === "") {
-            await this.removeAll(context);
+            await this.removeAll();
             return;
         }
         for await (const _ of new ClearIterable(this.database, prefix)) {

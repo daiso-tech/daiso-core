@@ -2,8 +2,6 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import { MemoryCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { cacheAdapterTestSuite } from "@/cache/implementations/test-utilities/_module.js";
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay } from "@/utilities/_module.js";
 
@@ -21,15 +19,11 @@ describe("class: MemoryCacheAdapter", () => {
         test("Should remove expired cache entries", async () => {
             const map = new Map<string, MemoryCacheEntryData>();
             const adapter = new MemoryCacheAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.add(
                 "expired",
                 "1",
                 TimeSpan.fromMilliseconds(100).toEndDate(),
-                noOpContext,
             );
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -41,15 +35,11 @@ describe("class: MemoryCacheAdapter", () => {
         test("Should keep unexpired cache entries", async () => {
             const map = new Map<string, MemoryCacheEntryData>();
             const adapter = new MemoryCacheAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.add(
                 "unexpired",
                 "2",
                 TimeSpan.fromMinutes(5).toEndDate(),
-                noOpContext,
             );
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -61,11 +51,8 @@ describe("class: MemoryCacheAdapter", () => {
         test("Should keep unexpireable cache entries", async () => {
             const map = new Map<string, MemoryCacheEntryData>();
             const adapter = new MemoryCacheAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
-            await adapter.add("unexpireable", "3", null, noOpContext);
+            await adapter.add("unexpireable", "3", null);
 
             await delay(TimeSpan.fromMilliseconds(200));
 
@@ -76,16 +63,12 @@ describe("class: MemoryCacheAdapter", () => {
         test("Should not remove any cache entries when none are expired", async () => {
             const map = new Map<string, MemoryCacheEntryData>();
             const adapter = new MemoryCacheAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
-            await adapter.add("unexpireable", "1", null, noOpContext);
+            await adapter.add("unexpireable", "1", null);
             await adapter.add(
                 "unexpired",
                 "2",
                 TimeSpan.fromMinutes(5).toEndDate(),
-                noOpContext,
             );
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -109,16 +92,12 @@ describe("class: MemoryCacheAdapter", () => {
         test("Should clear map", async () => {
             const map = new Map<string, MemoryCacheEntryData>();
             const adapter = new MemoryCacheAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
-            await adapter.add("a", "1", null, noOpContext);
+            await adapter.add("a", "1", null);
             await adapter.add(
                 "b",
                 "2",
                 TimeSpan.fromMilliseconds(100).toEndDate(),
-                noOpContext,
             );
 
             await adapter.deInit();

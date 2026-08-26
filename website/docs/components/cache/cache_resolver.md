@@ -77,7 +77,6 @@ The `CacheResolver` provides chainable methods to override the base configuratio
 ```ts
 await cacheResolver
     .setDefaultTtl(TimeSpan.fromMinutes(5))
-    .setExecutionContext(context)
     .use("redis")
     .add("user/jose@gmail.com", {
         name: "Jose",

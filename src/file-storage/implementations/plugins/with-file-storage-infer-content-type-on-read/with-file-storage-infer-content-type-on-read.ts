@@ -33,22 +33,18 @@ export function withFileStorageInferContentTypeOnRead(): PluginFn<IFileStorageAd
         return inferredContentType;
     }
     return (adapter, enhance) => {
-        enhance(
-            adapter,
-            "getMetaData",
-            async ({ args: [key, context], next }) => {
-                const metadata = await next([key, context]);
-                if (metadata === null) {
-                    return null;
-                }
-                return {
-                    ...metadata,
-                    contentType:
-                        metadata.contentType === null
-                            ? inferContentType(key)
-                            : metadata.contentType,
-                };
-            },
-        );
+        enhance(adapter, "getMetaData", async ({ args: [key], next }) => {
+            const metadata = await next([key]);
+            if (metadata === null) {
+                return null;
+            }
+            return {
+                ...metadata,
+                contentType:
+                    metadata.contentType === null
+                        ? inferContentType(key)
+                        : metadata.contentType,
+            };
+        });
     };
 }

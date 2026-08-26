@@ -3,8 +3,6 @@
  */
 
 import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/listener-store.js";
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { resolveInvocable, resolveOneOrMore } from "@/utilities/_module.js";
 
 import type {
@@ -17,7 +15,6 @@ import type {
     Unsubscribe,
     InferEvent,
 } from "@/event-bus/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { OneOrArray, InvocableFn } from "@/utilities/_module.js";
 
 /**
@@ -27,19 +24,9 @@ import type { OneOrArray, InvocableFn } from "@/utilities/_module.js";
  * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
-export type EventBusSettingsBase = {
-    /**
-     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
-};
+// TODO: add schema validation settings
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type EventBusSettingsBase = {};
 
 /**
  * Configuration for the `EventBus` class.
@@ -72,7 +59,6 @@ export class EventBus<
 > implements IEventBus<TEventMap> {
     private readonly store = new ListenerStore();
     private readonly adapter: IEventBusAdapter;
-    private readonly context: IReadableContext;
 
     /**
      * Thist instance variable is only used for testing!
@@ -98,10 +84,8 @@ export class EventBus<
                 );
             },
             adapter,
-            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.context = context;
         this.adapter = adapter;
         this._onUncaughtRejection = _onUncaughtRejection;
     }
@@ -138,7 +122,6 @@ export class EventBus<
             await this.adapter.addListener(
                 eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
-                this.context,
             );
         } catch (error: unknown) {
             this.store.getAndRemove(eventName, listener);
@@ -170,7 +153,6 @@ export class EventBus<
             await this.adapter.removeListener(
                 eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
-                this.context,
             );
         } catch (error: unknown) {
             this.store.getOrAdd(eventName, listener, resolvedListener);
@@ -216,7 +198,6 @@ export class EventBus<
             await this.adapter.addListener(
                 eventName,
                 resolvedListener as EventListenerFn<BaseEvent>,
-                this.context,
             );
         } catch (error: unknown) {
             this.store.getAndRemove(eventName, listener);
@@ -279,6 +260,6 @@ export class EventBus<
         if (typeof eventName !== "string") {
             throw new TypeError("!!__MESSAGE__!!");
         }
-        await this.adapter.dispatch(eventName, event, this.context);
+        await this.adapter.dispatch(eventName, event);
     }
 }

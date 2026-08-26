@@ -2,7 +2,6 @@
  * @module Lock
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ILockAdapter,
     ILockAdapterState,
@@ -21,36 +20,23 @@ export class NoOpLockAdapter implements ILockAdapter {
         _key: string,
         _lockId: string,
         _ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    release(
-        _key: string,
-        _lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    release(_key: string, _lockId: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    forceRelease(_key: string, _context: IReadableContext): Promise<boolean> {
+    forceRelease(_key: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    refresh(
-        _key: string,
-        _lockId: string,
-        _ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    refresh(_key: string, _lockId: string, _ttl: Date): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    getState(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<ILockAdapterState | null> {
+    getState(_key: string): Promise<ILockAdapterState | null> {
         return Promise.resolve(null);
     }
 }

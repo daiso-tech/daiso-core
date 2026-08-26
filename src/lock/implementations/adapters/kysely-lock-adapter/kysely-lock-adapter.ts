@@ -6,7 +6,6 @@ import { MysqlAdapter } from "kysely";
 
 import type { Kysely } from "kysely";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ILockAdapter,
     ILockAdapterState,
@@ -193,7 +192,6 @@ export class KyselyLockAdapter
         key: string,
         lockId: string,
         ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<boolean> {
         return await this.transaction(async (trx) => {
             const existing = await trx
@@ -239,11 +237,7 @@ export class KyselyLockAdapter
         });
     }
 
-    async release(
-        key: string,
-        lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async release(key: string, lockId: string): Promise<boolean> {
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
@@ -289,10 +283,7 @@ export class KyselyLockAdapter
         return result !== undefined;
     }
 
-    async forceRelease(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceRelease(key: string): Promise<boolean> {
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
@@ -335,12 +326,7 @@ export class KyselyLockAdapter
         return result !== undefined;
     }
 
-    async refresh(
-        key: string,
-        lockId: string,
-        ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async refresh(key: string, lockId: string, ttl: Date): Promise<boolean> {
         const expiration = ttl.getTime();
         const result = await this.kysely
             .updateTable("lock")
@@ -358,10 +344,7 @@ export class KyselyLockAdapter
         return Number(result[0]?.numUpdatedRows ?? 0n) > 0;
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ILockAdapterState | null> {
+    async getState(key: string): Promise<ILockAdapterState | null> {
         return await this._find(key);
     }
 }

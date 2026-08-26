@@ -8,7 +8,6 @@ import {
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IFileStorage,
     ISignedFileStorageAdapter,
@@ -118,15 +117,6 @@ export class FileStorageResolver<
         return new FileStorageResolver({
             ...this.settings,
             urlAdapter,
-        });
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            context,
         });
     }
 

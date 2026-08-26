@@ -57,18 +57,18 @@ const prefixedAdapter = withPlugin(adapter, withEventBusPrefix("tenant-42:"));
 **Before** — Event names are used as-is:
 
 ```ts
-adapter.dispatch("user.created", data, context);
+adapter.dispatch("user.created", data);
 // -> dispatches "user.created"
-adapter.addListener("user.created", listener, context);
+adapter.addListener("user.created", listener);
 // -> listens to "user.created"
 ```
 
 **After** — Event names are automatically prefixed:
 
 ```ts
-prefixedAdapter.dispatch("user.created", data, context);
+prefixedAdapter.dispatch("user.created", data);
 // -> dispatches "tenant-42:user.created"
-prefixedAdapter.addListener("user.created", listener, context);
+prefixedAdapter.addListener("user.created", listener);
 // -> listens to "tenant-42:user.created"
 ```
 
@@ -151,16 +151,12 @@ const enhanced = withPlugin(
 );
 
 // Dispatch is still validated
-await enhanced.dispatch("user.created", { userId: "123" }, context);
+await enhanced.dispatch("user.created", { userId: "123" });
 
 // Listeners receive the raw event data without validation
-await enhanced.addListener(
-    "user.created",
-    (event) => {
-        console.log(event);
-    },
-    context,
-);
+await enhanced.addListener("user.created", (event) => {
+    console.log(event);
+});
 ```
 
 ### Settings
