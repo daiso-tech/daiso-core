@@ -14,6 +14,7 @@ tags:
     - Supabase Storage
     - Minio
     - NoOp
+    - Signed
 keywords:
     - FileStorage
     - Configuring adapters
@@ -26,6 +27,7 @@ keywords:
     - Supabase Storage
     - Minio
     - NoOp
+    - Signed
 ---
 
 # Configuring FileStorage adapters
@@ -178,6 +180,71 @@ Note this adapter with object storage services that are compatible with aws s3 l
 - Tigris
 - Supabase Storage
 - Minio
+  :::
+
+## SignedFileStorageAdapter
+
+The `SignedFileStorageAdapter` merges a regular file storage adapter with a URL adapter into a single [`ISignedFileStorageAdapter`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.ISignedFileStorageAdapter.html).
+
+The `adapter` handles all file CRUD operations (create, read, update, delete, copy and move), while the `urlAdapter` handles public and signed URL generation.
+
+This is useful for storage backends where file operations and signed URL generation are handled separately, for example a database-backed storage adapter combined with an S3 URL adapter. Since `S3FileStorageAdapter` already implements signed URL generation, you typically use `SignedFileStorageAdapter` when you need to pair a regular adapter (that does not generate URLs) with your own URL generation logic.
+
+To use the `SignedFileStorageAdapter` you need to provide:
+
+- `adapter`: The underlying file storage adapter that handles file operations. It is not required to implement signed URL generation.
+- `urlAdapter`: A partial URL adapter for generating public and signed URLs. Only the URL methods your storage backend supports need to be provided.
+
+Basic usage:
+
+```ts
+import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+
+const signedFileStorageAdapter = new SignedFileStorageAdapter({
+    adapter: new MemoryFileStorageAdapter(),
+    urlAdapter: {},
+});
+```
+
+You can provide the URL methods that your storage backend supports:
+
+```ts
+import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+import type {
+    FileAdapterSignedDownloadUrlSettings,
+    FileAdapterSignedUploadUrlSettings,
+} from "eridu-tech/file-storage/contracts";
+
+const signedFileStorageAdapter = new SignedFileStorageAdapter({
+    adapter: new MemoryFileStorageAdapter(),
+    urlAdapter: {
+        async getPublicUrl(key: string): Promise<string | null> {
+            return `https://cdn.example.com/${key}`;
+        },
+        async getSignedDownloadUrl(
+            key: string,
+            settings: FileAdapterSignedDownloadUrlSettings,
+        ): Promise<string | null> {
+            return generateSignedDownloadUrl(key, settings);
+        },
+        async getSignedUploadUrl(
+            key: string,
+            settings: FileAdapterSignedUploadUrlSettings,
+        ): Promise<string> {
+            return generateSignedUploadUrl(key, settings);
+        },
+    },
+});
+```
+
+:::info
+Any omitted URL method falls back to a no-op implementation:
+
+- `getPublicUrl` returns `null`
+- `getSignedDownloadUrl` returns `null`
+- `getSignedUploadUrl` returns an empty string
   :::
 
 ## NoOpFileStorageAdapter

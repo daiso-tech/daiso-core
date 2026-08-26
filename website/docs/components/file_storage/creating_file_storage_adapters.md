@@ -18,7 +18,7 @@ In order to create an adapter you need to implement the [`IFileStorageAdapter`](
 
 ## Implementing your custom ISignedFileStorageAdapter
 
-We provide an additional contract [`ISignedFileStorageAdapter`](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.ISignedFileStorageAdapter.html) for building custom FileStorage adapters with support for creating signed download and upload urls.
+We provide an additional contract [`ISignedFileStorageAdapter`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.ISignedFileStorageAdapter.html) for building custom FileStorage adapters with support for creating signed download and upload urls.
 
 ## Implementing your custom IFileStorage class
 
