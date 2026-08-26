@@ -484,7 +484,6 @@ const eventBus = new EventBus<EventMap>({
 const lockFactory = new LockFactory({
     serde,
     adapter: new RedisLockAdapter(redis),
-    eventBus,
 });
 const lock = lockFactory.create("resource");
 
