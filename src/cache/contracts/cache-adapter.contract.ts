@@ -2,6 +2,8 @@
  * @module Cache
  */
 
+import type { InvocableFn, Promisable } from "@/utilities/_module.js";
+
 /**
  * Low-level adapter contract for cache storage operations.
  * Defines CRUD operations for key-value pairs with expiration support.
@@ -41,15 +43,23 @@ export type ICacheAdapter<TType = unknown> = {
 
     /**
      * The `getOrAdd` method retrieves the value for the given `key` if it exists,
-     * otherwise adds the `valueToAdd` to the cache and returns it.
+     * otherwise it evaluates `valueToAdd`, stores the result in the cache, and returns it.
+     *
+     * The `valueToAdd` can be a plain value or an invocable function that lazily produces
+     * the value to cache. When a function is provided, it is invoked only when the key is
+     * missing (or expired) and may return the value directly or as a promise.
      *
      * @param key - The cache key to retrieve or add.
-     * @param valueToAdd - The value to store if the key is not found.
+     * @param valueToAdd - The value to store if the key is not found, or a function that lazily produces it.
      * @param ttl - Optional time-to-live for the cached item. If `null` is passed, the item will not expire.
      *
      * @returns The cached value if the key exists, or the newly added value.
      */
-    getOrAdd(key: string, valueToAdd: TType, ttl: Date | null): Promise<TType>;
+    getOrAdd(
+        key: string,
+        valueToAdd: TType | InvocableFn<[], Promisable<TType>>,
+        ttl: Date | null,
+    ): Promise<TType>;
 
     /**
      * Creates a new cache entry or updates an existing one (upsert).
