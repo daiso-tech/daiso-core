@@ -12,7 +12,6 @@ import type {
     IFileStorage,
     ISignedFileStorageAdapter,
     IFileStorageResolver,
-    IFileUrlAdapter,
 } from "@/file-storage/contracts/_module.js";
 import type { FileStorageSettingsBase } from "@/file-storage/implementations/derivables/file-storage/_module.js";
 
@@ -108,15 +107,6 @@ export class FileStorageResolver<
         return new FileStorageResolver({
             ...this.settings,
             defaultContentLanguage: contentLanguage,
-        });
-    }
-
-    setUrlAdapter(
-        urlAdapter: Partial<IFileUrlAdapter>,
-    ): FileStorageResolver<TAdapters> {
-        return new FileStorageResolver({
-            ...this.settings,
-            urlAdapter,
         });
     }
 

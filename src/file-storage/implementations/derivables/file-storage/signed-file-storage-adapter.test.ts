@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { FILE_WRITE_ENUM } from "@/file-storage/contracts/_module.js";
-import { SignedFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/signed-file-storage-adapter.js";
+import { SignedFileStorageAdapter } from "@/file-storage/implementations/adapters/signed-file-storage-adapter/signed-file-storage-adapter.js";
 
 import type {
     FileAdapterMetadata,
@@ -111,10 +111,10 @@ describe("class: SignedFileStorageAdapter", () => {
     beforeEach(() => {
         vi.restoreAllMocks();
         vi.clearAllMocks();
-        signedFileStorageAdapter = new SignedFileStorageAdapter(
-            fileStorageAdapter,
-            fileUrlAdapter,
-        );
+        signedFileStorageAdapter = new SignedFileStorageAdapter({
+            adapter: fileStorageAdapter,
+            urlAdapter: fileUrlAdapter,
+        });
     });
 
     describe("method: exists", () => {

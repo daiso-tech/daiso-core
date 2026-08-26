@@ -1,7 +1,7 @@
 /**
  * @module FileStorage
  */
-import { NoOpFileUrlAdapter } from "@/file-storage/implementations/derivables/file-storage/no-op-file-url-adapter.js";
+import { NoOpFileUrlAdapter } from "@/file-storage/implementations/adapters/signed-file-storage-adapter/no-op-file-url-adapter.js";
 
 import type {
     FileAdapterSignedDownloadUrlSettings,
