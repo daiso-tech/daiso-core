@@ -20,7 +20,6 @@ import type {
     WritableFileStream,
     FileDownloadUrlOptions,
     WritableFileContent,
-    FileStorageAdapterVariants,
     FileUploadUrlOptions,
 } from "@/file-storage/contracts/_module.js";
 
@@ -29,7 +28,6 @@ import type {
  */
 export type FileSettings = {
     originalKey: string;
-    originalAdapter: FileStorageAdapterVariants;
     adapter: ISignedFileStorageAdapter;
     key: string;
     serdeTransformerName: string;
@@ -63,7 +61,6 @@ export class File implements IFile {
 
     private static readonly DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
-    private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly internalKey: string;
     private readonly serdeTransformerName: string;
@@ -81,10 +78,8 @@ export class File implements IFile {
             defaultContentEncoding,
             defaultCacheControl,
             defaultContentLanguage,
-            originalAdapter,
         } = settings;
 
-        this.originalAdapter = originalAdapter;
         this.adapter = adapter;
         this.internalKey = key;
         this.serdeTransformerName = serdeTransformerName;
@@ -98,8 +93,8 @@ export class File implements IFile {
         return this.serdeTransformerName;
     }
 
-    internalGetAdapter(): FileStorageAdapterVariants {
-        return this.originalAdapter;
+    internalGetAdapter(): ISignedFileStorageAdapter {
+        return this.adapter;
     }
 
     async getText(): Promise<string | null> {

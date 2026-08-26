@@ -4,16 +4,13 @@
 
 import { FileSerdeTransformer } from "@/file-storage/implementations/derivables/file-storage/file-serde-transformer.js";
 import { File } from "@/file-storage/implementations/derivables/file-storage/file.js";
-import { resolveFileStorageAdapter } from "@/file-storage/implementations/derivables/file-storage/resolve-file-storage-adapter.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { CORE, resolveOneOrMore } from "@/utilities/_module.js";
 
 import type {
-    FileStorageAdapterVariants,
     IFile,
     IFileStorage,
-    IFileUrlAdapter,
     ISignedFileStorageAdapter,
 } from "@/file-storage/contracts/_module.js";
 import type { ISerderRegister } from "@/serde/contracts/_module.js";
@@ -53,11 +50,6 @@ export type FileStorageSettingsBase = {
     defaultContentLanguage?: string | null;
 
     /**
-     * You can pass partial {@link IFileUrlAdapter | `IFileUrlAdapter`} that can overide generating public url, signed upload and download url of the file storage adapter.
-     */
-    urlAdapter?: Partial<IFileUrlAdapter>;
-
-    /**
      * You can pass an {@link ISerderRegister | `ISerderRegister`} instance to the {@link FileStorage | `FileStorage`} to register the file's serialization and deserialization logic for the provided adapter.
      * @default
      * ```ts
@@ -84,7 +76,7 @@ export type FileStorageSettings = FileStorageSettingsBase & {
     /**
      * The underlying storage adapter that handles the actual file operations.
      */
-    adapter: FileStorageAdapterVariants;
+    adapter: ISignedFileStorageAdapter;
 };
 
 /**
@@ -98,7 +90,6 @@ export type FileStorageSettings = FileStorageSettingsBase & {
  * @group Derivables
  */
 export class FileStorage implements IFileStorage {
-    private readonly originalAdapter: FileStorageAdapterVariants;
     private readonly adapter: ISignedFileStorageAdapter;
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
@@ -132,15 +123,13 @@ export class FileStorage implements IFileStorage {
             defaultContentDisposition = "inline",
             defaultContentEncoding = null,
             defaultContentLanguage = null,
-            urlAdapter = {},
         } = settings;
 
-        this.originalAdapter = adapter;
         this.defaultContentDisposition = defaultContentDisposition;
         this.defaultContentEncoding = defaultContentEncoding;
         this.defaultCacheControl = defaultCacheControl;
         this.defaultContentLanguage = defaultContentLanguage;
-        this.adapter = resolveFileStorageAdapter(adapter, urlAdapter);
+        this.adapter = adapter;
         this.serde = serde;
         this.serdeTransformerName = serdeTransformerName;
         this.registerToSerde();
@@ -148,7 +137,6 @@ export class FileStorage implements IFileStorage {
 
     private registerToSerde(): void {
         const transformer = new FileSerdeTransformer({
-            originalAdapter: this.originalAdapter,
             defaultCacheControl: this.defaultCacheControl,
             defaultContentDisposition: this.defaultContentDisposition,
             defaultContentEncoding: this.defaultContentEncoding,
@@ -163,7 +151,6 @@ export class FileStorage implements IFileStorage {
 
     create(key: string): IFile {
         return new File({
-            originalAdapter: this.originalAdapter,
             defaultCacheControl: this.defaultCacheControl,
             defaultContentDisposition: this.defaultContentDisposition,
             defaultContentEncoding: this.defaultContentEncoding,
