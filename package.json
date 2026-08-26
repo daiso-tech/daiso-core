@@ -301,6 +301,10 @@
             "types": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.d.ts",
             "import": "./dist/file-storage/implementations/adapters/s3-file-storage-adapter/_module-exports.js"
         },
+        "./file-storage/signed-file-storage-adapter": {
+            "types": "./dist/file-storage/implementations/adapters/signed-file-storage-adapter/_module-exports.d.ts",
+            "import": "./dist/file-storage/implementations/adapters/signed-file-storage-adapter/_module-exports.js"
+        },
         "./file-storage/test-utilities": {
             "types": "./dist/file-storage/implementations/test-utilities/_module-exports.d.ts",
             "import": "./dist/file-storage/implementations/test-utilities/_module-exports.js"
