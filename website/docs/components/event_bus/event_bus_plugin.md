@@ -228,12 +228,19 @@ const adapter = new MemoryEventBusAdapter();
 
 // A plugin that wraps listeners, e.g. to add logging or validation
 const loggingPlugin = (instance, enhance) => {
-    enhance(instance, "addListener", ({ args: [eventName, listener], next }) => {
-        return next([eventName,  (event) => {
-            console.log(`Received "${eventName}"`);
-            return listener(event);
-        }]);
-    });
+    enhance(
+        instance,
+        "addListener",
+        ({ args: [eventName, listener], next }) => {
+            return next([
+                eventName,
+                (event) => {
+                    console.log(`Received "${eventName}"`);
+                    return listener(event);
+                },
+            ]);
+        },
+    );
 };
 
 // Apply listener tracking around a plugin that wraps listeners
