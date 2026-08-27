@@ -8,21 +8,27 @@ import {
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
 
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
 import type {
     ICache,
     ICacheAdapter,
     ICacheResolver,
 } from "@/cache/contracts/_module.js";
-import type { CacheSettingsBase } from "@/cache/implementations/derivables/cache/_module.js";
+import type {
+    CacheSettings,
+    CacheSettingsBase,
+} from "@/cache/implementations/derivables/cache/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
-export type CacheAdapters<TAdapters extends string = string> = Partial<
-    Record<TAdapters, ICacheAdapter<any>>
->;
+export type CacheAdapters<
+    TAdapters extends string = string,
+    TType = unknown,
+> = Partial<Record<TAdapters, ICacheAdapter<TType>>>;
 
 /**
  * Configuration for `CacheResolver`.
@@ -31,18 +37,20 @@ export type CacheAdapters<TAdapters extends string = string> = Partial<
  * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
-export type CacheResolverSettings<TAdapters extends string = string> =
-    CacheSettingsBase & {
-        /**
-         * Named registry of cache adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
-         */
-        adapters: CacheAdapters<TAdapters>;
+export type CacheResolverSettings<
+    TAdapters extends string = string,
+    TType = unknown,
+> = CacheSettingsBase & {
+    /**
+     * Named registry of cache adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+     */
+    adapters: CacheAdapters<TAdapters, TType>;
 
-        /**
-         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
-         */
-        defaultAdapter?: NoInfer<TAdapters>;
-    };
+    /**
+     * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+     */
+    defaultAdapter?: NoInfer<TAdapters>;
+};
 
 /**
  * The `CacheResolver` class is immutable.
@@ -77,7 +85,9 @@ export class CacheResolver<
      *   defaultAdapter: "memory",
      * });
      */
-    constructor(private readonly settings: CacheResolverSettings<TAdapters>) {}
+    constructor(
+        private readonly settings: CacheResolverSettings<TAdapters, TType>,
+    ) {}
 
     setDefaultTtl(ttl: ITimeSpan | null): CacheResolver<TAdapters, TType> {
         return new CacheResolver({
@@ -87,7 +97,18 @@ export class CacheResolver<
     }
 
     setType<TOutputType>(): CacheResolver<TAdapters, TOutputType> {
-        return new CacheResolver(this.settings);
+        return new CacheResolver<TAdapters, TOutputType>(
+            this.settings as CacheResolverSettings<TAdapters, TOutputType>,
+        );
+    }
+
+    setSchema<TOutputType>(
+        schema: StandardSchemaV1<TOutputType>,
+    ): CacheResolver<TAdapters, TOutputType> {
+        return new CacheResolver({
+            ...this.settings,
+            schema,
+        } as CacheResolverSettings<TAdapters, TOutputType>);
     }
 
     /**
@@ -144,6 +165,6 @@ export class CacheResolver<
         return new Cache({
             ...this.settings,
             adapter,
-        });
+        } as CacheSettings<TType>);
     }
 }

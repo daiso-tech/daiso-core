@@ -14,8 +14,7 @@ import type { PluginFn } from "@/middleware/contracts/_module.js";
 /**
  * Settings for the {@link withCacheSchema} plugin.
  *
- * IMPORT_PATH: `"eridu-tech/cache/plugins"`
- * @group Plugins
+ * @internal
  */
 export type WithCacheSchemaSettings = {
     /**
@@ -54,8 +53,7 @@ export type WithCacheSchemaSettings = {
  *
  * @throws {ValidationError}
  *
- * IMPORT_PATH: `"eridu-tech/cache/plugins"`
- * @group Plugins
+ * @internal
  */
 export function withCacheSchema(
     settings: WithCacheSchemaSettings,

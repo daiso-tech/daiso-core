@@ -6,12 +6,16 @@ import {
     KeyNotFoundCacheError,
     KeyExistsCacheError,
 } from "@/cache/contracts/_module.js";
+import { withCacheSchema } from "@/cache/implementations/derivables/cache/with-cache-schema.js";
+import { withPlugin } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
     isInvocable,
     resolveAsyncLazyable,
     resolveInvocable,
 } from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 import type { ICache, ICacheAdapter } from "@/cache/contracts/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
@@ -24,12 +28,29 @@ import type { AsyncLazyable, NoneFunc } from "@/utilities/_module.js";
  * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
-export type CacheSettingsBase = {
+export type CacheSettingsBase<TType = unknown> = {
     /**
      * You can decide the default ttl value. If null is passed then no ttl will be used by default.
      * @default null
      */
     defaultTtl?: ITimeSpan | null;
+
+    /**
+     * A standard-schema-compliant schema used to validate cache values.
+     * Compatible with libraries such as Zod, ArkType, Valibot, and others
+     * that implement the `StandardSchemaV1` specification.
+     */
+    schema?: StandardSchemaV1<TType>;
+
+    /**
+     * Whether to validate values returned by `get` and `getAndRemove`
+     * on retrieval, in addition to validating values on write.
+     * When `true`, malformed data in the cache is caught at read time
+     * rather than silently returned.
+     *
+     * @default true
+     */
+    shouldValidateOutput?: boolean;
 };
 
 /**
@@ -39,7 +60,7 @@ export type CacheSettingsBase = {
  * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
-export type CacheSettings = CacheSettingsBase & {
+export type CacheSettings<TType = unknown> = CacheSettingsBase<TType> & {
     /**
      * The underlying cache adapter that handles the actual storage operations.
      */
@@ -83,12 +104,27 @@ export class Cache<TType = unknown> implements ICache<TType> {
      * });
      * ```
      */
-    constructor(settings: CacheSettings) {
-        const { adapter, defaultTtl = null } = settings;
+    constructor(settings: CacheSettings<TType>) {
+        const {
+            adapter,
+            defaultTtl = null,
+            schema,
+            shouldValidateOutput,
+        } = settings;
 
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
+
         this.adapter = adapter;
+        if (schema) {
+            this.adapter = withPlugin(
+                adapter,
+                withCacheSchema({
+                    schema,
+                    shouldValidateOutput,
+                }),
+            );
+        }
     }
 
     async exists(key: string): Promise<boolean> {
