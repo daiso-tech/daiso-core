@@ -16,7 +16,7 @@ import type { Invocable } from "@/utilities/_module.js";
  * in **reader** mode (concurrent readers allowed) or **writer** mode
  * (exclusive access).
  *
- * @group Middleware
+ * @group Middlewares
  */
 export const SHARED_LOCK_WHEN = {
     READER: "READER",
@@ -27,7 +27,7 @@ export const SHARED_LOCK_WHEN = {
  * Union type of the possible values for the `when` setting.
  *
  * @see {@link SHARED_LOCK_WHEN}
- * @group Middleware
+ * @group Middlewares
  */
 export type SharedLockWhenSetting =
     (typeof SHARED_LOCK_WHEN)[keyof typeof SHARED_LOCK_WHEN];
@@ -36,7 +36,9 @@ export type SharedLockWhenSetting =
  * Settings for the distributed shared-lock middleware.
  *
  * @typeParam TParameters - Tuple type of the wrapped function's parameters.
- * @group Middleware
+ *
+ * IMPORT_PATH: `"eridu-tech/shared-lock/middlewares"`
+ * @group Middlewares
  */
 export type WithSharedLockFactorySettings<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -100,7 +102,7 @@ export type WithSharedLockFactorySettings<
  *          returns a middleware.
  *
  * IMPORT_PATH: `"eridu-tech/shared-lock/middlewares"`
- * @group Middleware
+ * @group Middlewares
  */
 export function withSharedLockFactory(sharedLockFactory: ISharedLockFactory) {
     return <TParameters extends Array<unknown>, TReturn>(

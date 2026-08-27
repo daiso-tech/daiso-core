@@ -12,7 +12,9 @@ import type { ErrorPolicySettings, Invocable } from "@/utilities/_module.js";
  * Settings for the rate-limiter middleware.
  *
  * @typeParam TParameters - Tuple type of the wrapped function's parameters.
- * @group Middleware
+ *
+ * IMPORT_PATH: `"eridu-tech/rate-limiter/middlewares"`
+ * @group Middlewares
  */
 export type WithRateLimiterSettings<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -52,7 +54,7 @@ export type WithRateLimiterSettings<
  *          and returns a {@link MiddlewareFn}.
  *
  * IMPORT_PATH: `"eridu-tech/rate-limiter/middlewares"`
- * @group Middleware
+ * @group Middlewares
  */
 export function withRateLimiterFactory(
     rateLimiterFactory: IRateLimiterFactory,

@@ -15,7 +15,9 @@ import type { Invocable } from "@/utilities/_module.js";
  * Settings for the distributed-lock middleware.
  *
  * @typeParam TParameters - Tuple type of the wrapped function's parameters.
- * @group Middleware
+ *
+ * IMPORT_PATH: `"eridu-tech/lock/middlewares"`
+ * @group Middlewares
  */
 export type WithLockSettings<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -61,7 +63,7 @@ export type WithLockSettings<
  *          middleware.
  *
  * IMPORT_PATH: `"eridu-tech/lock/middlewares"`
- * @group Middleware
+ * @group Middlewares
  */
 export function withLockFactory(lockFactory: ILockFactory) {
     return <TParameters extends Array<unknown>, TReturn>(

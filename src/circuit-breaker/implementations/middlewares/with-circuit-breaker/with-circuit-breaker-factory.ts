@@ -16,7 +16,9 @@ import type { Invocable, ErrorPolicySettings } from "@/utilities/_module.js";
  * Settings for the circuit-breaker middleware.
  *
  * @typeParam TParameters - Tuple type of the wrapped function's parameters.
- * @group Middleware
+ *
+ * IMPORT_PATH: `"eridu-tech/circuit-breaker/middlewares"`
+ * @group Middlewares
  */
 export type WithCircuitBreakerSettings<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -55,7 +57,7 @@ export type WithCircuitBreakerSettings<
  *          returns a middleware.
  *
  * IMPORT_PATH: `"eridu-tech/circuit-breaker/middlewares"`
- * @group Middleware
+ * @group Middlewares
  */
 export function withCircuitBreakerFactory(
     circuitBreakerFactory: ICircuitBreakerFactory,
