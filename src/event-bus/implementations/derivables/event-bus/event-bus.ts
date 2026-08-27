@@ -3,6 +3,9 @@
  */
 
 import { ListenerStore } from "@/event-bus/implementations/derivables/event-bus/listener-store.js";
+import { withEventBusSchema } from "@/event-bus/implementations/derivables/event-bus/with-event-bus-schema.js";
+import { withListenerTracking } from "@/event-bus/implementations/plugins/_module-exports.js";
+import { withPlugin } from "@/middleware/implementations/_module.js";
 import { resolveInvocable, resolveOneOrMore } from "@/utilities/_module.js";
 
 import type {
@@ -15,6 +18,7 @@ import type {
     Unsubscribe,
     InferEvent,
 } from "@/event-bus/contracts/_module.js";
+import type { EventMapSchema } from "@/event-bus/implementations/derivables/event-bus/with-event-bus-schema.js";
 import type { OneOrArray, InvocableFn } from "@/utilities/_module.js";
 
 /**
@@ -24,9 +28,25 @@ import type { OneOrArray, InvocableFn } from "@/utilities/_module.js";
  * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
-// TODO: add schema validation settings
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export type EventBusSettingsBase = {};
+export type EventBusSettingsBase<
+    TEventMap extends BaseEventMap = BaseEventMap,
+> = {
+    /**
+     * A map of event names to standard-schema-compliant schemas.
+     * Compatible with libraries such as Zod, ArkType, Valibot, and others
+     * that implement the `StandardSchemaV1` specification.
+     */
+    eventMapSchema?: EventMapSchema<TEventMap>;
+
+    /**
+     * Whether to validate event data in listener functions when events are received,
+     * in addition to validating on dispatch.
+     * When `true`, listeners will receive validated event data that conforms to the schema.
+     *
+     * @default true
+     */
+    shouldValidateListeners?: boolean;
+};
 
 /**
  * Configuration for the `EventBus` class.
@@ -35,18 +55,19 @@ export type EventBusSettingsBase = {};
  * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
-export type EventBusSettings = EventBusSettingsBase & {
-    /**
-     * The underlying event-bus adapter that handles message dispatching and subscription.
-     */
-    adapter: IEventBusAdapter;
+export type EventBusSettings<TEventMap extends BaseEventMap = BaseEventMap> =
+    EventBusSettingsBase<TEventMap> & {
+        /**
+         * The underlying event-bus adapter that handles message dispatching and subscription.
+         */
+        adapter: IEventBusAdapter;
 
-    /**
-     * Thist settings is only used for testing, dont use it in your code !
-     * @internal
-     */
-    _onUncaughtRejection?: (error: unknown) => void;
-};
+        /**
+         * Thist settings is only used for testing, dont use it in your code !
+         * @internal
+         */
+        _onUncaughtRejection?: (error: unknown) => void;
+    };
 
 /**
  * `EventBus` class can be derived from any {@link IEventBusAdapter | `IEventBusAdapter`}.
@@ -76,7 +97,7 @@ export class EventBus<
      * });
      * ```
      */
-    constructor(settings: EventBusSettings) {
+    constructor(settings: EventBusSettings<TEventMap>) {
         const {
             _onUncaughtRejection = (error) => {
                 console.error(
@@ -84,9 +105,20 @@ export class EventBus<
                 );
             },
             adapter,
+            eventMapSchema,
+            shouldValidateListeners = true,
         } = settings;
 
         this.adapter = adapter;
+        if (eventMapSchema !== undefined) {
+            const plugin = withEventBusSchema({
+                eventMapSchema,
+                shouldValidateListeners,
+            });
+            this.adapter = withPlugin(adapter, [
+                shouldValidateListeners ? withListenerTracking(plugin) : plugin,
+            ]);
+        }
         this._onUncaughtRejection = _onUncaughtRejection;
     }
 

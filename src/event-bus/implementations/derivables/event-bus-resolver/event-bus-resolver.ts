@@ -15,6 +15,7 @@ import type {
     IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
 import type { EventBusSettingsBase } from "@/event-bus/implementations/derivables/event-bus/_module.js";
+import type { EventMapSchema } from "@/event-bus/implementations/derivables/event-bus/with-event-bus-schema.js";
 
 /**
  * IMPORT_PATH: `"eridu-tech/event-bus"`
@@ -31,18 +32,20 @@ export type EventBusAdapters<TAdapters extends string = string> = Partial<
  * IMPORT_PATH: `"eridu-tech/event-bus"`
  * @group Derivables
  */
-export type EventBusResolverSettings<TAdapters extends string = string> =
-    EventBusSettingsBase & {
-        /**
-         * Named registry of event-bus adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
-         */
-        adapters: EventBusAdapters<TAdapters>;
+export type EventBusResolverSettings<
+    TAdapters extends string = string,
+    TEventMap extends BaseEventMap = BaseEventMap,
+> = EventBusSettingsBase<TEventMap> & {
+    /**
+     * Named registry of event-bus adapters. Each key is an adapter alias and the corresponding value is the adapter instance.
+     */
+    adapters: EventBusAdapters<TAdapters>;
 
-        /**
-         * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
-         */
-        defaultAdapter?: NoInfer<TAdapters>;
-    };
+    /**
+     * The alias of the adapter to use when none is explicitly specified. Must be a key in the `adapters` map.
+     */
+    defaultAdapter?: NoInfer<TAdapters>;
+};
 
 /**
  * The `EventBusResolver` class is immutable.
@@ -83,15 +86,30 @@ export class EventBusResolver<
      * ```
      */
     constructor(
-        private readonly settings: EventBusResolverSettings<TAdapters>,
+        private readonly settings: EventBusResolverSettings<
+            TAdapters,
+            TEventMap
+        >,
     ) {}
 
-    setEventMapType<TEventMap_ extends BaseEventMap>(): EventBusResolver<
+    setEventMapType<TOutputEventMap extends BaseEventMap>(): EventBusResolver<
         TAdapters,
-        TEventMap_
+        TOutputEventMap
     > {
+        return new EventBusResolver(
+            this.settings as EventBusResolverSettings<
+                TAdapters,
+                TOutputEventMap
+            >,
+        );
+    }
+
+    setEventMapSchema<TOutputEventMap extends BaseEventMap>(
+        eventMapSchema: EventMapSchema<TOutputEventMap>,
+    ): EventBusResolver<TAdapters, TOutputEventMap> {
         return new EventBusResolver({
             ...this.settings,
+            eventMapSchema,
         });
     }
 
@@ -150,7 +168,7 @@ export class EventBusResolver<
         if (adapter === undefined) {
             throw new UnregisteredAdapterError(adapterName);
         }
-        return new EventBus({
+        return new EventBus<TEventMap>({
             ...this.settings,
             adapter,
         });
