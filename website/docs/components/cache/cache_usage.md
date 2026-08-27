@@ -5,9 +5,13 @@ pagination_label: Cache usage
 tags:
     - Cache
     - Usage
+    - Schema
+    - Validation
 keywords:
     - Cache
     - Usage
+    - Schema
+    - Validation
 ---
 
 # Cache usage
@@ -199,6 +203,59 @@ type IProduct = {
 };
 const productCache = new Cache<IProduct>({
     adapter: cacheAdapter,
+});
+```
+
+### Runtime type safety
+
+You can validate cache values against a standard-schema-compliant schema by providing the `schema` setting. This works with any library that implements the `StandardSchemaV1` specification, such as Zod, ArkType and Valibot.
+
+When a schema is provided, values are validated:
+
+- **On write** — before a value is stored, for the `add`, `put`, `update` and `getOrAdd` methods.
+- **On read** — when `shouldValidateOutput` is `true` (the default), values returned by `get`, `getAndRemove` and `getOrAdd` are validated on retrieval. This catches malformed data already present in the cache at read time, instead of silently returning it.
+
+If validation fails, a `ValidationError` is thrown.
+
+```ts
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+import { Cache } from "eridu-tech/cache";
+import { z } from "zod";
+
+const userSchema = z.object({
+    name: z.string(),
+    email: z.string().email(),
+    age: z.number(),
+});
+
+const cache = new Cache({
+    adapter: new MemoryCacheAdapter(),
+    schema: userSchema,
+});
+
+await cache.add("user1", {
+    name: "John",
+    email: "john@example.com",
+    age: 30,
+});
+
+// Throws a ValidationError because the email is not valid
+await cache.add("user2", {
+    name: "Jane",
+    email: "not-an-email",
+    age: 25,
+});
+```
+
+#### Disabling output validation
+
+If you only want to validate values on write and skip validation when reading, set `shouldValidateOutput` to `false`:
+
+```ts
+const cache = new Cache({
+    adapter: new MemoryCacheAdapter(),
+    schema: userSchema,
+    shouldValidateOutput: false,
 });
 ```
 

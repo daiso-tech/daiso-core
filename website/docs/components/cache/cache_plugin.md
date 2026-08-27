@@ -142,7 +142,7 @@ Because `withPlugin` uses `enhance` under the hood, the same edge case applies: 
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
 :::
 
-## withCacheSchema plugin
+<!-- ## withCacheSchema plugin
 
 The Cache schema plugin validates cache values against a [standard schema](https://github.com/standard-schema/standard-schema) before storing or retrieving them. On `add`, `put`, and `update` operations, the input value is validated against the provided schema before being stored. Optionally, `get` and `getAndRemove` outputs can also be validated on retrieval to ensure data integrity.
 
@@ -206,7 +206,7 @@ Because `withPlugin` uses `enhance` under the hood, the same edge case applies: 
 
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
-:::
+::: -->
 
 ## withCacheWriteLock plugin
 

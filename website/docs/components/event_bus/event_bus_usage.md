@@ -5,9 +5,14 @@ pagination_label: Event-bus usage
 tags:
     - Event-bus
     - Usage
+    - Schema
+    - Validation
 keywords:
     - Event-bus
     - Usage
+    - Schema
+    - Validation
+    - eventMapSchema
 ---
 
 # EventBus usage
@@ -111,6 +116,68 @@ await eventBus.dispatch("add", {
 // A typescript error will show up because the event name doesnt exist.
 await eventBus.addListener("addd", (event) => {
     console.log(event);
+});
+```
+
+### Runtime type safety
+
+You can validate event data against standard-schema-compliant schemas by providing the `eventMapSchema` setting on the `EventBus`. This works with any library that implements the `StandardSchemaV1` specification, such as Zod, ArkType and Valibot.
+
+When a schema map is provided, event data is validated:
+
+- **On dispatch** — event data is validated against the schema for the event name before it is dispatched.
+- **On listener delivery** — when `shouldValidateListeners` is `true` (the default), event data is validated before it is delivered to listeners. This ensures listeners only receive data that conforms to the schema.
+
+If no schema is defined for a particular event name, that event is passed through without validation. If validation fails, a `ValidationError` is thrown.
+
+```ts
+import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
+import { EventBus } from "eridu-tech/event-bus";
+import { z } from "zod";
+
+type UserCreatedEvent = {
+    userId: string;
+    name: string;
+};
+type EventMap = {
+    "user.created": UserCreatedEvent;
+};
+
+const eventBus = new EventBus<EventMap>({
+    adapter: new MemoryEventBusAdapter(),
+    eventMapSchema: {
+        "user.created": z.object({
+            userId: z.string(),
+            name: z.string(),
+        }),
+    },
+});
+
+await eventBus.dispatch("user.created", {
+    userId: "123",
+    name: "John",
+});
+
+// Throws a ValidationError because userId is missing
+await eventBus.dispatch("user.created", {
+    name: "Jane",
+});
+```
+
+#### Disabling listener validation
+
+If you only want to validate event data on dispatch and skip validation when delivering to listeners, set `shouldValidateListeners` to `false`:
+
+```ts
+const eventBus = new EventBus<EventMap>({
+    adapter: new MemoryEventBusAdapter(),
+    eventMapSchema: {
+        "user.created": z.object({
+            userId: z.string(),
+            name: z.string(),
+        }),
+    },
+    shouldValidateListeners: false,
 });
 ```
 

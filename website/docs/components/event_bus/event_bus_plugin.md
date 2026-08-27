@@ -80,7 +80,7 @@ Because `withPlugin` uses `enhance` under the hood, the same edge case applies: 
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
 :::
 
-## withEventBusSchema plugin
+<!-- ## withEventBusSchema plugin
 
 The EventBus schema plugin validates event data against a schema map before dispatching and, optionally, before delivering events to listeners. This ensures that only data conforming to the defined schema reaches the adapter and your event handlers.
 
@@ -190,7 +190,7 @@ Because `withPlugin` uses `enhance` under the hood, the same edge case applies: 
 
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
-:::
+::: -->
 
 ## withListenerTracking plugin
 
@@ -201,7 +201,7 @@ This plugin solves that problem by ensuring that `removeListener` with the origi
 ### Use cases
 
 - **Listener reference transparency** — Callers can use the original listener function with `removeListener` even when a plugin wraps the listener in `addListener`
-- **Plugin safety** — Wrap plugins (such as `withEventBusSchema`) that transform listeners in `addListener` to ensure `removeListener` still resolves correctly
+- **Plugin safety** — Wrap plugins that transform listeners in `addListener` (for example a plugin that wraps the listener to add logging or validation) to ensure `removeListener` still resolves correctly
 - **Per-plugin tracking** — Apply `withListenerTracking` to each plugin that wraps listeners; it does not automatically handle wrapping from other plugins in the chain
 
 :::info
@@ -222,24 +222,31 @@ The plugin execution order is:
 ```ts
 import { withPlugin } from "eridu-tech/middleware";
 import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-import {
-    withEventBusSchema,
-    withListenerTracking,
-} from "eridu-tech/event-bus/plugins";
-import { z } from "zod";
+import { withListenerTracking } from "eridu-tech/event-bus/plugins";
 
 const adapter = new MemoryEventBusAdapter();
+
+// A plugin that wraps listeners, e.g. to add logging or validation
+const loggingPlugin = (instance, enhance) => {
+    enhance(
+        instance,
+        "addListener",
+        ({ args: [eventName, listener], next }) => {
+            return next([
+                eventName,
+                (event) => {
+                    console.log(`Received "${eventName}"`);
+                    return listener(event);
+                },
+            ]);
+        },
+    );
+};
 
 // Apply listener tracking around a plugin that wraps listeners
 const enhancedAdapter = withPlugin(
     adapter,
-    withListenerTracking(
-        withEventBusSchema({
-            eventMapSchema: {
-                "user.created": z.object({ userId: z.string() }),
-            },
-        }),
-    ),
+    withListenerTracking(loggingPlugin),
 );
 ```
 

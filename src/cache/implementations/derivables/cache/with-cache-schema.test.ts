@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
-import { withCacheSchema } from "@/cache/implementations/plugins/with-cache-schema/with-cache-schema.js";
+import { withCacheSchema } from "@/cache/implementations/derivables/cache/with-cache-schema.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";

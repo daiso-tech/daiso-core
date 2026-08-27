@@ -23,7 +23,7 @@ import type { PluginFn } from "@/middleware/contracts/_module.js";
  * @typeParam TEventMap - The event map type mapping event names to their payloads.
  *
  * IMPORT_PATH: `"eridu-tech/event-bus"`
- * @group Plugins
+ * @group Derivables
  */
 export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
     [TEventName in keyof TEventMap]: StandardSchemaV1<TEventMap[TEventName]>;
@@ -37,7 +37,7 @@ export type EventMapSchema<TEventMap extends BaseEventMap = BaseEventMap> = {
  * @returns The same event map schema with proper type inference.
  *
  * IMPORT_PATH: `"eridu-tech/event-bus"`
- * @group Plugins
+ * @group Derivables
  */
 export function defineEventMapSchema<TEventMap extends BaseEventMap>(
     eventMapSchema: EventMapSchema<TEventMap>,
@@ -48,8 +48,7 @@ export function defineEventMapSchema<TEventMap extends BaseEventMap>(
 /**
  * Settings for the {@link withEventBusSchema} plugin.
  *
- * IMPORT_PATH: `"eridu-tech/event-bus/plugins"`
- * @group Plugins
+ * @internal
  */
 export type WithEventBusSchemaSettings = {
     /**
@@ -90,8 +89,7 @@ export type WithEventBusSchemaSettings = {
  *
  * @throws {ValidationError}
  *
- * IMPORT_PATH: `"eridu-tech/event-bus/plugins"`
- * @group Plugins
+ * @internal
  */
 export function withEventBusSchema(
     settings: WithEventBusSchemaSettings,
