@@ -820,6 +820,6 @@ Scoped services are only available within a `container.run()` scope. Resolving t
 - **Factory functions** can be synchronous or asynchronous and can perform I/O. Avoid heavy computation or blocking operations in factory callbacks.
 - **Service providers** (both functions and `IServiceProvider` objects) are invoked during registration, not during resolution. Providers must be synchronous — the container rejects async providers because their registrations would not complete before `init()`.
 
-### Further information
+## Further information
 
 For further information refer to [`eridu-tech/di`](https://eridu-tech.github.io/eridu-tech-core/modules/DI.html) API docs.

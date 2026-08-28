@@ -54,6 +54,55 @@ const userAgain = await cachedFetchUser("123"); // Cache hit — returns immedia
 Here is a complete list of settings for the [`withCache`](https://eridu-tech.github.io/eridu-tech-core/types/Cache.WithCacheSettings.html) function.
 :::
 
-### Further information
+## withInvalidationFactory middleware
+
+The Cache invalidation middleware intercepts function calls and invalidates a cache entry after the wrapped function has been invoked. The cache key is derived from the function's arguments via the `key` setting. After the wrapped function runs, the `shouldInvalidate` setting decides whether to invalidate based on the function's arguments and return value; when it returns `true` (the default), the cache entry is removed from the provided `ICache`.
+
+This is useful for write-invalidation caching patterns, where stale cached data must be cleared after a mutation.
+
+### Usage
+
+```ts
+import { withInvalidationFactory } from "eridu-tech/cache/middlewares";
+import { Cache } from "eridu-tech/cache";
+import { use } from "eridu-tech/middleware";
+import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+
+const cache = new Cache({
+    adapter: new MemoryCacheAdapter(),
+});
+const withInvalidation = withInvalidationFactory(cache);
+
+const updateUser = async (userId: string, name: string): Promise<void> => {
+    await fetch(`/api/users/${userId}`, {
+        method: "PUT",
+        body: JSON.stringify({ name }),
+    });
+};
+
+// Wrap with invalidation
+const invalidatingUpdateUser = use(
+    updateUser,
+    withInvalidation({
+        key: (userId) => `user:${userId}`,
+    }),
+);
+
+await invalidatingUpdateUser("123", "John");
+// The "user:123" cache entry is removed after updateUser runs
+```
+
+:::info
+Here is a complete list of settings for the [`withInvalidation`](https://eridu-tech.github.io/eridu-tech-core/types/Cache.WithInvalidationSettings.html) function.
+:::
+
+### Settings
+
+| Option             | Type                                                            | Description                                                                                                                                         |
+| ------------------ | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `key`              | `Invocable<TParameters, string>`                                | A function (or invocable object) that produces the cache key from the wrapped function's arguments                                                  |
+| `shouldInvalidate` | `Invocable<[args: TParameters, returnValue: TReturn], boolean>` | Determines whether to invalidate the cache entry after the wrapped function runs, based on its arguments and return value. Defaults to `() => true` |
+
+## Further information
 
 For further information refer to [`eridu-tech/cache`](https://eridu-tech.github.io/eridu-tech-core/modules/Cache.html) API docs.

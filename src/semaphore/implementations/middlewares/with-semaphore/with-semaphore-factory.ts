@@ -15,7 +15,9 @@ import type { Invocable } from "@/utilities/_module.js";
  * Settings for the distributed-semaphore middleware.
  *
  * @typeParam TParameters - Tuple type of the wrapped function's parameters.
- * @group Middleware
+ *
+ * IMPORT_PATH: `"eridu-tech/semaphore/middlewares"`
+ * @group Middlewares
  */
 export type WithSemaphoreSettings<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -69,7 +71,7 @@ export type WithSemaphoreSettings<
  *          middleware.
  *
  * IMPORT_PATH: `"eridu-tech/semaphore/middlewares"`
- * @group Middleware
+ * @group Middlewares
  */
 export function withSemaphoreFactory(semaphoreFactory: ISemaphoreFactory) {
     return <TParameters extends Array<unknown>, TReturn>(
