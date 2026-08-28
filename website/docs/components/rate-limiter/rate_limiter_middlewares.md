@@ -59,12 +59,12 @@ Here is a complete list of settings for the [`withRateLimiter`](https://eridu-te
 
 ### Settings
 
-| Option        | Type                             | Description                                                                                                                              |
-| ------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `key`         | `Invocable<TParameters, string>` | A function that produces the rate-limiter key from the wrapped function's arguments. Each unique key gets its own rate-limit counter      |
-| `limit`       | `number`                         | Maximum number of invocations allowed within the configured window                                                                       |
-| `onlyError`   | `boolean`                        | When `true`, only failed (errored) invocations count toward the rate limit. Defaults to `false`                                          |
-| `errorPolicy` | `ErrorPolicy`                    | Determines which errors count toward the rate limit. Defaults to treating all errors as failures                                         |
+| Option        | Type                             | Description                                                                                                                          |
+| ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `key`         | `Invocable<TParameters, string>` | A function that produces the rate-limiter key from the wrapped function's arguments. Each unique key gets its own rate-limit counter |
+| `limit`       | `number`                         | Maximum number of invocations allowed within the configured window                                                                   |
+| `onlyError`   | `boolean`                        | When `true`, only failed (errored) invocations count toward the rate limit. Defaults to `false`                                      |
+| `errorPolicy` | `ErrorPolicy`                    | Determines which errors count toward the rate limit. Defaults to treating all errors as failures                                     |
 
 ## Further information
 

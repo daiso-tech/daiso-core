@@ -55,12 +55,12 @@ Here is a complete list of settings for the [`withCircuitBreaker`](https://eridu
 
 ### Settings
 
-| Option         | Type                             | Description                                                                                                                              |
-| -------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Option         | Type                             | Description                                                                                                                                    |
+| -------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `key`          | `Invocable<TParameters, string>` | A function that produces a unique identifier for the circuit from the wrapped function's arguments. Each unique key gets its own circuit state |
-| `errorPolicy`  | `ErrorPolicy`                    | Determines which errors count toward opening the circuit. Defaults to treating all errors as failures                                     |
-| `trigger`      | `CircuitBreakerTrigger`          | Optional custom trigger that determines when the circuit should open. Defaults to the built-in trigger                                   |
-| `slowCallTime` | `ITimeSpan`                      | Optional duration above which a call is considered slow. Exceeding it counts toward opening the circuit (if configured in the trigger)    |
+| `errorPolicy`  | `ErrorPolicy`                    | Determines which errors count toward opening the circuit. Defaults to treating all errors as failures                                          |
+| `trigger`      | `CircuitBreakerTrigger`          | Optional custom trigger that determines when the circuit should open. Defaults to the built-in trigger                                         |
+| `slowCallTime` | `ITimeSpan`                      | Optional duration above which a call is considered slow. Exceeding it counts toward opening the circuit (if configured in the trigger)         |
 
 ## Further information
 

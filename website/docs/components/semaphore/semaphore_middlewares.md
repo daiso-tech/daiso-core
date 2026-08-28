@@ -59,12 +59,12 @@ Here is a complete list of settings for the [`withSemaphore`](https://eridu-tech
 
 ### Settings
 
-| Option   | Type                             | Description                                                                                                                                   |
-| -------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Option   | Type                             | Description                                                                                                                                       |
+| -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `key`    | `Invocable<TParameters, string>` | A function that produces the semaphore key from the wrapped function's arguments. All consumers using the same key share the same semaphore limit |
-| `limit`  | `number`                         | Maximum number of concurrent slots (consumers) allowed for the semaphore key                                                                  |
-| `slotId` | `Invocable<TParameters, string>` | Optional function that produces a unique slot identifier for the current acquisition attempt. Defaults to a UUID (`v4`)                        |
-| `ttl`    | `ITimeSpan \| null`              | Time-to-live for each acquired slot. `null` means slots never expire automatically; if omitted the factory's default TTL is used               |
+| `limit`  | `number`                         | Maximum number of concurrent slots (consumers) allowed for the semaphore key                                                                      |
+| `slotId` | `Invocable<TParameters, string>` | Optional function that produces a unique slot identifier for the current acquisition attempt. Defaults to a UUID (`v4`)                           |
+| `ttl`    | `ITimeSpan \| null`              | Time-to-live for each acquired slot. `null` means slots never expire automatically; if omitted the factory's default TTL is used                  |
 
 ## Further information
 

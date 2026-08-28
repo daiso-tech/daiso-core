@@ -52,11 +52,11 @@ Here is a complete list of settings for the [`withLock`](https://eridu-tech.gith
 
 ### Settings
 
-| Option   | Type                             | Description                                                                                                                                   |
-| -------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Option   | Type                             | Description                                                                                                                                                                |
+| -------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `key`    | `Invocable<TParameters, string>` | A function that produces the lock key from the wrapped function's arguments. The lock is acquired on this key, ensuring mutual exclusion across processes for the same key |
-| `lockId` | `Invocable<TParameters, string>` | Optional function that produces a unique identifier for the current lock acquisition attempt. Defaults to a UUID (`v4`)                        |
-| `ttl`    | `ITimeSpan \| null`              | Time-to-live for the lock. `null` means the lock never expires automatically; if omitted the factory's default TTL is used                     |
+| `lockId` | `Invocable<TParameters, string>` | Optional function that produces a unique identifier for the current lock acquisition attempt. Defaults to a UUID (`v4`)                                                    |
+| `ttl`    | `ITimeSpan \| null`              | Time-to-live for the lock. `null` means the lock never expires automatically; if omitted the factory's default TTL is used                                                 |
 
 ## Further information
 

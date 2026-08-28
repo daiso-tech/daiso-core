@@ -71,13 +71,13 @@ Here is a complete list of settings for the [`withSharedLock`](https://eridu-tec
 
 ### Settings
 
-| Option   | Type                             | Description                                                                                                                                   |
-| -------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `key`    | `Invocable<TParameters, string>` | A function that produces the lock key from the wrapped function's arguments. All consumers using the same key share the same lock state        |
-| `when`   | `SharedLockWhenSetting`          | Whether to acquire the lock in `"READER"` or `"WRITER"` mode                                                                                  |
-| `limit`  | `number`                         | Maximum number of concurrent readers allowed when the lock is acquired in reader mode                                                         |
-| `lockId` | `Invocable<TParameters, string>` | Optional function that produces a unique identifier for the current lock acquisition attempt. Defaults to a UUID (`v4`)                        |
-| `ttl`    | `ITimeSpan \| null`              | Time-to-live for the lock. `null` means the lock never expires automatically; if omitted the factory's default TTL is used                     |
+| Option   | Type                             | Description                                                                                                                             |
+| -------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `key`    | `Invocable<TParameters, string>` | A function that produces the lock key from the wrapped function's arguments. All consumers using the same key share the same lock state |
+| `when`   | `SharedLockWhenSetting`          | Whether to acquire the lock in `"READER"` or `"WRITER"` mode                                                                            |
+| `limit`  | `number`                         | Maximum number of concurrent readers allowed when the lock is acquired in reader mode                                                   |
+| `lockId` | `Invocable<TParameters, string>` | Optional function that produces a unique identifier for the current lock acquisition attempt. Defaults to a UUID (`v4`)                 |
+| `ttl`    | `ITimeSpan \| null`              | Time-to-live for the lock. `null` means the lock never expires automatically; if omitted the factory's default TTL is used              |
 
 ## Further information
 
