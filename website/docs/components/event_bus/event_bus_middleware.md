@@ -63,10 +63,10 @@ Here is a complete list of settings for the [`withDispatchBefore`](https://eridu
 
 ### Settings
 
-| Option    | Type                                                                                            | Description                                                              |
-| --------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `type`    | `TEventName`                                                                                    | The event name to dispatch when the wrapped function is invoked          |
-| `payload` | `Invocable<[settings: WithDispatchBeforePayloadSettings<TParameters>], TEventMap[TEventName]>`  | An invocable that produces the event payload from the wrapped function's arguments |
+| Option    | Type                                                                                           | Description                                                                        |
+| --------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `type`    | `TEventName`                                                                                   | The event name to dispatch when the wrapped function is invoked                    |
+| `payload` | `Invocable<[settings: WithDispatchBeforePayloadSettings<TParameters>], TEventMap[TEventName]>` | An invocable that produces the event payload from the wrapped function's arguments |
 
 ## withDispatchAfterFactory middleware
 
@@ -119,10 +119,10 @@ Here is a complete list of settings for the [`withDispatchAfter`](https://eridu-
 
 ### Settings
 
-| Option    | Type                                                                                                      | Description                                                                                              |
-| --------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `type`    | `TEventName`                                                                                              | The event name to dispatch after the wrapped function resolves                                           |
-| `payload` | `Invocable<[settings: WithDispatchAfterPayloadSettings<TParameters, TReturn>], TEventMap[TEventName]>`    | An invocable that produces the event payload from the wrapped function's arguments and its return value  |
+| Option    | Type                                                                                                   | Description                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `type`    | `TEventName`                                                                                           | The event name to dispatch after the wrapped function resolves                                          |
+| `payload` | `Invocable<[settings: WithDispatchAfterPayloadSettings<TParameters, TReturn>], TEventMap[TEventName]>` | An invocable that produces the event payload from the wrapped function's arguments and its return value |
 
 ## withDispatchOnErrorFactory middleware
 
@@ -178,12 +178,11 @@ Here is a complete list of settings for the [`withDispatchOnError`](https://erid
 
 ### Settings
 
-| Option    | Type                                                                                                    | Description                                                                                              |
-| --------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `type`    | `TEventName`                                                                                            | The event name to dispatch when the wrapped function throws                                              |
-| `payload` | `Invocable<[settings: WithDispatchOnErrorPayloadSettings<TParameters>], TEventMap[TEventName]>`         | An invocable that produces the event payload from the wrapped function's arguments and the caught error  |
+| Option    | Type                                                                                            | Description                                                                                             |
+| --------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `type`    | `TEventName`                                                                                    | The event name to dispatch when the wrapped function throws                                             |
+| `payload` | `Invocable<[settings: WithDispatchOnErrorPayloadSettings<TParameters>], TEventMap[TEventName]>` | An invocable that produces the event payload from the wrapped function's arguments and the caught error |
 
 ## Further information
 
 For further information refer to [`eridu-tech/event-bus`](https://eridu-tech.github.io/eridu-tech-core/modules/EventBus.html) API docs.
-
