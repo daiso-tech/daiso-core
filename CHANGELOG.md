@@ -1,5 +1,221 @@
 # @daiso-tech/core
 
+## 0.60.0
+
+### Minor Changes
+
+- 7be8c5e: Removed the usage of the `TimeSpan` class from the following adapter contracts, which now use `Date` for expiration/TTL values:
+
+    - `ICacheAdapter`
+    - `ISemaphoreAdapter`
+    - `ILockAdapter`
+    - `ISharedLockAdapter`
+    - `IRateLimiterAdapter`
+
+    This change decouples the contracts from other classes, making them easier to integrate with external libraries. Expiration values are now absolute, which also makes the tests less flaky.
+
+- a6bae8f: # Re-add built-in schema validation for `Cache` and `EventBus`
+
+    Re-added schema validation directly to the `Cache` and `EventBus` classes to improve the developer experience. Schemas are now inferred automatically from the corresponding settings, and the schema plugins are no longer part of the public API.
+
+    ## Changes
+    - `Cache` now accepts `schema` and `shouldValidateOutput` settings for validating cache values against a Standard-schema on write and, optionally, on read. `CacheSettingsBase` and `CacheSettings` are now generic over the cache value type.
+    - `CacheResolver` now provides a `setSchema` method. `CacheAdapters` and `CacheResolverSettings` are now generic over the cache value type.
+    - `EventBus` now accepts `eventMapSchema` and `shouldValidateListeners` settings for validating event data against a Standard-schema on dispatch and, optionally, when delivering events to listeners. `EventBusSettingsBase` and `EventBusSettings` are now generic over the event map.
+    - `EventBusResolver` now provides a `setEventMapSchema` method, and its settings are now generic over the event map.
+    - `withCacheSchema` and `withEventBusSchema` are no longer public plugins. They have been moved from `eridu-tech/cache/plugins` and `eridu-tech/event-bus/plugins` to internal derivables and are applied automatically by the `Cache` and `EventBus` constructors.
+    - If you previously applied `withCacheSchema` or `withEventBusSchema` manually, remove the plugin and configure the corresponding schema settings on `Cache` or `EventBus` instead.
+
+- 14cd6f3: Updated the `getOrAdd` method to support lazy value factories.
+
+    `getOrAdd` now accepts either a concrete value or an invocable function that produces the value to store, instead of only a concrete value.
+
+    - `ICacheAdapter.getOrAdd` now accepts `TType | InvocableFn<[], Promisable<TType>>` as `valueToAdd`.
+    - `IWritableCache.getOrAdd` (and thus `ICache.getOrAdd`) accepts an `AsyncLazyable<TType>` as `valueToAdd`.
+    - All built-in cache adapters (`KyselyCacheAdapter`, `MemoryCacheAdapter`, `MongodbCacheAdapter`, `NoOpCacheAdapter`, and `RedisCacheAdapter`) now resolve an invocable `valueToAdd` before storing it.
+    - The `Cache` derivable now resolves the `AsyncLazyable` value before delegating to the underlying adapter.
+
+- 454876e: Added the `withInvalidationFactory` middleware to `eridu-tech/cache/middlewares`.
+
+    `withInvalidationFactory` creates a middleware that invalidates a cache entry after the wrapped function has been invoked. The cache key is derived from the wrapped function's arguments via the `key` setting. After the wrapped function runs, the `shouldInvalidate` setting decides whether to invalidate based on the function's arguments and return value; when it returns `true` (the default), the cache entry is removed from the provided `ICache`.
+
+    This is useful for write-invalidation caching patterns, where stale cached data must be cleared after a mutation.
+
+    ### Usage
+
+    ```ts
+    import { use } from "eridu-tech/middleware";
+    import {
+        withCacheFactory,
+        withInvalidationFactory,
+    } from "eridu-tech/cache/middlewares";
+    import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
+    import { Cache } from "eridu-tech/cache";
+
+    const cache = new Cache({
+        adapter: new MemoryCacheAdapter(),
+    });
+    const withCache = withCacheFactory(cache);
+    const withInvalidation = withInvalidationFactory(cache);
+
+    async function getUser(userId: string): Promise<User> {
+        return fetchUser(userId);
+    }
+
+    // Cache the result of getUser keyed by the user id
+    const getCachedUser = use(
+        getUser,
+        withCache({
+            key: (userId: string) => `user:${userId}`,
+        }),
+    );
+
+    async function updateUser(user: User): Promise<void> {
+        await saveUser(user);
+    }
+
+    // Invalidate the cached user after saving the updated version
+    const updateUserWithInvalidation = use(
+        updateUser,
+        withInvalidation({
+            key: (user: User) => `user:${user.id}`,
+        }),
+    );
+    ```
+
+    ### Settings
+
+    | Option             | Type                                                            | Description                                                                                                                                         |
+    | ------------------ | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `key`              | `Invocable<TParameters, string>`                                | A function (or invocable object) that produces the cache key from the wrapped function's arguments                                                  |
+    | `shouldInvalidate` | `Invocable<[args: TParameters, returnValue: TReturn], boolean>` | Determines whether to invalidate the cache entry after the wrapped function runs, based on its arguments and return value. Defaults to `() => true` |
+
+- 0ac2312: Added three new dispatch middlewares to `eridu-tech/event-bus/middlewares`:
+
+    - `withDispatchBeforeFactory` — dispatches an event **before** the wrapped function is invoked.
+    - `withDispatchAfterFactory` — dispatches an event **after** the wrapped function resolves.
+    - `withDispatchOnErrorFactory` — dispatches an event when the wrapped function **throws**, then re-throws the original error.
+
+    Each factory takes an `IEventDispatcher` (such as an `EventBus`) and returns a middleware configured through a `settings` object containing the event `type` and a `payload`. The payload can be either a concrete value or an invocable that is resolved with a settings object before dispatching — `{ args }` for `withDispatchBeforeFactory`, `{ args, returnValue }` for `withDispatchAfterFactory`, and `{ args, error }` for `withDispatchOnErrorFactory`. This is useful for emitting lifecycle or failure events around a wrapped function.
+
+    ### Usage
+
+    ```ts
+    import { use } from "eridu-tech/middleware";
+    import {
+        withDispatchBeforeFactory,
+        withDispatchAfterFactory,
+        withDispatchOnErrorFactory,
+    } from "eridu-tech/event-bus/middlewares";
+    import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus";
+    import { EventBus } from "eridu-tech/event-bus";
+
+    type EventMap = {
+        "user.before.create": { userId: string };
+        "user.after.create": { userId: string; name: string };
+        "user.error": { userId: string; error: unknown };
+    };
+
+    const eventBus = new EventBus<EventMap>({
+        adapter: new MemoryEventBusAdapter(),
+    });
+
+    const withDispatchBefore = withDispatchBeforeFactory(eventBus);
+    const withDispatchAfter = withDispatchAfterFactory(eventBus);
+    const withDispatchOnError = withDispatchOnErrorFactory(eventBus);
+
+    const createUser = use(
+        (userId: string) => `user-${userId}`,
+        withDispatchBefore({
+            type: "user.before.create",
+            payload: ({ args: [userId] }) => ({ userId }),
+        }),
+        withDispatchAfter({
+            type: "user.after.create",
+            payload: ({ args: [userId], returnValue }) => ({
+                userId,
+                name: returnValue,
+            }),
+        }),
+        withDispatchOnError({
+            type: "user.error",
+            payload: ({ args: [userId], error }) => ({
+                userId,
+                error,
+            }),
+        }),
+    );
+    ```
+
+- 9c61a49: Add `removeAllExpired` support to the in-memory adapters so expired data can be cleaned up.
+
+    Previously, each in-memory adapter used a separate `setTimeout` per key to handle expiration. This approach is not performant because it requires more memory, and as more timers are scheduled, timing drift can occur. Expired data is now only removed when `removeAllExpired` is called (for example, on a regular interval or cron job).
+
+    Affected adapters:
+
+    - `MemoryCacheAdapter`
+    - `MemoryLockAdapter`
+    - `MemoryRateLimiterStorageAdapter`
+    - `MemorySemaphoreAdapter`
+    - `MemorySharedLockAdapter`
+
+    Also includes internal refactors to the memory adapters (renaming underscore-prefixed internals) and documentation for the new `removeAllExpired` behavior.
+
+- 10cd194: Updated the contract methods of the following adapters to remove the trailing `IReadableContext` argument:
+
+    - `ICacheAdapter`
+    - `ICircuitBreakerAdapter`
+    - `ICircuitBreakerStorageAdapter`
+    - `IEventBusAdapter`
+    - `IFileUrlAdapter`
+    - `IFileStorageAdapter`
+    - `ISignedFileStorageAdapter`
+    - `ILockAdapter`
+    - `ISemaphoreAdapter`
+    - `ISharedLockAdapter`
+    - `IRateLimiterAdapter`
+    - `IRateLimiterStorageAdapter`
+
+    Before this update, the `IExecutionContext` was passed to classes such as `Cache` via the constructor. These classes never used the context themselves; they only forwarded it as `IReadableContext` to the underlying adapter. This was unnecessary indirection.
+
+    After this update, an adapter that needs to be execution-context aware receives a shared `IExecutionContext` instance directly, avoiding the unnecessary indirection.
+
+- 453b32a: Simplified `FileStorage` to require a signed file storage adapter.
+
+    `FileStorage` and `FileStorageResolver` previously accepted any file storage adapter (signed or not) together with an optional partial `IFileUrlAdapter`, wrapping plain adapters internally in a `SignedFileStorageAdapter`. This wrapping is no longer done automatically.
+
+    Changes:
+
+    - `FileStorageSettings.adapter` now requires an `ISignedFileStorageAdapter` directly instead of `FileStorageAdapterVariants`.
+    - Removed the `urlAdapter` setting from `FileStorage` and the `setUrlAdapter` method from `FileStorageResolver`.
+    - Removed the `FileStorageAdapterVariants` contract type and the internal `isSignedFileStorageAdapter`.
+    - Moved `SignedFileStorageAdapter` (with its `MergedFileUrlAdapter` and `NoOpFileUrlAdapter` helpers) from `implementations/derivables/file-storage/` to the new public `implementations/adapters/signed-file-storage-adapter/` location, importable from `"eridu-tech/file-storage/signed-file-storage-adapter"`. Its constructor now takes a `{ adapter, urlAdapter }` settings object.
+    - `File` and `FileSerdeTransformer` no longer track a separate original adapter; serde transformer name resolution uses the adapter directly.
+
+    To customize URL generation, wrap your storage adapter in a `SignedFileStorageAdapter` before passing it to `FileStorage` or `FileStorageResolver`.
+
+- 482cbe1: Removed the `currentDate` option from `KyselySharedLockAdapterSettings`. It was an internal testing setting that is no longer used. The adapter now always uses the current time `Date.now()`.
+
+### Patch Changes
+
+- 11827f4: Fix a concurrency bug in `KyselySharedLockAdapter` where `getState` and `removeAllExpired` executed multiple database operations concurrently with `Promise.all`.
+
+    Because `Promise.all` runs queries non-atomically, a partial failure or race condition could leave the shared-lock tables in an inconsistent state. These methods now run their internal operations sequentially inside a single database transaction, guaranteeing atomicity and data consistency.
+
+- d7f809d: Fixed `RedisCacheAdapter` to use absolute expiration (`PXAT`) instead of relative TTL (`PX`) when setting key expirations.
+
+    Previously, the adapter used Redis's relative expiration option (`PX`) and passed a duration in milliseconds (`ttl.toMilliseconds()`). With relative expiration, Redis only computes the expiry timestamp when the command is executed, so the effective lifetime of a key includes any network and command-processing latency. As a result, keys could outlive their requested `TimeSpan`, causing cache entries to drift from the intended expiration schedule.
+
+    The adapter now converts the `TimeSpan` into an absolute expiration timestamp via `ttl.toEndDate().getTime()` and passes it to Redis using the `PXAT` option. This guarantees each key expires at exactly the intended moment, independent of when the command is actually processed by the server.
+
+    Affected operations:
+
+    - `getOrAdd` (the `eridu_cache_get_or_add` Lua script)
+    - `add` (when a TTL is provided, using the `NX` guard)
+    - `put` (when a TTL is provided, using the `GET` guard)
+
+    The shared cache adapter test suite was also updated to use a larger delay buffer (`TTL / 2` instead of `TTL / 4`) so the assertions stay reliable under the higher timing precision of absolute expiration.
+
 ## 0.59.0
 
 ### Minor Changes
