@@ -1,7 +1,7 @@
 ---
 sidebar_position: 5
-sidebar_label: Middleware
-pagination_label: EventBus middleware
+sidebar_label: Middlewares
+pagination_label: EventBus middlewares
 tags:
     - EventBus
     - Middlewares

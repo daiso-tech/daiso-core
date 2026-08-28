@@ -50,7 +50,7 @@ export const INSTALL_CMD = "npm install eridu-tech";
 export const GITHUB_REPO_URL = "https://github.com/daiso-tech/daiso-core";
 
 // ─── Components Record ──────────────────────────────────────────
-// Single source of truth for every component — keyed by name.
+// Single source of truth for every component, keyed by name.
 // Each curated list below references entries from this record.
 
 const EXISTING_FOUNDATION_RECORD = {
@@ -63,8 +63,8 @@ const EXISTING_FOUNDATION_RECORD = {
         maturity: 90,
         description: (
             <>
-                Composable middleware pipeline with before/after hooks, error
-                handling — the foundation for every component's plugin system.
+                Composable middleware pipeline with before/after hooks and error
+                handling, the foundation for every component's plugin system.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -90,8 +90,8 @@ const EXISTING_FOUNDATION_RECORD = {
         description: (
             <>
                 Serialize and deserialize data with a built-in SuperJSON adapter
-                (Date, Map, Set, BigInt) and custom serializers — the backbone
-                for all data interchange across the ecosystem.
+                and custom serializers, the backbone for all data interchange
+                across the ecosystem.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -103,7 +103,7 @@ const EXISTING_FOUNDATION_RECORD = {
         maturity: 80,
         description: (
             <>
-                Encode and decode data with a unified, type-safe interface —
+                Encode and decode data with a unified, type-safe interface that
                 includes a built-in Base64 codec and lets you build custom
                 codecs for any protocol.
             </>
@@ -118,8 +118,8 @@ const EXISTING_FOUNDATION_RECORD = {
         description: (
             <>
                 Type-safe, composable context propagation for request IDs, user
-                info, and tracing metadata across async boundaries — without
-                thread-local hacks.
+                info, and tracing metadata across async boundaries, without
+                manual context passing.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -131,8 +131,8 @@ const EXISTING_FOUNDATION_RECORD = {
         maturity: 90,
         description: (
             <>
-                Standardized type-safe access to domain configuration variables
-                — with optional schema validation and full TypeScript inference.
+                Standardized type-safe access to domain configuration variables,
+                with optional schema validation and full TypeScript inference.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -145,8 +145,7 @@ const EXISTING_FOUNDATION_RECORD = {
         description: (
             <>
                 Type-safe environment variable access from multiple sync/async
-                sources with parsing, defaults, and validation — never read
-                process.env raw again.
+                sources with parsing, defaults, and validation.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -176,7 +175,7 @@ const EXISTING_STORAGE_RECORD = {
         description: (
             <>
                 Abstract file storage with adapters for local disk,
-                S3-compatible, and other backends — upload, stream, and serve
+                S3-compatible, and other backends, upload, stream, and serve
                 with one API.
             </>
         ),
@@ -207,7 +206,7 @@ const EXISTING_RELIABILITY_RECORD = {
         description: (
             <>
                 Throttle request rates with configurable limits, sliding
-                windows, and pluggable backends — protect your services from
+                windows, and pluggable backends, protect your services from
                 overload.
             </>
         ),
@@ -281,7 +280,7 @@ const EXISTING_MESSAGING_RECORD = {
         description: (
             <>
                 Pub/sub event bus for dispatching and listening to events with
-                pluggable transport backends — independent of underlying
+                pluggable transport backends, independent of underlying
                 technology.
             </>
         ),
@@ -298,7 +297,7 @@ const EXISTING_WEB_RECORD = {
         maturity: 90,
         description: (
             <>
-                Framework-agnostic HTTP router built on the Hono router engine —
+                Framework-agnostic HTTP router built on the Hono router engine,
                 implements the Winter TC fetch standard with middleware chains
                 and typed path parameters.
             </>
@@ -330,7 +329,7 @@ const EXISTING_UTILITIES_RECORD = {
         description: (
             <>
                 Define, manipulate, and compare durations with a typed,
-                immutable API — integrates easily with time libraries like Luxon
+                immutable API, integrates easily with time libraries like Luxon
                 and Dayjs.
             </>
         ),
@@ -343,7 +342,7 @@ const EXISTING_UTILITIES_RECORD = {
         maturity: 90,
         description: (
             <>
-                Define, manipulate, and compare file sizes with a typed API —
+                Define, manipulate, and compare file sizes with a typed API,
                 from bytes to gigabytes, with easy unit conversion.
             </>
         ),
@@ -356,7 +355,7 @@ const EXISTING_UTILITIES_RECORD = {
         maturity: 90,
         description: (
             <>
-                Predefined retry backoff policies — constant and exponential —
+                Predefined retry backoff policies, constant and exponential,
                 with configurable delay and jitter.
             </>
         ),
@@ -372,8 +371,9 @@ const UPCOMING_FOUNDATION_RUNTIME_RECORD = {
         description: (
             <>
                 Coordinate database transactions across components with the
-                after-commit pattern. Foundation for reliable messaging — powers
-                the Outbox, Inbox, Scheduler, and Notifications.
+                after-commit pattern and joining existing transactions.
+                Foundation for reliable messaging, will power the Outbox, Inbox,
+                Scheduler, and Notifications.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -386,7 +386,7 @@ const UPCOMING_FOUNDATION_RUNTIME_RECORD = {
                 A unified API for defining and executing CLI commands with a
                 transport adapter architecture. Run commands locally via child
                 processes, remotely over SSH or HTTP, inside Docker containers,
-                or through custom transports — all from the same command
+                or through custom transports, all from the same command
                 definition.
             </>
         ),
@@ -398,7 +398,7 @@ const UPCOMING_FOUNDATION_RUNTIME_RECORD = {
         description: (
             <>
                 Run async tasks in structured scopes where child tasks are tied
-                to their parent's lifetime — with automatic cancellation, error
+                to their parent's lifetime, with automatic cancellation, error
                 propagation, and resource cleanup.
             </>
         ),
@@ -420,8 +420,8 @@ const UPCOMING_FOUNDATION_RUNTIME_RECORD = {
         title: <>Logging & Observability</>,
         description: (
             <>
-                Support for observability — logging, metrics, and tracing — with
-                a pluggable adapter system. Pre-built adapters for{" "}
+                Support for observability, logging, metrics, and tracing, with a
+                pluggable adapter system. Pre-built adapters for{" "}
                 <a href="https://opentelemetry.io/">OpenTelemetry</a> and a
                 local adapter that saves logs, traces, and metrics to disk.
             </>
@@ -434,7 +434,7 @@ const UPCOMING_FOUNDATION_RUNTIME_RECORD = {
         description: (
             <>
                 Inspect the actual runtime state of any component through
-                pre-built CLI commands — view registered handlers, active jobs,
+                pre-built CLI commands, view registered handlers, active jobs,
                 queue depth, lock holders, and more without digging into logs or
                 metrics.
             </>
@@ -450,9 +450,9 @@ const UPCOMING_RELIABILITY_MESSAGING_RECORD = {
         title: <>Job Scheduler</>,
         description: (
             <>
-                Schedule work with full flexibility — immediate dispatch,
-                delayed execution, and recurring jobs. Uses Transaction Context
-                for reliable execution.
+                Schedule work with full flexibility, immediate dispatch, delayed
+                execution, and recurring jobs. Uses Transaction Context for
+                reliable execution.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -462,7 +462,7 @@ const UPCOMING_RELIABILITY_MESSAGING_RECORD = {
         title: <>Notifications</>,
         description: (
             <>
-                Send notifications through multiple channels — synchronous
+                Send notifications through multiple channels, synchronous
                 dispatching, immediate enqueueing, delayed enqueueing, and
                 recurring messages. Planned adapters include Slack, Discord,
                 email, SMS, and WebSocket (browser push). Relies on Transaction
@@ -540,7 +540,7 @@ const UPCOMING_SECURITY_RECORD = {
         description: (
             <>
                 First-class support for username/password, email verification,
-                OAuth, and WebAuthn — with a{" "}
+                OAuth, and WebAuthn, with a{" "}
                 <a href="https://www.better-auth.com/">Better Auth</a>{" "}
                 integration for batteries-included setups. Requires Sessions.
             </>
@@ -593,7 +593,7 @@ const UPCOMING_INTEGRATIONS_RECORD = {
                 A pluggable text search abstraction with adapter support for
                 Elasticsearch, SQL databases, and MongoDB. Integrates with
                 MikroORM and other ORMs to automatically synchronise your data
-                with search indexes — synchronously or asynchronously.
+                with search indexes, synchronously or asynchronously.
             </>
         ),
     } satisfies ComponentItemProps,
@@ -603,7 +603,7 @@ const UPCOMING_INTEGRATIONS_RECORD = {
         title: <>OpenAPI</>,
         description: (
             <>
-                First-class OpenAPI support — define your API schema alongside
+                First-class OpenAPI support, define your API schema alongside
                 your handlers and get spec generation, validation, and
                 documentation out of the box.
             </>
@@ -618,7 +618,7 @@ const UPCOMING_INTEGRATIONS_RECORD = {
                 Pluggable SQL database adapters for Drizzle, Kysely, MikroORM,
                 TypeORM, Sequelize, Knex, Prisma (SQL) and raw drivers. Internal
                 SQL adapters abstract the database layer while using Kysely as a
-                raw SQL query string builder — write queries once, run against
+                raw SQL query string builder, write queries once, run against
                 any supported ORM or raw driver.
             </>
         ),
@@ -630,9 +630,9 @@ const UPCOMING_INTEGRATIONS_RECORD = {
         description: (
             <>
                 Native and performant MongoDB-backed implementations of every
-                Eridu-tech component — rate limiters, circuit breakers, event
+                Eridu-tech component, rate limiters, circuit breakers, event
                 bus, message queues, job schedulers, request-reply, transaction
-                context, and cache — all using MongoDB as the persistence layer.
+                context, and cache, all using MongoDB as the persistence layer.
                 No additional dependencies required.
             </>
         ),
@@ -644,9 +644,9 @@ const UPCOMING_INTEGRATIONS_RECORD = {
         description: (
             <>
                 Native and performant PostgreSQL-backed implementations of every
-                Eridu-tech component — rate limiters, circuit breakers, locks,
+                Eridu-tech component, rate limiters, circuit breakers, locks,
                 semaphores, shared locks, event bus, message queues, job
-                schedulers, request-reply, transaction context, and cache — all
+                schedulers, request-reply, transaction context, and cache, all
                 using PostgreSQL as the persistence layer via Kysely. No
                 additional dependencies required.
             </>
@@ -660,7 +660,7 @@ const UPCOMING_INTEGRATIONS_RECORD = {
             <>
                 Deploy and manage Eridu-tech applications on any VPS or
                 bare-metal server via SSH. Push builds, manage processes,
-                configure environment, and run health checks — all from a single
+                configure environment, and run health checks, all from a single
                 CLI command, no Docker or orchestration required.
             </>
         ),
@@ -672,7 +672,7 @@ const UPCOMING_INTEGRATIONS_RECORD = {
         description: (
             <>
                 A pluggable image manipulation component with adapter support
-                for resize, crop, rotate, format conversion, and optimization —
+                for resize, crop, rotate, format conversion, and optimization,
                 process images locally via Sharp or delegate to cloud services
                 like Cloudinary and Imgix.
             </>
@@ -702,7 +702,7 @@ const UPCOMING_DEV_TOOLING_RECORD = {
         description: (
             <>
                 A Vite plugin that automatically discovers and registers DI
-                container modules — no manual import wiring required for new
+                container modules, no manual import wiring required for new
                 components or services.
             </>
         ),
@@ -771,7 +771,7 @@ const UPCOMING_DEV_TOOLING_RECORD = {
                 Predefined CLI commands to scaffold Eridu-tech projects and
                 components. Initialize a new Eridu-tech project from scratch or
                 add individual components (DI, Cache, Scheduler, Auth, etc.) to
-                an existing project — with sensible defaults, config files, and
+                an existing project, with sensible defaults, config files, and
                 boilerplate code generated automatically.
             </>
         ),
@@ -793,7 +793,7 @@ export const COMPONENT_RECORD = {
     ...UPCOMING_DEV_TOOLING_RECORD,
 };
 
-// ─── Existing — Production-Ready Components ──────────────────────
+// ─── Existing, Production-Ready Components ──────────────────────
 
 export const FOUNDATION_EXISTING_ITEMS: ComponentItemProps[] = [
     COMPONENT_RECORD.DI_CONTAINER,
@@ -845,6 +845,115 @@ export const EXISTING_ITEMS: ComponentItemProps[] = [
     ...MESSAGING_EXISTING_ITEMS,
     ...WEB_EXISTING_ITEMS,
     ...UTILITIES_EXISTING_ITEMS,
+];
+
+// ─── Existing Middlewares ───────────────────────────────────────
+
+export const MIDDLEWARE_EXISTING_ITEMS: ComponentItemProps[] = [
+    {
+        name: "withCacheFactory",
+        title: <>withCacheFactory</>,
+        link: "/docs/components/cache/cache_middlewares",
+        description: <>Caches the wrapped function's return value.</>,
+    },
+    {
+        name: "withInvalidationFactory",
+        title: <>withInvalidationFactory</>,
+        link: "/docs/components/cache/cache_middlewares",
+        description: (
+            <>Invalidates a cache entry after the wrapped function runs.</>
+        ),
+    },
+    {
+        name: "withCircuitBreakerFactory",
+        title: <>withCircuitBreakerFactory</>,
+        link: "/docs/components/circuit_breaker/circuit_breaker_middlewares",
+        description: <>Wraps function calls with a circuit breaker.</>,
+    },
+    {
+        name: "withDispatchBeforeFactory",
+        title: <>withDispatchBeforeFactory</>,
+        link: "/docs/components/event_bus/event_bus_middlewares",
+        description: <>Dispatches an event before the wrapped function runs.</>,
+    },
+    {
+        name: "withDispatchAfterFactory",
+        title: <>withDispatchAfterFactory</>,
+        link: "/docs/components/event_bus/event_bus_middlewares",
+        description: (
+            <>Dispatches an event after the wrapped function resolves.</>
+        ),
+    },
+    {
+        name: "withDispatchOnErrorFactory",
+        title: <>withDispatchOnErrorFactory</>,
+        link: "/docs/components/event_bus/event_bus_middlewares",
+        description: <>Dispatches an event when the wrapped function throws.</>,
+    },
+    {
+        name: "withLockFactory",
+        title: <>withLockFactory</>,
+        link: "/docs/components/lock/lock_middlewares",
+        description: <>Wraps function calls with a distributed lock.</>,
+    },
+    {
+        name: "withRateLimiterFactory",
+        title: <>withRateLimiterFactory</>,
+        link: "/docs/components/rate-limiter/rate_limiter_middlewares",
+        description: <>Wraps function calls with a rate limiter.</>,
+    },
+    {
+        name: "withSemaphoreFactory",
+        title: <>withSemaphoreFactory</>,
+        link: "/docs/components/semaphore/semaphore_middlewares",
+        description: <>Wraps function calls with a distributed semaphore.</>,
+    },
+    {
+        name: "withSharedLockFactory",
+        title: <>withSharedLockFactory</>,
+        link: "/docs/components/shared_lock/shared_lock_middlewares",
+        description: (
+            <>Wraps function calls with a shared (reader-writer) lock.</>
+        ),
+    },
+    {
+        name: "fallback",
+        title: <>fallback</>,
+        link: "/docs/components/resilience",
+        description: (
+            <>Returns a fallback value when the wrapped function fails.</>
+        ),
+    },
+    {
+        name: "retry",
+        title: <>retry</>,
+        link: "/docs/components/resilience",
+        description: (
+            <>Retries the wrapped function up to a maximum number of attempts.</>
+        ),
+    },
+    {
+        name: "retryInterval",
+        title: <>retryInterval</>,
+        link: "/docs/components/resilience",
+        description: (
+            <>
+                Retries the wrapped function at a fixed interval until it
+                succeeds or the time budget is exhausted.
+            </>
+        ),
+    },
+    {
+        name: "timeout",
+        title: <>timeout</>,
+        link: "/docs/components/resilience",
+        description: (
+            <>
+                Rejects the wrapped function if it does not complete within a
+                duration.
+            </>
+        ),
+    },
 ];
 
 // ─── Foundation & Runtime ────────────────────────────────────────
@@ -926,7 +1035,7 @@ export const FEATURE_ITEMS = {
         description: (
             <>
                 The adapter pattern keeps your code decoupled from vendors. Use
-                Redis today, Postgres tomorrow — no refactoring required.
+                Redis today, Postgres tomorrow, no refactoring required.
             </>
         ),
     } satisfies FeatureItemProps,
@@ -963,7 +1072,7 @@ export const FEATURE_ITEMS = {
         description: (
             <>
                 No DI container required. Plug directly into Express, NestJS,
-                AdonisJS, Next.js, Nuxt, or TanStack Start — it just works.
+                AdonisJS, Next.js, Nuxt, or TanStack Start, it just works.
             </>
         ),
     } satisfies FeatureItemProps,
@@ -1046,9 +1155,9 @@ export const PERFECT_FOR = {
         description: (
             <>
                 Share the same abstractions, middleware, and adapters across a
-                single deployable application. Some components can be
-                used in microservices, but the library is primarily designed for
-                modular monolith architectures.
+                single deployable application. Some components can be used in
+                microservices, but the library is primarily designed for modular
+                monolith architectures.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1067,8 +1176,8 @@ export const PERFECT_FOR = {
         title: <>Testing and local development:</>,
         description: (
             <>
-                Use in-memory adapters for fast, deterministic tests,
-                then swap to production infrastructure with configuration only.
+                Use in-memory adapters for fast, deterministic tests, then swap
+                to production infrastructure with configuration only.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1089,7 +1198,7 @@ export const PERFECT_FOR = {
         description: (
             <>
                 Use specific components without being forced to adopt the entire
-                library or a DI container — each component works standalone.
+                library or a DI container, each component works standalone.
             </>
         ),
     } satisfies WhoIsThisForItem,
@@ -1303,7 +1412,7 @@ class Fetcher {
     }
 }
 
-// Reusable plugin factory — apply to any service
+// Reusable plugin factory, apply to any service
 const withRetryAndTimeout: PluginFn<Fetcher> = () =>
     (instance, enhance) => {
         enhance(instance, "getUser", [
@@ -1367,7 +1476,7 @@ const accessor = new ConfigAccessor({
         database: { host: "localhost", port: 5432 },
         features: ["cache", "queue"],
     },
-    // Schema is optional — a type works just as well
+    // Schema is optional, a type works just as well
     schema,
 });
 
@@ -1385,7 +1494,7 @@ import {
     GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
 
-// Multiple sources — later sources override earlier keys
+// Multiple sources, later sources override earlier keys
 const secretsManager = new SecretsManagerClient({ region: "us-east-1" });
 const sources = [
     process.env,
@@ -1430,7 +1539,7 @@ export const CODE_EXAMPLES = {
             <>
                 This example shows how a single Serde instance is shared across
                 LockFactory and Cache. Acquire a lock, store it in the cache,
-                and retrieve it — serialization and deserialization happen
+                and retrieve it, serialization and deserialization happen
                 automatically.
             </>
         ),
@@ -1438,7 +1547,7 @@ export const CODE_EXAMPLES = {
             <>Shared serialization engine used throughout Eridu-tech</>,
             <>Powers LockFactory, Cache, EventBus, and more</>,
             <>
-                Built-in SuperJSON adapter — Date, Map, Set & BigInt out of the
+                Built-in SuperJSON adapter, Date, Map, Set & BigInt out of the
                 box
             </>,
             <>Register custom serializers for your own types</>,
@@ -1467,7 +1576,7 @@ export const CODE_EXAMPLES = {
             <>
                 This example shows how ExecutionContext propagates
                 request-scoped state (request ID, user info) across async
-                boundaries with AsyncLocalStorage — and how to test the same
+                boundaries with AsyncLocalStorage, and how to test the same
                 logic with a NoOp adapter, no runtime context required.
             </>
         ),
@@ -1531,7 +1640,7 @@ export const CODE_EXAMPLES = {
         codeBlockDescription: (
             <>
                 This example defines a typed POST endpoint with Zod request
-                validation and exports it as a SvelteKit server route handler —
+                validation and exports it as a SvelteKit server route handler,
                 all with a framework-agnostic HTTP router.
             </>
         ),
@@ -1561,13 +1670,13 @@ export const CODE_EXAMPLES = {
         codeBlockDescription: (
             <>
                 This example combines process.env with an async AWS Secrets
-                Manager source — later sources override earlier keys — and
+                Manager source, later sources override earlier keys, and
                 validates the result with a Zod schema.
             </>
         ),
         bullets: [
             <>Type-safe reads with full autocompletion</>,
-            <>Multiple sources — process.env and async secret providers</>,
+            <>Multiple sources, process.env and async secret providers</>,
             <>Optional Zod schema validation</>,
             <>
                 get() returns null on missing fields; getOr() falls back to a
@@ -1584,14 +1693,14 @@ export const CODE_EXAMPLES = {
             <>
                 The ConfigAccessor component provides standardized type-safe
                 access to domain configuration variables. It supports optional
-                schema validation — useful for dynamic configurations like
+                schema validation, useful for dynamic configurations like
                 per-tenant settings.
             </>
         ),
         codeBlockDescription: (
             <>
                 This example defines a typed config schema with Zod, then reads
-                nested values with full autocompletion — get() returns null on
+                nested values with full autocompletion, get() returns null on
                 missing paths, getOr() falls back to a default.
             </>
         ),
@@ -1621,22 +1730,22 @@ export const COMPARISONS = {
             "NodeJS runtime only.",
             "Can't embed in a full-stack framework or host as one server.",
             "Not adapted for edge runtimes.",
-            "Request-scoped only — no custom scopes.",
-            "Wraps existing libs — BullMQ, cache-manager, class-validator, class-transformer, etc.",
+            "Request-scoped only, no custom scopes.",
+            "Wraps existing libs, BullMQ, cache-manager, class-validator, class-transformer, etc.",
             "Geared toward microservices and monoliths.",
             "No execution context flowing through all components.",
             "No shared serialization engine across components.",
             "No built-in transaction context.",
         ],
         eriduTech: [
-            "A library, not a framework — DI optional, no decorators, plain classes.",
-            "Same cache/lock/event bus in any framework — no lock-in.",
-            "Runs anywhere Winter TC runs — Node, Bun, Deno, edge.",
+            "A library, not a framework, DI optional, no decorators, plain classes.",
+            "Same cache/lock/event bus in any framework, no lock-in.",
+            "Runs anywhere Winter TC runs, Node, Bun, Deno, edge.",
             "Edge-adaptable via the adapter pattern.",
-            "Embeds in any full-stack framework — host as one server.",
-            "Scope-agnostic — request, custom, or no scope.",
-            "Own primitives with pluggable adapters — in-memory adapters for testing.",
-            "Built for modular monoliths — swap infrastructure without rewriting logic.",
+            "Embeds in any full-stack framework, host as one server.",
+            "Scope-agnostic, request, custom, or no scope.",
+            "Own primitives with pluggable adapters, in-memory adapters for testing.",
+            "Built for modular monoliths, swap infrastructure without rewriting logic.",
             "Execution context flowing through all components.",
             "Shared serialization engine (Serde) across components.",
             "Will have a transaction context.",
@@ -1657,10 +1766,10 @@ export const COMPARISONS = {
             "No built-in transaction context.",
         ],
         eriduTech: [
-            "No app framework, ORM, or auth — just infrastructure behind adapters.",
-            "Combine with any application layer — you bring the structure.",
-            "Runs anywhere Winter TC runs — Node, Bun, Deno, edge.",
-            "Embeds in any full-stack framework — host as one server.",
+            "No app framework, ORM, or auth, just infrastructure behind adapters.",
+            "Combine with any application layer, you bring the structure.",
+            "Runs anywhere Winter TC runs, Node, Bun, Deno, edge.",
+            "Embeds in any full-stack framework, host as one server.",
             "Edge-adaptable via the adapter pattern.",
             "Execution context flowing through all components.",
             "Shared serialization engine (Serde) across components.",
@@ -1673,14 +1782,14 @@ export const COMPARISONS = {
             "End-to-end typed APIs vs the server-side infrastructure behind them.",
         instead: [
             "End-to-end type safety between client and server.",
-            "Define procedures once — call from the client with full inference, no codegen.",
+            "Define procedures once, call from the client with full inference, no codegen.",
             "Excellent for type-safe full-stack APIs at the client-server boundary.",
             "No built-in battery included backend infrastructure",
         ],
         eriduTech: [
-            "Not an RPC framework — not a tRPC or ORPC replacement.",
-            "Backend infrastructure behind pluggable adapters — caching, locks, rate limiting, scheduling, event buses.",
-            "Complementary — tRPC procedures can call services backed by eridu-tech.",
+            "Not an RPC framework, not a tRPC or ORPC replacement.",
+            "Backend infrastructure behind pluggable adapters, caching, locks, rate limiting, scheduling, event buses.",
+            "Complementary, tRPC procedures can call services backed by eridu-tech.",
             "Choose tRPC for typed transport; add eridu-tech for reusable server-side infra.",
         ],
     } satisfies ComparisonItem,
@@ -1695,8 +1804,8 @@ export const COMPARISONS = {
             "No built-in battery included backend infrastructure",
         ],
         eriduTech: [
-            "Not a web or frontend framework — not a replacement for Next.js or Nuxt.",
-            "Complements them — route handlers and server actions can use cache, locks, queues, and schedulers.",
+            "Not a web or frontend framework, not a replacement for Next.js or Nuxt.",
+            "Complements them, route handlers and server actions can use cache, locks, queues, and schedulers.",
             "Same backend logic moves between a meta-framework and a standalone API service or worker.",
             "Add eridu-tech for portable, testable server-side infra.",
         ],
@@ -1705,18 +1814,18 @@ export const COMPARISONS = {
         name: "Composing your own stack",
         heading: "Hand-picked libraries vs a consistent, integrated layer.",
         instead: [
-            "Maximum control and minimal dependencies — pick exactly the libraries you want.",
+            "Maximum control and minimal dependencies, pick exactly the libraries you want.",
             "Simpler and lighter for small, focused use cases.",
             "Better when you need one or two primitives or rely on provider-specific features.",
-            "No shared conventions — you wire libraries together yourself.",
-            "Locked into what you picked — adding more means more glue code.",
+            "No shared conventions, you wire libraries together yourself.",
+            "Locked into what you picked, adding more means more glue code.",
         ],
         eriduTech: [
-            "Consistent, integrated layer — shared patterns and common adapter interfaces.",
+            "Consistent, integrated layer, shared patterns and common adapter interfaces.",
             "Heavier than a single raw library, but ships in-memory adapters for testing without Docker.",
-            "Trade-off: an abstraction layer — raw libraries win for a single Redis call or a tiny script.",
-            "No glue code — components interoperate through a shared serde and execution context.",
-            "Adopt incrementally — start with one component and add more as the project grows.",
+            "Trade-off: an abstraction layer, raw libraries win for a single Redis call or a tiny script.",
+            "No glue code, components interoperate through a shared serde and execution context.",
+            "Adopt incrementally, start with one component and add more as the project grows.",
         ],
     } satisfies ComparisonItem,
 };
