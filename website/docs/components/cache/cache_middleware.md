@@ -98,9 +98,9 @@ Here is a complete list of settings for the [`withInvalidation`](https://eridu-t
 
 ### Settings
 
-| Option             | Type                                                           | Description                                                                                                 |
-| ------------------ | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `key`              | `Invocable<TParameters, string>`                               | A function (or invocable object) that produces the cache key from the wrapped function's arguments           |
+| Option             | Type                                                            | Description                                                                                                                                         |
+| ------------------ | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `key`              | `Invocable<TParameters, string>`                                | A function (or invocable object) that produces the cache key from the wrapped function's arguments                                                  |
 | `shouldInvalidate` | `Invocable<[args: TParameters, returnValue: TReturn], boolean>` | Determines whether to invalidate the cache entry after the wrapped function runs, based on its arguments and return value. Defaults to `() => true` |
 
 ## Further information
