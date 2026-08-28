@@ -10,6 +10,7 @@ import {
     MESSAGING_EXISTING_ITEMS,
     WEB_EXISTING_ITEMS,
     UTILITIES_EXISTING_ITEMS,
+    MIDDLEWARE_EXISTING_ITEMS,
 } from "../../src/data/data";
 import { ComponentIndex } from "../../src/components/ComponentIndex";
 
@@ -22,6 +23,8 @@ real infrastructure without touching your business logic.
 
 Here is an index of every component, grouped by responsibility.
 
+## Foundation
+
 <ComponentIndex
     sections={[
         {
@@ -29,35 +32,89 @@ Here is an index of every component, grouped by responsibility.
             intro: "The building blocks that power the rest of the ecosystem.",
             items: FOUNDATION_EXISTING_ITEMS,
         },
+    ]}
+/>
+
+## Storage
+
+<ComponentIndex
+    sections={[
         {
             label: "Storage",
             intro: "Persist and retrieve data behind a single, portable API.",
             items: STORAGE_EXISTING_ITEMS,
         },
+    ]}
+/>
+
+## Reliability
+
+<ComponentIndex
+    sections={[
         {
             label: "Reliability",
             intro: "Keep your services available and responsive under load and failure.",
             items: RELIABILITY_EXISTING_ITEMS,
         },
+    ]}
+/>
+
+## Concurrency
+
+<ComponentIndex
+    sections={[
         {
             label: "Concurrency",
             intro: "Coordinate access to shared resources across processes and machines.",
             items: CONCURRENCY_EXISTING_ITEMS,
         },
+    ]}
+/>
+
+## Messaging
+
+<ComponentIndex
+    sections={[
         {
             label: "Messaging",
             intro: "Decouple your services with reliable, asynchronous communication.",
             items: MESSAGING_EXISTING_ITEMS,
         },
+    ]}
+/>
+
+## Web
+
+<ComponentIndex
+    sections={[
         {
             label: "Web",
             intro: "Serve HTTP and build framework-agnostic APIs.",
             items: WEB_EXISTING_ITEMS,
         },
+    ]}
+/>
+
+## Utilities
+
+<ComponentIndex
+    sections={[
         {
             label: "Utilities",
             intro: "Small, focused helpers shared across the ecosystem.",
             items: UTILITIES_EXISTING_ITEMS,
+        },
+    ]}
+/>
+
+## Existing middlewares
+
+<ComponentIndex
+    sections={[
+        {
+            label: "Existing middlewares",
+            intro: "Beyond the components themselves, every component provides middleware factories for composing component behavior around your own functions. Wrap a function with use() or method with enhance() and apply any of the following middlewares.",
+            items: MIDDLEWARE_EXISTING_ITEMS,
         },
     ]}
 />
