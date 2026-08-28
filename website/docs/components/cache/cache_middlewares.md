@@ -1,7 +1,7 @@
 ---
 sidebar_position: 5
-sidebar_label: Middleware
-pagination_label: Cache middleware
+sidebar_label: Middlewares
+pagination_label: Cache middlewares
 tags:
     - Cache
     - Middlewares
