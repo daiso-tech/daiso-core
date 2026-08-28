@@ -62,4 +62,38 @@ describe("function: withSemaphoreFactory", () => {
 
         expect(spy).toHaveBeenCalledOnce();
     });
+    test("Should derive the key from multiple wrapped function arguments", async () => {
+        const spy = vi.spyOn(semaphoreFactory, "create");
+
+        const withSemaphore = withSemaphoreFactory(semaphoreFactory);
+
+        async function fn(_userId: string, _postId: string): Promise<void> {}
+        await use(
+            fn,
+            withSemaphore({
+                key: (userId: string, postId: string) =>
+                    `user:${userId}:post:${postId}`,
+                limit: 4,
+            }),
+        )("u1", "p2");
+
+        expect(spy).toHaveBeenCalledWith("user:u1:post:p2", expect.anything());
+    });
+    test("Should pass through the wrapped function's arguments and return value", async () => {
+        const withSemaphore = withSemaphoreFactory(semaphoreFactory);
+
+        function fn(a: string, b: string): Promise<string> {
+            return Promise.resolve(`${a}-${b}`);
+        }
+
+        const wrapped = use(
+            fn,
+            withSemaphore({
+                key: (a: string, b: string) => `${a}:${b}`,
+                limit: 4,
+            }),
+        );
+
+        expect(await wrapped("2", "3")).toBe("2-3");
+    });
 });
