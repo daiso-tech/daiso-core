@@ -13,7 +13,9 @@ import type { Invocable } from "@/utilities/_module.js";
  * Settings for the cache middleware.
  *
  * @typeParam TParameters - Tuple type of the wrapped function's parameters.
- * @group Middleware
+ *
+ * IMPORT_PATH: `"eridu-tech/cache/middlewares"`
+ * @group Middlewares
  */
 export type WithCacheSettings<
     TParameters extends Array<unknown> = Array<unknown>,
@@ -41,7 +43,7 @@ export type WithCacheSettings<
  *          middleware.
  *
  * IMPORT_PATH: `"eridu-tech/cache/middlewares"`
- * @group Middleware
+ * @group Middlewares
  */
 export function withCacheFactory(cache: Pick<ICache, "getOrAdd">) {
     return <TParameters extends Array<unknown>, TReturn>(
