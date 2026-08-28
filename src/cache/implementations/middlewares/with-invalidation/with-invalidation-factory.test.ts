@@ -33,7 +33,7 @@ describe("function: withInvalidationFactory", () => {
         expect(spy).toHaveBeenCalledExactlyOnceWith("cache:42");
         expect(innerFn).toHaveBeenCalledExactlyOnceWith("42");
     });
-    test("Should remove the key before calling the wrapped function", async () => {
+    test("Should remove the key after calling the wrapped function", async () => {
         const spy = vi.spyOn(cache, "remove");
         const withInvalidation = withInvalidationFactory(cache);
         const innerFn = vi.fn((_id: string): Promise<void> =>
@@ -53,7 +53,7 @@ describe("function: withInvalidationFactory", () => {
         expect(innerFn).toHaveBeenCalledExactlyOnceWith("a");
         const removeOrder = spy.mock.invocationCallOrder[0] as number;
         const innerOrder = innerFn.mock.invocationCallOrder[0] as number;
-        expect(removeOrder).toBeLessThan(innerOrder);
+        expect(innerOrder).toBeLessThan(removeOrder);
     });
     test("Should derive the key from multiple wrapped function arguments", async () => {
         const spy = vi.spyOn(cache, "remove");
