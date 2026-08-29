@@ -5,6 +5,8 @@ import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { withDispatchBeforeFactory } from "@/event-bus/implementations/middlewares/with-dispatch-before/with-dispatch-before-factory.js";
 import { use } from "@/middleware/implementations/_module.js";
 
+import type { WithDispatchBeforePayloadSettings } from "@/event-bus/implementations/middlewares/with-dispatch-before/with-dispatch-before-factory.js";
+
 describe("function: withDispatchBeforeFactory", () => {
     const adapter = new NoOpEventBusAdapter();
     const eventDispatcher = new EventBus({
@@ -19,9 +21,13 @@ describe("function: withDispatchBeforeFactory", () => {
 
     test("Should dispatch the event with the resolved payload before invoking the wrapped function", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn((settings: { args: [userId: string] }) => ({
-            userId: settings.args[0],
-        }));
+        const payloadFn = vi.fn(
+            (
+                settings: WithDispatchBeforePayloadSettings<[userId: string]>,
+            ) => ({
+                userId: settings.args[0],
+            }),
+        );
         const innerFn = vi.fn((_userId: string): Promise<string> =>
             Promise.resolve("ok"),
         );
@@ -44,9 +50,13 @@ describe("function: withDispatchBeforeFactory", () => {
     });
     test("Should dispatch the event before the wrapped function executes", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn((settings: { args: [userId: string] }) => ({
-            userId: settings.args[0],
-        }));
+        const payloadFn = vi.fn(
+            (
+                settings: WithDispatchBeforePayloadSettings<[userId: string]>,
+            ) => ({
+                userId: settings.args[0],
+            }),
+        );
         const innerFn = vi.fn((_userId: string): Promise<void> =>
             Promise.resolve(),
         );
@@ -66,9 +76,13 @@ describe("function: withDispatchBeforeFactory", () => {
     });
     test("Should dispatch the event even when the wrapped function throws", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn((settings: { args: [userId: string] }) => ({
-            userId: settings.args[0],
-        }));
+        const payloadFn = vi.fn(
+            (
+                settings: WithDispatchBeforePayloadSettings<[userId: string]>,
+            ) => ({
+                userId: settings.args[0],
+            }),
+        );
         const innerFn = vi.fn((_userId: string): Promise<string> => {
             throw new Error("boom");
         });
@@ -89,9 +103,13 @@ describe("function: withDispatchBeforeFactory", () => {
     });
     test("Should resolve an invocable payload with the wrapped function's arguments", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn((settings: { args: [userId: string] }) => ({
-            userId: settings.args[0],
-        }));
+        const payloadFn = vi.fn(
+            (
+                settings: WithDispatchBeforePayloadSettings<[userId: string]>,
+            ) => ({
+                userId: settings.args[0],
+            }),
+        );
         const innerFn = vi.fn((_userId: string): Promise<void> =>
             Promise.resolve(),
         );
@@ -114,9 +132,13 @@ describe("function: withDispatchBeforeFactory", () => {
     });
     test("Should resolve an invocable object payload with the wrapped function's arguments", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadInvoke = vi.fn((settings: { args: [userId: string] }) => ({
-            userId: settings.args[0],
-        }));
+        const payloadInvoke = vi.fn(
+            (
+                settings: WithDispatchBeforePayloadSettings<[userId: string]>,
+            ) => ({
+                userId: settings.args[0],
+            }),
+        );
         const innerFn = vi.fn((_userId: string): Promise<void> =>
             Promise.resolve(),
         );
@@ -139,9 +161,13 @@ describe("function: withDispatchBeforeFactory", () => {
     });
     test("Should call the payload invocable on every invocation", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn((settings: { args: [userId: string] }) => ({
-            userId: settings.args[0],
-        }));
+        const payloadFn = vi.fn(
+            (
+                settings: WithDispatchBeforePayloadSettings<[userId: string]>,
+            ) => ({
+                userId: settings.args[0],
+            }),
+        );
         const innerFn = vi.fn((_userId: string): Promise<void> =>
             Promise.resolve(),
         );
@@ -165,5 +191,30 @@ describe("function: withDispatchBeforeFactory", () => {
         expect(dispatch).toHaveBeenNthCalledWith(2, "user.created", {
             userId: "u-2",
         });
+    });
+    test("Should not dispatch the event when the payload resolves to undefined", async () => {
+        const dispatch = vi.spyOn(adapter, "dispatch");
+        const payloadFn = vi.fn(
+            (
+                _settings: WithDispatchBeforePayloadSettings<[userId: string]>,
+            ): undefined => undefined,
+        );
+        const innerFn = vi.fn((_userId: string): Promise<string> =>
+            Promise.resolve("ok"),
+        );
+        const wrapped = use(
+            innerFn,
+            withDispatchBefore({
+                type: "user.created",
+                payload: payloadFn,
+            }),
+        );
+
+        const result = await wrapped("42");
+
+        expect(result).toBe("ok");
+        expect(payloadFn).toHaveBeenCalledOnce();
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(innerFn).toHaveBeenCalledOnce();
     });
 });

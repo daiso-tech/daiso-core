@@ -5,6 +5,8 @@ import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { withDispatchOnErrorFactory } from "@/event-bus/implementations/middlewares/with-dispatch-on-error/with-dispatch-on-error-factory.js";
 import { use } from "@/middleware/implementations/_module.js";
 
+import type { WithDispatchOnErrorPayloadSettings } from "@/event-bus/implementations/middlewares/with-dispatch-on-error/with-dispatch-on-error-factory.js";
+
 describe("function: withDispatchOnErrorFactory", () => {
     const adapter = new NoOpEventBusAdapter();
     const eventDispatcher = new EventBus({
@@ -91,7 +93,9 @@ describe("function: withDispatchOnErrorFactory", () => {
     test("Should resolve an invocable payload with the wrapped function's arguments and error", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
         const payloadFn = vi.fn(
-            (settings: { args: [userId: string]; error: unknown }) => ({
+            (
+                settings: WithDispatchOnErrorPayloadSettings<[userId: string]>,
+            ) => ({
                 userId: settings.args[0],
             }),
         );
@@ -120,7 +124,9 @@ describe("function: withDispatchOnErrorFactory", () => {
     test("Should resolve an invocable object payload with the wrapped function's arguments and error", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
         const payloadInvoke = vi.fn(
-            (settings: { args: [userId: string]; error: unknown }) => ({
+            (
+                settings: WithDispatchOnErrorPayloadSettings<[userId: string]>,
+            ) => ({
                 userId: settings.args[0],
             }),
         );
@@ -149,7 +155,9 @@ describe("function: withDispatchOnErrorFactory", () => {
     test("Should call the payload invocable on every error", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
         const payloadFn = vi.fn(
-            (settings: { args: [userId: string]; error: unknown }) => ({
+            (
+                settings: WithDispatchOnErrorPayloadSettings<[userId: string]>,
+            ) => ({
                 userId: settings.args[0],
             }),
         );
@@ -186,5 +194,28 @@ describe("function: withDispatchOnErrorFactory", () => {
         expect(dispatch).toHaveBeenNthCalledWith(2, "user.created", {
             userId: "u-2",
         });
+    });
+    test("Should re-throw the error without dispatching when the payload resolves to undefined", async () => {
+        const dispatch = vi.spyOn(adapter, "dispatch");
+        const payloadFn = vi.fn(
+            (
+                _settings: WithDispatchOnErrorPayloadSettings<[userId: string]>,
+            ): void => undefined,
+        );
+        const innerFn = vi.fn((_userId: string): Promise<string> => {
+            throw new Error("boom");
+        });
+        const wrapped = use(
+            innerFn,
+            withDispatchOnError({
+                type: "user.created",
+                payload: payloadFn,
+            }),
+        );
+
+        await expect(wrapped("fakeUserId")).rejects.toThrow("boom");
+
+        expect(payloadFn).toHaveBeenCalledOnce();
+        expect(dispatch).not.toHaveBeenCalled();
     });
 });
