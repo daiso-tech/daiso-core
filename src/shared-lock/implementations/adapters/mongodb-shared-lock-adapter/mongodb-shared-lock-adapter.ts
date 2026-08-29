@@ -467,83 +467,28 @@ export class MongodbSharedLockAdapter
         lockId: string,
         ttl: Date,
     ): Promise<boolean> {
-        const isUnexpiredQuery = {
-            $and: [
-                {
-                    $ne: ["$writer", null],
-                },
-                {
-                    $eq: ["$reader", null],
-                },
-                {
-                    $ne: ["$writer.expiration", null],
-                },
-                {
-                    $gt: ["$writer.expiration", new Date()],
-                },
-            ],
-        };
+        const now = new Date();
 
-        const sharedLock = await this.collection.findOneAndUpdate(
+        const lockData = await this.collection.findOneAndUpdate(
             {
                 key,
-            },
-            [
-                {
-                    $set: {
-                        "writer.expiration": {
-                            $cond: {
-                                if: isUnexpiredQuery,
-                                then: ttl,
-                                else: "$writer.expiration",
-                            },
-                        },
-                        expiration: {
-                            $cond: {
-                                if: isUnexpiredQuery,
-                                then: ttl,
-                                else: "$expiration",
-                            },
-                        },
-                    },
+                writer: {
+                    $ne: null,
                 },
-                ...this.removeWriterWhenReaderIsActive(),
-            ],
+                "writer.owner": lockId,
+                "writer.expiration": {
+                    $ne: null,
+                    $gt: now,
+                },
+            },
             {
-                projection: {
-                    _id: 0,
-                    reader: 1,
-                    writer: 1,
+                $set: {
+                    expiration: ttl,
                 },
             },
         );
 
-        if (sharedLock === null) {
-            return false;
-        }
-        const { writer: writerLock, reader: readerSemaphore } = sharedLock;
-        if (readerSemaphore !== null) {
-            return false;
-        }
-        if (writerLock === null) {
-            throw new UnexpectedError(
-                "Invalid ISharedLockAdapterState, expected either the writer field must be defined, but not both.",
-            );
-        }
-
-        if (writerLock.owner !== lockId) {
-            return false;
-        }
-
-        if (writerLock.expiration === null) {
-            return false;
-        }
-
-        if (writerLock.expiration <= new Date()) {
-            return false;
-        }
-
-        return true;
+        return lockData !== null;
     }
 
     private initSemaphoreIfNotExistsStage(

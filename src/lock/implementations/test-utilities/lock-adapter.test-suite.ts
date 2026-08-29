@@ -359,6 +359,20 @@ export function lockAdapterTestSuite(
                 const result = await adapter.acquire(key, lockId2, ttl);
                 expect(result).toBe(true);
             });
+            test("Should return false when key expires exactly now", async () => {
+                const key = "a";
+                const lockId = "b";
+
+                const ttl = TimeSpan.fromMilliseconds(50);
+
+                await adapter.acquire(key, lockId, ttl.toEndDate());
+
+                await delayWithBuffer(ttl);
+
+                const result = await adapter.forceRelease(key);
+
+                expect(result).toBe(false);
+            });
         });
         describe("method: refresh", () => {
             test("Should return false when key doesnt exists", async () => {
@@ -522,6 +536,36 @@ export function lockAdapterTestSuite(
                     ttl.toEndDate(),
                 );
                 expect(result2).toBe(true);
+            });
+            test("Should not update expiration when key is unexpired and refreshed by different lock-id", async () => {
+                const key = "a";
+                const lockId1 = "b";
+                const currentDate = new Date();
+
+                const ttl = TimeSpan.fromMilliseconds(100);
+                const originalExpiration = ttl.toEndDate(currentDate);
+
+                await adapter.acquire(key, lockId1, originalExpiration);
+
+                const lockId2 = "c";
+                const newExpiration =
+                    TimeSpan.fromSeconds(10).toEndDate(currentDate);
+
+                const result = await adapter.refresh(
+                    key,
+                    lockId2,
+                    newExpiration,
+                );
+
+                expect(result).toBe(false);
+
+                const state = await adapter.getState(key);
+
+                expect(state).not.toBeNull();
+                expect(state?.owner).toBe(lockId1);
+                expect(state?.expiration?.getTime()).toBe(
+                    originalExpiration.getTime(),
+                );
             });
         });
         describe("method: getState", () => {

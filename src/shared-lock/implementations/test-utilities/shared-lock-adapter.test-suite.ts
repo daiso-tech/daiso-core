@@ -572,6 +572,20 @@ export function sharedLockAdapterTestSuite(
                     },
                 });
             });
+            test("Should return false when key expires exactly now", async () => {
+                const key = "a";
+                const lockId = "b";
+
+                const ttl = TimeSpan.fromMilliseconds(50);
+
+                await adapter.acquireWriter(key, lockId, ttl.toEndDate());
+
+                await delayWithBuffer(ttl);
+
+                const result = await adapter.forceReleaseWriter(key);
+
+                expect(result).toBe(false);
+            });
         });
         describe("method: refreshWriter", () => {
             test("Should return false when key doesnt exists", async () => {
@@ -824,6 +838,36 @@ export function sharedLockAdapterTestSuite(
                         },
                     },
                 });
+            });
+            test.only("Should not update expiration when key is unexpired and refreshed by different lock-id", async () => {
+                const key = "a";
+                const lockId1 = "b";
+                const currentDate = new Date();
+
+                const ttl = TimeSpan.fromMilliseconds(100);
+                const originalExpiration = ttl.toEndDate(currentDate);
+
+                await adapter.acquireWriter(key, lockId1, originalExpiration);
+
+                const lockId2 = "c";
+                const newExpiration =
+                    TimeSpan.fromSeconds(10).toEndDate(currentDate);
+
+                const result = await adapter.refreshWriter(
+                    key,
+                    lockId2,
+                    newExpiration,
+                );
+
+                expect(result).toBe(false);
+
+                const state = await adapter.getState(key);
+
+                expect(state).not.toBeNull();
+                expect(state?.writer?.owner).toBe(lockId1);
+                expect(state?.writer?.expiration?.getTime()).toBe(
+                    originalExpiration.getTime(),
+                );
             });
         });
         describe("method: acquireReader", () => {
