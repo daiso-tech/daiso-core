@@ -63,9 +63,9 @@ Here is a complete list of settings for the [`withDispatchBefore`](https://eridu
 
 ### Settings
 
-| Option    | Type                                                                                           | Description                                                                        |
-| --------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `type`    | `TEventName`                                                                                   | The event name to dispatch when the wrapped function is invoked                    |
+| Option    | Type                                                                                                   | Description                                                                                                                  |
+| --------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `type`    | `TEventName`                                                                                           | The event name to dispatch when the wrapped function is invoked                                                              |
 | `payload` | `Invocable<[settings: WithDispatchBeforePayloadSettings<TParameters>], TEventMap[TEventName] \| void>` | An invocable that produces the event payload from the wrapped function's arguments. Returning `undefined` skips the dispatch |
 
 ## withDispatchAfterFactory middleware
@@ -119,9 +119,9 @@ Here is a complete list of settings for the [`withDispatchAfter`](https://eridu-
 
 ### Settings
 
-| Option    | Type                                                                                                   | Description                                                                                             |
-| --------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| `type`    | `TEventName`                                                                                           | The event name to dispatch after the wrapped function resolves                                          |
+| Option    | Type                                                                                                           | Description                                                                                                                                       |
+| --------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`    | `TEventName`                                                                                                   | The event name to dispatch after the wrapped function resolves                                                                                    |
 | `payload` | `Invocable<[settings: WithDispatchAfterPayloadSettings<TParameters, TReturn>], TEventMap[TEventName] \| void>` | An invocable that produces the event payload from the wrapped function's arguments and its return value. Returning `undefined` skips the dispatch |
 
 ## withDispatchOnErrorFactory middleware
@@ -178,9 +178,9 @@ Here is a complete list of settings for the [`withDispatchOnError`](https://erid
 
 ### Settings
 
-| Option    | Type                                                                                            | Description                                                                                             |
-| --------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `type`    | `TEventName`                                                                                    | The event name to dispatch when the wrapped function throws                                             |
+| Option    | Type                                                                                                    | Description                                                                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`    | `TEventName`                                                                                            | The event name to dispatch when the wrapped function throws                                                                                       |
 | `payload` | `Invocable<[settings: WithDispatchOnErrorPayloadSettings<TParameters>], TEventMap[TEventName] \| void>` | An invocable that produces the event payload from the wrapped function's arguments and the caught error. Returning `undefined` skips the dispatch |
 
 ## Further information
