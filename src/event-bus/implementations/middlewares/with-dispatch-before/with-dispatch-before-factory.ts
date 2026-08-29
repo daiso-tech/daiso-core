@@ -54,11 +54,12 @@ export type WithDispatchBeforeSettings<
      * An invocable that produces the event payload from the wrapped function's
      * arguments. It receives a
      * {@link WithDispatchBeforePayloadSettings | settings object} containing the
-     * wrapped function's `args`.
+     * wrapped function's `args`. Returning `undefined` skips the dispatch.
      */
     payload: Invocable<
         [settings: WithDispatchBeforePayloadSettings<TParameters>],
-        TEventMap[TEventName]
+        // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+        TEventMap[TEventName] | void
     >;
 };
 
@@ -67,8 +68,10 @@ export type WithDispatchBeforeSettings<
  * function is invoked.
  *
  * When the wrapped function is called, the middleware resolves the event payload
- * from the function's arguments, dispatches the configured event on the provided
- * event dispatcher, and then invokes the wrapped function and returns its result.
+ * from the function's arguments and dispatches the configured event on the provided
+ * event dispatcher, and then invokes the wrapped function and returns its result. If
+ * the payload resolves to `undefined` (or doesn't return a value), no event is dispatched and the wrapped
+ * function is invoked directly.
  *
  * This is useful for emitting lifecycle events such as "about to create a user"
  * or for tracing and auditing when a function starts.
@@ -125,12 +128,13 @@ export function withDispatchBeforeFactory<
     ): MiddlewareFn<TParameters, Promise<TReturn>> => {
         const { type, payload } = settings;
         return async ({ next, args }) => {
-            void eventDispatcher.dispatch(
-                type,
-                callInvocable(payload, {
-                    args,
-                }),
-            );
+            const event = callInvocable(payload, {
+                args,
+            });
+            if (event === undefined) {
+                return next();
+            }
+            void eventDispatcher.dispatch(type, event);
 
             return next();
         };

@@ -5,6 +5,8 @@ import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
 import { withDispatchAfterFactory } from "@/event-bus/implementations/middlewares/with-dispatch-after/with-dispatch-after-factory.js";
 import { use } from "@/middleware/implementations/_module.js";
 
+import type { WithDispatchAfterPayloadSettings } from "@/event-bus/implementations/middlewares/with-dispatch-after/with-dispatch-after-factory.js";
+
 describe("function: withDispatchAfterFactory", () => {
     const adapter = new NoOpEventBusAdapter();
     const eventDispatcher = new EventBus({
@@ -77,7 +79,12 @@ describe("function: withDispatchAfterFactory", () => {
     test("Should resolve an invocable payload with the wrapped function's arguments and return value", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
         const payloadFn = vi.fn(
-            (settings: { args: [userId: string]; returnValue: string }) => ({
+            (
+                settings: WithDispatchAfterPayloadSettings<
+                    [userId: string],
+                    string
+                >,
+            ) => ({
                 userId: `${settings.args[0]}-${settings.returnValue}`,
             }),
         );
@@ -106,7 +113,12 @@ describe("function: withDispatchAfterFactory", () => {
     test("Should resolve an invocable object payload with the wrapped function's arguments and return value", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
         const payloadInvoke = vi.fn(
-            (settings: { args: [userId: string]; returnValue: string }) => ({
+            (
+                settings: WithDispatchAfterPayloadSettings<
+                    [userId: string],
+                    string
+                >,
+            ) => ({
                 userId: `${settings.args[0]}-${settings.returnValue}`,
             }),
         );
@@ -134,7 +146,12 @@ describe("function: withDispatchAfterFactory", () => {
     test("Should call the payload invocable on every invocation", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
         const payloadFn = vi.fn(
-            (settings: { args: [userId: string]; returnValue: string }) => ({
+            (
+                settings: WithDispatchAfterPayloadSettings<
+                    [userId: string],
+                    string
+                >,
+            ) => ({
                 userId: `${settings.args[0]}-${settings.returnValue}`,
             }),
         );
@@ -167,5 +184,32 @@ describe("function: withDispatchAfterFactory", () => {
         expect(dispatch).toHaveBeenNthCalledWith(2, "user.created", {
             userId: "u-2-result-u-2",
         });
+    });
+    test("Should not dispatch the event when the payload resolves to undefined", async () => {
+        const dispatch = vi.spyOn(adapter, "dispatch");
+        const payloadFn = vi.fn(
+            (
+                _settings: WithDispatchAfterPayloadSettings<
+                    [userId: string],
+                    string
+                >,
+            ): undefined => undefined,
+        );
+        const innerFn = vi.fn((userId: string): Promise<string> =>
+            Promise.resolve(`result-${userId}`),
+        );
+        const wrapped = use(
+            innerFn,
+            withDispatchAfter({
+                type: "user.created",
+                payload: payloadFn,
+            }),
+        );
+
+        const result = await wrapped("u-9");
+
+        expect(result).toBe("result-u-9");
+        expect(payloadFn).toHaveBeenCalledOnce();
+        expect(dispatch).not.toHaveBeenCalled();
     });
 });

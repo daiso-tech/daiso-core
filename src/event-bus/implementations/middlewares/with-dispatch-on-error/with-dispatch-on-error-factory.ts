@@ -59,11 +59,13 @@ export type WithDispatchOnErrorSettings<
      * An invocable that produces the event payload from the wrapped function's
      * arguments and the caught error. It receives a
      * {@link WithDispatchOnErrorPayloadSettings | settings object} containing the
-     * wrapped function's `args` and `error`.
+     * wrapped function's `args` and `error`. Returning `undefined` skips the
+     * dispatch.
      */
     payload: Invocable<
         [settings: WithDispatchOnErrorPayloadSettings<TParameters>],
-        TEventMap[TEventName]
+        // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+        TEventMap[TEventName] | void
     >;
 };
 
@@ -74,7 +76,8 @@ export type WithDispatchOnErrorSettings<
  * When the wrapped function fails, the middleware resolves the event payload from
  * the function's arguments and the caught error, dispatches the configured event on
  * the provided event dispatcher, and then re-throws the original error so the failure
- * still propagates to the caller.
+ * still propagates to the caller. If the payload resolves to `undefined` (or doesn't return a value), no event is
+ * dispatched and the original error is re-thrown as-is.
  *
  * This is useful for emitting failure events such as "user creation failed" or for
  * feeding an error-monitoring pipeline without swallowing the exception.
@@ -138,13 +141,15 @@ export function withDispatchOnErrorFactory<
             try {
                 return await next();
             } catch (error: unknown) {
-                void eventDispatcher.dispatch(
-                    type,
-                    callInvocable(payload, {
-                        args,
-                        error,
-                    }),
-                );
+                const event = callInvocable(payload, {
+                    args,
+                    error,
+                });
+                if (event === undefined) {
+                    throw error;
+                }
+
+                void eventDispatcher.dispatch(type, event);
 
                 throw error;
             }
