@@ -63,11 +63,13 @@ export type WithDispatchAfterSettings<
      * An invocable that produces the event payload from the wrapped function's
      * arguments and return value. It receives a
      * {@link WithDispatchAfterPayloadSettings | settings object} containing the
-     * wrapped function's `args` and `returnValue`.
+     * wrapped function's `args` and `returnValue`. Returning `undefined` skips the
+     * dispatch.
      */
     payload: Invocable<
         [settings: WithDispatchAfterPayloadSettings<TParameters, TReturn>],
-        TEventMap[TEventName]
+        // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+        TEventMap[TEventName] | void
     >;
 };
 
@@ -76,9 +78,10 @@ export type WithDispatchAfterSettings<
  * function resolves.
  *
  * When the wrapped function completes, the middleware resolves the event payload
- * from the function's arguments and return value, dispatches the configured event
+ * from the function's arguments and return value and dispatches the configured event
  * on the provided event dispatcher, and then returns the wrapped function's result
- * unchanged.
+ * unchanged. If the payload resolves to `undefined` (or doesn't return a value), no event is dispatched and the
+ * wrapped function's result is returned unchanged.
  *
  * This is useful for emitting completion events such as "user created" or for
  * recording the outcome of a function.
@@ -141,13 +144,14 @@ export function withDispatchAfterFactory<
         return async ({ next, args }) => {
             const returnValue = await next();
 
-            void eventDispatcher.dispatch(
-                type,
-                callInvocable(payload, {
-                    args,
-                    returnValue,
-                }),
-            );
+            const event = callInvocable(payload, {
+                args,
+                returnValue,
+            });
+            if (event === undefined) {
+                return returnValue;
+            }
+            void eventDispatcher.dispatch(type, event);
 
             return returnValue;
         };
