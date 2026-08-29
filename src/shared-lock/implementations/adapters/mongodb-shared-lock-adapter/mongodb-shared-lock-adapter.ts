@@ -483,6 +483,7 @@ export class MongodbSharedLockAdapter
             },
             {
                 $set: {
+                    "writer.expiration": ttl,
                     expiration: ttl,
                 },
             },
