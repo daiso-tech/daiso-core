@@ -839,7 +839,7 @@ export function sharedLockAdapterTestSuite(
                     },
                 });
             });
-            test.only("Should not update expiration when key is unexpired and refreshed by different lock-id", async () => {
+            test("Should not update expiration when key is unexpired and refreshed by different lock-id", async () => {
                 const key = "a";
                 const lockId1 = "b";
                 const currentDate = new Date();
