@@ -246,53 +246,25 @@ export class MongodbLockAdapter
     }
 
     async refresh(key: string, lockId: string, ttl: Date): Promise<boolean> {
-        const isUnexpiredQuery = {
-            $and: [
-                {
-                    $ne: ["$expiration", null],
-                },
-                {
-                    $gt: ["$expiration", new Date()],
-                },
-            ],
-        };
+        const now = new Date();
 
         const lockData = await this.collection.findOneAndUpdate(
             {
                 key,
-            },
-            [
-                {
-                    $set: {
-                        expiration: {
-                            $cond: {
-                                if: isUnexpiredQuery,
-                                then: ttl,
-                                else: "$expiration",
-                            },
-                        },
-                    },
+                owner: lockId,
+                expiration: {
+                    $ne: null,
+                    $gt: now,
                 },
-            ],
+            },
+            {
+                $set: {
+                    expiration: ttl,
+                },
+            },
         );
 
-        if (lockData === null) {
-            return false;
-        }
-
-        if (lockData.owner !== lockId) {
-            return false;
-        }
-
-        if (lockData.expiration === null) {
-            return false;
-        }
-
-        if (lockData.expiration <= new Date()) {
-            return false;
-        }
-
-        return true;
+        return lockData !== null;
     }
 
     async getState(key: string): Promise<ILockAdapterState | null> {
