@@ -150,10 +150,6 @@ export class SharedLock implements ISharedLock {
         }
     }
 
-    async forceReleaseAllReaders(): Promise<boolean> {
-        return await this.adapter.forceReleaseAllReaders(this.internalKey);
-    }
-
     async refreshReader(
         ttl: ITimeSpan = this.defaultRefreshTime,
     ): Promise<boolean> {
@@ -216,10 +212,6 @@ export class SharedLock implements ISharedLock {
                 this.lockId,
             );
         }
-    }
-
-    async forceReleaseWriter(): Promise<boolean> {
-        return await this.adapter.forceReleaseWriter(this.internalKey);
     }
 
     async refreshWriter(

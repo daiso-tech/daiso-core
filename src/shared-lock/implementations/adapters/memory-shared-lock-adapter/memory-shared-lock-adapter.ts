@@ -189,15 +189,6 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    forceReleaseWriter(key: string): Promise<boolean> {
-        const lockEntry = this.getWriter(key);
-        if (lockEntry === "not-found" || lockEntry === "reader-active") {
-            return Promise.resolve(false);
-        }
-        this.map.delete(key);
-        return Promise.resolve(true);
-    }
-
     refreshWriter(key: string, lockId: string, ttl: Date): Promise<boolean> {
         const lockEntry = this.getWriter(key);
         if (lockEntry === "not-found" || lockEntry == "reader-active") {
@@ -268,19 +259,6 @@ export class MemorySharedLockAdapter
         }
 
         return Promise.resolve(true);
-    }
-
-    forceReleaseAllReaders(key: string): Promise<boolean> {
-        const semaphoreEntry = this.getReader(key);
-        if (
-            semaphoreEntry === "not-found" ||
-            semaphoreEntry === "writer-active"
-        ) {
-            return Promise.resolve(false);
-        }
-        const hasSlots = semaphoreEntry.slots.size > 0;
-        this.map.delete(key);
-        return Promise.resolve(hasSlots);
     }
 
     refreshReader(key: string, slotId: string, ttl: Date): Promise<boolean> {
