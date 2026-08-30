@@ -423,45 +423,6 @@ export class MongodbSharedLockAdapter
         return isNotExpired && isCurrentOwner;
     }
 
-    async forceReleaseWriter(key: string): Promise<boolean> {
-        const sharedLock = await this.collection.findOneAndDelete(
-            {
-                key,
-                writer: {
-                    $ne: null,
-                },
-                reader: {
-                    $eq: null,
-                },
-            },
-            {
-                projection: {
-                    _id: 0,
-                    reader: 1,
-                    writer: 1,
-                },
-            },
-        );
-        if (sharedLock === null) {
-            return false;
-        }
-        const { writer: writerLock, reader: readerSemaphore } = sharedLock;
-        if (readerSemaphore !== null) {
-            return false;
-        }
-        if (writerLock === null) {
-            throw new UnexpectedError(
-                "Invalid ISharedLockAdapterState, expected either the writer field must be defined, but not both.",
-            );
-        }
-
-        if (writerLock.expiration === null) {
-            return true;
-        }
-        const isNotExpired = writerLock.expiration >= new Date();
-        return isNotExpired;
-    }
-
     async refreshWriter(
         key: string,
         lockId: string,
@@ -750,45 +711,6 @@ export class MongodbSharedLockAdapter
         }
 
         return false;
-    }
-
-    async forceReleaseAllReaders(key: string): Promise<boolean> {
-        const sharedLock = await this.collection.findOneAndDelete(
-            {
-                key,
-                writer: {
-                    $eq: null,
-                },
-                reader: {
-                    $ne: null,
-                },
-            },
-            {
-                projection: {
-                    _id: 0,
-                    writer: 1,
-                    reader: 1,
-                },
-            },
-        );
-        if (sharedLock === null) {
-            return false;
-        }
-        const { writer: writerLock, reader: readerSemaphore } = sharedLock;
-        if (writerLock !== null) {
-            return false;
-        }
-        if (readerSemaphore === null) {
-            throw new UnexpectedError(
-                "Invalid ISharedLockAdapterState, expected either the writer field must be defined, but not both.",
-            );
-        }
-
-        const unexpiredSlots = readerSemaphore.slots.filter(
-            MongodbSharedLockAdapter.isSlotNotExpired,
-        );
-
-        return unexpiredSlots.length > 0;
     }
 
     async refreshReader(

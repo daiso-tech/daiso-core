@@ -61,20 +61,6 @@ describe("function: withSharedLockPrefix", () => {
         });
     });
 
-    describe("method: forceReleaseWriter", () => {
-        test("Should prefix the key", async () => {
-            const spy = vi.spyOn(adapter, "forceReleaseWriter");
-
-            const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
-
-            await enhanced.forceReleaseWriter("myKey");
-
-            expect(spy).toHaveBeenCalledExactlyOnceWith<
-                Parameters<ISharedLockAdapter["forceReleaseWriter"]>
-            >(`${prefix}myKey`);
-        });
-    });
-
     describe("method: refreshWriter", () => {
         test("Should prefix the key", async () => {
             const spy = vi.spyOn(adapter, "refreshWriter");
@@ -124,20 +110,6 @@ describe("function: withSharedLockPrefix", () => {
                 limit: 5,
                 ttl: currentDate,
             });
-        });
-    });
-
-    describe("method: forceReleaseAllReaders", () => {
-        test("Should prefix the key", async () => {
-            const spy = vi.spyOn(adapter, "forceReleaseAllReaders");
-
-            const enhanced = withPlugin(adapter, withSharedLockPrefix(prefix));
-
-            await enhanced.forceReleaseAllReaders("myKey");
-
-            expect(spy).toHaveBeenCalledExactlyOnceWith<
-                Parameters<ISharedLockAdapter["forceReleaseAllReaders"]>
-            >(`${prefix}myKey`);
         });
     });
 

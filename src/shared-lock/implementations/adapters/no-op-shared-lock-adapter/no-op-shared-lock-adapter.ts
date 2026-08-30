@@ -29,10 +29,6 @@ export class NoOpSharedLockAdapter implements ISharedLockAdapter {
         return Promise.resolve(true);
     }
 
-    forceReleaseWriter(_key: string): Promise<boolean> {
-        return Promise.resolve(true);
-    }
-
     refreshWriter(_key: string, _lockId: string, _ttl: Date): Promise<boolean> {
         return Promise.resolve(true);
     }
@@ -42,10 +38,6 @@ export class NoOpSharedLockAdapter implements ISharedLockAdapter {
     }
 
     releaseReader(_key: string, _lockId: string): Promise<boolean> {
-        return Promise.resolve(true);
-    }
-
-    forceReleaseAllReaders(_key: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 

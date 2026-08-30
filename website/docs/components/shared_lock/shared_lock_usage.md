@@ -301,16 +301,6 @@ const sharedLock = sharedLockFactory.create("resource", {
 await sharedLock.releaseWriterOrFail();
 ```
 
-The `forceReleaseWriter` method releases the shared-lock regardless of the owner if in writer mode:
-
-```ts
-const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2,
-});
-
-await sharedLock.forceReleaseWriter();
-```
-
 The `refreshWriterOrFail` method is the same `refreshWriter` method but it throws an error when not enable to refresh the shared-lock as writer:
 
 ```ts
@@ -352,16 +342,6 @@ const sharedLock = sharedLockFactory.create("resource", {
 });
 
 await sharedLock.releaseReaderOrFail();
-```
-
-The `forceReleaseAllReaders` method releases all the slots of the shared-lock if in reader mode:
-
-```ts
-const sharedLock = sharedLockFactory.create("resource", {
-    limit: 2,
-});
-
-await sharedLock.forceReleaseAllReaders();
 ```
 
 The `refreshReaderOrFail` method is the same `refreshReader` method but it throws an error when not enable to refresh the shared-lock as reader:

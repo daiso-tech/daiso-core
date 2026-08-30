@@ -1780,126 +1780,6 @@ export function sharedLockFactoryTestSuite(
                     } satisfies ISharedLockReaderAcquiredState);
                 });
             });
-            describe("method: forceReleaseWriter", () => {
-                test("Should return false when key doesnt exists", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 4;
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    const result = await sharedLock.forceReleaseWriter();
-
-                    expect(result).toBe(false);
-                });
-                test("Should return false when key is expired", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-                    await delayWithBuffer(ttl);
-
-                    const result = await sharedLock.forceReleaseWriter();
-
-                    expect(result).toBe(false);
-                });
-                test("Should return true when key is uenxpired", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 4;
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-
-                    const result = await sharedLock.forceReleaseWriter();
-
-                    expect(result).toBe(true);
-                });
-                test("Should return true when key is unexpireable", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 4;
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-
-                    const result = await sharedLock.forceReleaseWriter();
-
-                    expect(result).toBe(true);
-                });
-                test("Should be reacquirable when key is force released", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 4;
-
-                    const sharedLock1 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock1.acquireWriter();
-
-                    await sharedLock1.forceReleaseWriter();
-
-                    const sharedLock2 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    const result = await sharedLock2.acquireWriter();
-                    expect(result).toBe(true);
-                });
-                test("Should return false when key is acquired as reader", async () => {
-                    const key = "a";
-                    const limit = 2;
-                    const ttl = TimeSpan.fromSeconds(10);
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireReader();
-
-                    const result = await sharedLock.forceReleaseWriter();
-
-                    expect(result).toBe(false);
-                });
-                test("Should not update state when key is acquired as reader", async () => {
-                    const key = "a";
-                    const limit = 3;
-                    const ttl = null;
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireReader();
-
-                    await sharedLock.forceReleaseWriter();
-
-                    const state = await sharedLock.getState();
-
-                    expect(state).toEqual({
-                        type: SHARED_LOCK_STATE.READER_ACQUIRED,
-                        limit,
-                        remainingTime: ttl,
-                        freeSlotsCount: 2,
-                        acquiredSlotsCount: 1,
-                        acquiredSlots: [sharedLock.id],
-                    } satisfies ISharedLockReaderAcquiredState);
-                });
-            });
             describe("method: runReaderOrFail", () => {
                 test("Should call acquireReaderOrFail method", async () => {
                     const key = "a";
@@ -3742,213 +3622,6 @@ export function sharedLockFactoryTestSuite(
                     } satisfies ISharedLockWriterAcquiredState);
                 });
             });
-            describe("method: forceReleaseAllReaders", () => {
-                test("Should return false when key doesnt exists", async () => {
-                    const key = "a";
-                    const limit = 2;
-                    const ttl = null;
-
-                    const sharedLock1 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock1.acquireReader();
-
-                    const noneExistingKey = "c";
-                    const sharedLock2 = sharedLockFactory.create(
-                        noneExistingKey,
-                        {
-                            ttl,
-                            limit,
-                        },
-                    );
-                    const result = await sharedLock2.forceReleaseAllReaders();
-
-                    expect(result).toBe(false);
-                });
-                test("Should return false when shared-lock-slot is expired", async () => {
-                    const key = "a";
-                    const ttl = TimeSpan.fromMilliseconds(50);
-                    const limit = 2;
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireReader();
-                    await delayWithBuffer(ttl);
-
-                    const result = await sharedLock.forceReleaseAllReaders();
-
-                    expect(result).toBe(false);
-                });
-                test("Should return false when no shared-lock-slots are acquired", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 2;
-
-                    const sharedLock1 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock1.acquireReader();
-
-                    const sharedLock2 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock2.acquireReader();
-
-                    await sharedLock1.releaseReader();
-                    await sharedLock2.releaseReader();
-
-                    const result = await sharedLock2.forceReleaseAllReaders();
-
-                    expect(result).toBe(false);
-                });
-                test("Should return true when at least 1 shared-lock-slot is acquired", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 2;
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireReader();
-
-                    const result = await sharedLock.forceReleaseAllReaders();
-
-                    expect(result).toBe(true);
-                });
-                test("Should make all shared-lock-slots reacquirable", async () => {
-                    const key = "a";
-                    const limit = 2;
-
-                    const ttl1 = null;
-                    const sharedLock1 = sharedLockFactory.create(key, {
-                        ttl: ttl1,
-                        limit,
-                    });
-                    await sharedLock1.acquireReader();
-
-                    const ttl2 = TimeSpan.fromMilliseconds(50);
-                    const sharedLock2 = sharedLockFactory.create(key, {
-                        ttl: ttl2,
-                        limit,
-                    });
-                    await sharedLock2.acquireReader();
-
-                    await sharedLock2.forceReleaseAllReaders();
-
-                    const ttl3 = null;
-                    const sharedLock3 = sharedLockFactory.create(key, {
-                        ttl: ttl3,
-                        limit,
-                    });
-                    const result1 = await sharedLock3.acquireReader();
-                    expect(result1).toBe(true);
-
-                    const ttl4 = null;
-                    const sharedLock4 = sharedLockFactory.create(key, {
-                        ttl: ttl4,
-                        limit,
-                    });
-                    const result2 = await sharedLock4.acquireReader();
-                    expect(result2).toBe(true);
-                });
-                test("Should update limit when shared-lock-slot count is 0", async () => {
-                    const key = "a";
-                    const limit = 2;
-                    const ttl = null;
-
-                    const sharedLock1 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock1.acquireReader();
-
-                    const sharedLock2 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock2.acquireReader();
-
-                    await sharedLock2.forceReleaseAllReaders();
-
-                    const newLimit = 3;
-                    const sharedLock3 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit: newLimit,
-                    });
-                    await sharedLock3.acquireReader();
-
-                    const result1 = await sharedLock3.getState();
-                    expect(result1).toEqual(
-                        expect.objectContaining<
-                            Partial<ISharedLockReaderAcquiredState>
-                        >({
-                            type: SHARED_LOCK_STATE.READER_ACQUIRED,
-                            limit: newLimit,
-                        }),
-                    );
-
-                    const sharedLock4 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit: newLimit,
-                    });
-                    await sharedLock4.acquireReader();
-
-                    const sharedLock5 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit: newLimit,
-                    });
-                    const result2 = await sharedLock5.acquireReader();
-                    expect(result2).toBe(true);
-
-                    const sharedLock6 = sharedLockFactory.create(key, {
-                        ttl,
-                        limit: newLimit,
-                    });
-                    const result3 = await sharedLock6.acquireReader();
-                    expect(result3).toBe(false);
-                });
-                test("Should return false when key is acquired as writer", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 4;
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-
-                    const result = await sharedLock.forceReleaseAllReaders();
-
-                    expect(result).toBe(false);
-                });
-                test("Should not update state when key is acquired as writer", async () => {
-                    const key = "a";
-                    const ttl = null;
-                    const limit = 4;
-
-                    const sharedLock = sharedLockFactory.create(key, {
-                        ttl,
-                        limit,
-                    });
-                    await sharedLock.acquireWriter();
-
-                    await sharedLock.forceReleaseAllReaders();
-
-                    const state = await sharedLock.getState();
-
-                    expect(state).toEqual({
-                        type: SHARED_LOCK_STATE.WRITER_ACQUIRED,
-                        remainingTime: ttl,
-                    } satisfies ISharedLockWriterAcquiredState);
-                });
-            });
             describe("method: forceRelease", () => {
                 test("Should return false when key doesnt exists", async () => {
                     const key = "a";
@@ -4210,7 +3883,7 @@ export function sharedLockFactoryTestSuite(
                         type: SHARED_LOCK_STATE.EXPIRED,
                     } satisfies ISharedLockExpiredState);
                 });
-                test("Should return ISharedLockExpiredState when writer is released with forceReleaseWriter method", async () => {
+                test("Should return ISharedLockExpiredState when writer is released with forceRelease method", async () => {
                     const key = "a";
                     const limit = 4;
 
@@ -4228,7 +3901,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock2.acquireWriter();
 
-                    await sharedLock2.forceReleaseWriter();
+                    await sharedLock2.forceRelease();
 
                     const result = await sharedLock1.getState();
 
@@ -4366,7 +4039,7 @@ export function sharedLockFactoryTestSuite(
                         type: SHARED_LOCK_STATE.EXPIRED,
                     } satisfies ISharedLockExpiredState);
                 });
-                test("Should return ISharedLockExpiredState when all reader shared-lock-slots are released with forceReleaseAllReaders method", async () => {
+                test("Should return ISharedLockExpiredState when all reader shared-lock-slots are released with forceRelease method", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -4384,7 +4057,7 @@ export function sharedLockFactoryTestSuite(
                     });
                     await sharedLock2.acquireReader();
 
-                    await sharedLock2.forceReleaseAllReaders();
+                    await sharedLock2.forceRelease();
 
                     const result = await sharedLock1.getState();
 
@@ -4606,7 +4279,7 @@ export function sharedLockFactoryTestSuite(
                     type: SHARED_LOCK_STATE.EXPIRED,
                 } satisfies ISharedLockExpiredState);
             });
-            test("Should return ISharedLockExpiredState when acquired as writer, is derserialized and all key is released with forceReleaseWriter method", async () => {
+            test("Should return ISharedLockExpiredState when acquired as writer, is derserialized and all key is released with forceRelease method", async () => {
                 const key = "a";
                 const limit = 4;
 
@@ -4624,7 +4297,7 @@ export function sharedLockFactoryTestSuite(
                 });
                 await sharedLock2.acquireWriter();
 
-                await sharedLock2.forceReleaseWriter();
+                await sharedLock2.forceRelease();
 
                 const deserializedSharedLock1 = serde.deserialize<ISharedLock>(
                     serde.serialize(sharedLock1),
@@ -4813,7 +4486,7 @@ export function sharedLockFactoryTestSuite(
                     type: SHARED_LOCK_STATE.EXPIRED,
                 } satisfies ISharedLockExpiredState);
             });
-            test("Should return ISharedLockExpiredState when acquired as reader, is derserialized and all shared-lock-slots are released with forceReleaseAll method", async () => {
+            test("Should return ISharedLockExpiredState when acquired as reader, is derserialized and all shared-lock-slots are released with forceRelease method", async () => {
                 const key = "a";
                 const limit = 2;
 
@@ -4834,7 +4507,7 @@ export function sharedLockFactoryTestSuite(
                 );
                 await deserializedSemaphore2.acquireReader();
 
-                await deserializedSemaphore2.forceReleaseAllReaders();
+                await deserializedSemaphore2.forceRelease();
 
                 const result = await sharedLock1.getState();
 

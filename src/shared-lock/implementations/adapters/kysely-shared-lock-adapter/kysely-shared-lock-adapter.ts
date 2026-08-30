@@ -413,49 +413,6 @@ export class KyselySharedLockAdapter
         return result !== undefined;
     }
 
-    async forceReleaseWriter(key: string): Promise<boolean> {
-        if (this.isMysql) {
-            return await this.transaction(async (trx) => {
-                const existing = await trx
-                    .selectFrom("writerLock")
-                    .where("writerLock.key", "=", key)
-                    .where((eb) =>
-                        eb.or([
-                            eb("writerLock.expiration", "is", null),
-                            eb("writerLock.expiration", ">", Date.now()),
-                        ]),
-                    )
-                    .select("writerLock.key")
-                    .executeTakeFirst();
-
-                if (!existing) {
-                    return false;
-                }
-
-                await trx
-                    .deleteFrom("writerLock")
-                    .where("writerLock.key", "=", key)
-                    .execute();
-
-                return true;
-            });
-        }
-
-        const result = await this.kysely
-            .deleteFrom("writerLock")
-            .where("writerLock.key", "=", key)
-            .where((eb) =>
-                eb.or([
-                    eb("writerLock.expiration", "is", null),
-                    eb("writerLock.expiration", ">", Date.now()),
-                ]),
-            )
-            .returning("writerLock.key")
-            .executeTakeFirst();
-
-        return result !== undefined;
-    }
-
     async refreshWriter(
         key: string,
         lockId: string,
@@ -641,53 +598,6 @@ export class KyselySharedLockAdapter
             .deleteFrom("readerSemaphoreSlot")
             .where("readerSemaphoreSlot.key", "=", key)
             .where("readerSemaphoreSlot.id", "=", slotId)
-            .where((eb) =>
-                eb.or([
-                    eb("readerSemaphoreSlot.expiration", "is", null),
-                    eb("readerSemaphoreSlot.expiration", ">", Date.now()),
-                ]),
-            )
-            .returning("readerSemaphoreSlot.id")
-            .executeTakeFirst();
-
-        return result !== undefined;
-    }
-
-    async forceReleaseAllReaders(key: string): Promise<boolean> {
-        if (this.isMysql) {
-            return await this.transaction(async (trx) => {
-                const existing = await trx
-                    .selectFrom("readerSemaphoreSlot")
-                    .where("readerSemaphoreSlot.key", "=", key)
-                    .where((eb) =>
-                        eb.or([
-                            eb("readerSemaphoreSlot.expiration", "is", null),
-                            eb(
-                                "readerSemaphoreSlot.expiration",
-                                ">",
-                                Date.now(),
-                            ),
-                        ]),
-                    )
-                    .select("readerSemaphoreSlot.id")
-                    .executeTakeFirst();
-
-                if (!existing) {
-                    return false;
-                }
-
-                await trx
-                    .deleteFrom("readerSemaphoreSlot")
-                    .where("readerSemaphoreSlot.key", "=", key)
-                    .execute();
-
-                return true;
-            });
-        }
-
-        const result = await this.kysely
-            .deleteFrom("readerSemaphoreSlot")
-            .where("readerSemaphoreSlot.key", "=", key)
             .where((eb) =>
                 eb.or([
                     eb("readerSemaphoreSlot.expiration", "is", null),
