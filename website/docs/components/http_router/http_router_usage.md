@@ -596,14 +596,14 @@ router.endpoint({
 
 An `IHttpFileCollection` handles zero, one, or many files with the same API:
 
-| Method              | Description                                                    |
-| ------------------- | -------------------------------------------------------------- |
-| `size()`            | Returns the number of files in the collection                  |
-| `get(index)`        | Returns the file at a 0-based index, or `null` if out of bounds |
-| `getOrFail(index)`  | Returns the file at a 0-based index, throws a 400 if missing   |
-| `first()`           | Returns the first file, or `null` if the collection is empty   |
-| `firstOrFail()`     | Returns the first file, throws a 400 if the collection is empty |
-| `isEmpty()`         | Returns whether the collection has no files                    |
+| Method             | Description                                                     |
+| ------------------ | --------------------------------------------------------------- |
+| `size()`           | Returns the number of files in the collection                   |
+| `get(index)`       | Returns the file at a 0-based index, or `null` if out of bounds |
+| `getOrFail(index)` | Returns the file at a 0-based index, throws a 400 if missing    |
+| `first()`          | Returns the first file, or `null` if the collection is empty    |
+| `firstOrFail()`    | Returns the first file, throws a 400 if the collection is empty |
+| `isEmpty()`        | Returns whether the collection has no files                     |
 
 #### File access methods
 
@@ -732,8 +732,7 @@ const fileInputs = {
     },
     // Dynamic validation rules not known ahead of time.
     // returns an error message string, or `null` when the files pass.
-    docs: (collection) =>
-        collection.size() > 2 ? "Too many documents" : null,
+    docs: (collection) => (collection.size() > 2 ? "Too many documents" : null),
 } satisfies FileInputs;
 
 router.endpoint({
@@ -1091,7 +1090,7 @@ async function healthHandler(request: Request): Promise<Response> {
         return new Response("OK", { status: 200 });
     }
     return fetch(request);
-};
+}
 
 // Adapted to work with HttpRouter endpoint via the static method
 router.endpoint({
