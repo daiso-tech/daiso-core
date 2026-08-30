@@ -2,10 +2,7 @@
  * @module HttpRouter
  */
 
-import {
-    EmptyFileCollectionError,
-    FileIndexOutOfBoundsError,
-} from "@/http-router/contracts/_module.js";
+import { HttpError } from "@/http-router/contracts/_module.js";
 
 import type {
     IHttpFileCollection,
@@ -32,7 +29,10 @@ export class HttpFileCollection implements IHttpFileCollection {
     getOrFail(index: number): IHttpFile {
         const file = this.files[index];
         if (file === undefined) {
-            throw FileIndexOutOfBoundsError.create(this.fieldName, index);
+            throw HttpError.create({
+                status: "400",
+                message: `No file exists at index ${String(index)} for field "${this.fieldName}".`,
+            });
         }
         return file;
     }
@@ -44,16 +44,19 @@ export class HttpFileCollection implements IHttpFileCollection {
     firstOrFail(): IHttpFile {
         const file = this.files[0];
         if (file === undefined) {
-            throw EmptyFileCollectionError.create(this.fieldName);
+            throw HttpError.create({
+                status: "400",
+                message: `File collection for field "${this.fieldName}" is empty.`,
+            });
         }
         return file;
     }
 
-    get count(): number {
+    size(): number {
         return this.files.length;
     }
 
-    get isEmpty(): boolean {
+    isEmpty(): boolean {
         return this.files.length === 0;
     }
 

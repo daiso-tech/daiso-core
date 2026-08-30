@@ -17,7 +17,7 @@ keywords:
 
 # HTTP Router usage
 
-The `eridu-tech/http-router` component provides a framework-agnostic HTTP router built on top of the [Hono](https://hono.dev/) router engine. It implements the **Winter TC fetch object standard**, which means it exposes a standard `fetch(request): Response` signature. This allows it to be integrated directly into any runtime or framework that supports the Fetch API — including Node.js, Bun, Deno, Cloudflare Workers, Next.js, Nuxt, SvelteKit, and more.
+The `eridu-tech/http-router` component provides a framework-agnostic HTTP router built on top of the [Hono](https://hono.dev/) router engine. It implements the **Winter TC fetch object standard**, which means it exposes a standard `fetch(request): Response` signature. This allows it to be integrated directly into any runtime or framework that supports the Fetch API including Node.js, Bun, Deno, Cloudflare Workers, Next.js, Nuxt, SvelteKit, and more.
 
 The router provides typed path parameters, a middleware chain with shared context, response helpers, cookie management, file upload validation, and schema-based request validation.
 
@@ -136,14 +136,14 @@ router.endpoint({
 
 #### Path parameters
 
-Define dynamic path segments with `:paramName` syntax. The router automatically extracts path parameters and makes them available via `req.rawParams()`:
+Define dynamic path segments with `:paramName` syntax. The router automatically extracts path parameters and makes them available via `req.params()`:
 
 ```ts
 router.endpoint({
     url: "/users/:id",
     method: ["GET"],
     handler: async ({ req, json }) => {
-        const params = req.rawParams();
+        const params = req.params();
         return json({ userId: params.id });
     },
 });
@@ -156,7 +156,7 @@ router.endpoint({
     url: "/posts/:id/comment/:commentId",
     method: ["GET"],
     handler: async ({ req, json }) => {
-        const { id, commentId } = req.rawParams();
+        const { id, commentId } = req.params();
         return json({ postId: id, commentId });
     },
 });
@@ -208,7 +208,7 @@ router.endpoint({
     url: "/post/:date{[0-9]+}/:title{[a-z]+}",
     method: ["GET"],
     handler: async ({ req, json }) => {
-        const { date, title } = req.rawParams();
+        const { date, title } = req.params();
         return json({ date, title });
     },
 });
@@ -221,7 +221,7 @@ router.endpoint({
     url: "/posts/:filename{.+\\.png}",
     method: ["GET"],
     handler: async ({ req, json }) => {
-        const { filename } = req.rawParams();
+        const { filename } = req.params();
         return json({ filename });
     },
 });
@@ -258,7 +258,7 @@ router.group("/api", (api) => {
         url: "/users/:id",
         method: ["GET"],
         handler: async ({ req, json }) => {
-            const { id } = req.rawParams();
+            const { id } = req.params();
             return json({ userId: id });
         },
     });
@@ -283,7 +283,7 @@ router.group((sub) => {
 
 Route handlers receive an object with the following properties:
 
-#### `req` — The incoming request
+#### `req` The incoming request
 
 The `req` object provides access to all request data:
 
@@ -293,22 +293,28 @@ router.endpoint({
     method: ["POST"],
     handler: async ({ req }) => {
         // JSON body
-        const json = await req.rawJson();
+        const json = await req.json();
 
-        // Form data (fields and files)
-        const formData = await req.rawFormData();
+        // Form fields (text only)
+        const fields = await req.fields();
+
+        // Uploaded files
+        const files = await req.files();
+
+        // Raw form data (fields and files)
+        const formData = await req.formData();
 
         // Path parameters
-        const params = req.rawParams();
+        const params = req.params();
 
         // Query string parameters
-        const searchParams = req.rawSearchParams();
+        const searchParams = req.searchParams();
 
         // Headers
-        const headers = req.rawHeaders();
+        const headers = req.headers();
 
         // Cookies
-        const cookies = req.rawCookies();
+        const cookies = req.cookies();
 
         // Raw body as text
         const text = await req.text();
@@ -330,33 +336,7 @@ router.endpoint({
 });
 ```
 
-#### Request validation with schemas
-
-You can apply [Standard Schema](https://standardschema.dev/) validation to any request data source using the `withSchema` method:
-
-```ts
-import { z } from "zod";
-
-router.endpoint({
-    url: "/users/:id",
-    method: ["GET"],
-    handler: async ({ req, json }) => {
-        const validated = req.withSchema({
-            params: z.object({ id: z.string() }),
-            searchParams: z.object({
-                include: z.string().optional(),
-            }),
-        });
-
-        const { id } = validated.params();
-        const { include } = validated.searchParams();
-
-        return json({ userId: id, include });
-    },
-});
-```
-
-#### `res` — The response builder
+#### `res` The response builder
 
 The `res` object allows building the response using a fluent API:
 
@@ -437,8 +417,9 @@ The `json` helper also accepts an optional Standard Schema for runtime validatio
 ```ts
 import { z } from "zod";
 
-handler: async ({ json }) =>
-    json({ name: "John" }, z.object({ name: z.string() }));
+const responseSchema = z.object({ name: z.string() });
+
+handler: async ({ json }) => json({ name: "John" }, responseSchema);
 ```
 
 #### notFound
@@ -484,16 +465,16 @@ handler: async ({ res }) => {
 
 Cookie settings include:
 
-- `expires` — Absolute `Date` or relative `ITimeSpan`
-- `maxAge` — Lifetime in seconds (number or `ITimeSpan`)
-- `httpOnly` — Restrict access to HTTP-only
-- `secure` — Only send over HTTPS
-- `sameSite` — `"Strict"`, `"Lax"` (default), or `"None"`
-- `domain` — The domain scope
-- `path` — The path scope
-- `priority` — `"Low"`, `"Medium"`, or `"High"`
-- `prefix` — `"secure"` (adds `__Secure-`) or `"host"` (adds `__Host-`)
-- `partitioned` — Enable CHIPS partitioned storage
+- `expires` Absolute `Date` or relative `ITimeSpan`
+- `maxAge` Lifetime in seconds (number or `ITimeSpan`)
+- `httpOnly` Restrict access to HTTP-only
+- `secure` Only send over HTTPS
+- `sameSite` `"Strict"`, `"Lax"` (default), or `"None"`
+- `domain` The domain scope
+- `path` The path scope
+- `priority` `"Low"`, `"Medium"`, or `"High"`
+- `prefix` `"secure"` (adds `__Secure-`) or `"host"` (adds `__Host-`)
+- `partitioned` Enable CHIPS partitioned storage
 
 #### Removing cookies
 
@@ -556,10 +537,10 @@ router.endpoint({
     method: ["GET"],
     handler: async ({ text }) => text("Admin panel"),
     middlewares: (builder) =>
-        builder.use(async ({ req, next }) => {
-            const authHeader = req.rawHeaders()["authorization"];
+        builder.use(async ({ req, res, next }) => {
+            const authHeader = req.headers()["authorization"];
             if (!authHeader) {
-                return new HttpRes().setStatus(401).setBody("Unauthorized");
+                return res.setStatus(401).setBody("Unauthorized");
             }
             return await next();
         }),
@@ -570,36 +551,59 @@ router.endpoint({
 
 Middleware executes in the following order:
 
-1. **Shared middlewares** (from `router.use()`) — registered in order
-2. **Endpoint-specific middlewares** (from `endpoint.middlewares`) — registered in order
-3. **Handler** — innermost
+1. **Shared middlewares** (from `router.use()`) registered in order
+2. **Endpoint-specific middlewares** (from `endpoint.middlewares`) registered in order
+3. **Handler** innermost
 
 Each middleware receives a `next` function. Calling `await next()` passes control to the next middleware in the chain. A middleware can short-circuit the chain by returning a response without calling `next()`.
 
 ## Patterns
 
-### File handling
+### Handling file uploads
 
-Form data with file uploads is handled through the `rawFormData()` method, which returns file entries as `IHttpFile` instances:
+Uploaded files are accessed through the `files()` method, which returns a record mapping each file field name to an `IHttpFileCollection`:
 
 ```ts
 router.endpoint({
     url: "/upload",
     method: ["POST"],
-    handler: async ({ req }) => {
-        const formData = await req.rawFormData();
-        const file = formData["avatar"];
+    handler: async ({ req, json }) => {
+        const files = await req.files();
 
-        if (file && typeof file !== "string") {
-            const content = await file.asText();
-            const name = file.name;
-            const type = file.contentType;
-            const size = file.fileSize;
-            // Process the file...
+        // Single file: get the first file, or a 400 if none was uploaded.
+        const avatar = files["avatar"].firstOrFail();
+
+        // Multiple files: iterate the collection directly.
+        for (const document of files["documents"]) {
+            console.log(document.name);
         }
+
+        // Inspect the file...
+        const content = await avatar.asText();
+        const name = avatar.name;
+        const type = avatar.contentType;
+        const size = avatar.fileSize;
+
+        return json({
+            name,
+            type,
+            sizeInBytes: size.toBytes(),
+            content,
+        });
     },
 });
 ```
+
+An `IHttpFileCollection` handles zero, one, or many files with the same API:
+
+| Method             | Description                                                     |
+| ------------------ | --------------------------------------------------------------- |
+| `size()`           | Returns the number of files in the collection                   |
+| `get(index)`       | Returns the file at a 0-based index, or `null` if out of bounds |
+| `getOrFail(index)` | Returns the file at a 0-based index, throws a 400 if missing    |
+| `first()`          | Returns the first file, or `null` if the collection is empty    |
+| `firstOrFail()`    | Returns the first file, throws a 400 if the collection is empty |
+| `isEmpty()`        | Returns whether the collection has no files                     |
 
 #### File access methods
 
@@ -619,6 +623,135 @@ router.endpoint({
 | `contentType`  | `string`   | The MIME type                               |
 | `lastModified` | `Date`     | The last modified timestamp                 |
 | `fileSize`     | `FileSize` | The file size (from `eridu-tech/file-size`) |
+
+### Validating request data
+
+You can enforce runtime and compile-time type safety by passing [Standard Schema](https://standardschema.dev/) schemas directly to the request methods.
+
+#### Validating cookies, params, and headers
+
+The `cookies()`, `params()`, and `headers()` methods return a record of string values and accept a schema synchronously:
+
+```ts
+import { z } from "zod";
+
+const cookiesSchema = z.object({ session: z.string().optional() });
+const paramsSchema = z.object({ id: z.string() });
+const headersSchema = z.object({ authorization: z.string() });
+
+router.endpoint({
+    url: "/users/:id",
+    method: ["GET"],
+    handler: async ({ req, json }) => {
+        const cookies = req.cookies(cookiesSchema);
+        const params = req.params(paramsSchema);
+        const headers = req.headers(headersSchema);
+
+        return json({
+            userId: params.id,
+            session: cookies.session,
+            auth: headers.authorization,
+        });
+    },
+});
+```
+
+#### Validating search params and fields
+
+The `searchParams()` and `fields()` methods return a record where each value can be a single string or an array of strings, and accept a schema for validation:
+
+```ts
+import { z } from "zod";
+
+const searchParamsSchema = z.object({
+    include: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+});
+
+const fieldsSchema = z.object({
+    name: z.string(),
+    age: z.coerce.number(),
+});
+
+router.endpoint({
+    url: "/signup",
+    method: ["POST"],
+    handler: async ({ req, json }) => {
+        const searchParams = req.searchParams(searchParamsSchema);
+        const fields = await req.fields(fieldsSchema);
+
+        return json({
+            include: searchParams.include,
+            tags: searchParams.tags,
+            name: fields.name,
+            age: fields.age,
+        });
+    },
+});
+```
+
+#### Validating the JSON body
+
+The `json()` method parses the request body and validates it asynchronously:
+
+```ts
+import { z } from "zod";
+
+const jsonSchema = z.object({
+    name: z.string(),
+    age: z.number(),
+});
+
+router.endpoint({
+    url: "/users",
+    method: ["POST"],
+    handler: async ({ req, json }) => {
+        const body = await req.json(jsonSchema);
+
+        return json({ name: body.name, age: body.age });
+    },
+});
+```
+
+#### Validating uploaded files
+
+You can define file validation rules by passing a record of file definitions directly to `req.files()`. Each file field accepts a `FileDef`, which is the union of a `StaticFileDef` (rules known ahead of time) and a `DynamicFileDef` (a function that inspects the uploaded files at runtime):
+
+```ts
+import { FileSize } from "eridu-tech/file-size";
+import { type FileInputs } from "eridu-tech/http-router/contracts";
+
+const fileInputs = {
+    // Static validation rules known ahead of time.
+    avatar: {
+        contentType: "image/png",
+        fileSize: FileSize.fromMegaBytes(5),
+        name: /\.png$/,
+        max: 1,
+        optional: false,
+    },
+    // Dynamic validation rules not known ahead of time.
+    // returns an error message string, or `null` when the files pass.
+    docs: (collection) => (collection.size() > 2 ? "Too many documents" : null),
+} satisfies FileInputs;
+
+router.endpoint({
+    url: "/upload-avatar",
+    method: ["POST"],
+    handler: async ({ req }) => {
+        const files = await req.files(fileInputs);
+
+        const avatarFiles = files.avatar;
+        const file = avatarFiles.firstOrFail();
+        const content = await file.asBytes();
+        // Process the avatar...
+    },
+});
+```
+
+:::info
+All validation throw an `HttpError` with status code `400` if constraints are not met.
+:::
 
 ### Error handling
 
@@ -708,8 +841,8 @@ describe("JSON body", () => {
             method: ["POST"],
             handler: async ({ req, json }) =>
                 json({
-                    params: req.rawParams(),
-                    body: await req.rawJson(),
+                    params: req.params(),
+                    body: await req.json(),
                 }),
         });
 
@@ -753,7 +886,7 @@ describe("URL-encoded body", () => {
             url: "/submit",
             method: ["POST"],
             handler: async ({ req, text }) =>
-                text(String(await req.rawFormData())),
+                text(String(await req.formData())),
         });
 
         const httpReq = HttpReq.test({
@@ -791,7 +924,7 @@ describe("Multipart body", () => {
             url: "/upload",
             method: ["POST"],
             handler: async ({ req, json }) => {
-                const formData = await req.rawFormData();
+                const formData = await req.formData();
                 const file = formData["avatar"];
                 const content =
                     file && typeof file !== "string"
@@ -857,68 +990,6 @@ describe("Custom body", () => {
     });
 });
 ```
-
-### Runtime type safety for request data
-
-You can enforce runtime and compile-time type safety by passing [Standard Schema](https://standardschema.dev/) to `withSchema`:
-
-```ts
-import { z } from "zod";
-
-router.endpoint({
-    url: "/users/:id",
-    method: ["GET"],
-    handler: async ({ req, json }) => {
-        const validated = req.withSchema({
-            params: z.object({ id: z.string() }),
-            searchParams: z.object({
-                include: z.string().optional(),
-            }),
-        });
-
-        // Fully typed — TypeScript infers the correct types
-        const { id } = validated.params();
-        const { include } = validated.searchParams();
-
-        return json({ userId: id, include });
-    },
-});
-```
-
-#### File upload validation with schemas
-
-You can define file validation rules on the schemas passed to `withSchema`. Each file field accepts a `FileDef` that can constrain content type, file size, filename, and cardinality:
-
-```ts
-import { FileSize } from "eridu-tech/file-size";
-
-router.endpoint({
-    url: "/upload-avatar",
-    method: ["POST"],
-    handler: async ({ req }) => {
-        const validated = req.withSchema({
-            files: {
-                avatar: {
-                    contentType: "image/png",
-                    fileSize: FileSize.fromMegaBytes(5),
-                    name: /\.png$/,
-                    max: 1,
-                    optional: false,
-                },
-            },
-        });
-
-        const avatarFiles = await validated.files("avatar");
-        const file = avatarFiles.firstOrFail();
-        const content = await file.asBytes();
-        // Process the avatar...
-    },
-});
-```
-
-:::info
-All validation throw a `ValidationError` if constraints are not met.
-:::
 
 ### Using the context for request-scoped data
 
@@ -986,10 +1057,10 @@ class AuthMiddleware implements IHttpMiddlewareObject {
     constructor(private readonly apiKey: string) {}
 
     async invoke(args: HttpMiddlewareArgs): Promise<IHttpRes> {
-        const { req, next } = args;
-        const authHeader = req.rawHeaders()["authorization"];
+        const { req, res, next } = args;
+        const authHeader = req.headers()["authorization"];
         if (authHeader !== `Bearer ${this.apiKey}`) {
-            return new HttpRes().setStatus(401).setBody("Unauthorized");
+            return res.setStatus(401).setBody("Unauthorized");
         }
         return await next();
     }
@@ -1008,19 +1079,18 @@ A Winter TC handler is a function with the signature `(request: Request) => Prom
 
 ```ts
 import { HttpRouter } from "eridu-tech/http-router";
-import { type WinterTcRequestHandler } from "eridu-tech/http-router/contracts";
 
 // A standard Winter TC handler
-const healthHandler: WinterTcRequestHandler = async (request) => {
+async function healthHandler(request: Request): Promise<Response> {
     if (request.method.toLowerCase() !== "get") {
         return new Response("Not found", { status: 404 });
     }
     const url = new URL(request.url);
-    if (url.pathname === "/health") {
+    if (url.pathname === "/proxy/health") {
         return new Response("OK", { status: 200 });
     }
     return fetch(request);
-};
+}
 
 // Adapted to work with HttpRouter endpoint via the static method
 router.endpoint({

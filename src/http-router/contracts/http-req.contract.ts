@@ -8,11 +8,12 @@ import type {
     StringInputs,
     RawFormData,
     FileInputs,
-    ReqInputs,
     MultiStringInputs,
+    CoercibleStringInputs,
+    CoercibleMultiStringInputs,
 } from "@/http-router/contracts/_shared.js";
 import type { IHttpFileCollection } from "@/http-router/contracts/http-file-collection.contract.js";
-import type { StrIntellisense, UndefinedToNull } from "@/utilities/_module.js";
+import type { StrIntellisense } from "@/utilities/_module.js";
 
 /**
  * Represents the HTTP request method.
@@ -46,269 +47,22 @@ export type HttpMethod = StrIntellisense<
  * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
-export type HttpReqFiles<TReqFiles extends FileInputs> = {
+export type HttpReqFiles<TReqFiles extends FileInputs = FileInputs> = {
     [K in keyof TReqFiles]: IHttpFileCollection;
 };
 
 /**
- * A validated, type-safe view of the incoming HTTP request.
+ * Represents an incoming HTTP request with typed access to all data sources.
  *
- * Returned by {@link IHttpReqValidation.withSchema | withSchema}, this type
- * provides schema-validated access to all request data sources — JSON body,
- * form fields, uploaded files, path parameters, query parameters, headers,
- * and cookies — with full type inference from the provided schemas.
- *
- * Each accessor method is overloaded: calling with no arguments returns the
- * entire validated record, while passing a specific field name returns only
- * that field's value (with `null` for undefined optional fields).
- *
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file definitions.
- * @typeParam TCookieData - A record mapping cookie names to their value types.
+ * Every data source — JSON body, form fields, uploaded files, path parameters,
+ * query parameters, headers, and cookies — can be read in its raw form or
+ * validated through a {@link https://standardschema.dev | Standard Schema}
+ * by passing the schema as an argument to the corresponding method.
  *
  * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
-export type IValidatedHttpReq<
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
-> = {
-    /**
-     * Parses and returns all cookies, validated and transformed by the cookie schema.
-     */
-    cookies(): TCookieData;
-
-    /**
-     * Retrieves a single validated cookie value by name.
-     *
-     * @typeParam TField - The name of the cookie.
-     * @typeParam TValue - The cookie value type.
-     * @param field - The name of the cookie.
-     * @returns The validated cookie value.
-     */
-    cookies<
-        TField extends keyof TCookieData,
-        TValue extends TCookieData[TField],
-    >(
-        field: TField,
-    ): UndefinedToNull<TValue>;
-
-    /**
-     * Parses and returns the JSON body.
-     */
-    json(): Promise<TReqJson>;
-
-    /**
-     * Parses and returns all form fields from `Request.formData`.
-     */
-    fields(): Promise<TReqFields>;
-
-    /**
-     * Retrieves a single form field by name from `Request.formData`.
-     * @typeParam TField - The name of the form field.
-     * @typeParam TValue - The form field value type.
-     * @param field - The name of the form field.
-     */
-    fields<TField extends keyof TReqFields, TValue extends TReqFields[TField]>(
-        field: TField,
-    ): Promise<TValue>;
-
-    /**
-     * Returns all validated uploaded files keyed by field name from `Request.formData`.
-     * Each field resolves to an {@link IHttpFileCollection}.
-     */
-    files(): Promise<HttpReqFiles<TReqFiles>>;
-
-    /**
-     * Retrieves the validated uploaded file collection by field name from `Request.formData`.
-     * @typeParam TField - The name of the file field.
-     * @param field - The name of the file field.
-     */
-    files<TField extends keyof TReqFiles>(
-        field: TField,
-    ): Promise<IHttpFileCollection>;
-
-    /**
-     * Parses and returns all path parameters.
-     */
-    params(): TReqParams;
-
-    /**
-     * Retrieves a single path parameter by name.
-     * @typeParam TField - The name of the path parameter.
-     * @typeParam TValue - The path parameter value type.
-     * @param field - The name of the path parameter.
-     */
-    params<TField extends keyof TReqParams, TValue extends TReqParams[TField]>(
-        field: TField,
-    ): UndefinedToNull<TValue>;
-
-    /**
-     * Parses and returns all query string parameters.
-     */
-    searchParams(): TReqSearchParams;
-
-    /**
-     * Retrieves a single query string parameter by name.
-     * @typeParam TField - The name of the query parameter.
-     * @typeParam TValue - The query parameter value type.
-     * @param field - The name of the query parameter.
-     */
-    searchParams<
-        TField extends keyof TReqSearchParams,
-        TValue extends TReqSearchParams[TField],
-    >(
-        field: TField,
-    ): UndefinedToNull<TValue>;
-
-    /**
-     * Parses and returns all request headers.
-     */
-    headers(): TReqHeaders;
-
-    /**
-     * Retrieves a single header value by name.
-     * @typeParam TField - The name of the header.
-     * @typeParam TValue - The header value type.
-     * @param field - The name of the header.
-     */
-    headers<
-        TField extends keyof TReqHeaders,
-        TValue extends TReqHeaders[TField],
-    >(
-        field: TField,
-    ): UndefinedToNull<TValue>;
-};
-
-/**
- * Defines optional validation schemas for each source of request data.
- * Each field uses Standard Schema V1 to validate and transform the input.
- *
- * Cookies are validated via the optional `cookies` schema, which receives
- * raw cookie strings and should produce a typed record of parsed values.
- *
- * Each field maps directly to its own type parameter so TypeScript can infer
- * the output type from the schema (e.g. from a Zod schema) without needing
- * to reverse through indexed access types.
- *
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file definitions.
- * @typeParam TCookieData - The type of the parsed cookie data.
- *
- * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
- * @group Contracts
- */
-export type HttpReqSchemas<
-    TReqJson = unknown,
-    TReqFields extends ReqInputs = ReqInputs,
-    TReqParams extends ReqInputs = ReqInputs,
-    TReqSearchParams extends ReqInputs = ReqInputs,
-    TReqHeaders extends ReqInputs = ReqInputs,
-    TReqFiles extends FileInputs = FileInputs,
-    TCookieData extends StringInputs = StringInputs,
-> = {
-    /**
-     * Optional schema for validating the JSON body.
-     */
-    json?: StandardSchemaV1<TReqJson>;
-
-    /**
-     * Optional schema for validating form fields or url encoded fields.
-     * Receives {@link MultiStringInputs} (string or string[]) since form fields
-     * may appear multiple times.
-     */
-    fields?: StandardSchemaV1<MultiStringInputs, TReqFields>;
-
-    /**
-     * Optional expected file definitions for validation.
-     */
-    files?: TReqFiles;
-
-    /**
-     * Optional schema for validating path parameters.
-     */
-    params?: StandardSchemaV1<StringInputs, TReqParams>;
-
-    /**
-     * Optional schema for validating query string parameters.
-     */
-    searchParams?: StandardSchemaV1<MultiStringInputs, TReqSearchParams>;
-
-    /**
-     * Optional schema for validating request headers.
-     */
-    headers?: StandardSchemaV1<StringInputs, TReqHeaders>;
-
-    cookies?: StandardSchemaV1<StringInputs, TCookieData>;
-};
-
-/**
- * Provides the {@link IHttpReqValidation.withSchema | withSchema} method for
- * applying validation schemas to an {@link IHttpReq}.
- *
- * Calling {@link IHttpReqValidation.withSchema | withSchema} returns an
- * {@link IValidatedHttpReq} that provides schema-validated access to all
- * request data sources.
- *
- * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
- * @group Contracts
- */
-export type IHttpReqValidation = {
-    withSchema<
-        TReqJson = unknown,
-        TReqFields extends ReqInputs = ReqInputs,
-        TReqParams extends ReqInputs = ReqInputs,
-        TReqSearchParams extends ReqInputs = ReqInputs,
-        TReqHeaders extends ReqInputs = ReqInputs,
-        TReqFiles extends FileInputs = FileInputs,
-        TCookieData extends StringInputs = StringInputs,
-    >(
-        schemas: HttpReqSchemas<
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        >,
-    ): IValidatedHttpReq<
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    >;
-};
-
-/**
- * The base request interface providing raw, unvalidated access to all
- * request data sources.
- *
- * Implements `AsyncIterable<unknown>` so the request can be streamed,
- * and exposes raw methods for every source (cookies, JSON body, form data,
- * path params, query params, headers) alongside the underlying
- * {@link IHttpReqBase.webReq | Web API Request}.
- *
- * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
- * @group Contracts
- */
-export type IHttpReqBase = AsyncIterable<unknown> & {
+export type IHttpReq = AsyncIterable<unknown> & {
     /**
      * An {@link https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal | AbortSignal}
      * that is aborted when the underlying request is cancelled or times out.
@@ -329,35 +83,100 @@ export type IHttpReqBase = AsyncIterable<unknown> & {
     readonly url: string;
 
     /**
-     * Returns the raw, parsed cookies as a string-to-string map.
+     * Returns the request cookies.
+     *
+     * Without a schema, returns the raw cookies as a record mapping cookie
+     * names to their string values.
+     *
+     * With a schema, the raw cookies are validated through the given
+     * {@link https://standardschema.dev | Standard Schema} and the validated
+     * result is returned.
      */
-    rawCookies(): StringInputs;
+    cookies(): StringInputs;
+    cookies<TCookies extends CoercibleStringInputs>(
+        schema: StandardSchemaV1<StringInputs, TCookies>,
+    ): TCookies;
 
     /**
-     * Returns the raw unparsed JSON body.
+     * Parses the request body as JSON.
+     *
+     * Without a schema, returns the parsed body as `unknown`. With a schema,
+     * the parsed JSON is validated through the given Standard Schema and the
+     * validated value is returned.
      */
-    rawJson(): Promise<unknown>;
+    json(): Promise<unknown>;
+    json<TJSon>(schema: StandardSchemaV1<unknown, TJSon>): Promise<TJSon>;
+
+    /**
+     * Returns the path parameters of the request.
+     *
+     * Without a schema, returns the raw path parameters as a record mapping
+     * parameter names to their string values. With a schema, the raw
+     * parameters are validated through the given Standard Schema and the
+     * validated result is returned.
+     */
+    params(): StringInputs;
+    params<TParams extends CoercibleStringInputs>(
+        schema: StandardSchemaV1<StringInputs, TParams>,
+    ): TParams;
+
+    /**
+     * Returns the query string parameters of the request.
+     *
+     * Without a schema, returns the raw query parameters as a record mapping
+     * parameter names to a single string or an array of strings. With a
+     * schema, the raw parameters are validated through the given Standard
+     * Schema and the validated result is returned.
+     */
+    searchParams(): MultiStringInputs;
+    searchParams<TSearchParams extends CoercibleMultiStringInputs>(
+        schema: StandardSchemaV1<MultiStringInputs, TSearchParams>,
+    ): TSearchParams;
+
+    /**
+     * Returns the request headers.
+     *
+     * Without a schema, returns the raw headers as a record mapping header
+     * names to their string values. With a schema, the raw headers are
+     * validated through the given Standard Schema and the validated result
+     * is returned.
+     */
+    headers(): StringInputs;
+    headers<THeaders extends CoercibleStringInputs>(
+        schema: StandardSchemaV1<StringInputs, THeaders>,
+    ): THeaders;
+
+    /**
+     * Returns the form fields of the request body.
+     *
+     * Without a schema, returns the raw form fields as a record mapping
+     * field names to a single string or an array of strings. With a schema,
+     * the raw fields are validated through the given Standard Schema and the
+     * validated result is returned.
+     */
+    fields(): Promise<MultiStringInputs>;
+    fields<TFields extends CoercibleMultiStringInputs>(
+        schema: StandardSchemaV1<MultiStringInputs, TFields>,
+    ): Promise<TFields>;
+
+    /**
+     * Returns the uploaded files of the request.
+     *
+     * Without a schema, returns the file collections as a record mapping
+     * file field names to their {@link IHttpFileCollection} instances. With
+     * a schema, the uploaded files are validated against the given file
+     * definitions and typed {@link HttpReqFiles} instances are returned.
+     */
+    files(): Promise<HttpReqFiles>;
+    files<TFiles extends FileInputs>(
+        schema: TFiles,
+    ): Promise<HttpReqFiles<TFiles>>;
 
     /**
      * Returns the raw unparsed `FormData` as a plain object, or an empty object if not present.
      * Each field is either a string value or an {@link IHttpFile} instance for file uploads.
      */
-    rawFormData(): Promise<RawFormData>;
-
-    /**
-     * Returns the raw unparsed path parameters, or empty object if not present.
-     */
-    rawParams(): StringInputs;
-
-    /**
-     * Returns the raw unparsed query parameters, or empty object if not present.
-     */
-    rawSearchParams(): MultiStringInputs;
-
-    /**
-     * Returns the raw unparsed headers, or empty object if not present.
-     */
-    rawHeaders(): StringInputs;
+    formData(): Promise<RawFormData>;
 
     /**
      * Reads the request body as plain text.
@@ -375,8 +194,8 @@ export type IHttpReqBase = AsyncIterable<unknown> & {
     arrayBuffer(): Promise<ArrayBuffer>;
 
     /**
-     * The request body as a `ReadableStream`, or `null` if the body has
-     * already is not available (e.g. GET/HEAD requests).
+     * The request body as a `ReadableStream`, or `null` if the body is not
+     * available (e.g. GET/HEAD requests).
      *
      * Allows streaming the body in chunks via the
      * {@link https://developer.mozilla.org/en-US/docs/Web/API/Streams_API | Streams API}.
@@ -396,27 +215,3 @@ export type IHttpReqBase = AsyncIterable<unknown> & {
      */
     readonly webReq: Request;
 };
-
-/**
- * Represents an incoming HTTP request with typed access to all data sources.
- *
- * Combines {@link IHttpReqValidation} (for schema-based validation via
- * {@link IHttpReqValidation.withSchema | withSchema}) with
- * {@link IHttpReqBase} (for raw, unvalidated access).
- *
- * Cookies are validated through the {@link HttpReqSchemas.cookies | cookies}
- * schema on {@link HttpReqSchemas}, accessible after calling
- * {@link IHttpReqValidation.withSchema | withSchema}.
- *
- * @typeParam TReqJson - The type of the parsed JSON body.
- * @typeParam TReqFields - The type of the parsed form fields.
- * @typeParam TReqParams - The type of the parsed path parameters.
- * @typeParam TReqSearchParams - The type of the parsed query parameters.
- * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file upload definitions.
- * @typeParam TCookieData - A record mapping cookie names to their value types.
- *
- * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
- * @group Contracts
- */
-export type IHttpReq = IHttpReqValidation & IHttpReqBase;

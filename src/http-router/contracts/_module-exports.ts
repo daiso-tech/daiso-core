@@ -9,5 +9,4 @@ export type * from "@/http-router/contracts/http-res.contract.js";
 export * from "@/http-router/contracts/http-router.contract.js";
 export type * from "@/http-router/contracts/http-status.js";
 export * from "@/http-router/contracts/http.errors.js";
-export * from "@/http-router/contracts/http-file.errors.js";
 export type * from "@/http-router/contracts/winter-tc-fetch.contract.js";

@@ -17,8 +17,13 @@ export type HttpErrorSettings = {
     /** A human-readable error message. */
     message: string;
 
+    /**
+     * Arbitrary data to attach to the error (e.g. validation issues).
+     */
+    payload?: unknown;
+
     /** The underlying error cause, if any. */
-    cause: unknown;
+    cause?: unknown;
 };
 
 /**
@@ -39,6 +44,14 @@ export class HttpError extends Error {
         return new HttpError(settings);
     }
 
+    /**
+     * Arbitrary data attached to the error (e.g. validation issues).
+     */
+    public readonly payload: unknown;
+
+    /**
+     * The HTTP error status code (4xx or 5xx).
+     */
     public readonly status: HttpErrorStatus;
 
     /**
@@ -47,10 +60,11 @@ export class HttpError extends Error {
      * @internal
      */
     constructor(settings: HttpErrorSettings) {
-        const { status, message, cause } = settings;
+        const { status, message, payload, cause } = settings;
 
         super(message, { cause });
 
+        this.payload = payload;
         this.name = HttpError.name;
         this.status = status;
     }
