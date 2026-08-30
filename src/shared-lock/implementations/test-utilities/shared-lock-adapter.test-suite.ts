@@ -460,133 +460,6 @@ export function sharedLockAdapterTestSuite(
                 });
             });
         });
-        describe("method: forceReleaseWriter", () => {
-            test("Should return false when key doesnt exists", async () => {
-                const key = "a";
-
-                const result = await adapter.forceReleaseWriter(key);
-
-                expect(result).toBe(false);
-            });
-            test("Should return false when key is expired", async () => {
-                const key = "a";
-                const sharedLockId = "b";
-                const ttl = TimeSpan.fromMilliseconds(50);
-
-                await adapter.acquireWriter(key, sharedLockId, ttl.toEndDate());
-                await delayWithBuffer(ttl);
-
-                const result = await adapter.forceReleaseWriter(key);
-
-                expect(result).toBe(false);
-            });
-            test("Should return true when key is uenxpired", async () => {
-                const key = "a";
-                const sharedLockId = "b";
-                const ttl = TimeSpan.fromMilliseconds(50);
-
-                await adapter.acquireWriter(key, sharedLockId, ttl.toEndDate());
-
-                const result = await adapter.forceReleaseWriter(key);
-
-                expect(result).toBe(true);
-            });
-            test("Should return true when key is unexpireable", async () => {
-                const key = "a";
-                const sharedLockId = "b";
-                const ttl = null;
-
-                await adapter.acquireWriter(key, sharedLockId, ttl);
-
-                const result = await adapter.forceReleaseWriter(key);
-
-                expect(result).toBe(true);
-            });
-            test("Should be reacquirable when key is force released", async () => {
-                const key = "a";
-                const sharedLockId1 = "b";
-                const ttl = null;
-                await adapter.acquireWriter(key, sharedLockId1, ttl);
-
-                await adapter.forceReleaseWriter(key);
-
-                const sharedLockId2 = "c";
-                const result = await adapter.acquireWriter(
-                    key,
-                    sharedLockId2,
-                    ttl,
-                );
-                expect(result).toBe(true);
-            });
-            test("Should return false when key is acquired as reader", async () => {
-                const key = "a";
-                const lockId = "1";
-                const limit = 2;
-                const ttl = TimeSpan.fromSeconds(10);
-
-                await adapter.acquireReader({
-                    key,
-
-                    lockId,
-                    limit,
-                    ttl: ttl.toEndDate(),
-                });
-
-                const result = await adapter.forceReleaseWriter(key);
-
-                expect(result).toBe(false);
-            });
-            test("Should not update state when key is acquired as reader", async () => {
-                const key = "a";
-                const lockId = "1";
-                const limit = 2;
-                const ttl = null;
-
-                await adapter.acquireReader({
-                    key,
-
-                    lockId,
-                    limit,
-                    ttl,
-                });
-
-                await adapter.forceReleaseWriter(key);
-
-                const state = await adapter.getState(key);
-
-                expect({
-                    ...state,
-                    reader: {
-                        ...state?.reader,
-                        acquiredSlots: Object.fromEntries(
-                            state?.reader?.acquiredSlots.entries() ?? [],
-                        ),
-                    },
-                }).toEqual({
-                    writer: null,
-                    reader: {
-                        limit,
-                        acquiredSlots: {
-                            [lockId]: ttl,
-                        },
-                    },
-                });
-            });
-            test("Should return false when key expires exactly now", async () => {
-                const key = "a";
-                const lockId = "b";
-
-                const ttl = TimeSpan.fromMilliseconds(50);
-
-                await adapter.acquireWriter(key, lockId, ttl.toEndDate());
-
-                await delayWithBuffer(ttl);
-
-                const result = await adapter.forceReleaseWriter(key);
-
-                expect(result).toBe(false);
-            });
-        });
         describe("method: refreshWriter", () => {
             test("Should return false when key doesnt exists", async () => {
                 const key = "a";
@@ -1436,230 +1309,6 @@ export function sharedLockAdapterTestSuite(
                 } satisfies ISharedLockAdapterState);
             });
         });
-        describe("method: forceReleaseAllReaders", () => {
-            test("Should return false when key doesnt exists", async () => {
-                const key = "a";
-                const lockId = "b";
-                const limit = 2;
-                const ttl = null;
-                await adapter.acquireReader({
-                    key,
-
-                    lockId,
-                    limit,
-                    ttl,
-                });
-
-                const noneExistingKey = "c";
-                const result =
-                    await adapter.forceReleaseAllReaders(noneExistingKey);
-
-                expect(result).toBe(false);
-            });
-            test("Should return false when shared-lock-slot is expired", async () => {
-                const key = "a";
-                const ttl = TimeSpan.fromMilliseconds(50);
-                const limit = 2;
-                const lockId = "1";
-
-                await adapter.acquireReader({
-                    key,
-
-                    lockId,
-                    limit,
-                    ttl: ttl.toEndDate(),
-                });
-                await delayWithBuffer(ttl);
-
-                const result = await adapter.forceReleaseAllReaders(key);
-
-                expect(result).toBe(false);
-            });
-            test("Should return false when no shared-lock-slots are acquired", async () => {
-                const key = "a";
-                const ttl = null;
-                const lockId1 = "1";
-                const limit = 2;
-
-                await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId1,
-                    limit,
-                    ttl,
-                });
-                const lockId2 = "2";
-                await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId2,
-                    limit,
-                    ttl,
-                });
-                await adapter.releaseReader(key, lockId1);
-                await adapter.releaseReader(key, lockId2);
-
-                const result = await adapter.forceReleaseAllReaders(key);
-
-                expect(result).toBe(false);
-            });
-            test("Should return true when at least 1 shared-lock-slot is acquired", async () => {
-                const key = "a";
-                const ttl = null;
-                const limit = 2;
-                const lockId = "1";
-
-                await adapter.acquireReader({
-                    key,
-
-                    lockId,
-                    limit,
-                    ttl,
-                });
-
-                const result = await adapter.forceReleaseAllReaders(key);
-
-                expect(result).toBe(true);
-            });
-            test("Should make all shared-lock-slots reacquirable", async () => {
-                const key = "a";
-                const limit = 2;
-                const lockId1 = "1";
-                const ttl1 = null;
-                await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId1,
-                    limit,
-                    ttl: ttl1,
-                });
-                const lockId2 = "2";
-                const ttl2 = TimeSpan.fromMilliseconds(50);
-                await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId2,
-                    limit,
-                    ttl: ttl2.toEndDate(),
-                });
-
-                await adapter.forceReleaseAllReaders(key);
-
-                const lockId3 = "3";
-                const ttl3 = null;
-                const result1 = await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId3,
-                    limit,
-                    ttl: ttl3,
-                });
-                expect(result1).toBe(true);
-                const lockId4 = "4";
-                const ttl4 = null;
-                const result2 = await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId4,
-                    limit,
-                    ttl: ttl4,
-                });
-                expect(result2).toBe(true);
-            });
-            test("Should update limit when shared-lock-slot count is 0", async () => {
-                const key = "a";
-                const limit = 2;
-                const ttl = null;
-
-                const lockId1 = "1";
-                await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId1,
-                    limit,
-                    ttl,
-                });
-                const lockId2 = "2";
-                await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId2,
-                    limit,
-                    ttl,
-                });
-                await adapter.forceReleaseAllReaders(key);
-
-                const newLimit = 3;
-                const lockId3 = "3";
-                await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId3,
-                    limit: newLimit,
-                    ttl,
-                });
-
-                const result1 = await adapter.getState(key);
-                expect(result1?.reader?.limit).toBe(newLimit);
-
-                const lockId4 = "4";
-                await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId4,
-                    limit: newLimit,
-                    ttl,
-                });
-
-                const lockId5 = "5";
-                const result2 = await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId5,
-                    limit: newLimit,
-                    ttl,
-                });
-                expect(result2).toBe(true);
-
-                const lockId6 = "6";
-                const result3 = await adapter.acquireReader({
-                    key,
-
-                    lockId: lockId6,
-                    limit,
-                    ttl,
-                });
-                expect(result3).toBe(false);
-            });
-            test("Should return false when key is acquired as writer", async () => {
-                const key = "a";
-                const lockId = "1";
-                const ttl = null;
-                await adapter.acquireWriter(key, lockId, ttl);
-
-                const result = await adapter.forceReleaseAllReaders(key);
-
-                expect(result).toBe(false);
-            });
-            test("Should not update state when key is acquired as writer", async () => {
-                const key = "a";
-                const lockId = "1";
-                const ttl = null;
-                await adapter.acquireWriter(key, lockId, ttl);
-
-                await adapter.forceReleaseAllReaders(key);
-
-                const state = await adapter.getState(key);
-
-                expect(state).toEqual({
-                    writer: {
-                        owner: lockId,
-                        expiration: ttl,
-                    },
-                    reader: null,
-                } satisfies ISharedLockAdapterState);
-            });
-        });
         describe("method: refreshReader", () => {
             test("Should return false when key doesnt exists", async () => {
                 const key = "a";
@@ -2162,13 +1811,13 @@ export function sharedLockAdapterTestSuite(
 
                     expect(sharedLockData).toBeNull();
                 });
-                test("Should return null when writer lock is released with forceReleaseWriter method", async () => {
+                test("Should return null when writer lock is released with forceRelease method", async () => {
                     const key = "a";
                     const ttl = null;
                     const sharedLockId = "1";
                     await adapter.acquireWriter(key, sharedLockId, ttl);
 
-                    await adapter.forceReleaseWriter(key);
+                    await adapter.forceRelease(key);
 
                     const sharedLockData = await adapter.getState(key);
 
@@ -2293,7 +1942,7 @@ export function sharedLockAdapterTestSuite(
 
                     expect(result).toBeNull();
                 });
-                test("Should return null when all shared-lock-slots are released with forceReleaseAllReaders method", async () => {
+                test("Should return null when all shared-lock-slots are released with forceRelease method", async () => {
                     const key = "a";
                     const limit = 2;
 
@@ -2315,7 +1964,7 @@ export function sharedLockAdapterTestSuite(
                         ttl: ttl2,
                     });
 
-                    await adapter.forceReleaseAllReaders(key);
+                    await adapter.forceRelease(key);
 
                     const result = await adapter.getState(key);
 
