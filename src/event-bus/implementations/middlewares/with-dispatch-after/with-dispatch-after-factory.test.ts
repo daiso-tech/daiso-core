@@ -21,33 +21,33 @@ describe("function: withDispatchAfterFactory", () => {
 
     test("Should dispatch the event with the resolved payload after the wrapped function resolves", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn(() => ({ userId: "42" }));
+        const payload = vi.fn(() => ({ userId: "42" }));
         const innerFn = vi.fn((): Promise<string> => Promise.resolve("ok"));
         const wrapped = use(
             innerFn,
             withDispatchAfter({
                 type: "user.created",
-                payload: payloadFn,
+                payload,
             }),
         );
 
         const result = await wrapped();
 
         expect(result).toBe("ok");
-        expect(payloadFn).toHaveBeenCalledOnce();
+        expect(payload).toHaveBeenCalledOnce();
         expect(dispatch).toHaveBeenCalledExactlyOnceWith("user.created", {
             userId: "42",
         });
     });
     test("Should dispatch the event after the wrapped function resolves", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn(() => ({ userId: "42" }));
+        const payload = vi.fn(() => ({ userId: "42" }));
         const innerFn = vi.fn((): Promise<void> => Promise.resolve());
         const wrapped = use(
             innerFn,
             withDispatchAfter({
                 type: "user.created",
-                payload: payloadFn,
+                payload,
             }),
         );
 
@@ -59,7 +59,7 @@ describe("function: withDispatchAfterFactory", () => {
     });
     test("Should not dispatch the event when the wrapped function throws", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn(() => ({ userId: "42" }));
+        const payload = vi.fn(() => ({ userId: "42" }));
         const innerFn = vi.fn((): Promise<string> => {
             throw new Error("boom");
         });
@@ -67,18 +67,18 @@ describe("function: withDispatchAfterFactory", () => {
             innerFn,
             withDispatchAfter({
                 type: "user.created",
-                payload: payloadFn,
+                payload,
             }),
         );
 
         await expect(wrapped()).rejects.toThrow("boom");
 
-        expect(payloadFn).not.toHaveBeenCalled();
+        expect(payload).not.toHaveBeenCalled();
         expect(dispatch).not.toHaveBeenCalled();
     });
     test("Should resolve an invocable payload with the wrapped function's arguments and return value", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn(
+        const payload = vi.fn(
             (
                 settings: WithDispatchAfterPayloadSettings<
                     [userId: string],
@@ -95,14 +95,14 @@ describe("function: withDispatchAfterFactory", () => {
             innerFn,
             withDispatchAfter({
                 type: "user.created",
-                payload: payloadFn,
+                payload,
             }),
         );
 
         const result = await wrapped("u-7");
 
         expect(result).toBe("result-u-7");
-        expect(payloadFn).toHaveBeenCalledExactlyOnceWith({
+        expect(payload).toHaveBeenCalledExactlyOnceWith({
             args: ["u-7"],
             returnValue: "result-u-7",
         });
@@ -145,7 +145,7 @@ describe("function: withDispatchAfterFactory", () => {
     });
     test("Should call the payload invocable on every invocation", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn(
+        const payload = vi.fn(
             (
                 settings: WithDispatchAfterPayloadSettings<
                     [userId: string],
@@ -162,19 +162,19 @@ describe("function: withDispatchAfterFactory", () => {
             innerFn,
             withDispatchAfter({
                 type: "user.created",
-                payload: payloadFn,
+                payload,
             }),
         );
 
         await wrapped("u-1");
         await wrapped("u-2");
 
-        expect(payloadFn).toHaveBeenCalledTimes(2);
-        expect(payloadFn).toHaveBeenNthCalledWith(1, {
+        expect(payload).toHaveBeenCalledTimes(2);
+        expect(payload).toHaveBeenNthCalledWith(1, {
             args: ["u-1"],
             returnValue: "result-u-1",
         });
-        expect(payloadFn).toHaveBeenNthCalledWith(2, {
+        expect(payload).toHaveBeenNthCalledWith(2, {
             args: ["u-2"],
             returnValue: "result-u-2",
         });
@@ -185,15 +185,15 @@ describe("function: withDispatchAfterFactory", () => {
             userId: "u-2-result-u-2",
         });
     });
-    test("Should not dispatch the event when the payload resolves to undefined", async () => {
+    test("Should not dispatch the event when the payload resolves to null", async () => {
         const dispatch = vi.spyOn(adapter, "dispatch");
-        const payloadFn = vi.fn(
+        const payload = vi.fn(
             (
                 _settings: WithDispatchAfterPayloadSettings<
                     [userId: string],
                     string
                 >,
-            ): undefined => undefined,
+            ): null => null,
         );
         const innerFn = vi.fn((userId: string): Promise<string> =>
             Promise.resolve(`result-${userId}`),
@@ -202,14 +202,14 @@ describe("function: withDispatchAfterFactory", () => {
             innerFn,
             withDispatchAfter({
                 type: "user.created",
-                payload: payloadFn,
+                payload,
             }),
         );
 
         const result = await wrapped("u-9");
 
         expect(result).toBe("result-u-9");
-        expect(payloadFn).toHaveBeenCalledOnce();
+        expect(payload).toHaveBeenCalledOnce();
         expect(dispatch).not.toHaveBeenCalled();
     });
 });

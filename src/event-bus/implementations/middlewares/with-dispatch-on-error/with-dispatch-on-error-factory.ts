@@ -64,8 +64,7 @@ export type WithDispatchOnErrorSettings<
      */
     payload: Invocable<
         [settings: WithDispatchOnErrorPayloadSettings<TParameters>],
-        // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-        TEventMap[TEventName] | void
+        TEventMap[TEventName] | null
     >;
 };
 
@@ -145,7 +144,7 @@ export function withDispatchOnErrorFactory<
                     args,
                     error,
                 });
-                if (event === undefined) {
+                if (event === null) {
                     throw error;
                 }
 

@@ -58,8 +58,7 @@ export type WithDispatchBeforeSettings<
      */
     payload: Invocable<
         [settings: WithDispatchBeforePayloadSettings<TParameters>],
-        // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-        TEventMap[TEventName] | void
+        TEventMap[TEventName] | null
     >;
 };
 
@@ -131,7 +130,7 @@ export function withDispatchBeforeFactory<
             const event = callInvocable(payload, {
                 args,
             });
-            if (event === undefined) {
+            if (event === null) {
                 return next();
             }
             void eventDispatcher.dispatch(type, event);
