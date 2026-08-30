@@ -13,5 +13,4 @@ These methods allowed bypassing ownership checks to release locks for emergency 
 
 ### Migration
 
-- To release a writer lock, use the ownership-based `releaseWriter` or `releaseWriterOrFail` once the owner is available.
-- To clean up reader slots, release each slot individually with `releaseReader` or `releaseReaderOrFail`.
+Use the `forceRelease` method instead.
