@@ -133,17 +133,6 @@ export type ISharedLockAdapter = {
     releaseWriter(key: string, lockId: string): Promise<boolean>;
 
     /**
-     * Forcibly releases a writer lock regardless of ownership.
-     * Used for emergency lock release or administrative cleanup.
-     * Bypasses ownership verification for situations where the owner is unavailable.
-     *
-     * @param key - Unique identifier for the shared lock
-     *
-     * @returns Promise resolving to true if the writer lock existed and was released, false if the lock is already expired
-     */
-    forceReleaseWriter(key: string): Promise<boolean>;
-
-    /**
      * Refreshes (extends) the time-to-live of an existing writer lock.
      * Only succeeds if all conditions are met: ownership matches, lock hasn't expired, and it's expirable.
      *
@@ -175,17 +164,6 @@ export type ISharedLockAdapter = {
      * @returns Promise resolving to true if the reader slot was successfully released, false if the slot doesn't exist or is already released
      */
     releaseReader(key: string, slotId: string): Promise<boolean>;
-
-    /**
-     * Forcibly releases all reader slots for the specified shared lock regardless of ownership.
-     * Used for emergency cleanup or administrative operations.
-     * Bypasses ownership verification for situations where individual slot holders are unavailable.
-     *
-     * @param key - Unique identifier for the shared lock
-     *
-     * @returns Promise resolving to true if reader slots existed and were released, false if no reader slots are acquired
-     */
-    forceReleaseAllReaders(key: string): Promise<boolean>;
 
     /**
      * Refreshes (extends) the time-to-live of an existing reader slot.

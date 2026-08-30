@@ -49,13 +49,6 @@ export type IReaderSemaphore = {
     releaseReaderOrFail(): Promise<void>;
 
     /**
-     * The `forceReleaseAllReaders` method releases the all slots.
-     *
-     * @returns Returns true if the semaphore exists and has at least one unavailable slot or false if all slots are available.
-     */
-    forceReleaseAllReaders(): Promise<boolean>;
-
-    /**
      * The `refreshReader` method updates the `ttl` of the slot when acquired.
      *
      * @returns Returns true if the slot is refreshed otherwise false is returned.
@@ -110,13 +103,6 @@ export type IWriterLock = {
      * @throws {FailedReleaseWriterLockError}
      */
     releaseWriterOrFail(): Promise<void>;
-
-    /**
-     * The `forceReleaseWriter` method releases a lock regardless of the owner.
-     *
-     * @returns Returns true if the lock exists or false if the lock doesnt exists.
-     */
-    forceReleaseWriter(): Promise<boolean>;
 
     /**
      * The `refreshWriter` method updates the `ttl` of the lock if expireable and owned by the same owner.
