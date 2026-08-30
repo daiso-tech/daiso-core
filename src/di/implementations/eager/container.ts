@@ -7,7 +7,7 @@ import {
 } from "@/di/contracts/_module-exports.js";
 import {
     InvalidMethodCallDiError,
-    CanNotBeResolvedDiError,
+    CanNotResolveServiceDiError,
 } from "@/di/contracts/container.errors.js";
 import { INTERNAL_LIFETIME } from "@/di/implementations/eager/_shared.js";
 import { DynamicServiceRegister } from "@/di/implementations/eager/dynamic-service-register.js";
@@ -37,7 +37,7 @@ import type {
     DepRecord,
     EmptyDepRecord,
 } from "@/di/contracts/_module.js";
-import type { ServiceCanNotBeResolvedErrorData } from "@/di/contracts/container.errors.js";
+import type { ServiceCanNotResolveServiceErrorData } from "@/di/contracts/container.errors.js";
 import type { Node } from "@/di/implementations/eager/_shared.js";
 import type { IExecutionContext } from "@/execution-context/contracts/_module.js";
 
@@ -525,7 +525,7 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
     > {
         const tokenExistInRegistry = this.registryManager.has(token);
 
@@ -535,7 +535,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN,
+                    flag: CanNotResolveServiceDiError.FLAG.NOT_REGISTERED_TOKEN,
                     token,
                 },
             };
@@ -582,7 +582,7 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
     > {
         await Promise.resolve();
         if (!this.graphManager.isSingleton(token)) {
@@ -599,7 +599,8 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
+                    flag: CanNotResolveServiceDiError.FLAG
+                        .RESOLVED_VALUE_IS_NULL,
                     token,
                 },
             };
@@ -612,7 +613,7 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
     > {
         if (!this.graphManager.isTransient(token)) {
             throw new UnexpectedError(
@@ -632,7 +633,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG
+                    flag: CanNotResolveServiceDiError.FLAG
                         .TRANSIENT_SERVICE_DEPEND_ON_SCOPED,
                     scopedTokens: includeScopedNodes.nodes,
                     transientToken: token,
@@ -647,7 +648,8 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
+                    flag: CanNotResolveServiceDiError.FLAG
+                        .RESOLVED_VALUE_IS_NULL,
                     token,
                 },
             };
@@ -659,7 +661,7 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
     > {
         if (!this.graphManager.isScoped(token)) {
             throw new UnexpectedError(
@@ -678,7 +680,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG
+                    flag: CanNotResolveServiceDiError.FLAG
                         .SCOPED_SERVICE_OUTSIDE_RUN,
                     token,
                 },
@@ -695,7 +697,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG
+                    flag: CanNotResolveServiceDiError.FLAG
                         .NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
                     dynamicTokens: dynamicTokensWithoutValue,
                 },
@@ -707,7 +709,8 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
+                    flag: CanNotResolveServiceDiError.FLAG
+                        .RESOLVED_VALUE_IS_NULL,
                     token,
                 },
             };
@@ -719,7 +722,7 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotBeResolvedErrorData }
+        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
     > {
         await Promise.resolve();
         if (!this.graphManager.isDynamic(token)) {
@@ -736,7 +739,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG
+                    flag: CanNotResolveServiceDiError.FLAG
                         .DYNAMIC_SERVICE_OUTSIDE_RUN,
                     token,
                 },
@@ -746,7 +749,7 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG
+                    flag: CanNotResolveServiceDiError.FLAG
                         .NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
                     dynamicTokens: [token],
                 },
@@ -759,7 +762,8 @@ export class Container implements IContainer {
             return {
                 success: false,
                 explanation: {
-                    flag: CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
+                    flag: CanNotResolveServiceDiError.FLAG
+                        .RESOLVED_VALUE_IS_NULL,
                     token,
                 },
             };
@@ -787,7 +791,7 @@ export class Container implements IContainer {
 
         const result = await this.resolveOrGiveExplanation(token);
         if (!result.success) {
-            throw CanNotBeResolvedDiError.create(result.explanation);
+            throw CanNotResolveServiceDiError.create(result.explanation);
         }
         return result.value;
     }
