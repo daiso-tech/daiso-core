@@ -109,7 +109,6 @@ export type HttpErrorStatus = HttpClientErrorStatus | HttpServerErrorStatus;
 
 /**
  * Union of all HTTP status codes (1xx through 5xx).
- * Provides autocompletion for well-known status codes while accepting any string.
  *
  * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
