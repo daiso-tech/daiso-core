@@ -8,13 +8,14 @@ export class ValidationError extends Error {
     static create(
         issues: ReadonlyArray<StandardSchemaV1.Issue>,
     ): ValidationError {
-        const jsonMessage = JSON.stringify(issues, null, 2);
-        return new ValidationError(
-            `A validation error occurred with the following issues:\n${jsonMessage}`,
-        );
+        return new ValidationError(`A validation error occurred:`, issues);
     }
 
-    constructor(message: string, cause?: unknown) {
+    constructor(
+        message: string,
+        public readonly issues: ReadonlyArray<StandardSchemaV1.Issue>,
+        cause?: unknown,
+    ) {
         super(message, { cause });
         this.name = ValidationError.name;
     }
