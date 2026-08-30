@@ -3,8 +3,9 @@
  */
 
 import type { IFileSize } from "@/file-size/contracts/file-size.contract.js";
+import type { IHttpFileCollection } from "@/http-router/contracts/http-file-collection.contract.js";
 import type { IHttpFile } from "@/http-router/contracts/http-file.contract.js";
-import type { Invocable } from "@/utilities/_module.js";
+import type { Invocable, OneOrArray } from "@/utilities/_module.js";
 
 /**
  * Raw request input values before parsing and validation.
@@ -25,6 +26,16 @@ export type ReqInputs = Partial<Record<string, unknown>>;
 export type StringInputs = Partial<Record<string, string>>;
 
 /**
+ * A record mapping string keys to optional unknown values.
+ * Used as the output type when validating string-based inputs (cookies,
+ * params, headers) through a schema that may coerce values.
+ *
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
+ * @group Contracts
+ */
+export type CoercibleStringInputs = Partial<Record<string, unknown>>;
+
+/**
  * A record mapping string keys to a single string or an array of strings.
  *
  * Use this for input sources where a field may appear multiple times, such as
@@ -35,7 +46,17 @@ export type StringInputs = Partial<Record<string, string>>;
  * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
-export type MultiStringInputs = Partial<Record<string, string | Array<string>>>;
+export type MultiStringInputs = Partial<Record<string, OneOrArray<string>>>;
+
+/**
+ * A record mapping string keys to optional unknown values.
+ * Used as the output type when validating multi-value inputs (query params,
+ * form fields) through a schema that may coerce values.
+ *
+ * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
+ * @group Contracts
+ */
+export type CoercibleMultiStringInputs = Partial<Record<string, unknown>>;
 
 /**
  * Represents raw form fields input before parsing.
@@ -70,11 +91,9 @@ export type StaticFileDef = {
     fileSize?: IFileSize;
 
     /**
-     * Expected filename or a pattern the filename must match.
-     * When a `string`, the value is compared against the uploaded file's `originalName`
-     * (case-insensitive). When a `RegExp`, the filename must satisfy the pattern.
+     * A regular expression that the uploaded file's name must match.
      */
-    name?: string | RegExp;
+    name?: RegExp;
 
     /**
      * When `true`, the file is optional and validation passes even if no file is uploaded.
@@ -101,34 +120,33 @@ export type StaticFileDef = {
 };
 
 /**
- * Dynamic file definition that derives validation rules from the uploaded file itself.
+ * Dynamic file definition that inspects the uploaded file collection at runtime.
  *
  * Unlike {@link StaticFileDef}, this is an invocable function that receives the
- * uploaded {@link IHttpFile} and returns a {@link StaticFileDef} with validation
- * rules tailored to that specific file. Use this when constraints (such as
- * allowed content type or maximum size) must be computed at runtime based on
- * the file's properties.
+ * uploaded {@link IHttpFileCollection} and returns an error message string when
+ * validation fails, or `null` when the files pass. Use this when validation
+ * rules must be computed dynamically based on the actual files.
  *
  * @example
  * ```ts
- * const imageDef: DynamicFileDef = (file) => ({
- *   contentType: file.mimeType ?? "image/png",
- *   fileSize: { megabyte: 5 },
- *   optional: false,
- * });
+ * const avatarDef: DynamicFileDef = (collection) =>
+ *     collection.size() > 1 ? "Only one avatar is allowed" : null;
  * ```
  *
  * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
  */
-export type DynamicFileDef = Invocable<[file: IHttpFile], StaticFileDef>;
+export type DynamicFileDef = Invocable<
+    [file: IHttpFileCollection],
+    string | null
+>;
 
 /**
  * Union of {@link StaticFileDef} and {@link DynamicFileDef}.
  *
  * Represents any file field definition — either a static set of validation
- * rules or a function that dynamically produces those rules based on the
- * uploaded file.
+ * rules or a function that performs custom validation and returns an error
+ * message (or `null`) for the uploaded files.
  *
  * IMPORT_PATH: `"eridu-tech/http-router/contracts"`
  * @group Contracts
@@ -155,5 +173,5 @@ export type FileInputs = Partial<Record<string, FileDef>>;
  * @group Contracts
  */
 export type RawFormData = Partial<
-    Record<string, string | Array<string> | IHttpFile | Array<IHttpFile>>
+    Record<string, OneOrArray<string> | OneOrArray<IHttpFile>>
 >;
