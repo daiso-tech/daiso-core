@@ -37,7 +37,10 @@ import type {
     DepRecord,
     EmptyDepRecord,
 } from "@/di/contracts/_module.js";
-import type { ServiceCanNotResolveServiceErrorData } from "@/di/contracts/container.errors.js";
+import type {
+    CanNotResolveServiceDiErrorCreateData,
+    CanNotResolveServiceDiErrorData,
+} from "@/di/contracts/container.errors.js";
 import type { Node } from "@/di/implementations/eager/_shared.js";
 import type { IExecutionContext } from "@/execution-context/contracts/_module.js";
 
@@ -525,7 +528,10 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
+        | {
+              success: false;
+              explanation: CanNotResolveServiceDiErrorCreateData;
+          }
     > {
         const tokenExistInRegistry = this.registryManager.has(token);
 
@@ -582,7 +588,7 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
+        | { success: false; explanation: CanNotResolveServiceDiErrorCreateData }
     > {
         await Promise.resolve();
         if (!this.graphManager.isSingleton(token)) {
@@ -613,7 +619,7 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
+        | { success: false; explanation: CanNotResolveServiceDiErrorCreateData }
     > {
         if (!this.graphManager.isTransient(token)) {
             throw new UnexpectedError(
@@ -634,7 +640,7 @@ export class Container implements IContainer {
                 success: false,
                 explanation: {
                     flag: CanNotResolveServiceDiError.FLAG
-                        .TRANSIENT_SERVICE_DEPEND_ON_SCOPED,
+                        .TRANSIENT_SERVICE_DEPEND_ON_SCOPED_WHO_CALLED_OUTSIDE_RUN,
                     scopedTokens: includeScopedNodes.nodes,
                     transientToken: token,
                 },
@@ -657,11 +663,12 @@ export class Container implements IContainer {
         return { success: true, value: this.assumeType<TType>(value) };
     }
 
-    private async resolveScoped<TType>(
-        token: DiToken<TType>,
-    ): Promise<
+    private async resolveScoped<TType>(token: DiToken<TType>): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
+        | {
+              success: false;
+              explanation: CanNotResolveServiceDiErrorCreateData;
+          }
     > {
         if (!this.graphManager.isScoped(token)) {
             throw new UnexpectedError(
@@ -722,7 +729,7 @@ export class Container implements IContainer {
         token: DiToken<TType>,
     ): Promise<
         | { success: true; value: TType }
-        | { success: false; explanation: ServiceCanNotResolveServiceErrorData }
+        | { success: false; explanation: CanNotResolveServiceDiErrorCreateData }
     > {
         await Promise.resolve();
         if (!this.graphManager.isDynamic(token)) {

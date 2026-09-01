@@ -5,11 +5,17 @@
 import { isClass, UnexpectedError } from "@/utilities/_module.js";
 
 import type { DiToken } from "@/di/contracts/container.contract.js";
+import type { InternalLifetime } from "@/di/implementations/eager/_shared.js";
 
 /**
  * @internal
  */
 const UNMANAGED_FLAG_ERROR_MESSAGE = "Unmanaged flag";
+
+/**
+ * @internal
+ */
+const SEE_INFO_FIELD_DETAILS = " See the `info` field for details.";
 
 /**
  * @internal
@@ -51,7 +57,7 @@ export type InvalidMethodCallFlag =
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type InvalidMethodCallDiErrorData =
+export type InvalidMethodCallDiErrorCreateData =
     | {
           flag: typeof InvalidMethodCallDiError.FLAG.NOT_ACTIVE;
           methodName: string;
@@ -73,32 +79,32 @@ export type InvalidMethodCallDiErrorData =
           methodName: string;
           token: DiToken;
       };
+
 /**
  * @internal
  */
-function buildGraphMessage(args: {
-    count: number;
-    shownCount: number;
-    singularNoun: string;
-    pluralNoun: string;
-    items: Array<string>;
-    trailer?: string;
-}): string {
-    const noun = args.count === 1 ? args.singularNoun : args.pluralNoun;
-    const shortenedNote =
-        args.shownCount !== args.count
-            ? ` Only ${args.shownCount.toString()} ${
-                  args.shownCount === 1 ? "is" : "are"
-              } shown.`
-            : "";
-    return (
-        `${args.count.toString()} ${noun} detected in the service graph.` +
-        shortenedNote +
-        `\n` +
-        args.items.map((item) => ` - ${item}`).join("\n") +
-        (args.trailer === undefined ? "" : `\n${args.trailer}`)
-    );
-}
+export type InvalidMethodCallDiErrorData =
+    | {
+          flag: typeof InvalidMethodCallDiError.FLAG.NOT_ACTIVE;
+          methodName: string;
+      }
+    | {
+          flag: typeof InvalidMethodCallDiError.FLAG.ALREADY_INITIALIZED;
+          methodName: string;
+      }
+    | {
+          flag: typeof InvalidMethodCallDiError.FLAG.INSIDE_RUN;
+          methodName: string;
+      }
+    | {
+          flag: typeof InvalidMethodCallDiError.FLAG.INSIDE_DYNAMIC_REGISTRATION;
+          methodName: string;
+      }
+    | {
+          flag: typeof InvalidMethodCallDiError.FLAG.OUTSIDE_RUN;
+          methodName: string;
+          token: string;
+      };
 
 /**
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
@@ -113,7 +119,7 @@ export type InvalidGraphFlag =
  */
 export type EdgeErrorInfo = {
     edge: [DiToken, DiToken];
-    edgeType: [string, string];
+    edgeType: [InternalLifetime, InternalLifetime];
 };
 
 /**
@@ -123,17 +129,20 @@ export type EdgeErrorInfo = {
 export type InvalidGraphData =
     | {
           flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP;
-          edgeErrors: Array<{ edge: string; edgeType: string }>;
+          edges: Array<{
+              edge: [string, string];
+              type: [InternalLifetime, InternalLifetime];
+          }>;
       }
     | {
           flag: typeof InvalidGraphDiError.FLAG.CYCLE_DEPENDENCY;
-          cycles: Array<{ cycle: string }>;
+          cycles: Array<{ cycle: Array<string> }>;
       }
     | {
           flag: typeof InvalidGraphDiError.FLAG.UNDECLARED_DEPENDENCIES;
-          undeclaredDependencies: Array<{
-              missingDependency: string;
-              dependents: Array<string>;
+          dependencies: Array<{
+              dependency: string;
+              referencedBy: Array<string>;
           }>;
       };
 
@@ -205,35 +214,38 @@ export class InvalidGraphDiError
         const { edgeErrorInfos, totalDetected } = settings;
         const totalEdgesDetected = totalDetected ?? edgeErrorInfos.length;
 
-        const edgeErrors = edgeErrorInfos.map((item) => ({
-            edge: `${tokenToString(item.edge[0])} → ${tokenToString(item.edge[1])}`,
-            edgeType: `${item.edgeType[0]} → ${item.edgeType[1]}`,
-        }));
+        const edgeErrors = edgeErrorInfos.map(
+            (
+                item,
+            ): {
+                edge: [string, string];
+                type: [InternalLifetime, InternalLifetime];
+            } => ({
+                edge: [
+                    tokenToString(item.edge[0]),
+                    tokenToString(item.edge[1]),
+                ],
+                type: [item.edgeType[0], item.edgeType[1]],
+            }),
+        );
 
-        const message = buildGraphMessage({
-            count: totalEdgesDetected,
-            shownCount: edgeErrorInfos.length,
-            singularNoun: "invalid edge relationship",
-            pluralNoun: "invalid edge relationships",
-            items: edgeErrors.map(
-                ({ edge, edgeType }) => `${edge} (${edgeType})`,
-            ),
-            trailer:
-                "The following edge relationships are invalid:" +
-                "\n - singleton → transient" +
-                "\n - singleton → scoped" +
-                "\n - singleton → dynamic" +
-                "\n - scoped → transient" +
-                "\n - transient → dynamic" +
-                "\n - dynamic → singleton" +
-                "\n - dynamic → transient" +
-                "\n - dynamic → scoped" +
-                "\n - dynamic → dynamic",
-        });
+        const message =
+            "One or more invalid edge relationship found." +
+            SEE_INFO_FIELD_DETAILS +
+            "\nThe following edge relationships are invalid:" +
+            "\n - singleton → transient" +
+            "\n - singleton → scoped" +
+            "\n - singleton → dynamic" +
+            "\n - scoped → transient" +
+            "\n - transient → dynamic" +
+            "\n - dynamic → singleton" +
+            "\n - dynamic → transient" +
+            "\n - dynamic → scoped" +
+            "\n - dynamic → dynamic";
 
         return new InvalidGraphDiError(message, {
             flag: settings.flag,
-            edgeErrors,
+            edges: edgeErrors,
         });
     }
 
@@ -243,33 +255,26 @@ export class InvalidGraphDiError
             { flag: typeof InvalidGraphDiError.FLAG.CYCLE_DEPENDENCY }
         >,
     ): InvalidGraphDiError {
-        const { cycles, totalDetected } = settings;
-        const cyclesStrings = cycles
-            .map((cycle) => {
-                const firstToken = cycle.at(0);
-                if (firstToken === undefined) {
-                    throw new UnexpectedError("First token is undefined");
-                }
-                return [...cycle, firstToken]
-                    .map((node) => tokenToString(node))
-                    .join(" → ");
-            })
-            .map((cycle) => ({ cycle }));
-
-        const totalCyclesDetected = totalDetected ?? cycles.length;
-
-        const message = buildGraphMessage({
-            count: totalCyclesDetected,
-            shownCount: cycles.length,
-            singularNoun: "cycle",
-            pluralNoun: "cycles",
-            items: cyclesStrings.map(({ cycle }) => cycle),
+        const { cycles } = settings;
+        const cyclesData = cycles.map((cycle) => {
+            const firstToken = cycle.at(0);
+            if (firstToken === undefined) {
+                throw new UnexpectedError("First token is undefined");
+            }
+            return {
+                cycle: [...cycle, firstToken].map((node) =>
+                    tokenToString(node),
+                ),
+            };
         });
 
-        return new InvalidGraphDiError(message, {
-            flag: settings.flag,
-            cycles: cyclesStrings,
-        });
+        return new InvalidGraphDiError(
+            "One or more cycle found." + SEE_INFO_FIELD_DETAILS,
+            {
+                flag: settings.flag,
+                cycles: cyclesData,
+            },
+        );
     }
 
     private static createUndeclaredDependenciesError(
@@ -284,30 +289,22 @@ export class InvalidGraphDiError
 
         const undeclaredDependencyStrings = undeclaredDependencies.map(
             (undeclaredDependency) => ({
-                missingDependency: tokenToString(
+                dependency: tokenToString(
                     undeclaredDependency.missingDependency,
                 ),
-                dependents: undeclaredDependency.dependents.map((item) =>
+                referencedBy: undeclaredDependency.dependents.map((item) =>
                     tokenToString(item),
                 ),
             }),
         );
 
-        const message = buildGraphMessage({
-            count: totalUnDeclaredNodes,
-            shownCount: undeclaredDependencies.length,
-            singularNoun: "undeclared dependency",
-            pluralNoun: "undeclared dependencies",
-            items: undeclaredDependencyStrings.map(
-                ({ missingDependency, dependents }) =>
-                    `"${missingDependency}" referenced by [${dependents.join(", ")}]`,
-            ),
-        });
-
-        return new InvalidGraphDiError(message, {
-            flag: settings.flag,
-            undeclaredDependencies: undeclaredDependencyStrings,
-        });
+        return new InvalidGraphDiError(
+            "One or more undeclared dependency found." + SEE_INFO_FIELD_DETAILS,
+            {
+                flag: settings.flag,
+                dependencies: undeclaredDependencyStrings,
+            },
+        );
     }
 
     /**
@@ -393,25 +390,6 @@ export class InvalidMethodCallDiError
         this.info = settings;
     }
 
-    private static createMessage(
-        settings: InvalidMethodCallDiErrorData,
-    ): string {
-        switch (settings.flag) {
-            case InvalidMethodCallDiError.FLAG.ALREADY_INITIALIZED:
-                return `Illegal method call: "${settings.methodName}" was called after container.init() was invoked.`;
-            case InvalidMethodCallDiError.FLAG.INSIDE_RUN:
-                return `Illegal method call: "${settings.methodName}" was called inside container.run(). Move the call outside of the run scope.`;
-            case InvalidMethodCallDiError.FLAG.INSIDE_DYNAMIC_REGISTRATION:
-                return `Illegal method call: "${settings.methodName}" was called inside the dynamicRegistration callback of container.run(). Use the IDynamicServiceRegister to set dynamic values instead.`;
-            case InvalidMethodCallDiError.FLAG.OUTSIDE_RUN:
-                return `Cannot set dynamic value for registered token "${tokenToString(settings.token)}": registration is only allowed inside a run scope. Call set() within container.run().`;
-            case InvalidMethodCallDiError.FLAG.NOT_ACTIVE:
-                return `Illegal method call: "${settings.methodName}" was called before container.init() or after container.deInit() was invoked.`;
-            default:
-                throw new UnexpectedError(UNMANAGED_FLAG_ERROR_MESSAGE);
-        }
-    }
-
     /**
      * Creates a new {@link InvalidMethodCallDiError} instance.
      *
@@ -419,10 +397,49 @@ export class InvalidMethodCallDiError
      * @returns A new error instance.
      */
     static create(
-        data: InvalidMethodCallDiErrorData,
+        data: InvalidMethodCallDiErrorCreateData,
     ): InvalidMethodCallDiError {
-        const message = InvalidMethodCallDiError.createMessage(data);
-        return new InvalidMethodCallDiError(message, data);
+        const messageStart = "Illegal method call";
+        const info: InvalidMethodCallDiErrorData =
+            data.flag === InvalidMethodCallDiError.FLAG.OUTSIDE_RUN
+                ? {
+                      flag: data.flag,
+                      methodName: data.methodName,
+                      token: tokenToString(data.token),
+                  }
+                : {
+                      flag: data.flag,
+                      methodName: data.methodName,
+                  };
+        switch (data.flag) {
+            case InvalidMethodCallDiError.FLAG.ALREADY_INITIALIZED:
+                return new InvalidMethodCallDiError(
+                    `${messageStart}: the container is already initialized.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            case InvalidMethodCallDiError.FLAG.INSIDE_RUN:
+                return new InvalidMethodCallDiError(
+                    `${messageStart}: the method cannot be called inside a run scope.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            case InvalidMethodCallDiError.FLAG.INSIDE_DYNAMIC_REGISTRATION:
+                return new InvalidMethodCallDiError(
+                    `${messageStart}: the method cannot be called inside the dynamicRegistration callback.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            case InvalidMethodCallDiError.FLAG.OUTSIDE_RUN:
+                return new InvalidMethodCallDiError(
+                    `${messageStart}: setting a dynamic value is only allowed inside a run scope.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            case InvalidMethodCallDiError.FLAG.NOT_ACTIVE:
+                return new InvalidMethodCallDiError(
+                    `${messageStart}: the container is not active.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            default:
+                throw new UnexpectedError(UNMANAGED_FLAG_ERROR_MESSAGE);
+        }
     }
 }
 
@@ -437,7 +454,7 @@ export type CanNotResolveServiceFlag =
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type ServiceCanNotResolveServiceErrorData =
+export type CanNotResolveServiceDiErrorCreateData =
     | {
           flag: typeof CanNotResolveServiceDiError.FLAG.NOT_REGISTERED_TOKEN;
           token: DiToken;
@@ -451,7 +468,7 @@ export type ServiceCanNotResolveServiceErrorData =
           token: DiToken;
       }
     | {
-          flag: typeof CanNotResolveServiceDiError.FLAG.TRANSIENT_SERVICE_DEPEND_ON_SCOPED;
+          flag: typeof CanNotResolveServiceDiError.FLAG.TRANSIENT_SERVICE_DEPEND_ON_SCOPED_WHO_CALLED_OUTSIDE_RUN;
           transientToken: DiToken;
           scopedTokens: Array<DiToken>;
       }
@@ -465,6 +482,36 @@ export type ServiceCanNotResolveServiceErrorData =
       };
 
 /**
+ * @internal
+ */
+export type CanNotResolveServiceDiErrorData =
+    | {
+          flag: typeof CanNotResolveServiceDiError.FLAG.NOT_REGISTERED_TOKEN;
+          requestedToken: string;
+      }
+    | {
+          flag: typeof CanNotResolveServiceDiError.FLAG.SCOPED_SERVICE_OUTSIDE_RUN;
+          requestedToken: string;
+      }
+    | {
+          flag: typeof CanNotResolveServiceDiError.FLAG.DYNAMIC_SERVICE_OUTSIDE_RUN;
+          requestedToken: string;
+      }
+    | {
+          flag: typeof CanNotResolveServiceDiError.FLAG.TRANSIENT_SERVICE_DEPEND_ON_SCOPED_WHO_CALLED_OUTSIDE_RUN;
+          requestedToken: string;
+          scopedTokens: Array<string>;
+      }
+    | {
+          flag: typeof CanNotResolveServiceDiError.FLAG.RESOLVED_VALUE_IS_NULL;
+          token: string;
+      }
+    | {
+          flag: typeof CanNotResolveServiceDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS;
+          requestedToken: Array<string>;
+      };
+
+/**
  * Thrown when a service cannot be resolved.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
@@ -473,7 +520,7 @@ export type ServiceCanNotResolveServiceErrorData =
 export class CanNotResolveServiceDiError
     extends Error
     implements
-        IDIError<CanNotResolveServiceFlag, ServiceCanNotResolveServiceErrorData>
+        IDIError<CanNotResolveServiceFlag, CanNotResolveServiceDiErrorData>
 {
     /**
      * The reasons why a service cannot be resolved.
@@ -481,7 +528,7 @@ export class CanNotResolveServiceDiError
      * - {@link CanNotResolveServiceDiError.FLAG.NOT_REGISTERED_TOKEN}: The token is not registered.
      * - {@link CanNotResolveServiceDiError.FLAG.SCOPED_SERVICE_OUTSIDE_RUN}: A scoped service is resolved outside a run scope.
      * - {@link CanNotResolveServiceDiError.FLAG.DYNAMIC_SERVICE_OUTSIDE_RUN}: A dynamic service is resolved outside a run scope without a set value.
-     * - {@link CanNotResolveServiceDiError.FLAG.TRANSIENT_SERVICE_DEPEND_ON_SCOPED}: A transient service depends on a scoped service.
+     * - {@link CanNotResolveServiceDiError.FLAG.TRANSIENT_SERVICE_DEPEND_ON_SCOPED_WHO_CALLED_OUTSIDE_RUN}: A transient service depends on a scoped service.
      * - {@link CanNotResolveServiceDiError.FLAG.RESOLVED_VALUE_IS_NULL}: The resolved value is null.
      * - {@link CanNotResolveServiceDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS}: Registered dynamic tokens have no value set.
      */
@@ -489,8 +536,8 @@ export class CanNotResolveServiceDiError
         NOT_REGISTERED_TOKEN: "NOT_REGISTERED_TOKEN",
         SCOPED_SERVICE_OUTSIDE_RUN: "SCOPED_SERVICE_OUTSIDE_RUN",
         DYNAMIC_SERVICE_OUTSIDE_RUN: "DYNAMIC_SERVICE_OUTSIDE_RUN",
-        TRANSIENT_SERVICE_DEPEND_ON_SCOPED:
-            "TRANSIENT_SERVICE_DEPEND_ON_SCOPED_SERVICE",
+        TRANSIENT_SERVICE_DEPEND_ON_SCOPED_WHO_CALLED_OUTSIDE_RUN:
+            "TRANSIENT_SERVICE_DEPEND_ON_SCOPED_SERVICE_WHO_CALLED_OUTSIDE_RUN",
         RESOLVED_VALUE_IS_NULL: "RESOLVED_VALUE_IS_NULL",
         NO_DYNAMIC_VALUE_SET_FOR_TOKENS: "NO_DYNAMIC_VALUE_SET_FOR_TOKENS",
     } as const;
@@ -499,7 +546,7 @@ export class CanNotResolveServiceDiError
         return this.info.flag;
     }
 
-    readonly info: ServiceCanNotResolveServiceErrorData;
+    readonly info: CanNotResolveServiceDiErrorData;
 
     /**
      * Note: Do not instantiate {@link CanNotResolveServiceDiError} directly via the constructor. Use the static {@link CanNotResolveServiceDiError.create} factory method instead.
@@ -508,7 +555,7 @@ export class CanNotResolveServiceDiError
      */
     constructor(
         message: string,
-        data: ServiceCanNotResolveServiceErrorData,
+        data: CanNotResolveServiceDiErrorData,
         cause?: unknown,
     ) {
         super(message, {
@@ -518,37 +565,6 @@ export class CanNotResolveServiceDiError
         this.info = data;
     }
 
-    private static createMessage(
-        settings: ServiceCanNotResolveServiceErrorData,
-    ): string {
-        switch (settings.flag) {
-            case CanNotResolveServiceDiError.FLAG.NOT_REGISTERED_TOKEN:
-                return `Failed to resolve service for token: "${tokenToString(settings.token)}". The token is not registered.`;
-            case CanNotResolveServiceDiError.FLAG.SCOPED_SERVICE_OUTSIDE_RUN:
-                return `Failed to resolve service for token: "${tokenToString(settings.token)}". The service is scoped and can only be resolved inside a run scope.`;
-            case CanNotResolveServiceDiError.FLAG.DYNAMIC_SERVICE_OUTSIDE_RUN:
-                return `Failed to resolve service for token: "${tokenToString(settings.token)}". The service is dynamic and no value has been set for it within the current run scope.`;
-            case CanNotResolveServiceDiError.FLAG
-                .TRANSIENT_SERVICE_DEPEND_ON_SCOPED: {
-                const scopedTokensString = settings.scopedTokens
-                    .map((token) => tokenToString(token))
-                    .join(", ");
-                return `Failed to resolve service for token: "${tokenToString(settings.transientToken)}". The service is transient and depends on a scoped service ("${scopedTokensString}"), so it can only be resolved inside a run scope.`;
-            }
-            case CanNotResolveServiceDiError.FLAG.RESOLVED_VALUE_IS_NULL:
-                return `Failed to resolve service for token: "${tokenToString(settings.token)}". The resolved value is null.`;
-            case CanNotResolveServiceDiError.FLAG
-                .NO_DYNAMIC_VALUE_SET_FOR_TOKENS: {
-                const dynamicTokensString = settings.dynamicTokens
-                    .map((token) => tokenToString(token))
-                    .join(", ");
-                return `Failed to resolve service for token: "${dynamicTokensString}". The token is registered but no dynamic value has been set for it.`;
-            }
-            default:
-                throw new UnexpectedError(UNMANAGED_FLAG_ERROR_MESSAGE);
-        }
-    }
-
     /**
      * Creates a new {@link CanNotResolveServiceDiError} instance.
      *
@@ -556,10 +572,65 @@ export class CanNotResolveServiceDiError
      * @returns A new error instance.
      */
     static create(
-        data: ServiceCanNotResolveServiceErrorData,
+        data: CanNotResolveServiceDiErrorCreateData,
     ): CanNotResolveServiceDiError {
-        const message = this.createMessage(data);
-        return new CanNotResolveServiceDiError(message, data);
+        const messageStart = "Failed to resolve service";
+        switch (data.flag) {
+            case CanNotResolveServiceDiError.FLAG.NOT_REGISTERED_TOKEN:
+                return new CanNotResolveServiceDiError(
+                    `${messageStart}: the token is not registered.${SEE_INFO_FIELD_DETAILS}`,
+                    {
+                        flag: data.flag,
+                        requestedToken: tokenToString(data.token),
+                    },
+                );
+            case CanNotResolveServiceDiError.FLAG.SCOPED_SERVICE_OUTSIDE_RUN:
+                return new CanNotResolveServiceDiError(
+                    `${messageStart}: the service is scoped and can only be resolved inside a run scope.${SEE_INFO_FIELD_DETAILS}`,
+                    {
+                        flag: data.flag,
+                        requestedToken: tokenToString(data.token),
+                    },
+                );
+            case CanNotResolveServiceDiError.FLAG.DYNAMIC_SERVICE_OUTSIDE_RUN:
+                return new CanNotResolveServiceDiError(
+                    `${messageStart}: the service is dynamic and requires a value to be set inside a run scope.${SEE_INFO_FIELD_DETAILS}`,
+                    {
+                        flag: data.flag,
+                        requestedToken: tokenToString(data.token),
+                    },
+                );
+            case CanNotResolveServiceDiError.FLAG
+                .TRANSIENT_SERVICE_DEPEND_ON_SCOPED_WHO_CALLED_OUTSIDE_RUN:
+                return new CanNotResolveServiceDiError(
+                    `${messageStart}: the service is transient and depends on a scoped service, so it can only be resolved inside a run scope.${SEE_INFO_FIELD_DETAILS}`,
+                    {
+                        flag: data.flag,
+                        requestedToken: tokenToString(data.transientToken),
+                        scopedTokens: data.scopedTokens.map((token) =>
+                            tokenToString(token),
+                        ),
+                    },
+                );
+            case CanNotResolveServiceDiError.FLAG.RESOLVED_VALUE_IS_NULL:
+                return new CanNotResolveServiceDiError(
+                    `${messageStart}: the resolved value is null.${SEE_INFO_FIELD_DETAILS}`,
+                    { flag: data.flag, token: tokenToString(data.token) },
+                );
+            case CanNotResolveServiceDiError.FLAG
+                .NO_DYNAMIC_VALUE_SET_FOR_TOKENS:
+                return new CanNotResolveServiceDiError(
+                    `Failed to resolve service: no dynamic value has been set for the registered token.${SEE_INFO_FIELD_DETAILS}`,
+                    {
+                        flag: data.flag,
+                        requestedToken: data.dynamicTokens.map((token) =>
+                            tokenToString(token),
+                        ),
+                    },
+                );
+            default:
+                throw new UnexpectedError(UNMANAGED_FLAG_ERROR_MESSAGE);
+        }
     }
 }
 
@@ -574,9 +645,17 @@ export type CanNotRegisterServiceFlag =
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type CanNotRegisterServiceDiErrorData = {
+export type CanNotRegisterServiceDiErrorCreateData = {
     flag: typeof CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED;
     token: DiToken;
+};
+
+/**
+ * @internal
+ */
+export type CanNotRegisterServiceDiErrorData = {
+    flag: typeof CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED;
+    tokenArg: string;
 };
 
 /**
@@ -610,7 +689,7 @@ export class CanNotRegisterServiceDiError
 
     /**
      * Note: Do not instantiate {@link CanNotRegisterServiceDiError} directly via the constructor. Use the static {@link CanNotRegisterServiceDiError.create} factory method instead.
-     * The constructor remains  only to maintain compatibility with error types and prevent type errors.
+     * The constructor remains only to maintain compatibility with error types and prevent type errors.
      * @internal
      */
     constructor(
@@ -623,12 +702,6 @@ export class CanNotRegisterServiceDiError
         this.info = settings;
     }
 
-    private static createMessage(
-        settings: CanNotRegisterServiceDiErrorData,
-    ): string {
-        return `Failed to register service for token: "${tokenToString(settings.token)}". A registration with this token already exists and cannot be replaced.`;
-    }
-
     /**
      * Creates a new {@link CanNotRegisterServiceDiError} instance.
      *
@@ -636,10 +709,14 @@ export class CanNotRegisterServiceDiError
      * @returns A new error instance.
      */
     static create(
-        data: CanNotRegisterServiceDiErrorData,
+        data: CanNotRegisterServiceDiErrorCreateData,
     ): CanNotRegisterServiceDiError {
-        const message = CanNotRegisterServiceDiError.createMessage(data);
-        return new CanNotRegisterServiceDiError(message, data);
+        const messageStart = "Failed to register service";
+        const message = `${messageStart}: Token already registered and cannot be replaced.${SEE_INFO_FIELD_DETAILS}`;
+        return new CanNotRegisterServiceDiError(message, {
+            flag: data.flag,
+            tokenArg: tokenToString(data.token),
+        });
     }
 }
 /**
@@ -653,7 +730,7 @@ export type CanNotOverrideServiceFlag =
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type CanNotOverrideServiceDiErrorData =
+export type CanNotOverrideServiceDiErrorCreateData =
     | {
           flag: typeof CanNotOverrideServiceDiError.FLAG.DYNAMIC_TOKEN;
           token: DiToken;
@@ -665,6 +742,23 @@ export type CanNotOverrideServiceDiErrorData =
     | {
           flag: typeof CanNotOverrideServiceDiError.FLAG.ALREADY_OVERRIDDEN;
           token: DiToken;
+      };
+
+/**
+ * @internal
+ */
+export type CanNotOverrideServiceDiErrorData =
+    | {
+          flag: typeof CanNotOverrideServiceDiError.FLAG.DYNAMIC_TOKEN;
+          tokenArg: string;
+      }
+    | {
+          flag: typeof CanNotOverrideServiceDiError.FLAG.TOKEN_NOT_REGISTERED;
+          tokenArg: string;
+      }
+    | {
+          flag: typeof CanNotOverrideServiceDiError.FLAG.ALREADY_OVERRIDDEN;
+          tokenArg: string;
       };
 
 /**
@@ -715,22 +809,6 @@ export class CanNotOverrideServiceDiError
         this.info = settings;
     }
 
-    private static createMessage(
-        settings: CanNotOverrideServiceDiErrorData,
-    ): string {
-        const tokenName = tokenToString(settings.token);
-        switch (settings.flag) {
-            case CanNotOverrideServiceDiError.FLAG.DYNAMIC_TOKEN:
-                return `Failed to override service for token: "${tokenName}". The token is registered as dynamic and cannot be overridden.`;
-            case CanNotOverrideServiceDiError.FLAG.TOKEN_NOT_REGISTERED:
-                return `Failed to override service for token: "${tokenName}". The token is not registered.`;
-            case CanNotOverrideServiceDiError.FLAG.ALREADY_OVERRIDDEN:
-                return `Failed to override service for token: "${tokenName}". The service has already been overridden.`;
-            default:
-                throw new UnexpectedError(UNMANAGED_FLAG_ERROR_MESSAGE);
-        }
-    }
-
     /**
      * Creates a new {@link CanNotOverrideServiceDiError} instance.
      *
@@ -738,9 +816,31 @@ export class CanNotOverrideServiceDiError
      * @returns A new error instance.
      */
     static create(
-        data: CanNotOverrideServiceDiErrorData,
+        data: CanNotOverrideServiceDiErrorCreateData,
     ): CanNotOverrideServiceDiError {
-        const message = CanNotOverrideServiceDiError.createMessage(data);
-        return new CanNotOverrideServiceDiError(message, data);
+        const messageStart = "Failed to override service";
+        const info: CanNotOverrideServiceDiErrorData = {
+            flag: data.flag,
+            tokenArg: tokenToString(data.token),
+        };
+        switch (data.flag) {
+            case CanNotOverrideServiceDiError.FLAG.DYNAMIC_TOKEN:
+                return new CanNotOverrideServiceDiError(
+                    `${messageStart}: the token is registered as dynamic and cannot be overridden.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            case CanNotOverrideServiceDiError.FLAG.TOKEN_NOT_REGISTERED:
+                return new CanNotOverrideServiceDiError(
+                    `${messageStart}: the token is not registered.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            case CanNotOverrideServiceDiError.FLAG.ALREADY_OVERRIDDEN:
+                return new CanNotOverrideServiceDiError(
+                    `${messageStart}: the service has already been overridden.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            default:
+                throw new UnexpectedError(UNMANAGED_FLAG_ERROR_MESSAGE);
+        }
     }
 }
