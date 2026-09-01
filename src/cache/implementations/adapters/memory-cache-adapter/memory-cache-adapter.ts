@@ -2,8 +2,6 @@
  * @module Cache
  */
 
-import { isInvocableFn } from "@/utilities/_module.js";
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ICacheAdapter, ICache } from "@/cache/contracts/_module.js";
 import type {
@@ -122,16 +120,13 @@ export class MemoryCacheAdapter<TType = unknown>
 
     async getOrAdd(
         key: string,
-        valueToAdd: TType | InvocableFn<[], Promisable<TType>>,
+        valueToAdd: InvocableFn<[], Promisable<TType>>,
         ttl: Date | null,
     ): Promise<TType> {
         const cacheEntry = this.internalGet(key);
         if (cacheEntry === null) {
-            if (isInvocableFn(valueToAdd)) {
-                valueToAdd = await valueToAdd();
-            }
-            this.internalAdd(key, valueToAdd, ttl);
-            return valueToAdd;
+            this.internalAdd(key, await valueToAdd(), ttl);
+            return valueToAdd();
         }
         return cacheEntry.value;
     }

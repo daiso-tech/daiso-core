@@ -6,7 +6,6 @@ import { ReplyError } from "ioredis";
 
 import { RedisCacheAdapterSerde } from "@/cache/implementations/adapters/redis-cache-adapter/redis-cache-adapter-serde.js";
 import { ClearIterable } from "@/cache/implementations/adapters/redis-cache-adapter/utilities.js";
-import { isInvocableFn } from "@/utilities/_module.js";
 
 import type { Redis, Result } from "ioredis";
 
@@ -127,13 +126,10 @@ export class RedisCacheAdapter<
 
     async getOrAdd(
         key: string,
-        valueToAdd: TType | InvocableFn<[], Promisable<TType>>,
+        valueToAdd: InvocableFn<[], Promisable<TType>>,
         ttl: Date | null,
     ): Promise<TType> {
-        if (isInvocableFn(valueToAdd)) {
-            valueToAdd = await valueToAdd();
-        }
-        const serializedValue = this.serde.serialize(valueToAdd);
+        const serializedValue = this.serde.serialize(valueToAdd());
         const ttlInMs = ttl?.getTime() ?? -1;
         const result = await this.database.eridu_cache_get_or_add(
             key,

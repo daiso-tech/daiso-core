@@ -6,7 +6,7 @@ import escapeStringRegexp from "escape-string-regexp";
 import { MongoServerError } from "mongodb";
 
 import { MongodbCacheAdapterSerde } from "@/cache/implementations/adapters/mongodb-cache-adapter/mongodb-cache-adapter-serde.js";
-import { isInvocableFn, UnexpectedError } from "@/utilities/_module.js";
+import { UnexpectedError } from "@/utilities/_module.js";
 
 import type {
     ObjectId,
@@ -162,7 +162,7 @@ export class MongodbCacheAdapter<TType = unknown>
 
     async getOrAdd(
         key: string,
-        valueToAdd: TType | InvocableFn<[], Promisable<TType>>,
+        valueToAdd: InvocableFn<[], Promisable<TType>>,
         ttl: Date | null,
     ): Promise<TType> {
         const hasExpirationQuery = {
@@ -174,9 +174,6 @@ export class MongodbCacheAdapter<TType = unknown>
         const hasExpirationAndExpiredQuery = {
             $and: [hasExpirationQuery, hasExpiredQuery],
         };
-        if (isInvocableFn(valueToAdd)) {
-            valueToAdd = await valueToAdd();
-        }
         const serializedValue = this.serde.serialize(valueToAdd);
         const document = await this.collection.findOneAndUpdate(
             {
@@ -213,7 +210,7 @@ export class MongodbCacheAdapter<TType = unknown>
         );
 
         if (document === null) {
-            return valueToAdd;
+            return valueToAdd();
         }
 
         const { expiration, value } = document;
@@ -223,7 +220,7 @@ export class MongodbCacheAdapter<TType = unknown>
 
         const hasExpired = expiration.getTime() <= new Date().getTime();
         if (hasExpired) {
-            return valueToAdd;
+            return valueToAdd();
         }
 
         return this.serde.deserialize(value);
