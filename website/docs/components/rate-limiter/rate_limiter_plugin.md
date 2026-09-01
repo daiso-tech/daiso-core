@@ -30,8 +30,8 @@ The `withRateLimiterPrefix` function returns a [`PluginFn`](/docs/components/mid
 
 The plugin prefixes keys for the following methods:
 
-| Method        | Key argument            | Pattern        |
-| ------------- | ----------------------- | -------------- |
+| Method        | Key argument           | Pattern        |
+| ------------- | ---------------------- | -------------- |
 | `getState`    | First argument (`key`) | `prefix + key` |
 | `reset`       | First argument (`key`) | `prefix + key` |
 | `updateState` | First argument (`key`) | `prefix + key` |

@@ -109,11 +109,11 @@ The `withCacheJitter` function returns a [`PluginFn`](/docs/components/middlewar
 
 The jitter is calculated as a random percentage of the original TTL. For example, with the default `defaultJitter` of `0.2` (20 %), a TTL of 60 seconds will be randomly adjusted to somewhere between 48 and 72 seconds.
 
-| Method | TTL argument   | Behaviour                        |
-| ------ | -------------- | -------------------------------- |
-| `add`  | Third argument | Applies random jitter to the TTL |
-| `add`  | Third argument | Applies random jitter to the TTL |
-| `getOrAdd`  | Third argument | Applies random jitter to the TTL |
+| Method     | TTL argument   | Behaviour                        |
+| ---------- | -------------- | -------------------------------- |
+| `add`      | Third argument | Applies random jitter to the TTL |
+| `add`      | Third argument | Applies random jitter to the TTL |
+| `getOrAdd` | Third argument | Applies random jitter to the TTL |
 
 ### Usage
 
@@ -227,15 +227,15 @@ The lock key is derived directly from the cache key, ensuring that concurrent wr
 
 By default, all mutating methods are protected:
 
-| Method              | Lock key source | Behaviour                                     |
-| ------------------- | --------------- | --------------------------------------------- |
-| `add`               | Single key      | Acquires lock for the key before adding       |
-| `getOrAdd`          | Single key      | Acquires lock for the key before adding       |
-| `put`               | Single key      | Acquires lock for the key before putting      |
-| `update`            | Single key      | Acquires lock for the key before updating     |
-| `increment`         | Single key      | Acquires lock for the key before incrementing |
-| `getAndRemove`      | Single key      | Acquires lock for the key before removing     |
-| `removeMany`        | Multiple keys   | Acquires locks for each key sequentially      |
+| Method         | Lock key source | Behaviour                                     |
+| -------------- | --------------- | --------------------------------------------- |
+| `add`          | Single key      | Acquires lock for the key before adding       |
+| `getOrAdd`     | Single key      | Acquires lock for the key before adding       |
+| `put`          | Single key      | Acquires lock for the key before putting      |
+| `update`       | Single key      | Acquires lock for the key before updating     |
+| `increment`    | Single key      | Acquires lock for the key before incrementing |
+| `getAndRemove` | Single key      | Acquires lock for the key before removing     |
+| `removeMany`   | Multiple keys   | Acquires locks for each key sequentially      |
 
 Read-only methods (`get`, `removeAll`, `removeByPrefix`) are unaffected.
 

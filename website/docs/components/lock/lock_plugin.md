@@ -30,8 +30,8 @@ The `withLockPrefix` function returns a [`PluginFn`](/docs/components/middleware
 
 The plugin prefixes keys for the following methods:
 
-| Method         | Key argument            | Pattern        |
-| -------------- | ----------------------- | -------------- |
+| Method         | Key argument           | Pattern        |
+| -------------- | ---------------------- | -------------- |
 | `acquire`      | First argument (`key`) | `prefix + key` |
 | `forceRelease` | First argument (`key`) | `prefix + key` |
 | `getState`     | First argument (`key`) | `prefix + key` |

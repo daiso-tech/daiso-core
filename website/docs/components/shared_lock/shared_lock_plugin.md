@@ -30,15 +30,15 @@ The `withSharedLockPrefix` function returns a [`PluginFn`](/docs/components/midd
 
 The plugin prefixes keys for the following methods:
 
-| Method                   | Key argument                 | Pattern        |
-| ------------------------ | ---------------------------- | -------------- |
-| `forceRelease`           | First argument (`key`)      | `prefix + key` |
-| `getState`               | First argument (`key`)      | `prefix + key` |
-| `acquireWriter`          | First argument (`key`)      | `prefix + key` |
-| `refreshWriter`          | First argument (`key`)      | `prefix + key` |
-| `releaseWriter`          | First argument (`key`)      | `prefix + key` |
-| `acquireReader`          | `key` within settings object | `prefix + key` |
-| `refreshReader`          | First argument (`key`)      | `prefix + key` |
+| Method          | Key argument                 | Pattern        |
+| --------------- | ---------------------------- | -------------- |
+| `forceRelease`  | First argument (`key`)       | `prefix + key` |
+| `getState`      | First argument (`key`)       | `prefix + key` |
+| `acquireWriter` | First argument (`key`)       | `prefix + key` |
+| `refreshWriter` | First argument (`key`)       | `prefix + key` |
+| `releaseWriter` | First argument (`key`)       | `prefix + key` |
+| `acquireReader` | `key` within settings object | `prefix + key` |
+| `refreshReader` | First argument (`key`)       | `prefix + key` |
 
 ### Usage
 

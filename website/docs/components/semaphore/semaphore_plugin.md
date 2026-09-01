@@ -33,10 +33,10 @@ The plugin prefixes keys for the following methods:
 | Method            | Key argument                 | Pattern        |
 | ----------------- | ---------------------------- | -------------- |
 | `acquire`         | `key` within settings object | `prefix + key` |
-| `forceReleaseAll` | First argument (`key`)      | `prefix + key` |
-| `getState`        | First argument (`key`)      | `prefix + key` |
-| `refresh`         | First argument (`key`)      | `prefix + key` |
-| `release`         | First argument (`key`)      | `prefix + key` |
+| `forceReleaseAll` | First argument (`key`)       | `prefix + key` |
+| `getState`        | First argument (`key`)       | `prefix + key` |
+| `refresh`         | First argument (`key`)       | `prefix + key` |
+| `release`         | First argument (`key`)       | `prefix + key` |
 
 ### Usage
 
