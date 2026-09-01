@@ -129,11 +129,12 @@ describe("function: withCachePrefix", () => {
 
             const enhanced = withPlugin(adapter, withCachePrefix(prefix));
 
-            await enhanced.getOrAdd("myKey", () => "value", currentDate);
+            const lazyValue = () => "value";
+            await enhanced.getOrAdd("myKey", lazyValue, currentDate);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["getOrAdd"]>
-            >(`${prefix}myKey`, () => "value", currentDate);
+            >(`${prefix}myKey`, lazyValue, currentDate);
         });
     });
 });
