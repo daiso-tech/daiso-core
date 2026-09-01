@@ -33,22 +33,10 @@ The plugin prefixes keys for the following methods:
 | Method            | Key argument                 | Pattern        |
 | ----------------- | ---------------------------- | -------------- |
 | `acquire`         | `key` within settings object | `prefix + key` |
-| `forceReleaseAll` | Second argument (`key`)      | `prefix + key` |
-| `getState`        | Second argument (`key`)      | `prefix + key` |
-| `refresh`         | Second argument (`key`)      | `prefix + key` |
-| `release`         | Second argument (`key`)      | `prefix + key` |
-
-#### Special handling for `acquire`
-
-The `acquire` method accepts a single settings object rather than positional arguments. The plugin destructures the settings object, prefixes the `key` field, and reconstructs the object with all other fields preserved:
-
-```ts
-// Before:
-adapter.acquire({ key: "my-key", slotId: "s1", limit: 5, ttl });
-
-// After plugin transforms:
-adapter.acquire({ key: "prefix:my-key", slotId: "s1", limit: 5, ttl });
-```
+| `forceReleaseAll` | First argument (`key`)      | `prefix + key` |
+| `getState`        | First argument (`key`)      | `prefix + key` |
+| `refresh`         | First argument (`key`)      | `prefix + key` |
+| `release`         | First argument (`key`)      | `prefix + key` |
 
 ### Usage
 

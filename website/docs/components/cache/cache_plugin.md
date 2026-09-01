@@ -35,14 +35,15 @@ The plugin prefixes keys for the following methods:
 
 | Method           | Key argument             | Pattern                     |
 | ---------------- | ------------------------ | --------------------------- |
-| `add`            | Second argument (`key`)  | `prefix + key`              |
 | `get`            | Second argument (`key`)  | `prefix + key`              |
 | `getAndRemove`   | Second argument (`key`)  | `prefix + key`              |
-| `increment`      | Second argument (`key`)  | `prefix + key`              |
+| `add`            | Second argument (`key`)  | `prefix + key`              |
+| `getOrAdd`       | Second argument (`key`)  | `prefix + key`              |
 | `put`            | Second argument (`key`)  | `prefix + key`              |
-| `removeByPrefix` | Second argument (`key`)  | `prefix + key`              |
-| `removeMany`     | Second argument (`keys`) | `keys.map(k => prefix + k)` |
 | `update`         | Second argument (`key`)  | `prefix + key`              |
+| `increment`      | Second argument (`key`)  | `prefix + key`              |
+| `removeMany`     | Second argument (`keys`) | `keys.map(k => prefix + k)` |
+| `removeByPrefix` | Second argument (`key`)  | `prefix + key`              |
 
 Methods that do not accept a key (`removeAll`) are unaffected.
 
@@ -111,9 +112,8 @@ The jitter is calculated as a random percentage of the original TTL. For example
 | Method | TTL argument   | Behaviour                        |
 | ------ | -------------- | -------------------------------- |
 | `add`  | Third argument | Applies random jitter to the TTL |
-| `put`  | Third argument | Applies random jitter to the TTL |
-
-Methods that do not accept a TTL are unaffected.
+| `add`  | Third argument | Applies random jitter to the TTL |
+| `getOrAdd`  | Third argument | Applies random jitter to the TTL |
 
 ### Usage
 
@@ -227,14 +227,15 @@ The lock key is derived directly from the cache key, ensuring that concurrent wr
 
 By default, all mutating methods are protected:
 
-| Method         | Lock key source | Behaviour                                     |
-| -------------- | --------------- | --------------------------------------------- |
-| `add`          | Single key      | Acquires lock for the key before adding       |
-| `put`          | Single key      | Acquires lock for the key before putting      |
-| `update`       | Single key      | Acquires lock for the key before updating     |
-| `increment`    | Single key      | Acquires lock for the key before incrementing |
-| `getAndRemove` | Single key      | Acquires lock for the key before removing     |
-| `removeMany`   | Multiple keys   | Acquires locks for each key sequentially      |
+| Method              | Lock key source | Behaviour                                     |
+| ------------------- | --------------- | --------------------------------------------- |
+| `add`               | Single key      | Acquires lock for the key before adding       |
+| `getOrAdd`          | Single key      | Acquires lock for the key before adding       |
+| `put`               | Single key      | Acquires lock for the key before putting      |
+| `update`            | Single key      | Acquires lock for the key before updating     |
+| `increment`         | Single key      | Acquires lock for the key before incrementing |
+| `getAndRemove`      | Single key      | Acquires lock for the key before removing     |
+| `removeMany`        | Multiple keys   | Acquires locks for each key sequentially      |
 
 Read-only methods (`get`, `removeAll`, `removeByPrefix`) are unaffected.
 

@@ -32,36 +32,13 @@ The plugin prefixes keys for the following methods:
 
 | Method                   | Key argument                 | Pattern        |
 | ------------------------ | ---------------------------- | -------------- |
-| `forceRelease`           | Second argument (`key`)      | `prefix + key` |
-| `getState`               | Second argument (`key`)      | `prefix + key` |
-| `acquireWriter`          | Second argument (`key`)      | `prefix + key` |
-| `forceReleaseWriter`     | Second argument (`key`)      | `prefix + key` |
-| `refreshWriter`          | Second argument (`key`)      | `prefix + key` |
-| `releaseWriter`          | Second argument (`key`)      | `prefix + key` |
+| `forceRelease`           | First argument (`key`)      | `prefix + key` |
+| `getState`               | First argument (`key`)      | `prefix + key` |
+| `acquireWriter`          | First argument (`key`)      | `prefix + key` |
+| `refreshWriter`          | First argument (`key`)      | `prefix + key` |
+| `releaseWriter`          | First argument (`key`)      | `prefix + key` |
 | `acquireReader`          | `key` within settings object | `prefix + key` |
-| `forceReleaseAllReaders` | Second argument (`key`)      | `prefix + key` |
-| `refreshReader`          | Second argument (`key`)      | `prefix + key` |
-
-#### Writer methods
-
-All writer-related methods (`acquireWriter`, `forceReleaseWriter`, `refreshWriter`, `releaseWriter`) receive the key as a positional argument (second parameter). The plugin prefixes this key directly.
-
-#### Reader methods
-
-Reader methods that accept a key as a positional argument (`forceReleaseAllReaders`, `refreshReader`) have their key prefixed directly. The `acquireReader` method accepts a single settings object — the plugin destructures it, prefixes the `key` field, and reconstructs the object:
-
-```ts
-// Before:
-adapter.acquireReader({ key: "my-key", lockId: "l1", limit: 5, ttl });
-
-// After plugin transforms:
-adapter.acquireReader({
-    key: "prefix:my-key",
-    lockId: "l1",
-    limit: 5,
-    ttl,
-});
-```
+| `refreshReader`          | First argument (`key`)      | `prefix + key` |
 
 ### Usage
 

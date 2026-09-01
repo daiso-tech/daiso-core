@@ -32,14 +32,12 @@ The plugin prefixes keys for the following methods:
 
 | Method         | Key argument            | Pattern        |
 | -------------- | ----------------------- | -------------- |
-| `getState`     | Second argument (`key`) | `prefix + key` |
-| `isolate`      | Second argument (`key`) | `prefix + key` |
-| `reset`        | Second argument (`key`) | `prefix + key` |
-| `trackFailure` | Second argument (`key`) | `prefix + key` |
-| `trackSuccess` | Second argument (`key`) | `prefix + key` |
-| `updateState`  | Second argument (`key`) | `prefix + key` |
-
-Every method on the `ICircuitBreakerAdapter` that operates on a specific circuit key is prefixed.
+| `getState`     | First argument (`key`) | `prefix + key` |
+| `isolate`      | First argument (`key`) | `prefix + key` |
+| `reset`        | First argument (`key`) | `prefix + key` |
+| `trackFailure` | First argument (`key`) | `prefix + key` |
+| `trackSuccess` | First argument (`key`) | `prefix + key` |
+| `updateState`  | First argument (`key`) | `prefix + key` |
 
 ### Usage
 

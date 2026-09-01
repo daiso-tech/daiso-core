@@ -32,13 +32,11 @@ The plugin prefixes keys for the following methods:
 
 | Method         | Key argument            | Pattern        |
 | -------------- | ----------------------- | -------------- |
-| `acquire`      | Second argument (`key`) | `prefix + key` |
-| `forceRelease` | Second argument (`key`) | `prefix + key` |
-| `getState`     | Second argument (`key`) | `prefix + key` |
-| `refresh`      | Second argument (`key`) | `prefix + key` |
-| `release`      | Second argument (`key`) | `prefix + key` |
-
-Every method on the `ILockAdapter` that operates on a specific lock key is prefixed.
+| `acquire`      | First argument (`key`) | `prefix + key` |
+| `forceRelease` | First argument (`key`) | `prefix + key` |
+| `getState`     | First argument (`key`) | `prefix + key` |
+| `refresh`      | First argument (`key`) | `prefix + key` |
+| `release`      | First argument (`key`) | `prefix + key` |
 
 ### Usage
 
