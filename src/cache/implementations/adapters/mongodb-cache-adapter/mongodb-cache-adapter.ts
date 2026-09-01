@@ -174,7 +174,7 @@ export class MongodbCacheAdapter<TType = unknown>
         const hasExpirationAndExpiredQuery = {
             $and: [hasExpirationQuery, hasExpiredQuery],
         };
-        const serializedValue = this.serde.serialize(valueToAdd);
+        const serializedValue = this.serde.serialize(valueToAdd());
         const document = await this.collection.findOneAndUpdate(
             {
                 key,
