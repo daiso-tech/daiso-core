@@ -94,25 +94,19 @@ export function withCacheWriteLock(
             )
         ) {
             enhance(adapter, "getAndRemove", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("add" satisfies WithCacheWriteLockMethods)) {
             enhance(adapter, "add", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("put" satisfies WithCacheWriteLockMethods)) {
             enhance(adapter, "put", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
@@ -120,9 +114,7 @@ export function withCacheWriteLock(
             onlyMethods.includes("update" satisfies WithCacheWriteLockMethods)
         ) {
             enhance(adapter, "update", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
@@ -132,9 +124,7 @@ export function withCacheWriteLock(
             )
         ) {
             enhance(adapter, "increment", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
@@ -157,9 +147,7 @@ export function withCacheWriteLock(
             onlyMethods.includes("getOrAdd" satisfies WithCacheWriteLockMethods)
         ) {
             enhance(adapter, "getOrAdd", async ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(async () => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
     };
