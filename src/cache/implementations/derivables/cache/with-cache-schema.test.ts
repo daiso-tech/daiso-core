@@ -1,67 +1,43 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
+import { MemoryCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { withCacheSchema } from "@/cache/implementations/derivables/cache/with-cache-schema.js";
-import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
-import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
-import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
+import { withPlugin } from "@/middleware/implementations/_module.js";
 import { ValidationError } from "@/utilities/_module.js";
 
-import type { ICacheAdapter } from "@/cache/contracts/_module.js";
-
 describe("function: withCacheSchema", () => {
-    const adapter = new NoOpCacheAdapter<string>();
-    const currentDate = new Date();
-    const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
+    let adapter = new MemoryCacheAdapter<string>();
     const passingSchema = z.string();
     const failingSchema = z.string().min(100);
 
     beforeEach(() => {
-        vi.restoreAllMocks();
-        vi.clearAllMocks();
+        adapter = new MemoryCacheAdapter();
     });
 
     describe("method: add", () => {
-        test("Should validate input", async () => {
-            const spy = vi.spyOn(adapter, "add");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
+        test("Should store the value when input is valid", async () => {
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: passingSchema }),
             );
 
-            await enhanced.add("myKey", "validValue", currentDate);
+            await enhanced.add("myKey", "validValue", null);
 
-            expect(validateSpy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledExactlyOnceWith<
-                Parameters<ICacheAdapter["add"]>
-            >("myKey", "validValue", currentDate);
+            await expect(adapter.get("myKey")).resolves.toBe("validValue");
         });
         test("Should throw when input validation fails", async () => {
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: failingSchema }),
             );
 
             await expect(
-                enhanced.add("myKey", "invalidValue", currentDate),
+                enhanced.add("myKey", "invalidValue", null),
             ).rejects.toThrow(ValidationError);
-            expect(validateSpy).toHaveBeenCalledOnce();
+            await expect(adapter.get("myKey")).resolves.toBeNull();
         });
         test("Should still validate input when shouldValidateOutput is false", async () => {
-            const spy = vi.spyOn(adapter, "add");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({
@@ -70,52 +46,34 @@ describe("function: withCacheSchema", () => {
                 }),
             );
 
-            await enhanced.add("myKey", "validValue", currentDate);
+            await enhanced.add("myKey", "validValue", null);
 
-            expect(validateSpy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledOnce();
+            await expect(adapter.get("myKey")).resolves.toBe("validValue");
         });
     });
     describe("method: put", () => {
-        test("Should validate input", async () => {
-            const spy = vi.spyOn(adapter, "put");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
+        test("Should store the value when input is valid", async () => {
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: passingSchema }),
             );
 
-            await enhanced.put("myKey", "validValue", currentDate);
+            await enhanced.put("myKey", "validValue", null);
 
-            expect(validateSpy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledExactlyOnceWith<
-                Parameters<ICacheAdapter["put"]>
-            >("myKey", "validValue", currentDate);
+            await expect(adapter.get("myKey")).resolves.toBe("validValue");
         });
         test("Should throw when input validation fails", async () => {
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: failingSchema }),
             );
 
             await expect(
-                enhanced.put("myKey", "invalidValue", currentDate),
+                enhanced.put("myKey", "invalidValue", null),
             ).rejects.toThrow(ValidationError);
-            expect(validateSpy).toHaveBeenCalledOnce();
+            await expect(adapter.get("myKey")).resolves.toBeNull();
         });
         test("Should still validate input when shouldValidateOutput is false", async () => {
-            const spy = vi.spyOn(adapter, "put");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({
@@ -124,19 +82,14 @@ describe("function: withCacheSchema", () => {
                 }),
             );
 
-            await enhanced.put("myKey", "validValue", currentDate);
+            await enhanced.put("myKey", "validValue", null);
 
-            expect(validateSpy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledOnce();
+            await expect(adapter.get("myKey")).resolves.toBe("validValue");
         });
     });
     describe("method: update", () => {
-        test("Should validate input", async () => {
-            const spy = vi.spyOn(adapter, "update");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
+        test("Should update the value when input is valid", async () => {
+            await adapter.add("myKey", "oldValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: passingSchema }),
@@ -144,16 +97,10 @@ describe("function: withCacheSchema", () => {
 
             await enhanced.update("myKey", "validValue");
 
-            expect(validateSpy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledExactlyOnceWith<
-                Parameters<ICacheAdapter["update"]>
-            >("myKey", "validValue");
+            await expect(adapter.get("myKey")).resolves.toBe("validValue");
         });
         test("Should throw when input validation fails", async () => {
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
+            await adapter.add("myKey", "oldValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: failingSchema }),
@@ -162,14 +109,10 @@ describe("function: withCacheSchema", () => {
             await expect(
                 enhanced.update("myKey", "invalidValue"),
             ).rejects.toThrow(ValidationError);
-            expect(validateSpy).toHaveBeenCalledOnce();
+            await expect(adapter.get("myKey")).resolves.toBe("oldValue");
         });
         test("Should still validate input when shouldValidateOutput is false", async () => {
-            const spy = vi.spyOn(adapter, "update");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
+            await adapter.add("myKey", "oldValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({
@@ -180,33 +123,21 @@ describe("function: withCacheSchema", () => {
 
             await enhanced.update("myKey", "validValue");
 
-            expect(validateSpy).toHaveBeenCalledOnce();
-            expect(spy).toHaveBeenCalledOnce();
+            await expect(adapter.get("myKey")).resolves.toBe("validValue");
         });
     });
     describe("method: get", () => {
-        test("Should validate output", async () => {
-            vi.spyOn(adapter, "get").mockResolvedValue("storedValue");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
+        test("Should return the stored value when output is valid", async () => {
+            await adapter.add("myKey", "storedValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: passingSchema }),
             );
 
-            const result = await enhanced.get("myKey");
-
-            expect(result).toBe("storedValue");
-            expect(validateSpy).toHaveBeenCalledOnce();
+            await expect(enhanced.get("myKey")).resolves.toBe("storedValue");
         });
         test("Should throw when output validation fails", async () => {
-            vi.spyOn(adapter, "get").mockResolvedValue("invalidValue");
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
+            await adapter.add("myKey", "invalidValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: failingSchema }),
@@ -215,30 +146,17 @@ describe("function: withCacheSchema", () => {
             await expect(enhanced.get("myKey")).rejects.toThrow(
                 ValidationError,
             );
-            expect(validateSpy).toHaveBeenCalledOnce();
         });
         test("Should pass null through without validation when key is not found", async () => {
-            vi.spyOn(adapter, "get").mockResolvedValue(null);
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: passingSchema }),
             );
 
-            const result = await enhanced.get("myKey");
-
-            expect(result).toBeNull();
-            expect(validateSpy).not.toHaveBeenCalled();
+            await expect(enhanced.get("myKey")).resolves.toBeNull();
         });
         test("Should skip output validation when shouldValidateOutput is false", async () => {
-            vi.spyOn(adapter, "get").mockResolvedValue("someValue");
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
+            await adapter.add("myKey", "someValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({
@@ -247,35 +165,24 @@ describe("function: withCacheSchema", () => {
                 }),
             );
 
-            const result = await enhanced.get("myKey");
-
-            expect(result).toBe("someValue");
-            expect(validateSpy).not.toHaveBeenCalled();
+            await expect(enhanced.get("myKey")).resolves.toBe("someValue");
         });
     });
     describe("method: getAndRemove", () => {
-        test("Should validate output", async () => {
-            vi.spyOn(adapter, "getAndRemove").mockResolvedValue("storedValue");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
+        test("Should return and remove the stored value when output is valid", async () => {
+            await adapter.add("myKey", "storedValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: passingSchema }),
             );
 
-            const result = await enhanced.getAndRemove("myKey");
-
-            expect(result).toBe("storedValue");
-            expect(validateSpy).toHaveBeenCalledOnce();
+            await expect(enhanced.getAndRemove("myKey")).resolves.toBe(
+                "storedValue",
+            );
+            await expect(adapter.get("myKey")).resolves.toBeNull();
         });
         test("Should throw when output validation fails", async () => {
-            vi.spyOn(adapter, "getAndRemove").mockResolvedValue("invalidValue");
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
+            await adapter.add("myKey", "invalidValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: failingSchema }),
@@ -284,30 +191,17 @@ describe("function: withCacheSchema", () => {
             await expect(enhanced.getAndRemove("myKey")).rejects.toThrow(
                 ValidationError,
             );
-            expect(validateSpy).toHaveBeenCalledOnce();
         });
         test("Should pass null through without validation when key is not found", async () => {
-            vi.spyOn(adapter, "getAndRemove").mockResolvedValue(null);
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: passingSchema }),
             );
 
-            const result = await enhanced.getAndRemove("myKey");
-
-            expect(result).toBeNull();
-            expect(validateSpy).not.toHaveBeenCalled();
+            await expect(enhanced.getAndRemove("myKey")).resolves.toBeNull();
         });
         test("Should skip output validation when shouldValidateOutput is false", async () => {
-            vi.spyOn(adapter, "getAndRemove").mockResolvedValue("someValue");
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
+            await adapter.add("myKey", "someValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({
@@ -316,19 +210,15 @@ describe("function: withCacheSchema", () => {
                 }),
             );
 
-            const result = await enhanced.getAndRemove("myKey");
-
-            expect(result).toBe("someValue");
-            expect(validateSpy).not.toHaveBeenCalled();
+            await expect(enhanced.getAndRemove("myKey")).resolves.toBe(
+                "someValue",
+            );
+            await expect(adapter.get("myKey")).resolves.toBeNull();
         });
     });
     describe("method: getOrAdd", () => {
-        test("Should validate output", async () => {
-            vi.spyOn(adapter, "getOrAdd").mockResolvedValue("storedValue");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
+        test("Should return the cached value without invoking the factory", async () => {
+            await adapter.add("myKey", "storedValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: passingSchema }),
@@ -341,14 +231,10 @@ describe("function: withCacheSchema", () => {
             );
 
             expect(result).toBe("storedValue");
-            expect(validateSpy).toHaveBeenCalledTimes(2);
+            await expect(adapter.get("myKey")).resolves.toBe("storedValue");
         });
         test("Should throw when output validation fails", async () => {
-            vi.spyOn(adapter, "getOrAdd").mockResolvedValue("invalidValue");
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
+            await adapter.add("myKey", "invalidValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: failingSchema }),
@@ -357,18 +243,13 @@ describe("function: withCacheSchema", () => {
             await expect(
                 enhanced.getOrAdd("myKey", () => "new-value", null),
             ).rejects.toThrow(ValidationError);
-            expect(validateSpy).toHaveBeenCalledOnce();
         });
-        test("Should skip output validation when shouldValidateOutput is false and input value is valid", async () => {
-            vi.spyOn(adapter, "getOrAdd").mockResolvedValue("someValue");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
+        test("Should skip output validation when shouldValidateOutput is false", async () => {
+            await adapter.add("myKey", "someValue", null);
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({
-                    schema: passingSchema,
+                    schema: failingSchema,
                     shouldValidateOutput: false,
                 }),
             );
@@ -380,66 +261,34 @@ describe("function: withCacheSchema", () => {
             );
 
             expect(result).toBe("someValue");
-            expect(validateSpy).toHaveBeenCalledTimes(1);
         });
-        test("Should skip output validation when shouldValidateOutput is false and input value is not valid", async () => {
-            vi.spyOn(adapter, "getOrAdd").mockResolvedValue("someValue");
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
-            const enhanced = withPlugin(
-                adapter,
-                withCacheSchema({
-                    schema: failingSchema,
-                    shouldValidateOutput: false,
-                }),
-            );
-
-            const result = enhanced.getOrAdd("myKey", () => "new-value", null);
-
-            await expect(result).rejects.toThrow(ValidationError);
-            expect(validateSpy).toHaveBeenCalledOnce();
-        });
-        test("Should validate input", async () => {
-            const spy = vi.spyOn(adapter, "getOrAdd");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
+        test("Should store and return the factory value when input is valid", async () => {
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: passingSchema }),
             );
 
-            await enhanced.getOrAdd("myKey", () => "validValue", currentDate);
+            const result = await enhanced.getOrAdd(
+                "myKey",
+                () => "validValue",
+                null,
+            );
 
-            expect(validateSpy).toHaveReturnedTimes(2);
-            expect(spy).toHaveBeenCalledExactlyOnceWith<
-                Parameters<ICacheAdapter["getOrAdd"]>
-            >("myKey", () => "validValue", currentDate);
+            expect(result).toBe("validValue");
+            await expect(adapter.get("myKey")).resolves.toBe("validValue");
         });
         test("Should throw when input validation fails", async () => {
-            const validateSpy = vi.spyOn(
-                failingSchema["~standard"],
-                "validate",
-            );
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({ schema: failingSchema }),
             );
 
             await expect(
-                enhanced.getOrAdd("myKey", () => "invalidValue", currentDate),
+                enhanced.getOrAdd("myKey", () => "invalidValue", null),
             ).rejects.toThrow(ValidationError);
-            expect(validateSpy).toHaveReturnedTimes(1);
+            await expect(adapter.get("myKey")).resolves.toBeNull();
         });
         test("Should still validate input when shouldValidateOutput is false", async () => {
-            const spy = vi.spyOn(adapter, "getOrAdd");
-            const validateSpy = vi.spyOn(
-                passingSchema["~standard"],
-                "validate",
-            );
             const enhanced = withPlugin(
                 adapter,
                 withCacheSchema({
@@ -448,10 +297,14 @@ describe("function: withCacheSchema", () => {
                 }),
             );
 
-            await enhanced.getOrAdd("myKey", () => "validValue", currentDate);
+            const result = await enhanced.getOrAdd(
+                "myKey",
+                () => "validValue",
+                null,
+            );
 
-            expect(validateSpy).toHaveReturnedTimes(1);
-            expect(spy).toHaveBeenCalledOnce();
+            expect(result).toBe("validValue");
+            await expect(adapter.get("myKey")).resolves.toBe("validValue");
         });
     });
 });
