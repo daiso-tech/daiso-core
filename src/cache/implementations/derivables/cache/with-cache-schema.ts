@@ -106,7 +106,7 @@ export function withCacheSchema(
             async ({ args: [key, valueToAdd, ttl, ...rest], next }) => {
                 const valueToReturn = await next([
                     key,
-                    await validate(schema, valueToAdd),
+                    async () => validate(schema, await valueToAdd()),
                     ttl,
                     ...rest,
                 ]);
