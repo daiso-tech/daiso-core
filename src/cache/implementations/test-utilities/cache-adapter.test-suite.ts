@@ -142,7 +142,11 @@ export function cacheAdapterTestSuite(
                 const key = "a";
 
                 const valueToAdd = -1;
-                const result = await adapter.getOrAdd(key, valueToAdd, null);
+                const result = await adapter.getOrAdd(
+                    key,
+                    () => valueToAdd,
+                    null,
+                );
 
                 expect(result).toBe(valueToAdd);
             });
@@ -150,7 +154,7 @@ export function cacheAdapterTestSuite(
                 const key = "a";
 
                 const valueToAdd = -1;
-                await adapter.getOrAdd(key, valueToAdd, null);
+                await adapter.getOrAdd(key, () => valueToAdd, null);
 
                 const result = await adapter.get(key);
                 expect(result).toBe(valueToAdd);
@@ -161,7 +165,11 @@ export function cacheAdapterTestSuite(
                 await delayWithBuffer(TTL);
 
                 const valueToAdd = -1;
-                const result = await adapter.getOrAdd(key, valueToAdd, null);
+                const result = await adapter.getOrAdd(
+                    key,
+                    () => valueToAdd,
+                    null,
+                );
 
                 expect(result).toBe(valueToAdd);
             });
@@ -171,7 +179,7 @@ export function cacheAdapterTestSuite(
                 await delayWithBuffer(TTL);
 
                 const valueToAdd = -1;
-                await adapter.getOrAdd(key, valueToAdd, null);
+                await adapter.getOrAdd(key, () => valueToAdd, null);
 
                 const result = await adapter.get(key);
                 expect(result).toBe(valueToAdd);
@@ -183,7 +191,11 @@ export function cacheAdapterTestSuite(
                 await adapter.add(key, value, null);
 
                 const valueToAdd = -1;
-                const result = await adapter.getOrAdd(key, valueToAdd, null);
+                const result = await adapter.getOrAdd(
+                    key,
+                    () => valueToAdd,
+                    null,
+                );
 
                 expect(result).toBe(value);
             });
@@ -194,7 +206,7 @@ export function cacheAdapterTestSuite(
                 await adapter.add(key, value, null);
 
                 const valueToAdd = -1;
-                await adapter.getOrAdd(key, valueToAdd, null);
+                await adapter.getOrAdd(key, () => valueToAdd, null);
 
                 const result = await adapter.get(key);
                 expect(result).toBe(value);
@@ -207,7 +219,11 @@ export function cacheAdapterTestSuite(
                 await adapter.add(key, value, longTtl.toEndDate());
 
                 const valueToAdd = -1;
-                const result = await adapter.getOrAdd(key, valueToAdd, null);
+                const result = await adapter.getOrAdd(
+                    key,
+                    () => valueToAdd,
+                    null,
+                );
 
                 expect(result).toBe(value);
             });
@@ -219,7 +235,7 @@ export function cacheAdapterTestSuite(
                 await adapter.add(key, value, longTtl.toEndDate());
 
                 const valueToAdd = -1;
-                await adapter.getOrAdd(key, valueToAdd, null);
+                await adapter.getOrAdd(key, () => valueToAdd, null);
 
                 const result = await adapter.get(key);
                 expect(result).toBe(value);
