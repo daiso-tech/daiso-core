@@ -136,11 +136,12 @@ describe("function: withCacheJitter", () => {
             const ttl = TimeSpan.fromMinutes(1).toEndDate();
             const expectedMs = (1 - 0.2 * 0.5) * ttl.getTime();
 
-            await enhanced.getOrAdd("myKey", "value", ttl);
+            const lazyValue = () => "value";
+            await enhanced.getOrAdd("myKey", lazyValue, ttl);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICacheAdapter["getOrAdd"]>
-            >("myKey", "value", new Date(expectedMs));
+            >("myKey", lazyValue, new Date(expectedMs));
         });
         test("Should not apply jitter when TTL is null", async () => {
             const spy = vi.spyOn(adapter, "getOrAdd");
@@ -151,11 +152,12 @@ describe("function: withCacheJitter", () => {
                 withCacheJitter({ internalMathRandom: mathRandom }),
             );
 
-            await enhanced.getOrAdd("myKey", "value", null);
+            const lazyValue = () => "value";
+            await enhanced.getOrAdd("myKey", lazyValue, null);
 
             expect(spy).toHaveBeenCalledWith<
                 Parameters<ICacheAdapter["getOrAdd"]>
-            >("myKey", "value", null);
+            >("myKey", lazyValue, null);
             expect(mathRandom).not.toHaveBeenCalled();
         });
     });

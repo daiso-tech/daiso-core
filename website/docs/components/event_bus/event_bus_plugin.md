@@ -33,11 +33,9 @@ The plugin prefixes event names for the following methods:
 
 | Method           | Event name argument | Pattern        |
 | ---------------- | ------------------- | -------------- |
-| `dispatch`       | Second argument     | `prefix + key` |
-| `addListener`    | Second argument     | `prefix + key` |
-| `removeListener` | Second argument     | `prefix + key` |
-
-Methods that do not accept an event name are unaffected.
+| `dispatch`       | First argument      | `prefix + key` |
+| `addListener`    | First argument      | `prefix + key` |
+| `removeListener` | First argument      | `prefix + key` |
 
 ### Usage
 

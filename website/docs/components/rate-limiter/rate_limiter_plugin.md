@@ -30,13 +30,11 @@ The `withRateLimiterPrefix` function returns a [`PluginFn`](/docs/components/mid
 
 The plugin prefixes keys for the following methods:
 
-| Method        | Key argument            | Pattern        |
-| ------------- | ----------------------- | -------------- |
-| `getState`    | Second argument (`key`) | `prefix + key` |
-| `reset`       | Second argument (`key`) | `prefix + key` |
-| `updateState` | Second argument (`key`) | `prefix + key` |
-
-Every method on the `IRateLimiterAdapter` that operates on a specific rate-limiter key is prefixed.
+| Method        | Key argument           | Pattern        |
+| ------------- | ---------------------- | -------------- |
+| `getState`    | First argument (`key`) | `prefix + key` |
+| `reset`       | First argument (`key`) | `prefix + key` |
+| `updateState` | First argument (`key`) | `prefix + key` |
 
 ### Usage
 

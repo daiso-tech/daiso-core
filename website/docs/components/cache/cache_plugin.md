@@ -35,14 +35,15 @@ The plugin prefixes keys for the following methods:
 
 | Method           | Key argument             | Pattern                     |
 | ---------------- | ------------------------ | --------------------------- |
-| `add`            | Second argument (`key`)  | `prefix + key`              |
 | `get`            | Second argument (`key`)  | `prefix + key`              |
 | `getAndRemove`   | Second argument (`key`)  | `prefix + key`              |
-| `increment`      | Second argument (`key`)  | `prefix + key`              |
+| `add`            | Second argument (`key`)  | `prefix + key`              |
+| `getOrAdd`       | Second argument (`key`)  | `prefix + key`              |
 | `put`            | Second argument (`key`)  | `prefix + key`              |
-| `removeByPrefix` | Second argument (`key`)  | `prefix + key`              |
-| `removeMany`     | Second argument (`keys`) | `keys.map(k => prefix + k)` |
 | `update`         | Second argument (`key`)  | `prefix + key`              |
+| `increment`      | Second argument (`key`)  | `prefix + key`              |
+| `removeMany`     | Second argument (`keys`) | `keys.map(k => prefix + k)` |
+| `removeByPrefix` | Second argument (`key`)  | `prefix + key`              |
 
 Methods that do not accept a key (`removeAll`) are unaffected.
 
@@ -108,12 +109,11 @@ The `withCacheJitter` function returns a [`PluginFn`](/docs/components/middlewar
 
 The jitter is calculated as a random percentage of the original TTL. For example, with the default `defaultJitter` of `0.2` (20 %), a TTL of 60 seconds will be randomly adjusted to somewhere between 48 and 72 seconds.
 
-| Method | TTL argument   | Behaviour                        |
-| ------ | -------------- | -------------------------------- |
-| `add`  | Third argument | Applies random jitter to the TTL |
-| `put`  | Third argument | Applies random jitter to the TTL |
-
-Methods that do not accept a TTL are unaffected.
+| Method     | TTL argument   | Behaviour                        |
+| ---------- | -------------- | -------------------------------- |
+| `add`      | Third argument | Applies random jitter to the TTL |
+| `add`      | Third argument | Applies random jitter to the TTL |
+| `getOrAdd` | Third argument | Applies random jitter to the TTL |
 
 ### Usage
 
@@ -230,6 +230,7 @@ By default, all mutating methods are protected:
 | Method         | Lock key source | Behaviour                                     |
 | -------------- | --------------- | --------------------------------------------- |
 | `add`          | Single key      | Acquires lock for the key before adding       |
+| `getOrAdd`     | Single key      | Acquires lock for the key before adding       |
 | `put`          | Single key      | Acquires lock for the key before putting      |
 | `update`       | Single key      | Acquires lock for the key before updating     |
 | `increment`    | Single key      | Acquires lock for the key before incrementing |

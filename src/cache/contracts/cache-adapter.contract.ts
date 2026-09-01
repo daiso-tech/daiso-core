@@ -57,7 +57,7 @@ export type ICacheAdapter<TType = unknown> = {
      */
     getOrAdd(
         key: string,
-        valueToAdd: TType | InvocableFn<[], Promisable<TType>>,
+        valueToAdd: InvocableFn<[], Promisable<TType>>,
         ttl: Date | null,
     ): Promise<TType>;
 

@@ -10,9 +10,9 @@ import { withCacheSchema } from "@/cache/implementations/derivables/cache/with-c
 import { withPlugin } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import {
+    callInvocable,
     isInvocable,
     resolveAsyncLazyable,
-    resolveInvocable,
 } from "@/utilities/_module.js";
 
 import type { StandardSchemaV1 } from "@standard-schema/spec";
@@ -173,7 +173,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
     ): Promise<TType> {
         return await this.adapter.getOrAdd(
             key,
-            isInvocable(valueToAdd) ? resolveInvocable(valueToAdd) : valueToAdd,
+            () => {
+                if (isInvocable(valueToAdd)) {
+                    return callInvocable(valueToAdd);
+                }
+                return valueToAdd;
+            },
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
         );
     }
