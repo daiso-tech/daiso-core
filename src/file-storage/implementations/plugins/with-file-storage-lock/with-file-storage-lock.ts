@@ -115,9 +115,7 @@ function withFileStorageReadLock(
     return (_adapter, _enhance) => {
         if (onlyMethods.includes("getPublicUrl")) {
             _enhance(_adapter, "getPublicUrl", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
@@ -147,33 +145,25 @@ function withFileStorageReadLock(
 
         if (onlyMethods.includes("exists")) {
             _enhance(_adapter, "exists", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("getStream")) {
             _enhance(_adapter, "getStream", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("getBytes")) {
             _enhance(_adapter, "getBytes", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("getMetaData")) {
             _enhance(_adapter, "getMetaData", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
     };
@@ -200,49 +190,37 @@ function withFileStorageMutationLock(
     return (_adapter, _enhance) => {
         if (onlyMethods.includes("add")) {
             _enhance(_adapter, "add", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("addStream")) {
             _enhance(_adapter, "addStream", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("update")) {
             _enhance(_adapter, "update", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("updateStream")) {
             _enhance(_adapter, "updateStream", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("put")) {
             _enhance(_adapter, "put", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("putStream")) {
             _enhance(_adapter, "putStream", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
     };
@@ -262,33 +240,25 @@ function withFileStorageCopyMoveLock(
     return (_adapter, _enhance) => {
         if (onlyMethods.includes("copy")) {
             _enhance(_adapter, "copy", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("copyAndReplace")) {
             _enhance(_adapter, "copyAndReplace", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("move")) {
             _enhance(_adapter, "move", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
 
         if (onlyMethods.includes("moveAndReplace")) {
             _enhance(_adapter, "moveAndReplace", ({ args: [key], next }) => {
-                return lockFactory.create(key).runOrFail(() => {
-                    return next();
-                });
+                return lockFactory.create(key).runOrFail(next);
             });
         }
     };
