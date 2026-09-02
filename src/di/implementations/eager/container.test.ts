@@ -7,7 +7,7 @@ import {
     InvalidGraphDiError,
     InvalidMethodCallDiError,
     CanNotRegisterServiceDiError,
-    CanNotBeResolvedDiError,
+    CanNotResolveServiceDiError,
     CanNotOverrideServiceDiError,
 } from "@/di/contracts/container.errors.js";
 import { Container } from "@/di/implementations/eager/container.js";
@@ -1901,10 +1901,10 @@ describe(`${Container.prototype.resolve.name} & ${Container.name}.${Container.pr
          */
         test(`should fail when resolving a nonexistent token at top with ${Container.name}.${Container.prototype.resolveOrFail.name}`, async () => {
             const promise = container.resolveOrFail(tokenA);
-            await expect(promise).rejects.toThrow(CanNotBeResolvedDiError);
+            await expect(promise).rejects.toThrow(CanNotResolveServiceDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
-                CanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN,
+                CanNotResolveServiceDiError.FLAG.NOT_REGISTERED_TOKEN,
             );
         });
 
@@ -1945,10 +1945,10 @@ describe(`${Container.prototype.resolve.name} & ${Container.name}.${Container.pr
                     return await container.resolveOrFail(tokenA);
                 },
             });
-            await expect(promise).rejects.toThrow(CanNotBeResolvedDiError);
+            await expect(promise).rejects.toThrow(CanNotResolveServiceDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
-                CanNotBeResolvedDiError.FLAG.NOT_REGISTERED_TOKEN,
+                CanNotResolveServiceDiError.FLAG.NOT_REGISTERED_TOKEN,
             );
         });
 
@@ -2108,10 +2108,10 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             await container.init();
 
             const promise = container.resolveOrFail(nodeA.token);
-            await expect(promise).rejects.toThrow(CanNotBeResolvedDiError);
+            await expect(promise).rejects.toThrow(CanNotResolveServiceDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
-                CanNotBeResolvedDiError.FLAG.RESOLVED_VALUE_IS_NULL,
+                CanNotResolveServiceDiError.FLAG.RESOLVED_VALUE_IS_NULL,
             );
         });
 
@@ -2731,10 +2731,11 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
                     await container.resolveOrFail(tokenA);
                 },
             });
-            await expect(promise).rejects.toThrow(CanNotBeResolvedDiError);
+            await expect(promise).rejects.toThrow(CanNotResolveServiceDiError);
             await expect(promise).rejects.toHaveProperty(
                 "flag",
-                CanNotBeResolvedDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
+                CanNotResolveServiceDiError.FLAG
+                    .NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
             );
         });
 

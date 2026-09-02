@@ -19,7 +19,7 @@ export type EdgeProps = {
 /**
  * @internal
  */
-export type Edge = [DiToken, DiToken];
+export type Edge = [Node, Node];
 /**
  * @internal
  */

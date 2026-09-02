@@ -1,7 +1,6 @@
 /**
  * @module DI
  */
-
 import type { IExecutionContext } from "@/execution-context/contracts/_module.js";
 import type {
     AsyncLazy,
@@ -13,28 +12,6 @@ import type {
     InvocableFn,
     Promisable,
 } from "@/utilities/_module.js";
-
-/**
- * All possible lifetime options for {@link IServiceRegisterBase.registerFactory}.
- * - `"singleton"`: one instance for the container lifetime.
- * - `"transient"`: new instance per resolution.
- * - `"scoped"`: one instance per run scope.
- *
- * IMPORT_PATH: `"eridu-tech/di/contracts"`
- * @group Contracts
- */
-export const LIFETIME = {
-    SINGLETON: "singleton",
-    TRANSIENT: "transient",
-    SCOPED: "scoped",
-} as const;
-
-/**
- * IMPORT_PATH: `"eridu-tech/di/contracts"`
- * @group Contracts
- */
-export type Lifetime = (typeof LIFETIME)[keyof typeof LIFETIME];
-
 /**
  * A token that identifies a registered type via a unique symbol.
  * Use {@link genericToken} to create an instance.
@@ -58,7 +35,7 @@ export type GenericToken<TRegisteredType = unknown> = {
 };
 
 /**
- * Creates a new generic token identified by the given `id`.
+ * Creates a new generic token identified by the given`id`.
  *
  * Each call creates a distinct token, so a token must be created once and
  * exported, then reused for registration and resolution.
@@ -100,8 +77,6 @@ export type DiToken<TRegisteredType = unknown> =
 
 /**
  * A record that maps dependency argument names to their resolved types.
- * This is the shape of the dependencies object that is passed to a service
- * factory at resolution time.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
@@ -109,15 +84,14 @@ export type DiToken<TRegisteredType = unknown> =
 export type DepRecord = Partial<Record<string, unknown>>;
 
 /**
- * The default dependency record used when a service declares no
- * dependencies. It is the default `TDeps` type parameter for types like
- * {@link ServiceFactory} and {@link FactoryRegistration}.
+ * Empty dependency record.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type EmptyDepRecord = {};
+
 /**
  * A callback invoked by the container to create a service instance.
  * Receives resolved dependencies followed by the current
@@ -138,15 +112,34 @@ export type ServiceFactory<
 >;
 
 /**
+ * All possible lifetime options for {@link IServiceRegisterBase.registerFactory}.
+ * - SINGLETON: one instance for the container lifetime.
+ * - TRANSIENT: new instance per resolution.
+ * - SCOPED: one instance per run scope.
+ *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Contracts
+ */
+export const LIFETIME = {
+    SINGLETON: "singleton",
+    TRANSIENT: "transient",
+    SCOPED: "scoped",
+} as const;
+
+/**
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Contracts
+ */
+export type Lifetime = (typeof LIFETIME)[keyof typeof LIFETIME];
+
+/**
  * Maps a record of dependency names to a record of {@link DiToken}s.
- * Each key K in the input record becomes `DiToken<TDeps[K]>`.
  *
  * @typeParam TDeps - Record of dependency names mapped to their types.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type DepsTokens<TDeps extends DepRecord = EmptyDepRecord> = {
     [K in keyof TDeps]: DiToken<TDeps[K]>;
 };
@@ -173,6 +166,7 @@ export type FactoryRegistration<
     /** The dependency tokens to resolve and inject into the factory. */
     deps: DepsTokens<TDeps>;
 
+    /** The lifetime of the service — how its instances are created and shared. */
     lifetime: Lifetime;
 };
 
@@ -227,8 +221,10 @@ export type IServiceRegisterBase = {
     /**
      * Registers a factory function that creates the service instance.
      *
-     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
-     * @throws {CanNotRegisterServiceDiError} When the token already has a registration.
+     * @param settings - The registration settings.
+     *
+     * @throws {@link InvalidMethodCallDiError} When called after {@link IContainer.init} or inside a {@link IContainer.run} scope.
+     * @throws {@link CanNotRegisterServiceDiError} When the token already has a registration.
      */
     registerFactory<
         TDeps extends DepRecord = EmptyDepRecord,
@@ -240,8 +236,10 @@ export type IServiceRegisterBase = {
     /**
      * Registers a pre-constructed value that is always resolved as a singleton.
      *
-     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
-     * @throws {CanNotRegisterServiceDiError} When the token already has a registration.
+     * @param settings - The value registration setting.
+     *
+     * @throws {@link InvalidMethodCallDiError} When called after {@link IContainer.init}.
+     * @throws {@link CanNotRegisterServiceDiError} When the token already has a registration.
      */
     registerValue<TRegisteredType = unknown>(
         settings: ValueRegistration<TRegisteredType>,
@@ -251,8 +249,10 @@ export type IServiceRegisterBase = {
      * Registers a token whose value will be provided dynamically at runtime
      * via {@link IDynamicServiceRegister.set}.
      *
-     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
-     * @throws {CanNotRegisterServiceDiError} When the token already has a registration.
+     * @param token - The token to register as dynamic.
+     *
+     * @throws {@link InvalidMethodCallDiError} When called after {@link IContainer.init}.
+     * @throws {@link CanNotRegisterServiceDiError} When the token already has a registration.
      */
     registerDynamic(token: DiToken): void;
 };
@@ -275,16 +275,22 @@ export type DiHook = Invocable<[resolver: IServiceResolver], Promisable<void>>;
  */
 export type IContainerHooks = {
     /**
-     * Registers a handler to be invoked after the container is initialized (when `container.init` method is called).
+     * Registers a handler to be invoked after the container is initialized (when {@link IContainer.init} method is called).
+     * Can be called multiple times to register multiple hooks. All registered hooks run after {@link IContainer.init} completes.
      *
-     * Can be called multiple times to register multiple init hooks. All registered hooks run after `container.init()` completes.
+     * @param handler - The hook to invoke after the container is initialized.
+     *
+     * @throws {@link InvalidMethodCallDiError} When called after {@link IContainer.init}.
      */
     onContainerInit(handler: DiHook): void;
 
     /**
-     * Registers a handler to be invoked before the container is deinitialized (when `container.deInit` method is called).
+     * Registers a handler to be invoked before the container is deinitialized (when {@link IContainer.deInit} method is called).
+     * Can be called multiple times to register multiple hooks. All registered hooks run before {@link IContainer.deInit} completes.
      *
-     * Can be called multiple times to register multiple deinit hooks. All registered hooks run before `container.deInit()` completes.
+     * @param handler - The hook to invoke before the container is deinitialized.
+     *
+     * @throws {@link InvalidMethodCallDiError} When called after {@link IContainer.init}.
      */
     onContainerDeInit(handler: DiHook): void;
 };
@@ -313,7 +319,7 @@ export type ServiceProviderFn = InvocableFn<
 >;
 
 /**
- * An object with an `invoke` method that acts as a service provider,
+ * An object with an {@link IInvocableObject.invoke} method that acts as a service provider,
  * receiving an {@link IServiceRegister} to register services.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
@@ -326,7 +332,7 @@ export type IServiceProvider = IInvocableObject<
 
 /**
  * A service provider, either as a plain function ({@link ServiceProviderFn})
- * or an object with an `invoke` method ({@link IServiceProvider}).
+ * or an object with an {@link IInvocableObject.invoke} method ({@link IServiceProvider}).
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
@@ -337,7 +343,7 @@ export type ServiceProvider = ServiceProviderFn | IServiceProvider;
  * Interface for registering a {@link ServiceProvider} that can
  * batch-register multiple services at once.
  *
- * Useful for creating reusable, isolated code blocks — similar to Laravel
+ * Useful for creating reusable, isolated code blocks.
  * service providers — that encapsulate a group of related registrations.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
@@ -347,6 +353,10 @@ export type IServiceProviderRegister = {
     /**
      * Registers a {@link ServiceProvider} that can register multiple services
      * via the provided {@link IServiceRegister}.
+     *
+     * @param provider - The service provider to register.
+     *
+     * @throws {@link InvalidMethodCallDiError} If the container is inactive (e.g., called before {@link IContainer.init} or after {@link IContainer.deInit}).
      */
     registerProvider(provider: ServiceProvider): void;
 };
@@ -361,11 +371,22 @@ export type IServiceProviderRegister = {
 export type IServiceResolver = {
     /**
      * Resolves a service by token, returning `null` if not found.
+     *
+     * @param token - The token of the service to resolve.
+     *
+     * @throws {@link InvalidMethodCallDiError} If the container is inactive (e.g., called before {@link IContainer.init} or after {@link IContainer.deInit}).
+     * @returns The resolved service, or `null` if not found.
      */
     resolve<TType>(token: DiToken<TType>): Promise<TType | null>;
 
     /**
      * Resolves a service by token, returning the `defaultValue` if not found.
+     *
+     * @param token - The token of the service to resolve.
+     * @param defaultValue - The value to return when the service cannot be resolved.
+     *
+     * @throws {@link InvalidMethodCallDiError} If the container is inactive (e.g., called before {@link IContainer.init} or after {@link IContainer.deInit}).
+     * @returns The resolved service, or `defaultValue` if not found.
      */
     resolveOr<TType>(
         token: DiToken<TType>,
@@ -373,21 +394,31 @@ export type IServiceResolver = {
     ): Promise<TType>;
 
     /**
-     * Resolves a service by token, throwing {@link ServiceCanNotBeResolvedDiError} if not found.
+     * Resolves a service by token throwing {@link CanNotResolveServiceDiError} if not found.
+     *
+     * @param token - The token of the service to resolve.
+     *
+     *  @throws {@link CanNotResolveServiceDiError} If not found.
+     *  @throws {@link InvalidMethodCallDiError} If the container is inactive (e.g., called before {@link IContainer.init} or after {@link IContainer.deInit}).
+     * @returns The resolved service.
      */
     resolveOrFail<TType>(token: DiToken<TType>): Promise<TType>;
 
-    // TODO: find a better name for this method.
     /**
-     * Checks whether a token can be resolved by calling `resolve`.
+     * Checks whether a token can be resolved by calling {@link IContainer.resolve}.
      *
      * Note: this does NOT check whether the token is registered. It only
      * returns `true` if the token can be resolved to a value; a registered
      * token that cannot be resolved to a value yet returns `false`.
      *
-     * Because it resolves the token, calling `has` may invoke service
+     * Because it resolves the token, calling {@link IContainer.has} may invoke service
      * factories (for example, transient factories) as a side effect — the
      * service is created as part of the check.
+     *
+     * @param token - The token whose resolvability to check.
+     *
+     * @throws {@link InvalidMethodCallDiError} If the container is inactive (e.g., called before {@link IContainer.init} or after {@link IContainer.deInit}).
+     * @returns `true` if the token can be resolved, `false` otherwise.
      */
     has(token: DiToken): Promise<boolean>;
 };
@@ -451,6 +482,8 @@ export type IDynamicServiceRegister = {
     /**
      * Sets the value for a token previously registered via
      * {@link IServiceRegisterBase.registerDynamic}.
+     *
+     * @param settings - The dynamic registration settings.
      */
     set<TRegisteredType = unknown>(
         settings: DynamicRegistration<TRegisteredType>,
@@ -470,7 +503,7 @@ export type DynamicServiceProviderFn = InvocableFn<
 >;
 
 /**
- * An object with an `invoke` method that provides dynamic service
+ * An object with an {@link IInvocableObject} method that provides dynamic service
  * registrations, receiving an {@link IDynamicServiceRegister}.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
@@ -522,8 +555,14 @@ export type RunSettings<TValue = unknown> = {
 export type IContainerScope = {
     /**
      * Runs a callback within a scoped container context.
-     * Scoped services are resolved once per `run()` invocation.
+     * Scoped services are resolved once per {@link IContainer.run} invocation.
      * Resolves to the value returned by the scope callback.
+     *
+     * @param settings - The run settings.
+     *
+     * @throws {@link InvalidMethodCallDiError} When called inside  {@link DynamicServiceProvider}.
+     * @throws {@link InvalidMethodCallDiError} If the container is inactive (e.g., called before {@link IContainer.init} or after  {@link IContainer.deInit}).
+     * @returns The value returned by the scope callback.
      */
     run<TValue = void>(settings: RunSettings<TValue>): Promise<TValue>;
 };
@@ -539,8 +578,10 @@ export type IServiceOverrider = {
     /**
      * Overrides an existing factory registration with a new factory.
      *
-     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
-     * @throws {CanNotOverrideServiceDiError} When the token is not registered, is registered as dynamic, or has already been overridden.
+     * @param settings - The factory override settings.
+     *
+     * @throws {@link InvalidMethodCallDiError} When called after {@link IContainer.init}.
+     * @throws {@link CanNotOverrideServiceDiError} When can not override the service.
      */
     overrideFactory<
         TDeps extends DepRecord = EmptyDepRecord,
@@ -552,8 +593,10 @@ export type IServiceOverrider = {
     /**
      * Overrides an existing value registration with a new value.
      *
-     * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
-     * @throws {CanNotOverrideServiceDiError} When the token is not registered, is registered as dynamic, or has already been overridden.
+     * @param settings - The value override settings.
+     *
+     * @throws {@link InvalidMethodCallDiError} When called after {@link IContainer.init}.
+     * @throws {@link CanNotOverrideServiceDiError} When can not override the service.
      */
     overrideValue<TRegisteredType = unknown>(
         settings: ValueRegistration<TRegisteredType>,
@@ -561,31 +604,38 @@ export type IServiceOverrider = {
 };
 
 /**
+ * Interface for creating a child container that inherits all registrations
+ * and overrides from the parent container.
+ *
+ * IMPORT_PATH: `"eridu-tech/di/contracts"`
+ * @group Contracts
+ */
+export type IContainerFork = {
+    /**
+     * Creates a child container that inherits all registrations and overrides from this
+     * container.
+     *
+     * @throws {@link InvalidMethodCallDiError} When called after {@link IContainer.init}.
+     * @returns A new child {@link IContainer}.
+     */
+    fork(): IContainer;
+};
+
+/**
  * The top-level DI container interface. Combines initialization, scope
  * management, registration, resolution, overriding, and forking into a
  * single cohesive API.
  *
- * The following errors can be thrown any method listed in `IContainer` dependent on the algorithm used:
- * @throws {ServiceCanNotBeResolvedDiError} When a required service cannot be resolved.
- * @throws {InvalidGraphDiError} When the service graph is invalid, e.g. an invalid
- *   lifetime configuration (singleton depending on transient), a circular
- *   dependency, or an undeclared dependency.
- * @throws {CanNotRegisterServiceDiError} When attempting to register a duplicate token.
- *
+ * @throws {@link InvalidMethodCallDiError} When {@link IContainer.init} called again after {@link IContainer.init}, {@link IContainer.deInit}  
+ * called again after {@link IContainer.deInit}, or {@link IContainer.deInit} called before {@link IContainer.init}.
+ 
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
  */
 export type IContainer = IInitizable &
     IDeinitizable &
     IContainerScope &
+    IContainerFork &
     IServiceRegister &
     IServiceResolver &
-    IServiceOverrider & {
-        /**
-         * Creates a child container that inherits all registrations and overrides from this
-         * container.
-         *
-         * @throws {InvalidMethodCallDiError} When called after `container.init()` or inside a `container.run()` scope.
-         */
-        fork(): IContainer;
-    };
+    IServiceOverrider;
