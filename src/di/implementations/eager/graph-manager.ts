@@ -134,17 +134,6 @@ const EDGE_RULES: Array<{
 /**
  * @internal
  */
-const VALID_EDGE_RULES: Array<{
-    from: InternalLifetime;
-    to: InternalLifetime;
-}> = EDGE_RULES.filter((item) => item.valid).map(({ from, to }) => ({
-    from,
-    to,
-}));
-
-/**
- * @internal
- */
 const INVALID_EDGE_RULES: Array<{
     from: InternalLifetime;
     to: InternalLifetime;
@@ -225,7 +214,6 @@ export class GraphManager {
                         undefined,
                         this.maxUndeclaredDependenciesInError,
                     ),
-                    totalDetected: missing.length,
                 }),
             };
         }
@@ -270,7 +258,6 @@ export class GraphManager {
                         undefined,
                         this.maxInvalidEdgeInError,
                     ),
-                    totalDetected: errors.length,
                 }),
             };
         }
@@ -286,7 +273,6 @@ export class GraphManager {
                 error: InvalidGraphDiError.create({
                     flag: InvalidGraphDiError.FLAG.CYCLE_DEPENDENCY,
                     cycles: cycles.slice(undefined, this.maxCyclesInError),
-                    totalDetected: cycles.length,
                 }),
             };
         }

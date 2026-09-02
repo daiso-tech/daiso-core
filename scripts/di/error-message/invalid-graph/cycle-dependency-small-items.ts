@@ -2,7 +2,8 @@ import { genericToken, LIFETIME } from "@/di/contracts/container.contract.js";
 import { Container } from "@/di/implementations/eager/container.js";
 import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/_module-exports.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module-exports.js";
-import { nSmall } from "./_shared.js";
+
+import { nSmall } from "@/../scripts/di/error-message/invalid-graph/_shared.js";
 
 async function main(): Promise<void> {
     const container = new Container({

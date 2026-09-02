@@ -163,17 +163,14 @@ export type InvalidGraphCreateData =
     | {
           flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP;
           edgeErrorInfos: Array<EdgeErrorInfo>;
-          totalDetected?: number;
       }
     | {
           flag: typeof InvalidGraphDiError.FLAG.CYCLE_DEPENDENCY;
           cycles: Array<Array<DiToken>>;
-          totalDetected?: number;
       }
     | {
           flag: typeof InvalidGraphDiError.FLAG.UNDECLARED_DEPENDENCIES;
           undeclaredDependencies: Array<UndeclaredDependencyInfo>;
-          totalDetected?: number;
       };
 
 /**
@@ -211,8 +208,7 @@ export class InvalidGraphDiError
             { flag: typeof InvalidGraphDiError.FLAG.INVALID_EDGE_RELATIONSHIP }
         >,
     ): InvalidGraphDiError {
-        const { edgeErrorInfos, totalDetected } = settings;
-        const totalEdgesDetected = totalDetected ?? edgeErrorInfos.length;
+        const { edgeErrorInfos } = settings;
 
         const edgeErrors = edgeErrorInfos.map(
             (
@@ -283,9 +279,7 @@ export class InvalidGraphDiError
             { flag: typeof InvalidGraphDiError.FLAG.UNDECLARED_DEPENDENCIES }
         >,
     ): InvalidGraphDiError {
-        const { undeclaredDependencies, totalDetected } = settings;
-        const totalUnDeclaredNodes =
-            totalDetected ?? undeclaredDependencies.length;
+        const { undeclaredDependencies } = settings;
 
         const undeclaredDependencyStrings = undeclaredDependencies.map(
             (undeclaredDependency) => ({
