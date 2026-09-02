@@ -2,8 +2,6 @@
  * @module FileStorage
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
-
 /**
  * Configuration for generating temporary signed download URLs for files.
  * These settings control how the presigned download URL behaves when accessed.
@@ -65,7 +63,7 @@ export type FileAdapterSignedUploadUrlSettings = {
  * - Storage adapters handle file data (read/write/delete)
  * - URL adapters handle access control (signed URLs with expiration)
  *
- * All methods operate on files via `key` identifier and use `IReadableContext` for audit logging.
+ * All methods operate on files via `key` identifier.
  *
  * IMPORT_PATH: `"eridu-tech/file-storage/contracts"`
  * @group Contracts
@@ -76,14 +74,10 @@ export type IFileUrlAdapter = {
      * Returns null if the file does not exist or public access is not supported by the adapter.
      *
      * @param key - The file identifier/path
-     * @param context - Readable execution context for the operation
      *
      * @returns The public URL or null if unavailable
      */
-    getPublicUrl(
-        key: string,
-        context: IReadableContext,
-    ): Promise<string | null>;
+    getPublicUrl(key: string): Promise<string | null>;
 
     /**
      * Generates a temporary signed URL for downloading a file.
@@ -93,14 +87,12 @@ export type IFileUrlAdapter = {
      *
      * @param key - The file identifier/path
      * @param settings - Configuration for the signed URL (expiration, content type, disposition)
-     * @param context - Readable execution context for the operation
      *
      * @returns The signed download URL, or null when the adapter verifies the file is unavailable
      */
     getSignedDownloadUrl(
         key: string,
         settings: FileAdapterSignedDownloadUrlSettings,
-        context: IReadableContext,
     ): Promise<string | null>;
 
     /**
@@ -110,7 +102,6 @@ export type IFileUrlAdapter = {
      *
      * @param key - The file identifier/path where upload will be stored
      * @param settings - Configuration for the signed URL (expiration, expected content type)
-     * @param context - Readable execution context for the operation
      *
      * @returns The signed upload URL (must always return a valid URL)
      * @throws Error if signed URL generation fails
@@ -118,7 +109,6 @@ export type IFileUrlAdapter = {
     getSignedUploadUrl(
         key: string,
         settings: FileAdapterSignedUploadUrlSettings,
-        context: IReadableContext,
     ): Promise<string>;
 };
 
@@ -320,11 +310,10 @@ export type IFileStorageAdapter = {
      * Checks whether a file exists at the given key.
      *
      * @param key - The file identifier/path to check
-     * @param context - Readable execution context for the operation
      *
      * @returns True if file exists, false otherwise
      */
-    exists(key: string, context: IReadableContext): Promise<boolean>;
+    exists(key: string): Promise<boolean>;
 
     /**
      * Retrieves file content as an async stream of byte chunks.
@@ -332,14 +321,10 @@ export type IFileStorageAdapter = {
      * Returns null if the file does not exist.
      *
      * @param key - The file identifier/path
-     * @param context - Readable execution context for the operation
      *
      * @returns Async iterable of Uint8Array chunks, or null if file not found
      */
-    getStream(
-        key: string,
-        context: IReadableContext,
-    ): Promise<FileAdapterStream | null>;
+    getStream(key: string): Promise<FileAdapterStream | null>;
 
     /**
      * Retrieves complete file content as a byte array.
@@ -347,14 +332,10 @@ export type IFileStorageAdapter = {
      * Returns null if the file does not exist.
      *
      * @param key - The file identifier/path
-     * @param context - Readable execution context for the operation
      *
      * @returns Complete file bytes as Uint8Array, or null if file not found
      */
-    getBytes(
-        key: string,
-        context: IReadableContext,
-    ): Promise<Uint8Array | null>;
+    getBytes(key: string): Promise<Uint8Array | null>;
 
     /**
      * Retrieves file metadata (ETag, content type, size, modification date).
@@ -362,14 +343,10 @@ export type IFileStorageAdapter = {
      * Useful for cache validation and file information endpoints.
      *
      * @param key - The file identifier/path
-     * @param context - Readable execution context for the operation
      *
      * @returns File metadata object, or null if file not found
      */
-    getMetaData(
-        key: string,
-        context: IReadableContext,
-    ): Promise<FileAdapterMetadata | null>;
+    getMetaData(key: string): Promise<FileAdapterMetadata | null>;
 
     /**
      * Creates new file at key if it doesn't already exist.
@@ -378,15 +355,10 @@ export type IFileStorageAdapter = {
      *
      * @param key - The file identifier/path where file will be created
      * @param content - File content with HTTP headers configuration
-     * @param context - Readable execution context for the operation
      *
      * @returns True if file was created, false if key already exists
      */
-    add(
-        key: string,
-        content: WritableFileAdapterContent,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    add(key: string, content: WritableFileAdapterContent): Promise<boolean>;
 
     /**
      * Creates new file at key using streaming content if it doesn't already exist.
@@ -395,15 +367,10 @@ export type IFileStorageAdapter = {
      *
      * @param key - The file identifier/path where file will be created
      * @param stream - File content stream with HTTP headers configuration
-     * @param context - Readable execution context for the operation
      *
      * @returns True if file was created, false if key already exists
      */
-    addStream(
-        key: string,
-        stream: WritableFileAdapterStream,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    addStream(key: string, stream: WritableFileAdapterStream): Promise<boolean>;
 
     /**
      * Updates existing file at key with new content.
@@ -412,15 +379,10 @@ export type IFileStorageAdapter = {
      *
      * @param key - The file identifier/path to update
      * @param content - New file content with HTTP headers configuration
-     * @param context - Readable execution context for the operation
      *
      * @returns True if file was updated, false if key doesn't exist
      */
-    update(
-        key: string,
-        content: WritableFileAdapterContent,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    update(key: string, content: WritableFileAdapterContent): Promise<boolean>;
 
     /**
      * Updates existing file at key using streaming content.
@@ -429,14 +391,12 @@ export type IFileStorageAdapter = {
      *
      * @param key - The file identifier/path to update
      * @param stream - New file content stream with HTTP headers configuration
-     * @param context - Readable execution context for the operation
      *
      * @returns True if file was updated, false if key doesn't exist
      */
     updateStream(
         key: string,
         stream: WritableFileAdapterStream,
-        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -446,15 +406,10 @@ export type IFileStorageAdapter = {
      *
      * @param key - The file identifier/path to create or update
      * @param content - File content with HTTP headers configuration
-     * @param context - Readable execution context for the operation
      *
      * @returns True if file was updated (already existed), false if newly created
      */
-    put(
-        key: string,
-        content: WritableFileAdapterContent,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    put(key: string, content: WritableFileAdapterContent): Promise<boolean>;
 
     /**
      * Creates or overwrites file (upsert) at key using streaming content.
@@ -463,15 +418,10 @@ export type IFileStorageAdapter = {
      *
      * @param key - The file identifier/path to create or update
      * @param stream - File content stream with HTTP headers configuration
-     * @param context - Readable execution context for the operation
      *
      * @returns True if file was updated (already existed), false if newly created
      */
-    putStream(
-        key: string,
-        stream: WritableFileAdapterStream,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    putStream(key: string, stream: WritableFileAdapterStream): Promise<boolean>;
 
     /**
      * Copies source file to destination path if destination doesn't exist.
@@ -479,15 +429,10 @@ export type IFileStorageAdapter = {
      *
      * @param source - Source file identifier/path to copy from
      * @param destination - Destination file identifier/path to copy to
-     * @param context - Readable execution context for the operation
      *
      * @returns `FileWriteEnum` indicating: SUCCESS (copied), NOT_FOUND (source missing), or KEY_EXISTS (destination exists)
      */
-    copy(
-        source: string,
-        destination: string,
-        context: IReadableContext,
-    ): Promise<FileWriteEnum>;
+    copy(source: string, destination: string): Promise<FileWriteEnum>;
 
     /**
      * Copies source file to destination path, overwriting destination if it exists.
@@ -495,15 +440,10 @@ export type IFileStorageAdapter = {
      *
      * @param source - Source file identifier/path to copy from
      * @param destination - Destination file identifier/path to copy to (will be overwritten)
-     * @param context - Readable execution context for the operation
      *
      * @returns True if source was found and copied, false if source doesn't exist
      */
-    copyAndReplace(
-        source: string,
-        destination: string,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    copyAndReplace(source: string, destination: string): Promise<boolean>;
 
     /**
      * Moves (renames) source file to destination path if destination doesn't exist.
@@ -512,15 +452,10 @@ export type IFileStorageAdapter = {
      *
      * @param source - Source file identifier/path to move from
      * @param destination - Destination file identifier/path to move to
-     * @param context - Readable execution context for the operation
      *
      * @returns `FileWriteEnum` indicating: SUCCESS (moved), NOT_FOUND (source missing), or KEY_EXISTS (destination exists)
      */
-    move(
-        source: string,
-        destination: string,
-        context: IReadableContext,
-    ): Promise<FileWriteEnum>;
+    move(source: string, destination: string): Promise<FileWriteEnum>;
 
     /**
      * Moves (renames) source file to destination path, overwriting destination if it exists.
@@ -529,28 +464,19 @@ export type IFileStorageAdapter = {
      *
      * @param source - Source file identifier/path to move from
      * @param destination - Destination file identifier/path to move to (will be overwritten)
-     * @param context - Readable execution context for the operation
      *
      * @returns True if source was found and moved, false if source doesn't exist
      */
-    moveAndReplace(
-        source: string,
-        destination: string,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    moveAndReplace(source: string, destination: string): Promise<boolean>;
 
     /**
      * Removes multiple specific files by key.
      *
      * @param keys - Array of file identifiers/paths to delete
-     * @param context - Readable execution context for the operation
      *
      * @returns True if at least one key was deleted, false if no keys were found
      */
-    removeMany(
-        keys: Array<string>,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    removeMany(keys: Array<string>): Promise<boolean>;
 
     /**
      * Removes all files whose keys start with the given prefix.
@@ -558,11 +484,10 @@ export type IFileStorageAdapter = {
      * Silently succeeds if no keys match the prefix.
      *
      * @param prefix - Key prefix to match (e.g., "uploads/2024-01/" for all January uploads)
-     * @param context - Readable execution context for the operation
      *
      * @returns Void (always succeeds)
      */
-    removeByPrefix(prefix: string, context: IReadableContext): Promise<void>;
+    removeByPrefix(prefix: string): Promise<void>;
 };
 
 /**

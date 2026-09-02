@@ -19,9 +19,9 @@ The `FileStorageResolver` class provides a flexible way to configure and switch 
 To begin using the `IFileStorageFactory`, You will need to register all required adapters during initialization.
 
 ```ts
-import { FileStorageResolver } from "eridu-tech/FileStorage";
-import { MemoryFileStorageAdapter } from "eridu-tech/FileStorage/memory-FileStorage-adapter";
-import { FsFileStorageAdapter } from "eridu-tech/FileStorage/fs-FileStorage-adapter";
+import { FileStorageResolver } from "eridu-tech/file-storage";
+import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
+import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
 
 const fileStorageResolver = new FileStorageResolver({
     adapters: {
@@ -71,4 +71,4 @@ Note that the `FileStorageResolver` is immutable, meaning any configuration over
 
 ## Further information
 
-For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech-core/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/file-storage`](https://eridu-tech.github.io/eridu-tech-core/modules/file-storage.html) API docs.

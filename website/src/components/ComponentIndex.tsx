@@ -14,7 +14,6 @@ export function ComponentIndex({ sections }: { sections: readonly ComponentSecti
                 if (section.items.length === 0) return null;
                 return (
                     <section key={section.label}>
-                        <h2>{section.label}</h2>
                         {section.intro ? <p>{section.intro}</p> : null}
                         <ul>
                             {section.items.map((item, i) => (

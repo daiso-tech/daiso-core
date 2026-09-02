@@ -4,7 +4,6 @@
 
 import type { Redis, Result } from "ioredis";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISemaphoreAdapter,
     ISemaphoreAdapterState,
@@ -404,11 +403,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         return result === 1;
     }
 
-    async release(
-        key: string,
-        slotId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async release(key: string, slotId: string): Promise<boolean> {
         const result = await this.database.eridu_semaphore_release(
             key,
             slotId,
@@ -417,10 +412,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         return result === 1;
     }
 
-    async forceReleaseAll(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceReleaseAll(key: string): Promise<boolean> {
         const hasDeleted =
             await this.database.eridu_semaphore_force_release_all(
                 key,
@@ -429,12 +421,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         return hasDeleted === 1;
     }
 
-    async refresh(
-        key: string,
-        slotId: string,
-        ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async refresh(key: string, slotId: string, ttl: Date): Promise<boolean> {
         const result = await this.database.eridu_semaphore_refresh(
             key,
             slotId,
@@ -444,10 +431,7 @@ export class RedisSemaphoreAdapter implements ISemaphoreAdapter {
         return result === 1;
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ISemaphoreAdapterState | null> {
+    async getState(key: string): Promise<ISemaphoreAdapterState | null> {
         const json = JSON.parse(
             await this.database.eridu_semaphore_get_state(key, Date.now()),
         ) as IRedisJsonSemaphoreState | null;

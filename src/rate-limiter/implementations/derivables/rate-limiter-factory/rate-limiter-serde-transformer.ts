@@ -5,7 +5,6 @@
 import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
 import { getConstructorName } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { IRateLimiterAdapter } from "@/rate-limiter/contracts/_module.js";
 import type { ISerializedRateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
 import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
@@ -21,7 +20,6 @@ export type RateLimiterSerdeTransformerSettings = {
     serdeTransformerName: string;
     enableAsyncTracking: boolean;
     waitUntil: WaitUntil;
-    context: IReadableContext;
 };
 
 /**
@@ -37,7 +35,6 @@ export class RateLimiterSerdeTransformer implements ISerdeTransformer<
     private readonly enableAsyncTracking: boolean;
     private readonly onlyError: boolean;
     private readonly waitUntil: WaitUntil;
-    private readonly context: IReadableContext;
 
     constructor(settings: RateLimiterSerdeTransformerSettings) {
         const {
@@ -47,10 +44,8 @@ export class RateLimiterSerdeTransformer implements ISerdeTransformer<
             errorPolicy,
             onlyError,
             waitUntil,
-            context,
         } = settings;
 
-        this.context = context;
         this.waitUntil = waitUntil;
         this.onlyError = onlyError;
         this.enableAsyncTracking = enableAsyncTracking;
@@ -91,7 +86,6 @@ export class RateLimiterSerdeTransformer implements ISerdeTransformer<
         const { key, limit } = serializedValue;
 
         return new RateLimiter({
-            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             adapter: this.adapter,

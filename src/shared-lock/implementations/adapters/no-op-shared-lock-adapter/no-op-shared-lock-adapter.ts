@@ -2,7 +2,6 @@
  * @module SharedLock
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISharedLockAdapter,
     ISharedLockAdapterState,
@@ -22,32 +21,15 @@ export class NoOpSharedLockAdapter implements ISharedLockAdapter {
         _key: string,
         _lockId: string,
         _ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    releaseWriter(
-        _key: string,
-        _lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    releaseWriter(_key: string, _lockId: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    forceReleaseWriter(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        return Promise.resolve(true);
-    }
-
-    refreshWriter(
-        _key: string,
-        _lockId: string,
-        _ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    refreshWriter(_key: string, _lockId: string, _ttl: Date): Promise<boolean> {
         return Promise.resolve(true);
     }
 
@@ -55,38 +37,19 @@ export class NoOpSharedLockAdapter implements ISharedLockAdapter {
         return Promise.resolve(true);
     }
 
-    releaseReader(
-        _key: string,
-        _lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    releaseReader(_key: string, _lockId: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    forceReleaseAllReaders(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    refreshReader(_key: string, _lockId: string, _ttl: Date): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    refreshReader(
-        _key: string,
-        _lockId: string,
-        _ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    forceRelease(_key: string): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    forceRelease(_key: string, _context: IReadableContext): Promise<boolean> {
-        return Promise.resolve(true);
-    }
-
-    getState(
-        _key: string,
-        _context: IReadableContext,
-    ): Promise<ISharedLockAdapterState | null> {
+    getState(_key: string): Promise<ISharedLockAdapterState | null> {
         return Promise.resolve(null);
     }
 }

@@ -16,7 +16,6 @@ import type {
     EventListenerFn,
     IEventBusAdapter,
 } from "@/event-bus/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerde } from "@/serde/contracts/_module.js";
 
 /**
@@ -79,7 +78,6 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     async addListener(
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
-        _context: IReadableContext,
     ): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.eventEmitter.on(eventName, listener);
@@ -93,7 +91,6 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
     async removeListener(
         eventName: string,
         listener: EventListenerFn<BaseEvent>,
-        _context: IReadableContext,
     ): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.eventEmitter.off(eventName, listener);
@@ -101,11 +98,7 @@ export class RedisPubSubEventBusAdapter implements IEventBusAdapter {
         await this.listenerClient.unsubscribe(eventName);
     }
 
-    async dispatch(
-        eventName: string,
-        eventData: BaseEvent,
-        _context: IReadableContext,
-    ): Promise<void> {
+    async dispatch(eventName: string, eventData: BaseEvent): Promise<void> {
         await this.dispatcherClient.publish(
             eventName,
             this.serde.serialize(eventData),

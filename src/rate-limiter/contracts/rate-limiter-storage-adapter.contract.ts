@@ -2,7 +2,6 @@
  * @module RateLimiter
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { InvocableFn } from "@/utilities/_module.js";
 
 /**
@@ -47,14 +46,8 @@ export type IRateLimiterStorageAdapterTransaction<TType = unknown> = {
      * @param key Unique identifier for the rate limiter
      * @param state The new metrics/state object from the policy
      * @param expiration The calculated expiration date for this state
-     * @param context Readable execution context for the operation
      */
-    upsert(
-        key: string,
-        state: TType,
-        expiration: Date,
-        context: IReadableContext,
-    ): Promise<void>;
+    upsert(key: string, state: TType, expiration: Date): Promise<void>;
 
     /**
      * Retrieves the stored rate limiter data for a given key.
@@ -62,14 +55,10 @@ export type IRateLimiterStorageAdapterTransaction<TType = unknown> = {
      * Returns null if the rate limiter hasn't been initialized yet.
      *
      * @param key Unique identifier for the rate limiter
-     * @param context Readable execution context for the operation
      *
      * @returns The stored rate limiter data if found, otherwise null
      */
-    find(
-        key: string,
-        context: IReadableContext,
-    ): Promise<IRateLimiterData<TType> | null>;
+    find(key: string): Promise<IRateLimiterData<TType> | null>;
 };
 
 /**
@@ -94,7 +83,6 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
      * If the transaction function throws, the transaction should be rolled back.
      *
      * @param fn Callback function receiving transaction object, should return a Promise
-     * @param context Readable execution context for the operation
      *
      * @returns The value returned by the fn callback
      */
@@ -103,7 +91,6 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
-        context: IReadableContext,
     ): Promise<TValue>;
 
     /**
@@ -112,14 +99,10 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
      * Returns null if the rate limiter hasn't been initialized.
      *
      * @param key Unique identifier for the rate limiter
-     * @param context Readable execution context for the operation
      *
      * @returns The stored rate limiter data if found, otherwise null
      */
-    find(
-        key: string,
-        context: IReadableContext,
-    ): Promise<IRateLimiterData<TType> | null>;
+    find(key: string): Promise<IRateLimiterData<TType> | null>;
 
     /**
      * Removes a rate limiter entry from the database.
@@ -127,7 +110,6 @@ export type IRateLimiterStorageAdapter<TType = unknown> = {
      * Safe to call even if the rate limiter doesn't exist.
      *
      * @param key Unique identifier for the rate limiter to remove
-     * @param context Readable execution context for the operation
      */
-    remove(key: string, context: IReadableContext): Promise<void>;
+    remove(key: string): Promise<void>;
 };

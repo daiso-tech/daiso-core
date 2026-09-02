@@ -33,35 +33,31 @@ import type { PluginFn } from "@/middleware/contracts/_module.js";
  */
 export function withFileStorageInferFileTypeOnRead(): PluginFn<IFileStorageAdapter> {
     return (adapter, enhance) => {
-        enhance(
-            adapter,
-            "getMetaData",
-            async ({ args: [key, context], next }) => {
-                const metadata = await next([key, context]);
-                if (metadata === null) {
-                    return null;
-                }
-                if (metadata.contentType !== null) {
-                    return metadata;
-                }
-                const stream = await adapter.getStream(key, context);
-                if (stream === null) {
-                    return metadata;
-                }
-                const result = await fileTypeFromStream(
-                    ReadableStream.from(stream),
-                );
-                if (result === undefined) {
-                    return {
-                        ...metadata,
-                        contentType: "application/octet-stream",
-                    };
-                }
+        enhance(adapter, "getMetaData", async ({ args: [key], next }) => {
+            const metadata = await next([key]);
+            if (metadata === null) {
+                return null;
+            }
+            if (metadata.contentType !== null) {
+                return metadata;
+            }
+            const stream = await adapter.getStream(key);
+            if (stream === null) {
+                return metadata;
+            }
+            const result = await fileTypeFromStream(
+                ReadableStream.from(stream),
+            );
+            if (result === undefined) {
                 return {
                     ...metadata,
-                    contentType: result.mime,
+                    contentType: "application/octet-stream",
                 };
-            },
-        );
+            }
+            return {
+                ...metadata,
+                contentType: result.mime,
+            };
+        });
     };
 }

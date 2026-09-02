@@ -924,6 +924,6 @@ The container exposes several contracts that separate concerns for different use
 
 - [`fork()`](#forking-a-container)
 
-### Further Information
+## Further information
 
 For further information refer to [`eridu-tech/di`](https://eridu-tech.github.io/eridu-tech-core/modules/DI.html) API docs.

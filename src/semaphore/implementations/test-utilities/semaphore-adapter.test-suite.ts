@@ -1,14 +1,11 @@
 /**
  * @module Semaphore
  */
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { delay } from "@/utilities/_module.js";
 
 import type { TestAPI, SuiteAPI, ExpectStatic, beforeEach } from "vitest";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 import type { Promisable } from "@/utilities/_module.js";
@@ -33,17 +30,6 @@ export type SemaphoreAdapterTestSuiteSettings = {
      * ```
      */
     delayBuffer?: ITimeSpan;
-
-    /**
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
 };
 
 /**
@@ -96,7 +82,6 @@ export function semaphoreAdapterTestSuite(
         describe,
         beforeEach: beforeEach_,
         delayBuffer = TimeSpan.fromMilliseconds(10),
-        context = new ExecutionContext(new NoOpExecutionContextAdapter()),
     } = settings;
     let adapter: ISemaphoreAdapter;
 
@@ -116,7 +101,6 @@ export function semaphoreAdapterTestSuite(
                 const ttl = null;
 
                 const result = await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -133,7 +117,6 @@ export function semaphoreAdapterTestSuite(
                 const currentDate = new Date();
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -142,7 +125,6 @@ export function semaphoreAdapterTestSuite(
                 await delayWithBuffer(ttl);
 
                 const result = await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -158,7 +140,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -166,7 +147,6 @@ export function semaphoreAdapterTestSuite(
                 });
                 const slotId2 = "2";
                 const result = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
@@ -182,7 +162,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -190,7 +169,6 @@ export function semaphoreAdapterTestSuite(
                 });
                 const slotId2 = "2";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
@@ -198,7 +176,6 @@ export function semaphoreAdapterTestSuite(
                 });
                 const slotId3 = "3";
                 const result = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     limit,
@@ -214,7 +191,6 @@ export function semaphoreAdapterTestSuite(
                 const slotId1 = "1";
                 const ttl1 = null;
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -223,7 +199,6 @@ export function semaphoreAdapterTestSuite(
                 const slotId2 = "2";
                 const ttl2 = TimeSpan.fromMilliseconds(50);
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
@@ -234,7 +209,6 @@ export function semaphoreAdapterTestSuite(
                 const slotId3 = "3";
                 const ttl3 = null;
                 const result = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     limit,
@@ -250,14 +224,12 @@ export function semaphoreAdapterTestSuite(
                 const ttl = null;
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
                     ttl,
                 });
                 const result = await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -274,14 +246,12 @@ export function semaphoreAdapterTestSuite(
                 const currentDate = new Date();
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
                     ttl: ttl.toEndDate(currentDate),
                 });
                 const result = await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -297,14 +267,12 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
                     ttl,
                 });
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -313,7 +281,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId2 = "2";
                 const result = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
@@ -330,14 +297,12 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
                     ttl: ttl.toEndDate(currentDate),
                 });
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -346,7 +311,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId2 = "2";
                 const result = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
@@ -362,7 +326,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -371,7 +334,6 @@ export function semaphoreAdapterTestSuite(
                 const slotId2 = "2";
                 const newLimit = 3;
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit: newLimit,
@@ -379,11 +341,10 @@ export function semaphoreAdapterTestSuite(
                 });
                 const slotId3 = "3";
 
-                const result1 = await adapter.getState(key, context);
+                const result1 = await adapter.getState(key);
                 expect(result1?.limit).toBe(limit);
 
                 const result2 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     limit: newLimit,
@@ -399,7 +360,6 @@ export function semaphoreAdapterTestSuite(
                 const limit = 2;
                 const ttl = null;
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -407,11 +367,7 @@ export function semaphoreAdapterTestSuite(
                 });
 
                 const noneExistingKey = "c";
-                const result = await adapter.release(
-                    noneExistingKey,
-                    slotId,
-                    context,
-                );
+                const result = await adapter.release(noneExistingKey, slotId);
 
                 expect(result).toBe(false);
             });
@@ -422,7 +378,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     ttl,
@@ -430,11 +385,7 @@ export function semaphoreAdapterTestSuite(
                 });
 
                 const noneExistingSlotId = "2";
-                const result = await adapter.release(
-                    key,
-                    noneExistingSlotId,
-                    context,
-                );
+                const result = await adapter.release(key, noneExistingSlotId);
 
                 expect(result).toBe(false);
             });
@@ -445,7 +396,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     ttl: ttl.toEndDate(),
@@ -453,7 +403,7 @@ export function semaphoreAdapterTestSuite(
                 });
                 await delayWithBuffer(ttl);
 
-                const result = await adapter.release(key, slotId, context);
+                const result = await adapter.release(key, slotId);
 
                 expect(result).toBe(false);
             });
@@ -464,13 +414,12 @@ export function semaphoreAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     ttl: ttl.toEndDate(),
                     limit,
                 });
-                const result = await adapter.release(key, slotId, context);
+                const result = await adapter.release(key, slotId);
 
                 expect(result).toBe(true);
             });
@@ -481,13 +430,12 @@ export function semaphoreAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     ttl,
                     limit,
                 });
-                const result = await adapter.release(key, slotId, context);
+                const result = await adapter.release(key, slotId);
 
                 expect(result).toBe(true);
             });
@@ -498,7 +446,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -506,31 +453,28 @@ export function semaphoreAdapterTestSuite(
                 });
                 const slotId2 = "2";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
                     ttl,
                 });
-                await adapter.release(key, slotId1, context);
-                await adapter.release(key, slotId2, context);
+                await adapter.release(key, slotId1);
+                await adapter.release(key, slotId2);
 
                 const newLimit = 3;
                 const slotId3 = "3";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     limit: newLimit,
                     ttl,
                 });
 
-                const result1 = await adapter.getState(key, context);
+                const result1 = await adapter.getState(key);
                 expect(result1?.limit).toBe(newLimit);
 
                 const slotId4 = "4";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId4,
                     limit: newLimit,
@@ -539,7 +483,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId5 = "5";
                 const result2 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId5,
                     limit: newLimit,
@@ -549,7 +492,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId6 = "6";
                 const result3 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId6,
                     limit,
@@ -564,7 +506,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -572,22 +513,20 @@ export function semaphoreAdapterTestSuite(
                 });
                 const slotId2 = "2";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
                     ttl,
                 });
-                await adapter.release(key, slotId1, context);
+                await adapter.release(key, slotId1);
 
-                const result1 = await adapter.getState(key, context);
+                const result1 = await adapter.getState(key);
                 expect(result1?.acquiredSlots.size).toBe(1);
 
-                await adapter.release(key, slotId2, context);
+                await adapter.release(key, slotId2);
 
                 const slotId3 = "3";
                 const result2 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     limit,
@@ -597,7 +536,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId4 = "4";
                 const result3 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId4,
                     limit,
@@ -613,7 +551,6 @@ export function semaphoreAdapterTestSuite(
                 const limit = 2;
                 const ttl = null;
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -621,10 +558,7 @@ export function semaphoreAdapterTestSuite(
                 });
 
                 const noneExistingKey = "c";
-                const result = await adapter.forceReleaseAll(
-                    noneExistingKey,
-                    context,
-                );
+                const result = await adapter.forceReleaseAll(noneExistingKey);
 
                 expect(result).toBe(false);
             });
@@ -635,7 +569,6 @@ export function semaphoreAdapterTestSuite(
                 const slotId = "1";
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -643,7 +576,7 @@ export function semaphoreAdapterTestSuite(
                 });
                 await delayWithBuffer(ttl);
 
-                const result = await adapter.forceReleaseAll(key, context);
+                const result = await adapter.forceReleaseAll(key);
 
                 expect(result).toBe(false);
             });
@@ -654,7 +587,6 @@ export function semaphoreAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -662,16 +594,15 @@ export function semaphoreAdapterTestSuite(
                 });
                 const slotId2 = "2";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
                     ttl,
                 });
-                await adapter.release(key, slotId1, context);
-                await adapter.release(key, slotId2, context);
+                await adapter.release(key, slotId1);
+                await adapter.release(key, slotId2);
 
-                const result = await adapter.forceReleaseAll(key, context);
+                const result = await adapter.forceReleaseAll(key);
 
                 expect(result).toBe(false);
             });
@@ -682,14 +613,13 @@ export function semaphoreAdapterTestSuite(
                 const slotId = "1";
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
                     ttl,
                 });
 
-                const result = await adapter.forceReleaseAll(key, context);
+                const result = await adapter.forceReleaseAll(key);
 
                 expect(result).toBe(true);
             });
@@ -699,7 +629,6 @@ export function semaphoreAdapterTestSuite(
                 const slotId1 = "1";
                 const ttl1 = null;
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -708,19 +637,17 @@ export function semaphoreAdapterTestSuite(
                 const slotId2 = "2";
                 const ttl2 = TimeSpan.fromMilliseconds(50);
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
                     ttl: ttl2.toEndDate(),
                 });
 
-                await adapter.forceReleaseAll(key, context);
+                await adapter.forceReleaseAll(key);
 
                 const slotId3 = "3";
                 const ttl3 = null;
                 const result1 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     limit,
@@ -730,7 +657,6 @@ export function semaphoreAdapterTestSuite(
                 const slotId4 = "4";
                 const ttl4 = null;
                 const result2 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId4,
                     limit,
@@ -745,7 +671,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     limit,
@@ -753,30 +678,27 @@ export function semaphoreAdapterTestSuite(
                 });
                 const slotId2 = "2";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     limit,
                     ttl,
                 });
-                await adapter.forceReleaseAll(key, context);
+                await adapter.forceReleaseAll(key);
 
                 const newLimit = 3;
                 const slotId3 = "3";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     limit: newLimit,
                     ttl,
                 });
 
-                const result1 = await adapter.getState(key, context);
+                const result1 = await adapter.getState(key);
                 expect(result1?.limit).toBe(newLimit);
 
                 const slotId4 = "4";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId4,
                     limit: newLimit,
@@ -785,7 +707,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId5 = "5";
                 const result2 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId5,
                     limit: newLimit,
@@ -795,7 +716,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId6 = "6";
                 const result3 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId6,
                     limit,
@@ -811,7 +731,6 @@ export function semaphoreAdapterTestSuite(
                 const limit = 2;
                 const ttl = null;
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -824,7 +743,6 @@ export function semaphoreAdapterTestSuite(
                     noneExistingKey,
                     slotId,
                     newTtl.toEndDate(),
-                    context,
                 );
 
                 expect(result).toBe(false);
@@ -836,7 +754,6 @@ export function semaphoreAdapterTestSuite(
 
                 const slotId = "b";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     ttl,
@@ -849,7 +766,6 @@ export function semaphoreAdapterTestSuite(
                     key,
                     noneExistingSlotId,
                     newTtl.toEndDate(),
-                    context,
                 );
 
                 expect(result).toBe(false);
@@ -862,7 +778,6 @@ export function semaphoreAdapterTestSuite(
                 const currentDate = new Date();
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     limit,
@@ -875,7 +790,6 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId,
                     newTtl.toEndDate(currentDate),
-                    context,
                 );
 
                 expect(result).toBe(false);
@@ -887,7 +801,6 @@ export function semaphoreAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     ttl,
@@ -898,7 +811,6 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId,
                     newTtl.toEndDate(),
-                    context,
                 );
 
                 expect(result).toBe(false);
@@ -911,7 +823,6 @@ export function semaphoreAdapterTestSuite(
                 const limit = 2;
 
                 await adapter.acquire({
-                    context,
                     key,
                     slotId,
                     ttl: ttl.toEndDate(currentDate),
@@ -922,7 +833,6 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId,
                     newTtl.toEndDate(currentDate),
-                    context,
                 );
 
                 expect(result).toBe(true);
@@ -934,7 +844,6 @@ export function semaphoreAdapterTestSuite(
                 const ttl1 = null;
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     ttl: ttl1,
@@ -944,7 +853,6 @@ export function semaphoreAdapterTestSuite(
                 const ttl2 = null;
                 const slotId2 = "2";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     ttl: ttl2,
@@ -952,17 +860,11 @@ export function semaphoreAdapterTestSuite(
                 });
 
                 const newTtl = TimeSpan.fromMilliseconds(100);
-                await adapter.refresh(
-                    key,
-                    slotId2,
-                    newTtl.toEndDate(),
-                    context,
-                );
+                await adapter.refresh(key, slotId2, newTtl.toEndDate());
                 await delayWithBuffer(newTtl);
 
                 const slotId3 = "3";
                 const result1 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     ttl: ttl2,
@@ -977,7 +879,6 @@ export function semaphoreAdapterTestSuite(
                 const ttl1 = null;
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId1,
                     ttl: ttl1,
@@ -988,7 +889,6 @@ export function semaphoreAdapterTestSuite(
                 const currentDate = new Date();
                 const slotId2 = "2";
                 await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId2,
                     ttl: ttl2.toEndDate(currentDate),
@@ -1000,13 +900,11 @@ export function semaphoreAdapterTestSuite(
                     key,
                     slotId2,
                     newTtl.toEndDate(currentDate),
-                    context,
                 );
                 await delayWithBuffer(newTtl.divide(2));
 
                 const slotId3 = "3";
                 const result1 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     ttl: ttl2.toEndDate(currentDate),
@@ -1016,7 +914,6 @@ export function semaphoreAdapterTestSuite(
 
                 await delayWithBuffer(newTtl.divide(2));
                 const result2 = await adapter.acquire({
-                    context,
                     key,
                     slotId: slotId3,
                     ttl: ttl2.toEndDate(currentDate),
@@ -1029,7 +926,7 @@ export function semaphoreAdapterTestSuite(
             test("Should return null when key doesnt exists", async () => {
                 const key = "a";
 
-                const result = await adapter.getState(key, context);
+                const result = await adapter.getState(key);
 
                 expect(result).toBeNull();
             });
@@ -1039,7 +936,6 @@ export function semaphoreAdapterTestSuite(
                 const ttl = TimeSpan.fromMilliseconds(50);
                 const limit = 2;
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId,
@@ -1047,7 +943,7 @@ export function semaphoreAdapterTestSuite(
                 });
                 await delayWithBuffer(ttl);
 
-                const result = await adapter.getState(key, context);
+                const result = await adapter.getState(key);
 
                 expect(result).toBeNull();
             });
@@ -1058,7 +954,6 @@ export function semaphoreAdapterTestSuite(
                 const ttl1 = null;
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId: slotId1,
@@ -1068,16 +963,15 @@ export function semaphoreAdapterTestSuite(
                 const ttl2 = null;
                 const slotId2 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId: slotId2,
                     ttl: ttl2,
                 });
 
-                await adapter.forceReleaseAll(key, context);
+                await adapter.forceReleaseAll(key);
 
-                const result = await adapter.getState(key, context);
+                const result = await adapter.getState(key);
 
                 expect(result).toBeNull();
             });
@@ -1088,7 +982,6 @@ export function semaphoreAdapterTestSuite(
                 const ttl1 = null;
                 const slotId1 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId: slotId1,
@@ -1098,17 +991,16 @@ export function semaphoreAdapterTestSuite(
                 const ttl2 = null;
                 const slotId2 = "1";
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId: slotId2,
                     ttl: ttl2,
                 });
 
-                await adapter.release(key, slotId1, context);
-                await adapter.release(key, slotId2, context);
+                await adapter.release(key, slotId1);
+                await adapter.release(key, slotId2);
 
-                const result = await adapter.getState(key, context);
+                const result = await adapter.getState(key);
 
                 expect(result).toBeNull();
             });
@@ -1119,14 +1011,13 @@ export function semaphoreAdapterTestSuite(
                 const ttl = null;
 
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId,
                     ttl,
                 });
 
-                const state = await adapter.getState(key, context);
+                const state = await adapter.getState(key);
 
                 expect(state?.limit).toBe(limit);
             });
@@ -1137,7 +1028,6 @@ export function semaphoreAdapterTestSuite(
                 const slotId1 = "1";
                 const ttl1 = null;
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId: slotId1,
@@ -1147,14 +1037,13 @@ export function semaphoreAdapterTestSuite(
                 const slotId2 = "2";
                 const ttl2 = TimeSpan.fromMilliseconds(50);
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId: slotId2,
                     ttl: ttl2.toEndDate(),
                 });
 
-                const state = await adapter.getState(key, context);
+                const state = await adapter.getState(key);
 
                 expect(state?.acquiredSlots.size).toBe(2);
             });
@@ -1165,14 +1054,13 @@ export function semaphoreAdapterTestSuite(
                 const slotId = "a";
                 const ttl = null;
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId,
                     ttl,
                 });
 
-                const state = await adapter.getState(key, context);
+                const state = await adapter.getState(key);
 
                 expect({
                     ...state,
@@ -1195,14 +1083,13 @@ export function semaphoreAdapterTestSuite(
                 const currentDate = new Date();
                 const expiration = ttl.toEndDate(currentDate);
                 await adapter.acquire({
-                    context,
                     key,
                     limit,
                     slotId,
                     ttl: ttl.toEndDate(currentDate),
                 });
 
-                const state = await adapter.getState(key, context);
+                const state = await adapter.getState(key);
 
                 expect({
                     ...state,

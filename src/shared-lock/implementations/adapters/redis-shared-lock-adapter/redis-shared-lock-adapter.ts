@@ -6,7 +6,6 @@ import { UnexpectedError } from "@/utilities/errors.js";
 
 import type { Redis, Result } from "ioredis";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISharedLockAdapter,
     ISharedLockAdapterState,
@@ -135,11 +134,9 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         this.initAcquireWriterCommand();
         this.initReleaseWriterCommand();
         this.initRefreshWriterCommand();
-        this.initForceReleaseWriterCommand();
         this.initAcquireReaderCommand();
         this.initReleaseReaderCommand();
         this.initRefreshReaderCommand();
-        this.initForceReleaseAllReadersCommand();
         this.initForceReleaseCommand();
         this.initGetStateCommand();
     }
@@ -287,24 +284,6 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
                 return redis.call("del", writerKey);
             end)(${keyVar});
         `;
-    }
-
-    private initForceReleaseWriterCommand(): void {
-        if (
-            typeof this.database.eridu_shared_lock_force_release_writer ===
-            "function"
-        ) {
-            return;
-        }
-        this.database.defineCommand("eridu_shared_lock_force_release_writer", {
-            numberOfKeys: 1,
-            lua: `
-                -- Arguments
-                local key = KEYS[1];
-                
-                return ${RedisSharedLockAdapter._forceReleaseWriter("key")}
-            `,
-        });
     }
 
     private static getLimitKey(keyVar: string): string {
@@ -590,29 +569,6 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         `;
     }
 
-    private initForceReleaseAllReadersCommand(): void {
-        if (
-            typeof this.database.eridu_shared_lock_force_release_all_readers ===
-            "function"
-        ) {
-            return;
-        }
-        this.database.defineCommand(
-            "eridu_shared_lock_force_release_all_readers",
-            {
-                numberOfKeys: 1,
-                lua: `
-                    local key = KEYS[1];
-
-                    -- current time as unix timestamp in ms
-                    local now = ARGV[1];
-
-                    return ${RedisSharedLockAdapter._forceReleaseAllReaders("key", "now")}
-                `,
-            },
-        );
-    }
-
     private initForceReleaseCommand(): void {
         if (
             typeof this.database.eridu_shared_lock_force_release === "function"
@@ -735,7 +691,6 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         key: string,
         lockId: string,
         ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_shared_lock_acquire_writer(
             key,
@@ -745,11 +700,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async releaseWriter(
-        key: string,
-        lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async releaseWriter(key: string, lockId: string): Promise<boolean> {
         const result = await this.database.eridu_shared_lock_release_writer(
             key,
             lockId,
@@ -761,22 +712,12 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         key: string,
         lockId: string,
         ttl: Date,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_shared_lock_refresh_writer(
             key,
             lockId,
             ttl.getTime(),
         );
-        return result === 1;
-    }
-
-    async forceReleaseWriter(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        const result =
-            await this.database.eridu_shared_lock_force_release_writer(key);
         return result === 1;
     }
 
@@ -792,11 +733,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async releaseReader(
-        key: string,
-        lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async releaseReader(key: string, lockId: string): Promise<boolean> {
         const result = await this.database.eridu_shared_lock_release_reader(
             key,
             lockId,
@@ -809,7 +746,6 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         key: string,
         lockId: string,
         ttl: Date,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const result = await this.database.eridu_shared_lock_refresh_reader(
             key,
@@ -820,22 +756,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async forceReleaseAllReaders(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        const result =
-            await this.database.eridu_shared_lock_force_release_all_readers(
-                key,
-                Date.now(),
-            );
-        return result === 1;
-    }
-
-    async forceRelease(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceRelease(key: string): Promise<boolean> {
         const result = await this.database.eridu_shared_lock_force_release(
             key,
             Date.now(),
@@ -843,10 +764,7 @@ export class RedisSharedLockAdapter implements ISharedLockAdapter {
         return result === 1;
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ISharedLockAdapterState | null> {
+    async getState(key: string): Promise<ISharedLockAdapterState | null> {
         const json = JSON.parse(
             await this.database.eridu_shared_lock_get_state(key, Date.now()),
         ) as IRedisJsonSharedLockState | null;

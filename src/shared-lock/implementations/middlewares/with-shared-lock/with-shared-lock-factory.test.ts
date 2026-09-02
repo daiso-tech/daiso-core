@@ -115,4 +115,40 @@ describe("function: withSharedLockFactory", () => {
             expect(spy).toHaveBeenCalledOnce();
         });
     });
+    test("Should derive the key from multiple wrapped function arguments", async () => {
+        const spy = vi.spyOn(sharedLockFactory, "create");
+
+        const withSharedLock = withSharedLockFactory(sharedLockFactory);
+
+        async function fn(_userId: string, _postId: string): Promise<void> {}
+        await use(
+            fn,
+            withSharedLock({
+                key: (userId: string, postId: string) =>
+                    `user:${userId}:post:${postId}`,
+                limit: 4,
+                when: SHARED_LOCK_WHEN.WRITER,
+            }),
+        )("u1", "p2");
+
+        expect(spy).toHaveBeenCalledWith("user:u1:post:p2", expect.anything());
+    });
+    test("Should pass through the wrapped function's arguments and return value", async () => {
+        const withSharedLock = withSharedLockFactory(sharedLockFactory);
+
+        function fn(a: string, b: string): Promise<string> {
+            return Promise.resolve(`${a}-${b}`);
+        }
+
+        const wrapped = use(
+            fn,
+            withSharedLock({
+                key: (a: string, b: string) => `${a}:${b}`,
+                limit: 4,
+                when: SHARED_LOCK_WHEN.WRITER,
+            }),
+        );
+
+        expect(await wrapped("2", "3")).toBe("2-3");
+    });
 });

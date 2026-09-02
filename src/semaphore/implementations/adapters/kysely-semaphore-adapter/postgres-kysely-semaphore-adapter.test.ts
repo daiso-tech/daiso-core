@@ -3,8 +3,6 @@ import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { KyselySemaphoreAdapter } from "@/semaphore/implementations/adapters/kysely-semaphore-adapter/_module.js";
 import { semaphoreAdapterTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -54,9 +52,6 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
     });
     describe("method: removeAllExpired", () => {
         test("Should remove all expired keys", async () => {
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
             const adapter = new KyselySemaphoreAdapter({
                 kysely,
             });
@@ -68,21 +63,18 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
             const key2 = "2";
 
             await adapter.acquire({
-                context: noOpContext,
                 key: key1,
                 slotId: "1",
                 limit,
                 ttl: expiredTtl.toEndDate(),
             });
             await adapter.acquire({
-                context: noOpContext,
                 key: key1,
                 slotId: "2",
                 limit,
                 ttl: expiredTtl.toEndDate(),
             });
             await adapter.acquire({
-                context: noOpContext,
                 key: key1,
                 slotId: "3",
                 limit,
@@ -90,21 +82,18 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
             });
 
             await adapter.acquire({
-                context: noOpContext,
                 key: key2,
                 slotId: "1",
                 limit,
                 ttl: expiredTtl.toEndDate(),
             });
             await adapter.acquire({
-                context: noOpContext,
                 key: key2,
                 slotId: "2",
                 limit,
                 ttl: expiredTtl.toEndDate(),
             });
             await adapter.acquire({
-                context: noOpContext,
                 key: key2,
                 slotId: "3",
                 limit,
@@ -113,8 +102,8 @@ describe("postgres class: KyselySemaphoreAdapter", () => {
 
             await adapter.removeAllExpired();
 
-            expect(await adapter.getState(key1, noOpContext)).toBeNull();
-            expect(await adapter.getState(key2, noOpContext)).toBeNull();
+            expect(await adapter.getState(key1)).toBeNull();
+            expect(await adapter.getState(key2)).toBeNull();
         });
     });
     describe("method: init", () => {

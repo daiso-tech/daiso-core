@@ -193,7 +193,7 @@ export type IHttpRes = {
     appendHeader(key: string, value: string): IHttpRes;
 
     /**
-     * Returns the current value of a response header, or an empty string if not set.
+     * Returns the current value of a response header, or `null` if not set.
      *
      * @param key - The header name.
      * @returns The header value, or `null` if absent.

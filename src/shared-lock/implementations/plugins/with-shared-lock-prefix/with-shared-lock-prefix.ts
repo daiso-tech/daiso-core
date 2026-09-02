@@ -36,13 +36,6 @@ export function withSharedLockPrefix(
         enhance(adapter, "acquireWriter", ({ args: [key, ...rest], next }) => {
             return next([withPrefix(key), ...rest]);
         });
-        enhance(
-            adapter,
-            "forceReleaseWriter",
-            ({ args: [key, ...rest], next }) => {
-                return next([withPrefix(key), ...rest]);
-            },
-        );
         enhance(adapter, "refreshWriter", ({ args: [key, ...rest], next }) => {
             return next([withPrefix(key), ...rest]);
         });
@@ -60,13 +53,6 @@ export function withSharedLockPrefix(
                         ...rest,
                     },
                 ]);
-            },
-        );
-        enhance(
-            adapter,
-            "forceReleaseAllReaders",
-            ({ args: [key, ...rest], next }) => {
-                return next([withPrefix(key), ...rest]);
             },
         );
         enhance(adapter, "refreshReader", ({ args: [key, ...rest], next }) => {

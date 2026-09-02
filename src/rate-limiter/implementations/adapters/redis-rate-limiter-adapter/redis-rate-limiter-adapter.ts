@@ -17,7 +17,6 @@ import {
 import type { Redis, Result } from "ioredis";
 
 import type { BackoffSettingsEnum } from "@/backoff-policies/implementations/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IRateLimiterAdapter,
     IRateLimiterAdapterState,
@@ -181,10 +180,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
         });
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<IRateLimiterAdapterState | null> {
+    async getState(key: string): Promise<IRateLimiterAdapterState | null> {
         const json = await this.database.eridu_rate_limiter_get_state(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
@@ -205,7 +201,6 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
     async updateState(
         key: string,
         limit: number,
-        _context: IReadableContext,
     ): Promise<IRateLimiterAdapterState> {
         const json = await this.database.eridu_rate_limiter_update_state(
             key,
@@ -222,7 +217,7 @@ export class RedisRateLimiterAdapter implements IRateLimiterAdapter {
         };
     }
 
-    async reset(key: string, _context: IReadableContext): Promise<void> {
+    async reset(key: string): Promise<void> {
         await this.database.del(key);
     }
 }

@@ -15,7 +15,6 @@ import type {
     ICircuitBreakerStorageAdapter,
     ICircuitBreakerStorageAdapterTransaction,
 } from "@/circuit-breaker/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerde } from "@/serde/contracts/_module.js";
 import type {
     IDeinitizable,
@@ -158,7 +157,7 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
     private async upsert<TType_>(
         key: string,
         state: TType_,
-        _context: IReadableContext,
+
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.updateOne(
@@ -192,20 +191,18 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
             [transaction: ICircuitBreakerStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
-        _context: IReadableContext,
     ): Promise<TValue> {
         return await this.internalTransaction(async (session) => {
             return await fn({
-                upsert: (key, state, context) =>
-                    this.upsert(key, state, context, session),
-                find: (key, context) => this.find(key, context, session),
+                upsert: (key, state) => this.upsert(key, state, session),
+                find: (key) => this.find(key, session),
             });
         });
     }
 
     async find(
         key: string,
-        _context: IReadableContext,
+
         session?: ClientSession,
     ): Promise<TType | null> {
         const doc = await this.collection.findOne(
@@ -222,7 +219,7 @@ export class MongodbCircuitBreakerStorageAdapter<TType = unknown>
 
     async remove(
         key: string,
-        _context: IReadableContext,
+
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.deleteOne(

@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
 import { withFileStorageInferContentTypeOnRead } from "@/file-storage/implementations/plugins/with-file-storage-infer-content-type-on-read/with-file-storage-infer-content-type-on-read.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -13,7 +12,6 @@ import type {
 } from "@/file-storage/contracts/_module.js";
 
 describe("function: withFileStorageInferContentTypeOnRead", () => {
-    const context = new NoOpContext();
     const adapter = new NoOpFileStorageAdapter();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
     const metadata: FileAdapterMetadata = {
@@ -38,14 +36,11 @@ describe("function: withFileStorageInferContentTypeOnRead", () => {
                 withFileStorageInferContentTypeOnRead(),
             );
 
-            const result = await enhanced.getMetaData(
-                "folder/file.txt",
-                context,
-            );
+            const result = await enhanced.getMetaData("folder/file.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("folder/file.txt", context);
+            >("folder/file.txt");
             expect(result).toEqual({
                 ...metadata,
                 contentType: "text/plain",
@@ -63,12 +58,11 @@ describe("function: withFileStorageInferContentTypeOnRead", () => {
 
             const result = await enhanced.getMetaData(
                 "folder/file.unknownExtension",
-                context,
             );
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("folder/file.unknownExtension", context);
+            >("folder/file.unknownExtension");
             expect(result).toEqual({
                 ...metadata,
                 contentType: "application/octet-stream",
@@ -84,14 +78,11 @@ describe("function: withFileStorageInferContentTypeOnRead", () => {
                 withFileStorageInferContentTypeOnRead(),
             );
 
-            const result = await enhanced.getMetaData(
-                "folder/file.txt",
-                context,
-            );
+            const result = await enhanced.getMetaData("folder/file.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("folder/file.txt", context);
+            >("folder/file.txt");
             expect(result).toEqual(metadata);
         });
         test("Should return null when the adapter returns null", async () => {
@@ -104,14 +95,11 @@ describe("function: withFileStorageInferContentTypeOnRead", () => {
                 withFileStorageInferContentTypeOnRead(),
             );
 
-            const result = await enhanced.getMetaData(
-                "folder/file.txt",
-                context,
-            );
+            const result = await enhanced.getMetaData("folder/file.txt");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("folder/file.txt", context);
+            >("folder/file.txt");
             expect(result).toBeNull();
         });
     });

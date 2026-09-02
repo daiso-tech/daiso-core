@@ -30,13 +30,11 @@ The `withRateLimiterPrefix` function returns a [`PluginFn`](/docs/components/mid
 
 The plugin prefixes keys for the following methods:
 
-| Method        | Key argument            | Pattern        |
-| ------------- | ----------------------- | -------------- |
-| `getState`    | Second argument (`key`) | `prefix + key` |
-| `reset`       | Second argument (`key`) | `prefix + key` |
-| `updateState` | Second argument (`key`) | `prefix + key` |
-
-Every method on the `IRateLimiterAdapter` that operates on a specific rate-limiter key is prefixed.
+| Method        | Key argument           | Pattern        |
+| ------------- | ---------------------- | -------------- |
+| `getState`    | First argument (`key`) | `prefix + key` |
+| `reset`       | First argument (`key`) | `prefix + key` |
+| `updateState` | First argument (`key`) | `prefix + key` |
 
 ### Usage
 
@@ -62,14 +60,14 @@ const prefixedAdapter = withPlugin(
 **Before** — Rate-limiter keys are used as-is:
 
 ```ts
-adapter.getState("api:login", context);
+adapter.getState("api:login");
 // -> checks rate limit for "api:login"
 ```
 
 **After** — Rate-limiter keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.getState("api:login", context);
+prefixedAdapter.getState("api:login");
 // -> checks rate limit for "tenant-42:api:login"
 ```
 

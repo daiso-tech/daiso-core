@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { NoOpFileStorageAdapter } from "@/file-storage/implementations/adapters/no-op-file-storage-adapter/_module.js";
 import { withFileStorageLowerCase } from "@/file-storage/implementations/plugins/with-file-storage-lower-case/with-file-storage-lower-case.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
@@ -13,7 +12,6 @@ import type {
 } from "@/file-storage/contracts/_module.js";
 
 describe("function: withFileStorageLowerCase", () => {
-    const context = new NoOpContext();
     const adapter = new NoOpFileStorageAdapter();
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
 
@@ -27,11 +25,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.getPublicUrl("myKey", context);
+            await enhanced.getPublicUrl("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getPublicUrl"]>
-            >("mykey", context);
+            >("mykey");
         });
     });
     describe("method: getSignedDownloadUrl", () => {
@@ -40,27 +38,19 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.getSignedDownloadUrl(
-                "myKey",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                    contentDisposition: null,
-                },
-                context,
-            );
+            await enhanced.getSignedDownloadUrl("myKey", {
+                expirationInSeconds: 3600,
+                contentType: null,
+                contentDisposition: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedDownloadUrl"]>
-            >(
-                "mykey",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                    contentDisposition: null,
-                },
-                context,
-            );
+            >("mykey", {
+                expirationInSeconds: 3600,
+                contentType: null,
+                contentDisposition: null,
+            });
         });
     });
     describe("method: getSignedUploadUrl", () => {
@@ -69,25 +59,17 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.getSignedUploadUrl(
-                "myKey",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                },
-                context,
-            );
+            await enhanced.getSignedUploadUrl("myKey", {
+                expirationInSeconds: 3600,
+                contentType: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getSignedUploadUrl"]>
-            >(
-                "mykey",
-                {
-                    expirationInSeconds: 3600,
-                    contentType: null,
-                },
-                context,
-            );
+            >("mykey", {
+                expirationInSeconds: 3600,
+                contentType: null,
+            });
         });
     });
     describe("method: exists", () => {
@@ -96,11 +78,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.exists("myKey", context);
+            await enhanced.exists("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["exists"]>
-            >("mykey", context);
+            >("mykey");
         });
     });
     describe("method: getStream", () => {
@@ -109,11 +91,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.getStream("myKey", context);
+            await enhanced.getStream("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getStream"]>
-            >("mykey", context);
+            >("mykey");
         });
     });
     describe("method: getBytes", () => {
@@ -122,11 +104,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.getBytes("myKey", context);
+            await enhanced.getBytes("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getBytes"]>
-            >("mykey", context);
+            >("mykey");
         });
     });
     describe("method: getMetaData", () => {
@@ -135,11 +117,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.getMetaData("myKey", context);
+            await enhanced.getMetaData("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["getMetaData"]>
-            >("mykey", context);
+            >("mykey");
         });
     });
     describe("method: add", () => {
@@ -157,11 +139,11 @@ describe("function: withFileStorageLowerCase", () => {
             };
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.add("myKey", content, context);
+            await enhanced.add("myKey", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["add"]>
-            >("mykey", content, context);
+            >("mykey", content);
         });
     });
     describe("method: addStream", () => {
@@ -179,35 +161,27 @@ describe("function: withFileStorageLowerCase", () => {
                         }),
                 }),
             };
-            await enhanced.addStream(
-                "myKey",
-                {
-                    data: stream,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            await enhanced.addStream("myKey", {
+                data: stream,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["addStream"]>
-            >(
-                "mykey",
-                {
-                    data: stream,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            >("mykey", {
+                data: stream,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
         });
     });
     describe("method: update", () => {
@@ -225,11 +199,11 @@ describe("function: withFileStorageLowerCase", () => {
             };
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.update("myKey", content, context);
+            await enhanced.update("myKey", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["update"]>
-            >("mykey", content, context);
+            >("mykey", content);
         });
     });
     describe("method: updateStream", () => {
@@ -247,35 +221,27 @@ describe("function: withFileStorageLowerCase", () => {
                         }),
                 }),
             };
-            await enhanced.updateStream(
-                "myKey",
-                {
-                    data: stream2,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            await enhanced.updateStream("myKey", {
+                data: stream2,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["updateStream"]>
-            >(
-                "mykey",
-                {
-                    data: stream2,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            >("mykey", {
+                data: stream2,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
         });
     });
     describe("method: put", () => {
@@ -293,11 +259,11 @@ describe("function: withFileStorageLowerCase", () => {
             };
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.put("myKey", content, context);
+            await enhanced.put("myKey", content);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["put"]>
-            >("mykey", content, context);
+            >("mykey", content);
         });
     });
     describe("method: putStream", () => {
@@ -315,35 +281,27 @@ describe("function: withFileStorageLowerCase", () => {
                         }),
                 }),
             };
-            await enhanced.putStream(
-                "myKey",
-                {
-                    data: stream3,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            await enhanced.putStream("myKey", {
+                data: stream3,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["putStream"]>
-            >(
-                "mykey",
-                {
-                    data: stream3,
-                    fileSizeInBytes: null,
-                    contentType: "text/plain",
-                    contentLanguage: null,
-                    contentEncoding: null,
-                    contentDisposition: null,
-                    cacheControl: null,
-                },
-                context,
-            );
+            >("mykey", {
+                data: stream3,
+                fileSizeInBytes: null,
+                contentType: "text/plain",
+                contentLanguage: null,
+                contentEncoding: null,
+                contentDisposition: null,
+                cacheControl: null,
+            });
         });
     });
     describe("method: copy", () => {
@@ -352,11 +310,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.copy("sourceKey", "destKey", context);
+            await enhanced.copy("sourceKey", "destKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["copy"]>
-            >("sourcekey", "destkey", context);
+            >("sourcekey", "destkey");
         });
     });
     describe("method: copyAndReplace", () => {
@@ -365,11 +323,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.copyAndReplace("sourceKey", "destKey", context);
+            await enhanced.copyAndReplace("sourceKey", "destKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["copyAndReplace"]>
-            >("sourcekey", "destkey", context);
+            >("sourcekey", "destkey");
         });
     });
     describe("method: move", () => {
@@ -378,11 +336,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.move("sourceKey", "destKey", context);
+            await enhanced.move("sourceKey", "destKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["move"]>
-            >("sourcekey", "destkey", context);
+            >("sourcekey", "destkey");
         });
     });
     describe("method: moveAndReplace", () => {
@@ -391,11 +349,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.moveAndReplace("sourceKey", "destKey", context);
+            await enhanced.moveAndReplace("sourceKey", "destKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["moveAndReplace"]>
-            >("sourcekey", "destkey", context);
+            >("sourcekey", "destkey");
         });
     });
     describe("method: removeMany", () => {
@@ -404,11 +362,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.removeMany(["Key1", "Key2"], context);
+            await enhanced.removeMany(["Key1", "Key2"]);
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["removeMany"]>
-            >(["key1", "key2"], context);
+            >(["key1", "key2"]);
         });
     });
     describe("method: removeByPrefix", () => {
@@ -417,11 +375,11 @@ describe("function: withFileStorageLowerCase", () => {
 
             const enhanced = withPlugin(adapter, withFileStorageLowerCase());
 
-            await enhanced.removeByPrefix("myKey", context);
+            await enhanced.removeByPrefix("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ISignedFileStorageAdapter["removeByPrefix"]>
-            >("mykey", context);
+            >("mykey");
         });
     });
 });

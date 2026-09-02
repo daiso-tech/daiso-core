@@ -11,7 +11,6 @@ import {
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { resolveLazyable } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISemaphoreAdapter,
     ISemaphore,
@@ -42,7 +41,6 @@ export type SemaphoreSettings = {
     key: string;
     ttl: TimeSpan | null;
     defaultRefreshTime: TimeSpan;
-    context: IReadableContext;
 };
 
 /**
@@ -71,7 +69,6 @@ export class Semaphore implements ISemaphore {
     private internalTtl: TimeSpan | null;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
-    private readonly context: IReadableContext;
 
     constructor(settings: SemaphoreSettings) {
         const {
@@ -82,10 +79,8 @@ export class Semaphore implements ISemaphore {
             ttl,
             serdeTransformerName,
             defaultRefreshTime,
-            context,
         } = settings;
 
-        this.context = context;
         this.slotId = slotId;
         this.limit = limit;
         this.serdeTransformerName = serdeTransformerName;
@@ -115,7 +110,6 @@ export class Semaphore implements ISemaphore {
     }
     async acquire(): Promise<boolean> {
         return await this.adapter.acquire({
-            context: this.context,
             key: this.internalKey,
             slotId: this.slotId,
             limit: this.limit,
@@ -131,11 +125,7 @@ export class Semaphore implements ISemaphore {
     }
 
     async release(): Promise<boolean> {
-        return await this.adapter.release(
-            this.internalKey,
-            this.slotId,
-            this.context,
-        );
+        return await this.adapter.release(this.internalKey, this.slotId);
     }
 
     async releaseOrFail(): Promise<void> {
@@ -149,10 +139,7 @@ export class Semaphore implements ISemaphore {
     }
 
     async forceReleaseAll(): Promise<boolean> {
-        return await this.adapter.forceReleaseAll(
-            this.internalKey,
-            this.context,
-        );
+        return await this.adapter.forceReleaseAll(this.internalKey);
     }
 
     async refresh(ttl: ITimeSpan = this.defaultRefreshTime): Promise<boolean> {
@@ -160,7 +147,6 @@ export class Semaphore implements ISemaphore {
             this.internalKey,
             this.slotId,
             TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
         if (hasRefreshed) {
             this.internalTtl = TimeSpan.fromTimeSpan(ttl);
@@ -191,10 +177,7 @@ export class Semaphore implements ISemaphore {
     }
 
     async getState(): Promise<ISemaphoreState> {
-        const state = await this.adapter.getState(
-            this.internalKey,
-            this.context,
-        );
+        const state = await this.adapter.getState(this.internalKey);
         if (state === null) {
             return {
                 type: SEMAPHORE_STATE.EXPIRED,

@@ -551,7 +551,6 @@ const eventBus = new EventBus<EventMap>({
 const semaphoreFactory = new SemaphoreFactory({
     serde,
     adapter: new RedisSemaphoreAdapter(redis),
-    eventBus,
 });
 const semaphore = semaphoreFactory.create("resource", {
     limit: 2,

@@ -6,7 +6,6 @@ import { Semaphore } from "@/semaphore/implementations/derivables/semaphore-fact
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { getConstructorName } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISemaphoreAdapter } from "@/semaphore/contracts/_module.js";
 import type { ISerializedSemaphore } from "@/semaphore/implementations/derivables/semaphore-factory/semaphore.js";
 import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
@@ -19,7 +18,6 @@ export type SemaphoreSerdeTransformerSettings = {
     adapter: ISemaphoreAdapter;
     defaultRefreshTime: TimeSpan;
     serdeTransformerName: string;
-    context: IReadableContext;
 };
 
 /**
@@ -32,13 +30,10 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
     private readonly adapter: ISemaphoreAdapter;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
-    private readonly context: IReadableContext;
 
     constructor(settings: SemaphoreSerdeTransformerSettings) {
-        const { adapter, defaultRefreshTime, serdeTransformerName, context } =
-            settings;
+        const { adapter, defaultRefreshTime, serdeTransformerName } = settings;
 
-        this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.defaultRefreshTime = defaultRefreshTime;
@@ -74,7 +69,6 @@ export class SemaphoreSerdeTransformer implements ISerdeTransformer<
     deserialize(serializedValue: ISerializedSemaphore): Semaphore {
         const { key, slotId, limit, ttlInMs } = serializedValue;
         return new Semaphore({
-            context: this.context,
             slotId,
             adapter: this.adapter,
             key,

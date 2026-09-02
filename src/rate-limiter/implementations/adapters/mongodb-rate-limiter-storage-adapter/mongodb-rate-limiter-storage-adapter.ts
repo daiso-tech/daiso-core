@@ -11,7 +11,6 @@ import type {
     ObjectId,
 } from "mongodb";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IRateLimiterData,
     IRateLimiterStorageAdapter,
@@ -166,7 +165,7 @@ export class MongodbRateLimiterStorageAdapter<TType>
         key: string,
         state: TType,
         expiration: Date,
-        _context: IReadableContext,
+
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.updateOne(
@@ -198,20 +197,19 @@ export class MongodbRateLimiterStorageAdapter<TType>
             [transaction: IRateLimiterStorageAdapterTransaction<TType>],
             Promise<TValue>
         >,
-        _context: IReadableContext,
     ): Promise<TValue> {
         return await this._transaction(async (session) => {
             return await fn({
-                upsert: (key, state, expiration, context) =>
-                    this.upsert(key, state, expiration, context, session),
-                find: (key, context) => this.find(key, context, session),
+                upsert: (key, state, expiration) =>
+                    this.upsert(key, state, expiration, session),
+                find: (key) => this.find(key, session),
             });
         });
     }
 
     async find(
         key: string,
-        _context: IReadableContext,
+
         session?: ClientSession,
     ): Promise<IRateLimiterData<TType> | null> {
         const doc = await this.collection.findOne(
@@ -233,7 +231,7 @@ export class MongodbRateLimiterStorageAdapter<TType>
 
     async remove(
         key: string,
-        _context: IReadableContext,
+
         session?: ClientSession,
     ): Promise<void> {
         await this.collection.deleteOne(

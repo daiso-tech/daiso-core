@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpCircuitBreakerAdapter } from "@/circuit-breaker/implementations/adapters/_module.js";
 import { withCircuitBreakerPrefix } from "@/circuit-breaker/implementations/plugins/with-circuit-breaker-prefix/with-circuit-breaker-prefix.js";
-import { NoOpContext } from "@/execution-context/implementations/derivables/execution-context/no-op-context.js";
 import { enhanceFactory } from "@/middleware/implementations/enhance-factory/enhance-factory.js";
 import { useFactory } from "@/middleware/implementations/use-factory/_module.js";
 import { withPluginFactory } from "@/middleware/implementations/with-plugin-factory/_module.js";
@@ -10,7 +9,6 @@ import { withPluginFactory } from "@/middleware/implementations/with-plugin-fact
 import type { ICircuitBreakerAdapter } from "@/circuit-breaker/contracts/_module.js";
 
 describe("function: withCircuitBreakerPrefix", () => {
-    const context = new NoOpContext();
     const adapter = new NoOpCircuitBreakerAdapter();
     const prefix = "test-prefix:";
     const withPlugin = withPluginFactory(enhanceFactory(useFactory()));
@@ -29,11 +27,11 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.getState("myKey", context);
+            await enhanced.getState("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICircuitBreakerAdapter["getState"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
     describe("method: isolate", () => {
@@ -45,11 +43,11 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.isolate("myKey", context);
+            await enhanced.isolate("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICircuitBreakerAdapter["isolate"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
     describe("method: reset", () => {
@@ -61,11 +59,11 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.reset("myKey", context);
+            await enhanced.reset("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICircuitBreakerAdapter["reset"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
     describe("method: trackFailure", () => {
@@ -77,11 +75,11 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.trackFailure("myKey", context);
+            await enhanced.trackFailure("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICircuitBreakerAdapter["trackFailure"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
     describe("method: trackSuccess", () => {
@@ -93,11 +91,11 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.trackSuccess("myKey", context);
+            await enhanced.trackSuccess("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICircuitBreakerAdapter["trackSuccess"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
     describe("method: updateState", () => {
@@ -109,11 +107,11 @@ describe("function: withCircuitBreakerPrefix", () => {
                 withCircuitBreakerPrefix(prefix),
             );
 
-            await enhanced.updateState("myKey", context);
+            await enhanced.updateState("myKey");
 
             expect(spy).toHaveBeenCalledExactlyOnceWith<
                 Parameters<ICircuitBreakerAdapter["updateState"]>
-            >(`${prefix}myKey`, context);
+            >(`${prefix}myKey`);
         });
     });
 });

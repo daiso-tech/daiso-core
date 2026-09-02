@@ -6,7 +6,6 @@ import { MysqlAdapter } from "kysely";
 
 import type { Kysely } from "kysely";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IReaderSemaphoreAdapterState,
     ISharedLockAdapter,
@@ -305,7 +304,6 @@ export class KyselySharedLockAdapter
         key: string,
         lockId: string,
         ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<boolean> {
         return await this.transaction(async (trx) => {
             // Check if a non-expired writer lock exists held by a different owner
@@ -369,11 +367,7 @@ export class KyselySharedLockAdapter
         });
     }
 
-    async releaseWriter(
-        key: string,
-        lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async releaseWriter(key: string, lockId: string): Promise<boolean> {
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
@@ -419,57 +413,10 @@ export class KyselySharedLockAdapter
         return result !== undefined;
     }
 
-    async forceReleaseWriter(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        if (this.isMysql) {
-            return await this.transaction(async (trx) => {
-                const existing = await trx
-                    .selectFrom("writerLock")
-                    .where("writerLock.key", "=", key)
-                    .where((eb) =>
-                        eb.or([
-                            eb("writerLock.expiration", "is", null),
-                            eb("writerLock.expiration", ">", Date.now()),
-                        ]),
-                    )
-                    .select("writerLock.key")
-                    .executeTakeFirst();
-
-                if (!existing) {
-                    return false;
-                }
-
-                await trx
-                    .deleteFrom("writerLock")
-                    .where("writerLock.key", "=", key)
-                    .execute();
-
-                return true;
-            });
-        }
-
-        const result = await this.kysely
-            .deleteFrom("writerLock")
-            .where("writerLock.key", "=", key)
-            .where((eb) =>
-                eb.or([
-                    eb("writerLock.expiration", "is", null),
-                    eb("writerLock.expiration", ">", Date.now()),
-                ]),
-            )
-            .returning("writerLock.key")
-            .executeTakeFirst();
-
-        return result !== undefined;
-    }
-
     async refreshWriter(
         key: string,
         lockId: string,
         ttl: Date,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl.getTime();
         const result = await this.kysely
@@ -579,7 +526,7 @@ export class KyselySharedLockAdapter
     }
 
     async acquireReader(settings: SharedLockAcquireSettings): Promise<boolean> {
-        const { context: _context, key, lockId, limit, ttl } = settings;
+        const { key, lockId, limit, ttl } = settings;
 
         return await this.transaction(async (trx) => {
             if (await this.checkWriterInTransaction(trx, key)) {
@@ -613,11 +560,7 @@ export class KyselySharedLockAdapter
         });
     }
 
-    async releaseReader(
-        key: string,
-        slotId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async releaseReader(key: string, slotId: string): Promise<boolean> {
         if (this.isMysql) {
             return await this.transaction(async (trx) => {
                 const existing = await trx
@@ -667,61 +610,10 @@ export class KyselySharedLockAdapter
         return result !== undefined;
     }
 
-    async forceReleaseAllReaders(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        if (this.isMysql) {
-            return await this.transaction(async (trx) => {
-                const existing = await trx
-                    .selectFrom("readerSemaphoreSlot")
-                    .where("readerSemaphoreSlot.key", "=", key)
-                    .where((eb) =>
-                        eb.or([
-                            eb("readerSemaphoreSlot.expiration", "is", null),
-                            eb(
-                                "readerSemaphoreSlot.expiration",
-                                ">",
-                                Date.now(),
-                            ),
-                        ]),
-                    )
-                    .select("readerSemaphoreSlot.id")
-                    .executeTakeFirst();
-
-                if (!existing) {
-                    return false;
-                }
-
-                await trx
-                    .deleteFrom("readerSemaphoreSlot")
-                    .where("readerSemaphoreSlot.key", "=", key)
-                    .execute();
-
-                return true;
-            });
-        }
-
-        const result = await this.kysely
-            .deleteFrom("readerSemaphoreSlot")
-            .where("readerSemaphoreSlot.key", "=", key)
-            .where((eb) =>
-                eb.or([
-                    eb("readerSemaphoreSlot.expiration", "is", null),
-                    eb("readerSemaphoreSlot.expiration", ">", Date.now()),
-                ]),
-            )
-            .returning("readerSemaphoreSlot.id")
-            .executeTakeFirst();
-
-        return result !== undefined;
-    }
-
     async refreshReader(
         key: string,
         slotId: string,
         ttl: Date,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl.getTime();
         const result = await this.kysely
@@ -830,10 +722,7 @@ export class KyselySharedLockAdapter
         return result !== undefined;
     }
 
-    async forceRelease(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceRelease(key: string): Promise<boolean> {
         const writerReleased = await this.deleteNonExpiredWriter(key);
         const readerReleased = await this.deleteNonExpiredReaderSlots(key);
         return writerReleased || readerReleased;
@@ -919,10 +808,7 @@ export class KyselySharedLockAdapter
         };
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ISharedLockAdapterState | null> {
+    async getState(key: string): Promise<ISharedLockAdapterState | null> {
         return await this.transaction(async (trx) => {
             const writer = await KyselySharedLockAdapter.getWriterState(
                 trx,

@@ -35,14 +35,15 @@ The plugin prefixes keys for the following methods:
 
 | Method           | Key argument             | Pattern                     |
 | ---------------- | ------------------------ | --------------------------- |
-| `add`            | Second argument (`key`)  | `prefix + key`              |
 | `get`            | Second argument (`key`)  | `prefix + key`              |
 | `getAndRemove`   | Second argument (`key`)  | `prefix + key`              |
-| `increment`      | Second argument (`key`)  | `prefix + key`              |
+| `add`            | Second argument (`key`)  | `prefix + key`              |
+| `getOrAdd`       | Second argument (`key`)  | `prefix + key`              |
 | `put`            | Second argument (`key`)  | `prefix + key`              |
-| `removeByPrefix` | Second argument (`key`)  | `prefix + key`              |
-| `removeMany`     | Second argument (`keys`) | `keys.map(k => prefix + k)` |
 | `update`         | Second argument (`key`)  | `prefix + key`              |
+| `increment`      | Second argument (`key`)  | `prefix + key`              |
+| `removeMany`     | Second argument (`keys`) | `keys.map(k => prefix + k)` |
+| `removeByPrefix` | Second argument (`key`)  | `prefix + key`              |
 
 Methods that do not accept a key (`removeAll`) are unaffected.
 
@@ -64,14 +65,14 @@ const prefixedAdapter = withPlugin(adapter, withCachePrefix("tenant-42:"));
 **Before** — Keys are stored as-is:
 
 ```ts
-adapter.get("user:123", context);
+adapter.get("user:123");
 // -> looks up key "user:123"
 ```
 
 **After** — Keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.get("user:123", context);
+prefixedAdapter.get("user:123");
 // -> looks up key "tenant-42:user:123"
 ```
 
@@ -88,8 +89,8 @@ For more information about the `withPlugin` function and applying plugins to ada
 The `removeMany` method receives an array of keys. The plugin maps over the array, prefixing each entry:
 
 ```ts
-prefixedAdapter.removeMany(["a", "b", "c"], context);
-// -> prefixedAdapter.removeMany(["tenant-42:a", "tenant-42:b", "tenant-42:c"], context)
+prefixedAdapter.removeMany(["a", "b", "c"]);
+// -> prefixedAdapter.removeMany(["tenant-42:a", "tenant-42:b", "tenant-42:c"])
 ```
 
 ## withCacheJitter plugin
@@ -108,12 +109,11 @@ The `withCacheJitter` function returns a [`PluginFn`](/docs/components/middlewar
 
 The jitter is calculated as a random percentage of the original TTL. For example, with the default `defaultJitter` of `0.2` (20 %), a TTL of 60 seconds will be randomly adjusted to somewhere between 48 and 72 seconds.
 
-| Method | TTL argument   | Behaviour                        |
-| ------ | -------------- | -------------------------------- |
-| `add`  | Third argument | Applies random jitter to the TTL |
-| `put`  | Third argument | Applies random jitter to the TTL |
-
-Methods that do not accept a TTL are unaffected.
+| Method     | TTL argument   | Behaviour                        |
+| ---------- | -------------- | -------------------------------- |
+| `add`      | Third argument | Applies random jitter to the TTL |
+| `add`      | Third argument | Applies random jitter to the TTL |
+| `getOrAdd` | Third argument | Applies random jitter to the TTL |
 
 ### Usage
 
@@ -142,7 +142,7 @@ Because `withPlugin` uses `enhance` under the hood, the same edge case applies: 
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
 :::
 
-## withCacheSchema plugin
+<!-- ## withCacheSchema plugin
 
 The Cache schema plugin validates cache values against a [standard schema](https://github.com/standard-schema/standard-schema) before storing or retrieving them. On `add`, `put`, and `update` operations, the input value is validated against the provided schema before being stored. Optionally, `get` and `getAndRemove` outputs can also be validated on retrieval to ensure data integrity.
 
@@ -206,7 +206,7 @@ Because `withPlugin` uses `enhance` under the hood, the same edge case applies: 
 
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
-:::
+::: -->
 
 ## withCacheWriteLock plugin
 
@@ -230,6 +230,7 @@ By default, all mutating methods are protected:
 | Method         | Lock key source | Behaviour                                     |
 | -------------- | --------------- | --------------------------------------------- |
 | `add`          | Single key      | Acquires lock for the key before adding       |
+| `getOrAdd`     | Single key      | Acquires lock for the key before adding       |
 | `put`          | Single key      | Acquires lock for the key before putting      |
 | `update`       | Single key      | Acquires lock for the key before updating     |
 | `increment`    | Single key      | Acquires lock for the key before incrementing |

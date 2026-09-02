@@ -4,7 +4,6 @@
 
 import { UnexpectedError } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ISharedLockFactory,
@@ -160,7 +159,6 @@ export class MemorySharedLockAdapter
         key: string,
         lockId: string,
         ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const lockEntry = this.getWriter(key);
         if (lockEntry === "reader-active") {
@@ -179,11 +177,7 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    releaseWriter(
-        key: string,
-        lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    releaseWriter(key: string, lockId: string): Promise<boolean> {
         const lockEntry = this.getWriter(key);
         if (lockEntry === "not-found" || lockEntry === "reader-active") {
             return Promise.resolve(false);
@@ -195,24 +189,7 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    forceReleaseWriter(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        const lockEntry = this.getWriter(key);
-        if (lockEntry === "not-found" || lockEntry === "reader-active") {
-            return Promise.resolve(false);
-        }
-        this.map.delete(key);
-        return Promise.resolve(true);
-    }
-
-    refreshWriter(
-        key: string,
-        lockId: string,
-        ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    refreshWriter(key: string, lockId: string, ttl: Date): Promise<boolean> {
         const lockEntry = this.getWriter(key);
         if (lockEntry === "not-found" || lockEntry == "reader-active") {
             return Promise.resolve(false);
@@ -261,11 +238,7 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    releaseReader(
-        key: string,
-        slotId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    releaseReader(key: string, slotId: string): Promise<boolean> {
         const semaphoreEntry = this.getReader(key);
         if (
             semaphoreEntry === "not-found" ||
@@ -288,28 +261,7 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    forceReleaseAllReaders(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        const semaphoreEntry = this.getReader(key);
-        if (
-            semaphoreEntry === "not-found" ||
-            semaphoreEntry === "writer-active"
-        ) {
-            return Promise.resolve(false);
-        }
-        const hasSlots = semaphoreEntry.slots.size > 0;
-        this.map.delete(key);
-        return Promise.resolve(hasSlots);
-    }
-
-    refreshReader(
-        key: string,
-        slotId: string,
-        ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    refreshReader(key: string, slotId: string, ttl: Date): Promise<boolean> {
         const semaphoreEntry = this.getReader(key);
         if (
             semaphoreEntry === "not-found" ||
@@ -330,7 +282,7 @@ export class MemorySharedLockAdapter
         return Promise.resolve(true);
     }
 
-    forceRelease(key: string, _context: IReadableContext): Promise<boolean> {
+    forceRelease(key: string): Promise<boolean> {
         const reader = this.getReader(key);
         const writer = this.getWriter(key);
         const hasSharedLock =

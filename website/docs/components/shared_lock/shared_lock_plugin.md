@@ -30,39 +30,15 @@ The `withSharedLockPrefix` function returns a [`PluginFn`](/docs/components/midd
 
 The plugin prefixes keys for the following methods:
 
-| Method                   | Key argument                 | Pattern        |
-| ------------------------ | ---------------------------- | -------------- |
-| `forceRelease`           | Second argument (`key`)      | `prefix + key` |
-| `getState`               | Second argument (`key`)      | `prefix + key` |
-| `acquireWriter`          | Second argument (`key`)      | `prefix + key` |
-| `forceReleaseWriter`     | Second argument (`key`)      | `prefix + key` |
-| `refreshWriter`          | Second argument (`key`)      | `prefix + key` |
-| `releaseWriter`          | Second argument (`key`)      | `prefix + key` |
-| `acquireReader`          | `key` within settings object | `prefix + key` |
-| `forceReleaseAllReaders` | Second argument (`key`)      | `prefix + key` |
-| `refreshReader`          | Second argument (`key`)      | `prefix + key` |
-
-#### Writer methods
-
-All writer-related methods (`acquireWriter`, `forceReleaseWriter`, `refreshWriter`, `releaseWriter`) receive the key as a positional argument (second parameter). The plugin prefixes this key directly.
-
-#### Reader methods
-
-Reader methods that accept a key as a positional argument (`forceReleaseAllReaders`, `refreshReader`) have their key prefixed directly. The `acquireReader` method accepts a single settings object — the plugin destructures it, prefixes the `key` field, and reconstructs the object:
-
-```ts
-// Before:
-adapter.acquireReader({ context, key: "my-key", lockId: "l1", limit: 5, ttl });
-
-// After plugin transforms:
-adapter.acquireReader({
-    context,
-    key: "prefix:my-key",
-    lockId: "l1",
-    limit: 5,
-    ttl,
-});
-```
+| Method          | Key argument                 | Pattern        |
+| --------------- | ---------------------------- | -------------- |
+| `forceRelease`  | First argument (`key`)       | `prefix + key` |
+| `getState`      | First argument (`key`)       | `prefix + key` |
+| `acquireWriter` | First argument (`key`)       | `prefix + key` |
+| `refreshWriter` | First argument (`key`)       | `prefix + key` |
+| `releaseWriter` | First argument (`key`)       | `prefix + key` |
+| `acquireReader` | `key` within settings object | `prefix + key` |
+| `refreshReader` | First argument (`key`)       | `prefix + key` |
 
 ### Usage
 
@@ -82,14 +58,14 @@ const prefixedAdapter = withPlugin(adapter, withSharedLockPrefix("tenant-42:"));
 **Before** — Shared lock keys are used as-is:
 
 ```ts
-adapter.acquireWriter("doc:42", "writer-1", ttl, context);
+adapter.acquireWriter("doc:42", "writer-1", ttl);
 // -> acquires writer lock on "doc:42"
 ```
 
 **After** — Shared lock keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.acquireWriter("doc:42", "writer-1", ttl, context);
+prefixedAdapter.acquireWriter("doc:42", "writer-1", ttl);
 // -> acquires writer lock on "tenant-42:doc:42"
 ```
 

@@ -14,7 +14,6 @@ import { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.
 import { Serde } from "@/serde/implementations/derivables/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IRateLimiterFactory,
     RateLimiterExpiredState,
@@ -27,20 +26,16 @@ import type {
 
 describe("class: RateLimiterFactory", () => {
     const adapter: IRateLimiterAdapter = {
-        getState(
-            _key: string,
-            _context: IReadableContext,
-        ): Promise<IRateLimiterAdapterState | null> {
+        getState(_key: string): Promise<IRateLimiterAdapterState | null> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
         updateState(
             _key: string,
             _limit: number,
-            _context: IReadableContext,
         ): Promise<IRateLimiterAdapterState> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
-        reset(_key: string, _context: IReadableContext): Promise<void> {
+        reset(_key: string): Promise<void> {
             throw new UnexpectedErrorA("Function not implemented.");
         },
     };
@@ -426,21 +421,19 @@ describe("class: RateLimiterFactory", () => {
 
                 getState(
                     key: string,
-                    context: IReadableContext,
                 ): Promise<IRateLimiterAdapterState | null> {
-                    return this.adapter_.getState(key, context);
+                    return this.adapter_.getState(key);
                 }
 
                 updateState(
                     key: string,
                     limit: number,
-                    context: IReadableContext,
                 ): Promise<IRateLimiterAdapterState> {
-                    return this.adapter_.updateState(key, limit, context);
+                    return this.adapter_.updateState(key, limit);
                 }
 
-                reset(key: string, context: IReadableContext): Promise<void> {
-                    return this.adapter_.reset(key, context);
+                reset(key: string): Promise<void> {
+                    return this.adapter_.reset(key);
                 }
             }
 

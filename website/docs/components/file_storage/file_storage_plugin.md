@@ -37,31 +37,31 @@ The `withFileStoragePrefix` function returns a [`PluginFn`](/docs/components/mid
 
 The plugin prefixes keys for the following methods:
 
-| Method                 | Key argument               | Pattern                     |
-| ---------------------- | -------------------------- | --------------------------- |
-| `getPublicUrl`         | Second argument (`key`)    | `prefix + key`              |
-| `getSignedDownloadUrl` | Second argument (`key`)    | `prefix + key`              |
-| `getSignedUploadUrl`   | Second argument (`key`)    | `prefix + key`              |
-| `exists`               | Second argument (`key`)    | `prefix + key`              |
-| `getStream`            | Second argument (`key`)    | `prefix + key`              |
-| `getBytes`             | Second argument (`key`)    | `prefix + key`              |
-| `getMetaData`          | Second argument (`key`)    | `prefix + key`              |
-| `add`                  | Second argument (`key`)    | `prefix + key`              |
-| `addStream`            | Second argument (`key`)    | `prefix + key`              |
-| `update`               | Second argument (`key`)    | `prefix + key`              |
-| `updateStream`         | Second argument (`key`)    | `prefix + key`              |
-| `put`                  | Second argument (`key`)    | `prefix + key`              |
-| `putStream`            | Second argument (`key`)    | `prefix + key`              |
-| `copy`                 | Second argument (`source`) | `prefix + source`           |
-| `copyAndReplace`       | Second argument (`source`) | `prefix + source`           |
-| `move`                 | Second argument (`source`) | `prefix + source`           |
-| `moveAndReplace`       | Second argument (`source`) | `prefix + source`           |
-| `removeMany`           | Second argument (`keys`)   | `keys.map(k => prefix + k)` |
-| `removeByPrefix`       | Second argument (`key`)    | `prefix + key`              |
+| Method                 | Key argument                                        | Pattern                                   |
+| ---------------------- | --------------------------------------------------- | ----------------------------------------- |
+| `getPublicUrl`         | first argument (`key`)                              | `prefix + key`                            |
+| `getSignedDownloadUrl` | first argument (`key`)                              | `prefix + key`                            |
+| `getSignedUploadUrl`   | first argument (`key`)                              | `prefix + key`                            |
+| `exists`               | first argument (`key`)                              | `prefix + key`                            |
+| `getStream`            | first argument (`key`)                              | `prefix + key`                            |
+| `getBytes`             | first argument (`key`)                              | `prefix + key`                            |
+| `getMetaData`          | first argument (`key`)                              | `prefix + key`                            |
+| `add`                  | first argument (`key`)                              | `prefix + key`                            |
+| `addStream`            | first argument (`key`)                              | `prefix + key`                            |
+| `update`               | first argument (`key`)                              | `prefix + key`                            |
+| `updateStream`         | first argument (`key`)                              | `prefix + key`                            |
+| `put`                  | first argument (`key`)                              | `prefix + key`                            |
+| `putStream`            | first argument (`key`)                              | `prefix + key`                            |
+| `copy`                 | first and second argument (`source`, `destination`) | `prefix + source`, `prefix + destination` |
+| `copyAndReplace`       | first and second argument (`source`, `destination`) | `prefix + source`, `prefix + destination` |
+| `move`                 | first and second argument (`source`, `destination`) | `prefix + source`, `prefix + destination` |
+| `moveAndReplace`       | first and second argument (`source`, `destination`) | `prefix + source`, `prefix + destination` |
+| `removeMany`           | first argument (`keys`)                             | `keys.map(k => prefix + k)`               |
+| `removeByPrefix`       | first argument (`key`)                              | `prefix + key`                            |
 
 #### Copy and move behavior
 
-For the `copy`, `copyAndReplace`, `move`, and `moveAndReplace` methods, only the **source** key (the first string argument after context) is prefixed. The destination key is passed through unchanged. This allows copying/moving files to an un-prefixed location.
+For the `copy`, `copyAndReplace`, `move`, and `moveAndReplace` methods, booth the **destination** and **source** keys are prefixed.
 
 ### Usage
 
@@ -84,14 +84,14 @@ const prefixedAdapter = withPlugin(
 **Before** — File keys are used as-is:
 
 ```ts
-adapter.getBytes("uploads/report.pdf", context);
+adapter.getBytes("uploads/report.pdf");
 // -> retrieves "uploads/report.pdf"
 ```
 
 **After** — File keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.getBytes("uploads/report.pdf", context);
+prefixedAdapter.getBytes("uploads/report.pdf");
 // -> retrieves "tenant-42/uploads/report.pdf"
 ```
 
@@ -108,8 +108,8 @@ For more information about the `withPlugin` function and applying plugins to ada
 The `removeMany` method receives an array of keys. The plugin maps over the array, prefixing each entry:
 
 ```ts
-prefixedAdapter.removeMany(["a.pdf", "b.pdf"], context);
-// -> prefixedAdapter.removeMany(["tenant-42/a.pdf", "tenant-42/b.pdf"], context)
+prefixedAdapter.removeMany(["a.pdf", "b.pdf"]);
+// -> prefixedAdapter.removeMany(["tenant-42/a.pdf", "tenant-42/b.pdf"])
 ```
 
 ## withFileStorageLock plugin

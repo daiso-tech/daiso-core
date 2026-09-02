@@ -64,26 +64,14 @@ export function withCacheJitter(
         );
     }
     return (adapter, enhance) => {
-        enhance(
-            adapter,
-            "add",
-            ({ args: [key, value, ttl, context], next }) => {
-                return next([key, value, ttlWithJitter(ttl), context]);
-            },
-        );
-        enhance(
-            adapter,
-            "put",
-            ({ args: [key, value, ttl, context], next }) => {
-                return next([key, value, ttlWithJitter(ttl), context]);
-            },
-        );
-        enhance(
-            adapter,
-            "getOrAdd",
-            ({ args: [key, value, ttl, context], next }) => {
-                return next([key, value, ttlWithJitter(ttl), context]);
-            },
-        );
+        enhance(adapter, "add", ({ args: [key, value, ttl], next }) => {
+            return next([key, value, ttlWithJitter(ttl)]);
+        });
+        enhance(adapter, "put", ({ args: [key, value, ttl], next }) => {
+            return next([key, value, ttlWithJitter(ttl)]);
+        });
+        enhance(adapter, "getOrAdd", ({ args: [key, value, ttl], next }) => {
+            return next([key, value, ttlWithJitter(ttl)]);
+        });
     };
 }

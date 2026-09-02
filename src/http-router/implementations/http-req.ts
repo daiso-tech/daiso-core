@@ -2,22 +2,36 @@
  * @module HttpRouter
  */
 
+import { HttpError } from "@/http-router/contracts/_module.js";
+import { HttpFileCollection } from "@/http-router/implementations/http-file-collection.js";
 import { HttpFile } from "@/http-router/implementations/http-file.js";
-import { ValidatedHttpReq } from "@/http-router/implementations/validated-http-req.js";
+import {
+    callInvocable,
+    isInvocable,
+    resolveOneOrMore,
+    validate,
+    validateSync,
+    ValidationError,
+} from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 import type {
     HttpMethod,
-    HttpReqSchemas,
     IHttpFile,
     IHttpReq,
     RawFormData,
     MultiStringInputs,
     StringInputs,
-    FileDef,
+    CoercibleStringInputs,
+    CoercibleMultiStringInputs,
     FileInputs,
-    IValidatedHttpReq,
-    ReqInputs,
+    HttpReqFiles,
+    IHttpFileCollection,
+    StaticFileDef,
+    DynamicFileDef,
 } from "@/http-router/contracts/_module.js";
+import type { InvocableFn, OneOrArray } from "@/utilities/_module.js";
 
 /**
  * Configuration for creating an {@link HttpReq} from a standard Web API `Request`.
@@ -92,7 +106,7 @@ export type TestReqMultipartFormDataBody = {
          * Accepts a single `ArrayBuffer` for single-file fields or
          * `ArrayBuffer[]` for multi-file fields.
          */
-        files?: Partial<Record<string, ArrayBuffer | Array<ArrayBuffer>>>;
+        files?: Partial<Record<string, OneOrArray<ArrayBuffer>>>;
     };
 };
 
@@ -141,7 +155,7 @@ export type TestReqBody =
  * @typeParam TReqParams - The type of the parsed path parameters.
  * @typeParam TReqSearchParams - The type of the parsed query parameters.
  * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file upload definitions.
+ * @typeParam TFiles - The expected file upload definitions.
  * @typeParam TCookieData - A record mapping cookie names to their value types.
  *
  * IMPORT_PATH: `"eridu-tech/http-router"`
@@ -201,7 +215,7 @@ export type TestReqSettings = {
  * @typeParam TReqParams - The type of the parsed path parameters.
  * @typeParam TReqSearchParams - The type of the parsed query parameters.
  * @typeParam TReqHeaders - The type of the parsed headers.
- * @typeParam TReqFiles - The expected file upload definitions.
+ * @typeParam TFiles - The expected file upload definitions.
  * @typeParam TCookieData - A record mapping cookie names to their value types.
  *
  * IMPORT_PATH: `"eridu-tech/http-router"`
@@ -454,8 +468,20 @@ export class HttpReq implements IHttpReq {
         return this.request.signal;
     }
 
-    rawCookies(): StringInputs {
-        return HttpReq.deserializeCookies(this.request.headers);
+    cookies(): StringInputs;
+    cookies<TCookies extends CoercibleStringInputs>(
+        schema: StandardSchemaV1<StringInputs, TCookies>,
+    ): TCookies;
+    cookies(
+        schema?: StandardSchemaV1<StringInputs, CoercibleStringInputs>,
+    ): CoercibleStringInputs {
+        const cookies = HttpReq.deserializeCookies(this.request.headers);
+        if (schema === undefined) {
+            return cookies;
+        }
+        return HttpReq.convertValidationErrorSync(() => {
+            return validateSync(schema, cookies);
+        });
     }
 
     get method(): HttpMethod {
@@ -466,16 +492,35 @@ export class HttpReq implements IHttpReq {
         return this.request.url;
     }
 
-    rawJson(): Promise<unknown> {
-        return this.request.json();
+    json(): Promise<unknown>;
+    json<TJSon>(schema: StandardSchemaV1<unknown, TJSon>): Promise<TJSon>;
+    async json(schema?: StandardSchemaV1): Promise<unknown> {
+        const json = await this.request.json();
+        if (schema === undefined) {
+            return json;
+        }
+        return HttpReq.convertValidationError(async () => {
+            return await validate(schema, json);
+        });
     }
 
-    async rawFormData(): Promise<RawFormData> {
+    private rawFormDataPromise: Promise<FormData> | null = null;
+
+    private async getRawFormDataPromise(): Promise<FormData> {
+        if (this.rawFormDataPromise === null) {
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
+            this.rawFormDataPromise = this.request.formData();
+            return this.rawFormDataPromise;
+        }
+        return this.rawFormDataPromise;
+    }
+
+    async formData(): Promise<RawFormData> {
         // eslint-disable-next-line @typescript-eslint/no-deprecated
-        const formData = await this.request.formData();
+        const formData = await this.getRawFormDataPromise();
         const result: Record<
             string,
-            string | Array<string> | IHttpFile | Array<IHttpFile>
+            OneOrArray<string> | OneOrArray<IHttpFile>
         > = {};
         const seen = new Set<string>();
         for (const [key, value] of formData.entries()) {
@@ -503,12 +548,282 @@ export class HttpReq implements IHttpReq {
         return result;
     }
 
-    rawParams(): StringInputs {
-        return this.rawParamsData;
+    private async rawFields(): Promise<MultiStringInputs> {
+        return Object.fromEntries(
+            Object.entries(await this.formData()).filter(
+                (item): item is [string, OneOrArray<string>] => {
+                    const [_key, value] = item;
+                    const isString = typeof value === "string";
+                    const arrayOfStrings =
+                        Array.isArray(value) &&
+                        value.every((subItem) => typeof subItem === "string");
+                    return isString || arrayOfStrings;
+                },
+            ),
+        );
     }
 
-    rawSearchParams(): MultiStringInputs {
-        const result: Record<string, string | Array<string>> = {};
+    static async convertValidationError<TReturn>(
+        fn: InvocableFn<[], Promise<TReturn>>,
+    ): Promise<TReturn> {
+        try {
+            return await fn();
+        } catch (error: unknown) {
+            if (!(error instanceof ValidationError)) {
+                throw error;
+            }
+            throw HttpError.create({
+                message: error.message,
+                status: "400",
+                payload: error.issues,
+            });
+        }
+    }
+
+    fields(): Promise<MultiStringInputs>;
+    fields<TFields extends CoercibleMultiStringInputs>(
+        schema: StandardSchemaV1<MultiStringInputs, TFields>,
+    ): Promise<TFields>;
+    async fields(
+        schema?: StandardSchemaV1<
+            MultiStringInputs,
+            CoercibleMultiStringInputs
+        >,
+    ): Promise<CoercibleMultiStringInputs> {
+        const fields = await this.rawFields();
+        if (schema === undefined) {
+            return fields;
+        }
+        return HttpReq.convertValidationError(async () => {
+            return await validate(schema, fields);
+        });
+    }
+
+    private async rawFiles(): Promise<Array<[string, OneOrArray<IHttpFile>]>> {
+        return Object.entries(await this.formData()).filter(
+            (item): item is [string, OneOrArray<IHttpFile>] => {
+                const [_key, value] = item;
+                const isHttpFile = typeof value !== "string";
+                const arrayOfHttpFiles =
+                    Array.isArray(value) &&
+                    value.every((subItem) => typeof subItem !== "string");
+                return isHttpFile || arrayOfHttpFiles;
+            },
+        );
+    }
+
+    private async rawFileCollections(): Promise<HttpReqFiles> {
+        const rawFiles = await this.rawFiles();
+        return Object.fromEntries(
+            rawFiles.map<[string, IHttpFileCollection]>(([key, files]) => {
+                return [
+                    key,
+                    new HttpFileCollection(key, resolveOneOrMore(files)),
+                ];
+            }),
+        );
+    }
+
+    private static validateFileSize(
+        staticFileDef: StaticFileDef,
+        collection: IHttpFileCollection,
+    ): string | null {
+        if (staticFileDef.fileSize !== undefined) {
+            for (const item of collection) {
+                if (item.fileSize.lte(staticFileDef.fileSize)) {
+                    continue;
+                }
+
+                return "!!__MESSAGE__!!";
+            }
+        }
+
+        return null;
+    }
+
+    private static validateContentType(
+        staticFileDef: StaticFileDef,
+        collection: IHttpFileCollection,
+    ): string | null {
+        if (staticFileDef.contentType !== undefined) {
+            for (const item of collection) {
+                if (item.contentType === staticFileDef.contentType) {
+                    continue;
+                }
+
+                return "!!__MESSAGE__!!";
+            }
+        }
+
+        return null;
+    }
+
+    private static validateName(
+        staticFileDef: StaticFileDef,
+        collection: IHttpFileCollection,
+    ): string | null {
+        if (staticFileDef.name !== undefined) {
+            for (const item of collection) {
+                if (
+                    staticFileDef.name instanceof RegExp &&
+                    staticFileDef.name.test(item.name)
+                ) {
+                    continue;
+                }
+
+                return "!!__MESSAGE__!!";
+            }
+        }
+
+        return null;
+    }
+
+    private static validateFileAmount(
+        staticFileDef: StaticFileDef,
+        collection: IHttpFileCollection,
+    ): string | null {
+        if (
+            staticFileDef.max !== undefined &&
+            collection.size() > staticFileDef.max
+        ) {
+            return "!!__MESSAGE__!!";
+        }
+
+        if (
+            staticFileDef.min !== undefined &&
+            collection.size() < staticFileDef.min
+        ) {
+            return "!!__MESSAGE__!!";
+        }
+
+        return null;
+    }
+
+    private static validateFileExists(
+        staticFileDef: StaticFileDef,
+        collection: IHttpFileCollection,
+    ): string | null {
+        if (
+            staticFileDef.optional !== undefined &&
+            !staticFileDef.optional &&
+            collection.isEmpty()
+        ) {
+            return "!!__MESSAGE__!!";
+        }
+
+        return null;
+    }
+
+    private static staticFileDefToDynamic(
+        staticFileDef: StaticFileDef,
+    ): DynamicFileDef {
+        return (collection) => {
+            const results = [
+                HttpReq.validateFileAmount(staticFileDef, collection),
+                HttpReq.validateFileExists(staticFileDef, collection),
+                HttpReq.validateFileSize(staticFileDef, collection),
+                HttpReq.validateContentType(staticFileDef, collection),
+                HttpReq.validateName(staticFileDef, collection),
+            ];
+
+            for (const result of results) {
+                if (typeof result === "string") {
+                    return result;
+                }
+            }
+
+            return null;
+        };
+    }
+    private resolveFileInputDefs(
+        schema: FileInputs,
+    ): Partial<Record<string, DynamicFileDef>> {
+        return Object.fromEntries(
+            Object.entries(schema).map<[string, DynamicFileDef | undefined]>(
+                (item) => {
+                    const [field, def] = item;
+                    if (isInvocable(def)) {
+                        return [field, def];
+                    }
+                    if (def === undefined) {
+                        return [field, def];
+                    }
+                    return [field, HttpReq.staticFileDefToDynamic(def)];
+                },
+            ),
+        );
+    }
+
+    files(): Promise<HttpReqFiles>;
+    files<TFiles extends FileInputs>(
+        schema: TFiles,
+    ): Promise<HttpReqFiles<TFiles>>;
+    async files(schema?: FileInputs): Promise<HttpReqFiles> {
+        const fileCollections = await this.rawFileCollections();
+        if (schema === undefined) {
+            return fileCollections;
+        }
+        const resolvedSchema = this.resolveFileInputDefs(schema);
+        const fields = Object.keys(schema);
+        return Object.fromEntries(
+            Object.entries(fileCollections)
+                .filter(([field, _collection]) => {
+                    return fields.includes(field);
+                })
+                .map<[string, IHttpFileCollection]>(([field, collection]) => {
+                    const collectionSchema = resolvedSchema[field];
+                    if (collectionSchema === undefined) {
+                        return [field, collection];
+                    }
+                    const errorMessage = callInvocable(
+                        collectionSchema,
+                        collection,
+                    );
+                    if (typeof errorMessage === "string") {
+                        throw HttpError.create({
+                            status: "400",
+                            message: errorMessage,
+                        });
+                    }
+                    return [field, collection];
+                }),
+        );
+    }
+
+    static convertValidationErrorSync<TReturn>(
+        fn: InvocableFn<[], TReturn>,
+    ): TReturn {
+        try {
+            return fn();
+        } catch (error: unknown) {
+            if (!(error instanceof ValidationError)) {
+                throw error;
+            }
+            throw HttpError.create({
+                message: error.message,
+                status: "400",
+                payload: error.issues,
+            });
+        }
+    }
+
+    params(): StringInputs;
+    params<TParams extends CoercibleStringInputs>(
+        schema: StandardSchemaV1<StringInputs, TParams>,
+    ): TParams;
+    params(
+        schema?: StandardSchemaV1<StringInputs, CoercibleStringInputs>,
+    ): CoercibleStringInputs {
+        if (schema === undefined) {
+            return this.rawParamsData;
+        }
+        return HttpReq.convertValidationErrorSync(() => {
+            return validateSync(schema, this.rawParamsData);
+        });
+    }
+
+    private rawSearchParams(): MultiStringInputs {
+        const result: Record<string, OneOrArray<string>> = {};
         const searchParams = new URL(this.url).searchParams;
         for (const key of new Set(searchParams.keys())) {
             const values = searchParams.getAll(key);
@@ -522,8 +837,39 @@ export class HttpReq implements IHttpReq {
         return result;
     }
 
-    rawHeaders(): StringInputs {
-        return Object.fromEntries(this.request.headers.entries());
+    searchParams(): MultiStringInputs;
+    searchParams<TSearchParams extends CoercibleMultiStringInputs>(
+        schema: StandardSchemaV1<MultiStringInputs, TSearchParams>,
+    ): TSearchParams;
+    searchParams(
+        schema?: StandardSchemaV1<
+            MultiStringInputs,
+            CoercibleMultiStringInputs
+        >,
+    ): CoercibleStringInputs {
+        const searchParams = this.rawSearchParams();
+        if (schema === undefined) {
+            return searchParams;
+        }
+        return HttpReq.convertValidationErrorSync(() => {
+            return validateSync(schema, searchParams);
+        });
+    }
+
+    headers(): StringInputs;
+    headers<THeaders extends CoercibleStringInputs>(
+        schema: StandardSchemaV1<StringInputs, THeaders>,
+    ): THeaders;
+    headers(
+        schema?: StandardSchemaV1<StringInputs, CoercibleStringInputs>,
+    ): CoercibleStringInputs {
+        const headers = Object.fromEntries(this.request.headers.entries());
+        if (schema === undefined) {
+            return headers;
+        }
+        return HttpReq.convertValidationErrorSync(() => {
+            return validateSync(schema, headers);
+        });
     }
 
     arrayBuffer(): Promise<ArrayBuffer> {
@@ -540,35 +886,5 @@ export class HttpReq implements IHttpReq {
 
     get webReq(): Request {
         return this.request;
-    }
-
-    withSchema<
-        TReqJson = unknown,
-        TReqFields extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqParams extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqSearchParams extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqHeaders extends ReqInputs = Partial<Record<string, unknown>>,
-        TReqFiles extends FileInputs = Partial<Record<string, FileDef>>,
-        TCookieData extends StringInputs = Partial<Record<string, string>>,
-    >(
-        schemas: HttpReqSchemas<
-            TReqJson,
-            TReqFields,
-            TReqParams,
-            TReqSearchParams,
-            TReqHeaders,
-            TReqFiles,
-            TCookieData
-        >,
-    ): IValidatedHttpReq<
-        TReqJson,
-        TReqFields,
-        TReqParams,
-        TReqSearchParams,
-        TReqHeaders,
-        TReqFiles,
-        TCookieData
-    > {
-        return new ValidatedHttpReq(this, schemas);
     }
 }

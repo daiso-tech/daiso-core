@@ -25,7 +25,6 @@ import type {
 } from "@/circuit-breaker/contracts/_module.js";
 import type { AllCircuitBreakerState } from "@/circuit-breaker/implementations/adapters/database-circuit-breaker-adapter/internal-circuit-breaker-policy.js";
 import type { CircuitBreakerPolicySettingsEnum } from "@/circuit-breaker/implementations/policies/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 
 /**
  * Configuration for `RedisCircuitBreakerAdapter`.
@@ -204,10 +203,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         });
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<CircuitBreakerState> {
+    async getState(key: string): Promise<CircuitBreakerState> {
         const value = await this.database.get(key);
         if (value === null) {
             return CIRCUIT_BREAKER_STATE.CLOSED;
@@ -216,10 +212,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         return state.type;
     }
 
-    async updateState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<CircuitBreakerStateTransition> {
+    async updateState(key: string): Promise<CircuitBreakerStateTransition> {
         const value = await this.database.eridu_circuit_breaker_update_state(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
@@ -231,7 +224,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         return JSON.parse(value) as CircuitBreakerStateTransition;
     }
 
-    async isolate(key: string, _context: IReadableContext): Promise<void> {
+    async isolate(key: string): Promise<void> {
         await this.database.set(
             key,
             JSON.stringify({
@@ -240,7 +233,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         );
     }
 
-    async trackFailure(key: string, _context: IReadableContext): Promise<void> {
+    async trackFailure(key: string): Promise<void> {
         await this.database.eridu_circuit_breaker_track_failure(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
@@ -251,7 +244,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         );
     }
 
-    async trackSuccess(key: string, _context: IReadableContext): Promise<void> {
+    async trackSuccess(key: string): Promise<void> {
         await this.database.eridu_circuit_breaker_track_success(
             key,
             JSON.stringify(serializeBackoffSettingsEnum(this.backoff)),
@@ -262,7 +255,7 @@ export class RedisCircuitBreakerAdapter implements ICircuitBreakerAdapter {
         );
     }
 
-    async reset(key: string, _context: IReadableContext): Promise<void> {
+    async reset(key: string): Promise<void> {
         await this.database.del(key);
     }
 }

@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { MemoryLockAdapter } from "@/lock/implementations/adapters/memory-lock-adapter/_module.js";
 import { lockAdapterTestSuite } from "@/lock/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -21,15 +19,11 @@ describe("class: MemoryLockAdapter", () => {
         test("Should remove expired locks", async () => {
             const map = new Map<string, ILockAdapterState>();
             const adapter = new MemoryLockAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.acquire(
                 "expired",
                 "1",
                 TimeSpan.fromMilliseconds(100).toEndDate(),
-                noOpContext,
             );
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -41,15 +35,11 @@ describe("class: MemoryLockAdapter", () => {
         test("Should keep unexpired locks", async () => {
             const map = new Map<string, ILockAdapterState>();
             const adapter = new MemoryLockAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.acquire(
                 "unexpired",
                 "3",
                 TimeSpan.fromMinutes(5).toEndDate(),
-                noOpContext,
             );
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -61,11 +51,8 @@ describe("class: MemoryLockAdapter", () => {
         test("Should keep unexpireable locks", async () => {
             const map = new Map<string, ILockAdapterState>();
             const adapter = new MemoryLockAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
-            await adapter.acquire("unexpireable", "2", null, noOpContext);
+            await adapter.acquire("unexpireable", "2", null);
 
             await delay(TimeSpan.fromMilliseconds(200));
 
@@ -76,16 +63,12 @@ describe("class: MemoryLockAdapter", () => {
         test("Should not remove any locks when none are expired", async () => {
             const map = new Map<string, ILockAdapterState>();
             const adapter = new MemoryLockAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
-            await adapter.acquire("unexpireable", "1", null, noOpContext);
+            await adapter.acquire("unexpireable", "1", null);
             await adapter.acquire(
                 "unexpired",
                 "2",
                 TimeSpan.fromMinutes(5).toEndDate(),
-                noOpContext,
             );
 
             await delay(TimeSpan.fromMilliseconds(200));
@@ -101,23 +84,18 @@ describe("class: MemoryLockAdapter", () => {
         test("Should clear map", async () => {
             const map = new Map<string, ILockAdapterState>();
             const adapter = new MemoryLockAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
-            await adapter.acquire("a", "1", null, noOpContext);
+            await adapter.acquire("a", "1", null);
             await adapter.acquire(
                 "a",
                 "2",
                 TimeSpan.fromMilliseconds(100).toEndDate(),
-                noOpContext,
             );
-            await adapter.acquire("b", "1", null, noOpContext);
+            await adapter.acquire("b", "1", null);
             await adapter.acquire(
                 "b",
                 "2",
                 TimeSpan.fromMilliseconds(100).toEndDate(),
-                noOpContext,
             );
 
             await adapter.deInit();

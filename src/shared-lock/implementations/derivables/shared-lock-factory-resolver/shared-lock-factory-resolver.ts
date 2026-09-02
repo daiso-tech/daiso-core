@@ -7,7 +7,6 @@ import {
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ISharedLockFactoryResolver,
     ISharedLockFactory,
@@ -101,15 +100,6 @@ export class SharedLockFactoryResolver<
         return new SharedLockFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
-        });
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): SharedLockFactoryResolver<TAdapters> {
-        return new SharedLockFactoryResolver({
-            ...this.settings,
-            context,
         });
     }
 

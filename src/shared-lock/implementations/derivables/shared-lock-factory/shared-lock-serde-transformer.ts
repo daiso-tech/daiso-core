@@ -6,7 +6,6 @@ import { SharedLock } from "@/shared-lock/implementations/derivables/shared-lock
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { getConstructorName } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerdeTransformer } from "@/serde/contracts/_module.js";
 import type { ISharedLockAdapter } from "@/shared-lock/contracts/_module.js";
 import type { ISerializedSharedLock } from "@/shared-lock/implementations/derivables/shared-lock-factory/shared-lock.js";
@@ -19,7 +18,6 @@ export type SharedLockSerdeTransformerSettings = {
     adapter: ISharedLockAdapter;
     defaultRefreshTime: TimeSpan;
     serdeTransformerName: string;
-    context: IReadableContext;
 };
 
 /**
@@ -32,13 +30,10 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
     private readonly adapter: ISharedLockAdapter;
     private readonly defaultRefreshTime: TimeSpan;
     private readonly serdeTransformerName: string;
-    private readonly context: IReadableContext;
 
     constructor(settings: SharedLockSerdeTransformerSettings) {
-        const { adapter, defaultRefreshTime, serdeTransformerName, context } =
-            settings;
+        const { adapter, defaultRefreshTime, serdeTransformerName } = settings;
 
-        this.context = context;
         this.serdeTransformerName = serdeTransformerName;
         this.adapter = adapter;
         this.defaultRefreshTime = defaultRefreshTime;
@@ -74,7 +69,6 @@ export class SharedLockSerdeTransformer implements ISerdeTransformer<
     deserialize(serializedValue: ISerializedSharedLock): SharedLock {
         const { key, lockId, limit, ttlInMs } = serializedValue;
         return new SharedLock({
-            context: this.context,
             lockId,
             adapter: this.adapter,
             key,

@@ -2,8 +2,6 @@
  * @module RateLimiter
  */
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { RateLimiterSerdeTransformer } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter-serde-transformer.js";
 import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
@@ -14,7 +12,6 @@ import {
     resolveOneOrMore,
 } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     IRateLimiter,
     IRateLimiterAdapter,
@@ -81,18 +78,6 @@ export type RateLimiterFactorySettingsBase = {
      * ```
      */
     waitUntil?: WaitUntil;
-
-    /**
-     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
 };
 
 /**
@@ -123,7 +108,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
     private readonly serde: OneOrMore<ISerderRegister>;
     private readonly serdeTransformerName: string;
     private readonly waitUntil: WaitUntil;
-    private readonly context: IReadableContext;
 
     /**
      * @example
@@ -165,10 +149,8 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
-            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.context = context;
         this.waitUntil = waitUntil;
         this.serdeTransformerName = serdeTransformerName;
         this.enableAsyncTracking = enableAsyncTracking;
@@ -181,7 +163,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
 
     private registerToSerde(): void {
         const transformer = new RateLimiterSerdeTransformer({
-            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             adapter: this.adapter,
@@ -204,7 +185,6 @@ export class RateLimiterFactory implements IRateLimiterFactory {
             limit,
         } = settings;
         return new RateLimiter({
-            context: this.context,
             limit,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,

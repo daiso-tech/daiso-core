@@ -7,7 +7,6 @@ import {
     UnregisteredAdapterError,
 } from "@/utilities/_module.js";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ILockFactoryResolver,
     ILockFactory,
@@ -99,15 +98,6 @@ export class LockFactoryResolver<
         return new LockFactoryResolver({
             ...this.settings,
             defaultRefreshTime: time,
-        });
-    }
-
-    setExecutionContext(
-        context: IReadableContext,
-    ): LockFactoryResolver<TAdapters> {
-        return new LockFactoryResolver({
-            ...this.settings,
-            context,
         });
     }
 

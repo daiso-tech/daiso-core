@@ -30,16 +30,14 @@ The `withCircuitBreakerPrefix` function returns a [`PluginFn`](/docs/components/
 
 The plugin prefixes keys for the following methods:
 
-| Method         | Key argument            | Pattern        |
-| -------------- | ----------------------- | -------------- |
-| `getState`     | Second argument (`key`) | `prefix + key` |
-| `isolate`      | Second argument (`key`) | `prefix + key` |
-| `reset`        | Second argument (`key`) | `prefix + key` |
-| `trackFailure` | Second argument (`key`) | `prefix + key` |
-| `trackSuccess` | Second argument (`key`) | `prefix + key` |
-| `updateState`  | Second argument (`key`) | `prefix + key` |
-
-Every method on the `ICircuitBreakerAdapter` that operates on a specific circuit key is prefixed.
+| Method         | Key argument           | Pattern        |
+| -------------- | ---------------------- | -------------- |
+| `getState`     | First argument (`key`) | `prefix + key` |
+| `isolate`      | First argument (`key`) | `prefix + key` |
+| `reset`        | First argument (`key`) | `prefix + key` |
+| `trackFailure` | First argument (`key`) | `prefix + key` |
+| `trackSuccess` | First argument (`key`) | `prefix + key` |
+| `updateState`  | First argument (`key`) | `prefix + key` |
 
 ### Usage
 
@@ -65,14 +63,14 @@ const prefixedAdapter = withPlugin(
 **Before** — Circuit keys are used as-is:
 
 ```ts
-adapter.getState("api:users", context);
+adapter.getState("api:users");
 // -> looks up circuit "api:users"
 ```
 
 **After** — Circuit keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.getState("api:users", context);
+prefixedAdapter.getState("api:users");
 // -> looks up circuit "service-a:api:users"
 ```
 

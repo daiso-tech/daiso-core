@@ -33,22 +33,10 @@ The plugin prefixes keys for the following methods:
 | Method            | Key argument                 | Pattern        |
 | ----------------- | ---------------------------- | -------------- |
 | `acquire`         | `key` within settings object | `prefix + key` |
-| `forceReleaseAll` | Second argument (`key`)      | `prefix + key` |
-| `getState`        | Second argument (`key`)      | `prefix + key` |
-| `refresh`         | Second argument (`key`)      | `prefix + key` |
-| `release`         | Second argument (`key`)      | `prefix + key` |
-
-#### Special handling for `acquire`
-
-The `acquire` method accepts a single settings object rather than positional arguments. The plugin destructures the settings object, prefixes the `key` field, and reconstructs the object with all other fields preserved:
-
-```ts
-// Before:
-adapter.acquire({ context, key: "my-key", slotId: "s1", limit: 5, ttl });
-
-// After plugin transforms:
-adapter.acquire({ context, key: "prefix:my-key", slotId: "s1", limit: 5, ttl });
-```
+| `forceReleaseAll` | First argument (`key`)       | `prefix + key` |
+| `getState`        | First argument (`key`)       | `prefix + key` |
+| `refresh`         | First argument (`key`)       | `prefix + key` |
+| `release`         | First argument (`key`)       | `prefix + key` |
 
 ### Usage
 
@@ -68,14 +56,14 @@ const prefixedAdapter = withPlugin(adapter, withSemaphorePrefix("pool-1:"));
 **Before** — Semaphore keys are used as-is:
 
 ```ts
-adapter.acquire({ context, key: "connections", ... })
+adapter.acquire({ key: "connections", ... })
 // -> acquires slot on "connections"
 ```
 
 **After** — Semaphore keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.acquire({ context, key: "connections", ... })
+prefixedAdapter.acquire({ key: "connections", ... })
 // -> acquires slot on "pool-1:connections"
 ```
 

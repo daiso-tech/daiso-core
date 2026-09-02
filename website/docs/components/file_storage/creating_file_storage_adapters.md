@@ -14,7 +14,7 @@ keywords:
 
 ## Implementing your custom IFileStorageAdapter
 
-In order to create an adapter you need to implement the [`IFileStorageAdapter`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IFileStorageAdapter.html) contract.
+In order to create an adapter you need to implement the [`IFileStorageAdapter`](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.IFileStorageAdapter.html) contract.
 
 ## Implementing your custom ISignedFileStorageAdapter
 
@@ -22,8 +22,8 @@ We provide an additional contract [`ISignedFileStorageAdapter`](https://eridu-te
 
 ## Implementing your custom IFileStorage class
 
-In some cases, you may need to implement a custom [`FileStorage`](https://eridu-tech.github.io/eridu-tech-core/classes/FileStorage.FileStorage.html) class to optimize performance for your specific technology stack. You can then directly implement the [`IFileStorage`](https://eridu-tech.github.io/eridu-tech-core/types/FileStorage.IFileStorage.html) contract.
+In some cases, you may need to implement a custom [`FileStorage`](https://eridu-tech.github.io/eridu-tech-core/classes/file-storage.FileStorage.html) class to optimize performance for your specific technology stack. You can then directly implement the [`IFileStorage`](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.IFileStorage.html) contract.
 
 ## Further information
 
-For further information refer to [`eridu-tech/FileStorage`](https://eridu-tech.github.io/eridu-tech-core/modules/FileStorage.html) API docs.
+For further information refer to [`eridu-tech/file-storage`](https://eridu-tech.github.io/eridu-tech-core/modules/file-storage.html) API docs.

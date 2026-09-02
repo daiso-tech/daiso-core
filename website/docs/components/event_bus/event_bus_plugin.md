@@ -33,11 +33,9 @@ The plugin prefixes event names for the following methods:
 
 | Method           | Event name argument | Pattern        |
 | ---------------- | ------------------- | -------------- |
-| `dispatch`       | Second argument     | `prefix + key` |
-| `addListener`    | Second argument     | `prefix + key` |
-| `removeListener` | Second argument     | `prefix + key` |
-
-Methods that do not accept an event name are unaffected.
+| `dispatch`       | First argument      | `prefix + key` |
+| `addListener`    | First argument      | `prefix + key` |
+| `removeListener` | First argument      | `prefix + key` |
 
 ### Usage
 
@@ -57,18 +55,18 @@ const prefixedAdapter = withPlugin(adapter, withEventBusPrefix("tenant-42:"));
 **Before** — Event names are used as-is:
 
 ```ts
-adapter.dispatch("user.created", data, context);
+adapter.dispatch("user.created", data);
 // -> dispatches "user.created"
-adapter.addListener("user.created", listener, context);
+adapter.addListener("user.created", listener);
 // -> listens to "user.created"
 ```
 
 **After** — Event names are automatically prefixed:
 
 ```ts
-prefixedAdapter.dispatch("user.created", data, context);
+prefixedAdapter.dispatch("user.created", data);
 // -> dispatches "tenant-42:user.created"
-prefixedAdapter.addListener("user.created", listener, context);
+prefixedAdapter.addListener("user.created", listener);
 // -> listens to "tenant-42:user.created"
 ```
 
@@ -80,7 +78,7 @@ Because `withPlugin` uses `enhance` under the hood, the same edge case applies: 
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
 :::
 
-## withEventBusSchema plugin
+<!-- ## withEventBusSchema plugin
 
 The EventBus schema plugin validates event data against a schema map before dispatching and, optionally, before delivering events to listeners. This ensures that only data conforming to the defined schema reaches the adapter and your event handlers.
 
@@ -151,16 +149,12 @@ const enhanced = withPlugin(
 );
 
 // Dispatch is still validated
-await enhanced.dispatch("user.created", { userId: "123" }, context);
+await enhanced.dispatch("user.created", { userId: "123" });
 
 // Listeners receive the raw event data without validation
-await enhanced.addListener(
-    "user.created",
-    (event) => {
-        console.log(event);
-    },
-    context,
-);
+await enhanced.addListener("user.created", (event) => {
+    console.log(event);
+});
 ```
 
 ### Settings
@@ -194,7 +188,7 @@ Because `withPlugin` uses `enhance` under the hood, the same edge case applies: 
 
 :::info
 For more information about the `withPlugin` function and applying plugins to adapters, see the [Middleware plugin](/docs/components/middleware#plugin) documentation.
-:::
+::: -->
 
 ## withListenerTracking plugin
 
@@ -205,7 +199,7 @@ This plugin solves that problem by ensuring that `removeListener` with the origi
 ### Use cases
 
 - **Listener reference transparency** — Callers can use the original listener function with `removeListener` even when a plugin wraps the listener in `addListener`
-- **Plugin safety** — Wrap plugins (such as `withEventBusSchema`) that transform listeners in `addListener` to ensure `removeListener` still resolves correctly
+- **Plugin safety** — Wrap plugins that transform listeners in `addListener` (for example a plugin that wraps the listener to add logging or validation) to ensure `removeListener` still resolves correctly
 - **Per-plugin tracking** — Apply `withListenerTracking` to each plugin that wraps listeners; it does not automatically handle wrapping from other plugins in the chain
 
 :::info
@@ -226,24 +220,31 @@ The plugin execution order is:
 ```ts
 import { withPlugin } from "eridu-tech/middleware";
 import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-import {
-    withEventBusSchema,
-    withListenerTracking,
-} from "eridu-tech/event-bus/plugins";
-import { z } from "zod";
+import { withListenerTracking } from "eridu-tech/event-bus/plugins";
 
 const adapter = new MemoryEventBusAdapter();
+
+// A plugin that wraps listeners, e.g. to add logging or validation
+const loggingPlugin = (instance, enhance) => {
+    enhance(
+        instance,
+        "addListener",
+        ({ args: [eventName, listener], next }) => {
+            return next([
+                eventName,
+                (event) => {
+                    console.log(`Received "${eventName}"`);
+                    return listener(event);
+                },
+            ]);
+        },
+    );
+};
 
 // Apply listener tracking around a plugin that wraps listeners
 const enhancedAdapter = withPlugin(
     adapter,
-    withListenerTracking(
-        withEventBusSchema({
-            eventMapSchema: {
-                "user.created": z.object({ userId: z.string() }),
-            },
-        }),
-    ),
+    withListenerTracking(loggingPlugin),
 );
 ```
 

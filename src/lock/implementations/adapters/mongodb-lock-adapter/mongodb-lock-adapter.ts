@@ -4,7 +4,6 @@
 
 import type { Collection, CollectionOptions, Db, ObjectId } from "mongodb";
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type {
     ILockAdapter,
     ILockAdapterState,
@@ -138,7 +137,6 @@ export class MongodbLockAdapter
         key: string,
         lockId: string,
         ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<boolean> {
         const expiration = ttl ?? null;
         const isExpiredQuery = {
@@ -202,11 +200,7 @@ export class MongodbLockAdapter
         return lockData.expiration <= new Date();
     }
 
-    async release(
-        key: string,
-        lockId: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async release(key: string, lockId: string): Promise<boolean> {
         const isUnexpirableQuery = {
             expiration: {
                 $eq: null,
@@ -239,10 +233,7 @@ export class MongodbLockAdapter
         return isNotExpired && isCurrentOwner;
     }
 
-    async forceRelease(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async forceRelease(key: string): Promise<boolean> {
         const lockData = await this.collection.findOneAndDelete({ key });
         if (lockData === null) {
             return false;
@@ -254,65 +245,29 @@ export class MongodbLockAdapter
         return isNotExpired;
     }
 
-    async refresh(
-        key: string,
-        lockId: string,
-        ttl: Date,
-        _context: IReadableContext,
-    ): Promise<boolean> {
-        const isUnexpiredQuery = {
-            $and: [
-                {
-                    $ne: ["$expiration", null],
-                },
-                {
-                    $gt: ["$expiration", new Date()],
-                },
-            ],
-        };
+    async refresh(key: string, lockId: string, ttl: Date): Promise<boolean> {
+        const now = new Date();
 
         const lockData = await this.collection.findOneAndUpdate(
             {
                 key,
-            },
-            [
-                {
-                    $set: {
-                        expiration: {
-                            $cond: {
-                                if: isUnexpiredQuery,
-                                then: ttl,
-                                else: "$expiration",
-                            },
-                        },
-                    },
+                owner: lockId,
+                expiration: {
+                    $ne: null,
+                    $gt: now,
                 },
-            ],
+            },
+            {
+                $set: {
+                    expiration: ttl,
+                },
+            },
         );
 
-        if (lockData === null) {
-            return false;
-        }
-
-        if (lockData.owner !== lockId) {
-            return false;
-        }
-
-        if (lockData.expiration === null) {
-            return false;
-        }
-
-        if (lockData.expiration <= new Date()) {
-            return false;
-        }
-
-        return true;
+        return lockData !== null;
     }
 
-    async getState(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<ILockAdapterState | null> {
+    async getState(key: string): Promise<ILockAdapterState | null> {
         const lockData = await this.collection.findOne({
             key,
         });

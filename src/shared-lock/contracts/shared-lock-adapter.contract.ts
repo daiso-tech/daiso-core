@@ -2,7 +2,6 @@
  * @module SharedLock
  */
 
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ISharedLockFactory } from "@/shared-lock/contracts/shared-lock-factory.contract.js";
 
@@ -75,11 +74,6 @@ export type ISharedLockAdapterState = {
  */
 export type SharedLockAcquireSettings = {
     /**
-     * The current execution context where operations are performed.
-     */
-    context: IReadableContext;
-
-    /**
      * The unique identifier for this shared lock instance.
      */
     key: string;
@@ -118,7 +112,6 @@ export type ISharedLockAdapter = {
      * @param key - Unique identifier for the shared lock
      * @param lockId - Unique identifier for this acquirer (becomes the owner)
      * @param ttl - Expiration date for the lock, or null for an indefinite lock
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if the writer lock was successfully acquired, false if already held by another owner
      */
@@ -126,7 +119,6 @@ export type ISharedLockAdapter = {
         key: string,
         lockId: string,
         ttl: Date | null,
-        context: IReadableContext,
     ): Promise<boolean>;
 
     /**
@@ -135,30 +127,10 @@ export type ISharedLockAdapter = {
      *
      * @param key - Unique identifier for the shared lock
      * @param lockId - Unique identifier of the lock owner
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if the writer lock was successfully released, false if not owned by lockId or doesn't exist
      */
-    releaseWriter(
-        key: string,
-        lockId: string,
-        context: IReadableContext,
-    ): Promise<boolean>;
-
-    /**
-     * Forcibly releases a writer lock regardless of ownership.
-     * Used for emergency lock release or administrative cleanup.
-     * Bypasses ownership verification for situations where the owner is unavailable.
-     *
-     * @param key - Unique identifier for the shared lock
-     * @param context - Readable execution context for the operation
-     *
-     * @returns Promise resolving to true if the writer lock existed and was released, false if the lock is already expired
-     */
-    forceReleaseWriter(
-        key: string,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    releaseWriter(key: string, lockId: string): Promise<boolean>;
 
     /**
      * Refreshes (extends) the time-to-live of an existing writer lock.
@@ -167,16 +139,10 @@ export type ISharedLockAdapter = {
      * @param key - Unique identifier for the shared lock
      * @param lockId - Unique identifier of the lock owner
      * @param ttl - New expiration date to set
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if refresh succeeded, false if the lock is unexpirable, expired, or not owned by lockId
      */
-    refreshWriter(
-        key: string,
-        lockId: string,
-        ttl: Date,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    refreshWriter(key: string, lockId: string, ttl: Date): Promise<boolean>;
 
     /**
      * Attempts to acquire a reader slot in the shared lock.
@@ -194,30 +160,10 @@ export type ISharedLockAdapter = {
      *
      * @param key - Unique identifier for the shared lock
      * @param slotId - Unique identifier of the reader slot to release
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if the reader slot was successfully released, false if the slot doesn't exist or is already released
      */
-    releaseReader(
-        key: string,
-        slotId: string,
-        context: IReadableContext,
-    ): Promise<boolean>;
-
-    /**
-     * Forcibly releases all reader slots for the specified shared lock regardless of ownership.
-     * Used for emergency cleanup or administrative operations.
-     * Bypasses ownership verification for situations where individual slot holders are unavailable.
-     *
-     * @param key - Unique identifier for the shared lock
-     * @param context - Readable execution context for the operation
-     *
-     * @returns Promise resolving to true if reader slots existed and were released, false if no reader slots are acquired
-     */
-    forceReleaseAllReaders(
-        key: string,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    releaseReader(key: string, slotId: string): Promise<boolean>;
 
     /**
      * Refreshes (extends) the time-to-live of an existing reader slot.
@@ -226,38 +172,27 @@ export type ISharedLockAdapter = {
      * @param key - Unique identifier for the shared lock
      * @param slotId - Unique identifier of the reader slot to refresh
      * @param ttl - New expiration date to set
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if refresh succeeded, false if the slot is unexpirable, expired, or doesn't exist
      */
-    refreshReader(
-        key: string,
-        slotId: string,
-        ttl: Date,
-        context: IReadableContext,
-    ): Promise<boolean>;
+    refreshReader(key: string, slotId: string, ttl: Date): Promise<boolean>;
 
     /**
      * Forcibly releases both the writer lock and all reader slots regardless of ownership.
      * Used for complete emergency cleanup of the shared lock.
      *
      * @param key - Unique identifier for the shared lock
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to true if the shared lock existed and was fully released, false if the shared lock doesn't exist
      */
-    forceRelease(key: string, context: IReadableContext): Promise<boolean>;
+    forceRelease(key: string): Promise<boolean>;
 
     /**
      * Retrieves the current state of a shared lock.
      *
      * @param key - Unique identifier for the shared lock
-     * @param context - Readable execution context for the operation
      *
      * @returns Promise resolving to the non-expired shared lock state if it exists; otherwise null for missing or expired shared locks
      */
-    getState(
-        key: string,
-        context: IReadableContext,
-    ): Promise<ISharedLockAdapterState | null>;
+    getState(key: string): Promise<ISharedLockAdapterState | null>;
 };

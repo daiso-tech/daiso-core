@@ -11,6 +11,8 @@ import docusaurusPluginLlmsTxt, {
 } from "@signalwire/docusaurus-plugin-llms-txt";
 import { ogGenerator } from "./utilities/og-generator";
 import { PACKAGE_NAME, PACKAGE_VERSION } from "./utilities/package-json-data";
+import codeImport from "remark-code-import";
+import path from "path";
 
 const title = `${PACKAGE_NAME} ${PACKAGE_VERSION}`;
 const config: Config = {
@@ -83,6 +85,9 @@ const config: Config = {
                     // Remove this to remove the "edit this page" links.
                     editUrl:
                         "https://github.com/eridu-tech/eridu-tech-core/tree/main/website/",
+                    remarkPlugins: [
+                        [codeImport, { rootDir: path.resolve(__dirname) }],
+                    ],
                 },
                 blog: {
                     showReadingTime: true,

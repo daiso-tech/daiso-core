@@ -6,13 +6,18 @@ import {
     KeyNotFoundCacheError,
     KeyExistsCacheError,
 } from "@/cache/contracts/_module.js";
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
+import { withCacheSchema } from "@/cache/implementations/derivables/cache/with-cache-schema.js";
+import { withPlugin } from "@/middleware/implementations/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
-import { resolveAsyncLazyable } from "@/utilities/_module.js";
+import {
+    callInvocable,
+    isInvocable,
+    resolveAsyncLazyable,
+} from "@/utilities/_module.js";
+
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 import type { ICache, ICacheAdapter } from "@/cache/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 import type { AsyncLazyable, NoneFunc } from "@/utilities/_module.js";
 
@@ -23,7 +28,7 @@ import type { AsyncLazyable, NoneFunc } from "@/utilities/_module.js";
  * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
-export type CacheSettingsBase = {
+export type CacheSettingsBase<TType = unknown> = {
     /**
      * You can decide the default ttl value. If null is passed then no ttl will be used by default.
      * @default null
@@ -31,16 +36,21 @@ export type CacheSettingsBase = {
     defaultTtl?: ITimeSpan | null;
 
     /**
-     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
+     * A standard-schema-compliant schema used to validate cache values.
+     * Compatible with libraries such as Zod, ArkType, Valibot, and others
+     * that implement the `StandardSchemaV1` specification.
      */
-    context?: IReadableContext;
+    schema?: StandardSchemaV1<TType>;
+
+    /**
+     * Whether to validate values returned by `get` and `getAndRemove`
+     * on retrieval, in addition to validating values on write.
+     * When `true`, malformed data in the cache is caught at read time
+     * rather than silently returned.
+     *
+     * @default true
+     */
+    shouldValidateOutput?: boolean;
 };
 
 /**
@@ -50,7 +60,7 @@ export type CacheSettingsBase = {
  * IMPORT_PATH: `"eridu-tech/cache"`
  * @group Derivables
  */
-export type CacheSettings = CacheSettingsBase & {
+export type CacheSettings<TType = unknown> = CacheSettingsBase<TType> & {
     /**
      * The underlying cache adapter that handles the actual storage operations.
      */
@@ -64,7 +74,6 @@ export type CacheSettings = CacheSettingsBase & {
 export class Cache<TType = unknown> implements ICache<TType> {
     private readonly adapter: ICacheAdapter<TType>;
     private readonly defaultTtl: TimeSpan | null;
-    private readonly context: IReadableContext;
 
     /**
      *
@@ -95,17 +104,27 @@ export class Cache<TType = unknown> implements ICache<TType> {
      * });
      * ```
      */
-    constructor(settings: CacheSettings) {
+    constructor(settings: CacheSettings<TType>) {
         const {
             adapter,
             defaultTtl = null,
-            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
+            schema,
+            shouldValidateOutput,
         } = settings;
 
-        this.context = context;
         this.defaultTtl =
             defaultTtl === null ? null : TimeSpan.fromTimeSpan(defaultTtl);
+
         this.adapter = adapter;
+        if (schema) {
+            this.adapter = withPlugin(
+                adapter,
+                withCacheSchema({
+                    schema,
+                    shouldValidateOutput,
+                }),
+            );
+        }
     }
 
     async exists(key: string): Promise<boolean> {
@@ -119,7 +138,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async get(key: string): Promise<TType | null> {
-        return await this.adapter.get(key, this.context);
+        return await this.adapter.get(key);
     }
 
     async getOrFail(key: string): Promise<TType> {
@@ -131,7 +150,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async getAndRemove(key: string): Promise<TType | null> {
-        return await this.adapter.getAndRemove(key, this.context);
+        return await this.adapter.getAndRemove(key);
     }
 
     async getOr(
@@ -149,14 +168,18 @@ export class Cache<TType = unknown> implements ICache<TType> {
 
     async getOrAdd(
         key: string,
-        valueToAdd: TType,
+        valueToAdd: AsyncLazyable<TType>,
         ttl: ITimeSpan | null = this.defaultTtl,
     ): Promise<TType> {
         return await this.adapter.getOrAdd(
             key,
-            valueToAdd,
+            () => {
+                if (isInvocable(valueToAdd)) {
+                    return callInvocable(valueToAdd);
+                }
+                return valueToAdd;
+            },
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
     }
 
@@ -169,7 +192,6 @@ export class Cache<TType = unknown> implements ICache<TType> {
             key,
             value,
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
 
         return hasAdded;
@@ -195,13 +217,12 @@ export class Cache<TType = unknown> implements ICache<TType> {
             key,
             value,
             ttl === null ? null : TimeSpan.fromTimeSpan(ttl).toEndDate(),
-            this.context,
         );
         return hasUpdated;
     }
 
     async update(key: string, value: TType): Promise<boolean> {
-        const hasUpdated = await this.adapter.update(key, value, this.context);
+        const hasUpdated = await this.adapter.update(key, value);
 
         return hasUpdated;
     }
@@ -217,11 +238,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
         key: string,
         value = 1 as Extract<TType, number>,
     ): Promise<boolean> {
-        const hasUpdated = await this.adapter.increment(
-            key,
-            value,
-            this.context,
-        );
+        const hasUpdated = await this.adapter.increment(key, value);
 
         return hasUpdated;
     }
@@ -254,7 +271,7 @@ export class Cache<TType = unknown> implements ICache<TType> {
     }
 
     async remove(key: string): Promise<boolean> {
-        const hasRemoved = await this.adapter.removeMany([key], this.context);
+        const hasRemoved = await this.adapter.removeMany([key]);
 
         return hasRemoved;
     }
@@ -271,14 +288,11 @@ export class Cache<TType = unknown> implements ICache<TType> {
         if (keysArr.length === 0) {
             return true;
         }
-        const hasRemovedAtLeastOne = await this.adapter.removeMany(
-            keys,
-            this.context,
-        );
+        const hasRemovedAtLeastOne = await this.adapter.removeMany(keys);
         return hasRemovedAtLeastOne;
     }
 
     async clear(): Promise<void> {
-        await this.adapter.removeByPrefix("", this.context);
+        await this.adapter.removeByPrefix("");
     }
 }

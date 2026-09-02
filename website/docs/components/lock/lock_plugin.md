@@ -30,15 +30,13 @@ The `withLockPrefix` function returns a [`PluginFn`](/docs/components/middleware
 
 The plugin prefixes keys for the following methods:
 
-| Method         | Key argument            | Pattern        |
-| -------------- | ----------------------- | -------------- |
-| `acquire`      | Second argument (`key`) | `prefix + key` |
-| `forceRelease` | Second argument (`key`) | `prefix + key` |
-| `getState`     | Second argument (`key`) | `prefix + key` |
-| `refresh`      | Second argument (`key`) | `prefix + key` |
-| `release`      | Second argument (`key`) | `prefix + key` |
-
-Every method on the `ILockAdapter` that operates on a specific lock key is prefixed.
+| Method         | Key argument           | Pattern        |
+| -------------- | ---------------------- | -------------- |
+| `acquire`      | First argument (`key`) | `prefix + key` |
+| `forceRelease` | First argument (`key`) | `prefix + key` |
+| `getState`     | First argument (`key`) | `prefix + key` |
+| `refresh`      | First argument (`key`) | `prefix + key` |
+| `release`      | First argument (`key`) | `prefix + key` |
 
 ### Usage
 
@@ -58,14 +56,14 @@ const prefixedAdapter = withPlugin(adapter, withLockPrefix("tenant-42:"));
 **Before** — Lock keys are used as-is:
 
 ```ts
-adapter.acquire("resource:42", "lock-id", ttl, context);
+adapter.acquire("resource:42", "lock-id", ttl);
 // -> acquires lock on "resource:42"
 ```
 
 **After** — Lock keys are automatically prefixed:
 
 ```ts
-prefixedAdapter.acquire("resource:42", "lock-id", ttl, context);
+prefixedAdapter.acquire("resource:42", "lock-id", ttl);
 // -> acquires lock on "tenant-42:resource:42"
 ```
 

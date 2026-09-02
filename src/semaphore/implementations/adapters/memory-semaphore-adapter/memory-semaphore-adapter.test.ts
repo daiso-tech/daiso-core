@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { MemorySemaphoreAdapter } from "@/semaphore/implementations/adapters/memory-semaphore-adapter/_module.js";
 import { semaphoreAdapterTestSuite } from "@/semaphore/implementations/test-utilities/_module.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -21,12 +19,8 @@ describe("class: MemorySemaphoreAdapter", () => {
         test("Should remove expired semaphore slots", async () => {
             const map = new Map<string, ISemaphoreAdapterState>();
             const adapter = new MemorySemaphoreAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.acquire({
-                context: noOpContext,
                 key: "expired",
                 slotId: "1",
                 limit: 4,
@@ -42,12 +36,8 @@ describe("class: MemorySemaphoreAdapter", () => {
         test("Should keep unexpired semaphore slots", async () => {
             const map = new Map<string, ISemaphoreAdapterState>();
             const adapter = new MemorySemaphoreAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.acquire({
-                context: noOpContext,
                 key: "unexpired",
                 slotId: "1",
                 limit: 4,
@@ -63,12 +53,8 @@ describe("class: MemorySemaphoreAdapter", () => {
         test("Should keep unexpireable semaphore slots", async () => {
             const map = new Map<string, ISemaphoreAdapterState>();
             const adapter = new MemorySemaphoreAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.acquire({
-                context: noOpContext,
                 key: "unexpireable",
                 slotId: "1",
                 limit: 4,
@@ -84,19 +70,14 @@ describe("class: MemorySemaphoreAdapter", () => {
         test("Should not remove any semaphore data when none slots are expired", async () => {
             const map = new Map<string, ISemaphoreAdapterState>();
             const adapter = new MemorySemaphoreAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.acquire({
-                context: noOpContext,
                 key: "unexpireable",
                 slotId: "1",
                 limit: 4,
                 ttl: null,
             });
             await adapter.acquire({
-                context: noOpContext,
                 key: "unexpired",
                 slotId: "1",
                 limit: 4,
@@ -114,19 +95,14 @@ describe("class: MemorySemaphoreAdapter", () => {
         test("Should remove expired slots and keep entry when unexpired slots remain", async () => {
             const map = new Map<string, ISemaphoreAdapterState>();
             const adapter = new MemorySemaphoreAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.acquire({
-                context: noOpContext,
                 key: "a",
                 slotId: "expired",
                 limit: 4,
                 ttl: TimeSpan.fromMilliseconds(100).toEndDate(),
             });
             await adapter.acquire({
-                context: noOpContext,
                 key: "a",
                 slotId: "unexpireable",
                 limit: 4,
@@ -154,19 +130,14 @@ describe("class: MemorySemaphoreAdapter", () => {
         test("Should clear map", async () => {
             const map = new Map<string, ISemaphoreAdapterState>();
             const adapter = new MemorySemaphoreAdapter(map);
-            const noOpContext = new ExecutionContext(
-                new NoOpExecutionContextAdapter(),
-            );
 
             await adapter.acquire({
-                context: noOpContext,
                 key: "a",
                 slotId: "1",
                 limit: 4,
                 ttl: null,
             });
             await adapter.acquire({
-                context: noOpContext,
                 key: "b",
                 slotId: "1",
                 limit: 4,

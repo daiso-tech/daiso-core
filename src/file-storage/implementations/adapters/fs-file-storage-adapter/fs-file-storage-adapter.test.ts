@@ -5,8 +5,6 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { FsFileStorageAdapter } from "@/file-storage/implementations/adapters/fs-file-storage-adapter/_module.js";
 import { fileStorageAdapterTestSuite } from "@/file-storage/implementations/test-utilities/_module.js";
 
@@ -15,7 +13,6 @@ import type { FileAdapterMetadata } from "@/file-storage/contracts/file-storage-
 describe("class: FsFileStorageAdapter", () => {
     let adapter_: FsFileStorageAdapter;
     let folderPath_: string;
-    const noOpContext = new ExecutionContext(new NoOpExecutionContextAdapter());
     beforeEach(async () => {
         folderPath_ = await mkdtemp(
             join(tmpdir(), "fs-file-storage-adapter-tests-"),
@@ -40,10 +37,7 @@ describe("class: FsFileStorageAdapter", () => {
         test("Should return null when key does not exists", async () => {
             const noneExistingKey = "a";
 
-            const result = await adapter_.getMetaData(
-                noneExistingKey,
-                noOpContext,
-            );
+            const result = await adapter_.getMetaData(noneExistingKey);
 
             expect(result).toBeNull();
         });
@@ -52,20 +46,16 @@ describe("class: FsFileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/json";
-            await adapter_.add(
-                key,
-                {
-                    data,
-                    cacheControl: null,
-                    contentDisposition: null,
-                    contentEncoding: null,
-                    contentLanguage: null,
-                    contentType,
-                    fileSizeInBytes: data.length,
-                },
-                noOpContext,
-            );
-            const result = await adapter_.getMetaData(key, noOpContext);
+            await adapter_.add(key, {
+                data,
+                cacheControl: null,
+                contentDisposition: null,
+                contentEncoding: null,
+                contentLanguage: null,
+                contentType,
+                fileSizeInBytes: data.length,
+            });
+            const result = await adapter_.getMetaData(key);
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
@@ -79,20 +69,16 @@ describe("class: FsFileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/json";
-            await adapter_.add(
-                key,
-                {
-                    data,
-                    cacheControl: null,
-                    contentDisposition: null,
-                    contentEncoding: null,
-                    contentLanguage: null,
-                    contentType,
-                    fileSizeInBytes: data.length,
-                },
-                noOpContext,
-            );
-            const result = await adapter_.getMetaData(key, noOpContext);
+            await adapter_.add(key, {
+                data,
+                cacheControl: null,
+                contentDisposition: null,
+                contentEncoding: null,
+                contentLanguage: null,
+                contentType,
+                fileSizeInBytes: data.length,
+            });
+            const result = await adapter_.getMetaData(key);
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,
@@ -106,20 +92,16 @@ describe("class: FsFileStorageAdapter", () => {
 
             const data = new Uint8Array(Buffer.from("CONTENT", "utf8"));
             const contentType = "application/json";
-            await adapter_.add(
-                key,
-                {
-                    data,
-                    cacheControl: null,
-                    contentDisposition: null,
-                    contentEncoding: null,
-                    contentLanguage: null,
-                    contentType,
-                    fileSizeInBytes: data.length,
-                },
-                noOpContext,
-            );
-            const result = await adapter_.getMetaData(key, noOpContext);
+            await adapter_.add(key, {
+                data,
+                cacheControl: null,
+                contentDisposition: null,
+                contentEncoding: null,
+                contentLanguage: null,
+                contentType,
+                fileSizeInBytes: data.length,
+            });
+            const result = await adapter_.getMetaData(key);
 
             expect(result).toEqual({
                 etag: expect.any(String) as string,

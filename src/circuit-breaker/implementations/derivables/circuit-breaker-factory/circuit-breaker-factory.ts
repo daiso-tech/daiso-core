@@ -5,8 +5,6 @@
 import { CIRCUIT_BREAKER_TRIGGER } from "@/circuit-breaker/contracts/_module.js";
 import { CircuitBreakerSerdeTransformer } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker-serde-transformer.js";
 import { CircuitBreaker } from "@/circuit-breaker/implementations/derivables/circuit-breaker-factory/circuit-breaker.js";
-import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
-import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { NoOpSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
 import { Serde } from "@/serde/implementations/derivables/serde.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
@@ -23,7 +21,6 @@ import type {
     ICircuitBreakerAdapter,
     CircuitBreakerTrigger,
 } from "@/circuit-breaker/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerderRegister } from "@/serde/contracts/_module.js";
 import type { ITimeSpan } from "@/time-span/contracts/_module.js";
 import type { ErrorPolicy, OneOrMore, WaitUntil } from "@/utilities/_module.js";
@@ -102,18 +99,6 @@ export type CircuitBreakerFactorySettingsBase = {
      * ```
      */
     waitUntil?: WaitUntil;
-
-    /**
-     * You can pass {@link IReadableContext | `IReadableContext`} that will be used by context-aware adapters.
-     * @default
-     * ```ts
-     * import { ExecutionContext } from "eridu-tech/execution-context"
-     * import { NoOpExecutionContextAdapter } from "eridu-tech/execution-context/no-op-execution-context-adapter"
-     *
-     * new ExecutionContext(new NoOpExecutionContextAdapter())
-     * ```
-     */
-    context?: IReadableContext;
 };
 
 /**
@@ -150,7 +135,6 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
     private readonly serdeTransformerName: string;
     private readonly enableAsyncTracking: boolean;
     private readonly waitUntil: WaitUntil;
-    private readonly context: IReadableContext;
 
     /**
      * @example
@@ -193,10 +177,8 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
             serde = new Serde(new NoOpSerdeAdapter()),
             serdeTransformerName = "",
             waitUntil = defaultWaitUntil,
-            context = new ExecutionContext(new NoOpExecutionContextAdapter()),
         } = settings;
 
-        this.context = context;
         this.waitUntil = waitUntil;
         this.enableAsyncTracking = enableAsyncTracking;
         this.adapter = adapter;
@@ -210,7 +192,6 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
 
     private registerToSerde(): void {
         const transformer = new CircuitBreakerSerdeTransformer({
-            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             adapter: this.adapter,
@@ -235,7 +216,6 @@ export class CircuitBreakerFactory implements ICircuitBreakerFactory {
         } = settings;
 
         return new CircuitBreaker({
-            context: this.context,
             waitUntil: this.waitUntil,
             enableAsyncTracking: this.enableAsyncTracking,
             adapter: this.adapter,

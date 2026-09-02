@@ -17,11 +17,15 @@ import type {
 } from "mongodb";
 
 import type { ICacheAdapter } from "@/cache/contracts/_module.js";
-import type { IReadableContext } from "@/execution-context/contracts/_module.js";
 import type { ISerde } from "@/serde/contracts/_module.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { SuperJsonSerdeAdapter } from "@/serde/implementations/adapters/_module.js";
-import type { IDeinitizable, IInitizable } from "@/utilities/_module.js";
+import type {
+    IDeinitizable,
+    IInitizable,
+    InvocableFn,
+    Promisable,
+} from "@/utilities/_module.js";
 
 /**
  * Configuration for `MongodbCacheAdapter`.
@@ -158,9 +162,8 @@ export class MongodbCacheAdapter<TType = unknown>
 
     async getOrAdd(
         key: string,
-        valueToAdd: TType,
+        valueToAdd: InvocableFn<[], Promisable<TType>>,
         ttl: Date | null,
-        _context: IReadableContext,
     ): Promise<TType> {
         const hasExpirationQuery = {
             $ne: ["$expiration", null],
@@ -171,7 +174,7 @@ export class MongodbCacheAdapter<TType = unknown>
         const hasExpirationAndExpiredQuery = {
             $and: [hasExpirationQuery, hasExpiredQuery],
         };
-        const serializedValue = this.serde.serialize(valueToAdd);
+        const serializedValue = this.serde.serialize(valueToAdd());
         const document = await this.collection.findOneAndUpdate(
             {
                 key,
@@ -207,7 +210,7 @@ export class MongodbCacheAdapter<TType = unknown>
         );
 
         if (document === null) {
-            return valueToAdd;
+            return valueToAdd();
         }
 
         const { expiration, value } = document;
@@ -217,7 +220,7 @@ export class MongodbCacheAdapter<TType = unknown>
 
         const hasExpired = expiration.getTime() <= new Date().getTime();
         if (hasExpired) {
-            return valueToAdd;
+            return valueToAdd();
         }
 
         return this.serde.deserialize(value);
@@ -285,7 +288,7 @@ export class MongodbCacheAdapter<TType = unknown>
         return this.serde.deserialize(value);
     }
 
-    async get(key: string, _context: IReadableContext): Promise<TType | null> {
+    async get(key: string): Promise<TType | null> {
         const document = await this.collection.findOne(
             {
                 key,
@@ -301,10 +304,7 @@ export class MongodbCacheAdapter<TType = unknown>
         return this.getDocValue(document);
     }
 
-    async getAndRemove(
-        key: string,
-        _context: IReadableContext,
-    ): Promise<TType | null> {
+    async getAndRemove(key: string): Promise<TType | null> {
         const document = await this.collection.findOneAndDelete(
             {
                 key,
@@ -332,12 +332,7 @@ export class MongodbCacheAdapter<TType = unknown>
         return hasExpired;
     }
 
-    async add(
-        key: string,
-        value: TType,
-        ttl: Date | null,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async add(key: string, value: TType, ttl: Date | null): Promise<boolean> {
         const hasExpirationQuery = {
             $ne: ["$expiration", null],
         };
@@ -383,12 +378,7 @@ export class MongodbCacheAdapter<TType = unknown>
         return this.isDocExpired(document);
     }
 
-    async put(
-        key: string,
-        value: TType,
-        ttl: Date | null,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async put(key: string, value: TType, ttl: Date | null): Promise<boolean> {
         const document = await this.collection.findOneAndUpdate(
             {
                 key,
@@ -410,11 +400,7 @@ export class MongodbCacheAdapter<TType = unknown>
         return !this.isDocExpired(document);
     }
 
-    async update(
-        key: string,
-        value: TType,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async update(key: string, value: TType): Promise<boolean> {
         const updateResult = await this.collection.updateOne(
             MongodbCacheAdapter.filterUnexpiredKeys([key]),
             {
@@ -429,11 +415,7 @@ export class MongodbCacheAdapter<TType = unknown>
         return updateResult.modifiedCount > 0;
     }
 
-    async increment(
-        key: string,
-        value: number,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async increment(key: string, value: number): Promise<boolean> {
         try {
             const updateResult = await this.collection.updateOne(
                 MongodbCacheAdapter.filterUnexpiredKeys([key]),
@@ -459,10 +441,7 @@ export class MongodbCacheAdapter<TType = unknown>
         }
     }
 
-    async removeMany(
-        keys: Array<string>,
-        _context: IReadableContext,
-    ): Promise<boolean> {
+    async removeMany(keys: Array<string>): Promise<boolean> {
         const deleteResult = await this.collection.deleteMany(
             MongodbCacheAdapter.filterUnexpiredKeys(keys),
         );
@@ -472,19 +451,16 @@ export class MongodbCacheAdapter<TType = unknown>
         return deleteResult.deletedCount > 0;
     }
 
-    private async removeAll(_context: IReadableContext): Promise<void> {
+    private async removeAll(): Promise<void> {
         const mongodbResult = await this.collection.deleteMany();
         if (!mongodbResult.acknowledged) {
             throw new UnexpectedError("Mongodb deletion was not acknowledged");
         }
     }
 
-    async removeByPrefix(
-        prefix: string,
-        context: IReadableContext,
-    ): Promise<void> {
+    async removeByPrefix(prefix: string): Promise<void> {
         if (prefix === "") {
-            await this.removeAll(context);
+            await this.removeAll();
             return;
         }
         const mongodbResult = await this.collection.deleteMany({
