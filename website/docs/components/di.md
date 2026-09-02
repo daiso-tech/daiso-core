@@ -36,83 +36,6 @@ const container = new Container({
 
 ## DI Basics
 
-<!-- The container follows a strict lifecycle:
-
-1. **Register** — call `registerFactory`, `registerValue`, `registerDynamic`, `registerProvider`, and register lifecycle hooks. All registrations must occur before initialization.
-2. **Initialize** — call `await container.init()`. This validates the service graph (throwing `InvalidGraphDiError` for invalid lifetime configurations, dependency cycles, or undeclared dependencies) and prepares the container for use.
-3. **Use** — resolve services (`resolve`, `resolveOr`, `resolveOrFail`, `has`) and run scoped executions (`container.run()`).
-4. **Deinitialize** — call `await container.deInit()` during application shutdown.
-
-:::warning
-Calling a registration method after `container.init()`, or a resolution/scope method before `container.init()`, throws `InvalidMethodCallDiError`.
-::: -->
-
-<!-- ### Service tokens
-
-Tokens are how you identify services in the container. There are two kinds of tokens:
-
-#### Class tokens
-
-A class constructor can be used directly as a token. The class itself serves as the registration key — no separate token object is needed:
-
-```ts
-import { LIFETIME } from "eridu-tech/di/contracts";
-
-class Logger {
-    log(message: string): void {
-        console.log(message);
-    }
-}
-
-// The class itself is the token; use a factory to construct it
-container.registerFactory({
-    token: Logger,
-    factory: () => new Logger(),
-    deps: {},
-    lifetime: LIFETIME.SINGLETON,
-});
-
-// Initialize the container, then resolve using the class
-await container.init();
-const logger = await container.resolveOrFail(Logger);
-```
-
-#### Generic tokens
-
-For interfaces, primitive values, or when you need to decouple the token from the implementation, use `genericToken()` to create a symbol-based token:
-
-```ts
-import { LIFETIME, genericToken } from "eridu-tech/di/contracts";
-
-interface ILogger {
-    log(message: string): void;
-}
-
-// Create a token for the interface
-const ILOGGER = genericToken<ILogger>("ILogger");
-
-class ConsoleLogger implements ILogger {
-    log(message: string): void {
-        console.log(message);
-    }
-}
-
-container.registerFactory({
-    token: ILOGGER,
-    factory: () => new ConsoleLogger(),
-    deps: {},
-    lifetime: LIFETIME.SINGLETON,
-});
-
-// Initialize the container, then resolve using the generic token
-await container.init();
-const logger = await container.resolveOrFail(ILOGGER);
-```
-
-:::tip
-`DiToken<T>` is the union of `ClassToken<T>` and `GenericToken<T>`. Every registration and resolution API accepts a `DiToken<T>`, meaning you can freely mix class tokens and generic tokens.
-::: -->
-
 ### Overview
 
 The container follows a strict lifecycle.
@@ -303,38 +226,6 @@ const serviceAsObject = {
 // functionally equivalent to serviceAsFunction
 const serviceAsFunction = (() => "hello") satisfies ServiceFactory;
 ```
-
-<!-- ```ts
-import { LIFETIME, genericToken } from "eridu-tech/di/contracts";
-
-interface IUserService {
-    getUser(id: string): Promise<{ name: string }>;
-}
-
-const IUSER_SERVICE = genericToken<IUserService>("IUserService");
-const IDATABASE = genericToken<Database>("IDatabase");
-
-class Database {
-    query(sql: string, params: Array<unknown>): Promise<any> {
-        /* ... */
-    }
-}
-
-container.registerFactory({
-    token: IUSER_SERVICE,
-    factory: async ({ db }, executionContext) => {
-        // The factory receives a record of resolved dependencies,
-        // followed by the execution context
-        return {
-            getUser: async (id: string) => {
-                return db.query("SELECT * FROM users WHERE id = ?", [id]);
-            },
-        };
-    },
-    deps: { db: IDATABASE },
-    lifetime: LIFETIME.SINGLETON, // Choose the lifetime
-});
-``` -->
 
 #### `registerValue`
 
@@ -818,14 +709,14 @@ await container.init();
 
 Thrown when a service cannot be resolved. It has the following flags:
 
-| Flag                                 | Description                                                                                          |
-| ------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `NOT_REGISTERED_TOKEN`               | Thrown when the token is not registered.                                                             |
-| `SCOPED_SERVICE_OUTSIDE_RUN`         | Thrown when a scoped service is resolved outside a [`run()`](#scoped-execution) scope.                                    |
-| `DYNAMIC_SERVICE_OUTSIDE_RUN`        | Thrown when a dynamic service is resolved outside a [`run()`](#scoped-execution) scope.                                   |
-| `TRANSIENT_SERVICE_DEPEND_ON_SCOPED` | Thrown when a transient service depends on a scoped service and is resolved outside a [`run()`](#scoped-execution) scope. |
-| `RESOLVED_VALUE_IS_NULL`             | Thrown when the resolved value is `null`.                                                            |
-| `NO_DYNAMIC_VALUE_SET_FOR_TOKENS`    | Thrown when a dynamic token has no value set.                                                        |
+| Flag                                                        | Description                                                                                                               |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `NOT_REGISTERED_TOKEN`                                      | Thrown when the token is not registered.                                                                                  |
+| `SCOPED_SERVICE_OUTSIDE_RUN`                                | Thrown when a scoped service is resolved outside a [`run()`](#scoped-execution) scope.                                    |
+| `DYNAMIC_SERVICE_OUTSIDE_RUN`                               | Thrown when a dynamic service is resolved outside a [`run()`](#scoped-execution) scope.                                   |
+| `TRANSIENT_SERVICE_DEPEND_ON_SCOPED_WHO_CALLED_OUTSIDE_RUN` | Thrown when a transient service depends on a scoped service and is resolved outside a [`run()`](#scoped-execution) scope. |
+| `RESOLVED_VALUE_IS_NULL`                                    | Thrown when the resolved value is `null`.                                                                                 |
+| `NO_DYNAMIC_VALUE_SET_FOR_TOKENS`                           | Thrown when a dynamic token has no value set.                                                                             |
 
 ```ts
 import { CanNotResolveServiceDiError } from "eridu-tech/di/contracts";
@@ -861,13 +752,13 @@ container.overrideValue({
 
 Thrown when a container method is called at an invalid time or context. It has the following flags:
 
-| Flag                          | Description                                                                         |
-| ----------------------------- | ----------------------------------------------------------------------------------- |
-| `NOT_ACTIVE`                  | Thrown when a method is called while the container is not active (not initialized). |
-| `ALREADY_INITIALIZED`         | Thrown when a registration method is called after the container was initialized.    |
-| `INSIDE_RUN`                  | Thrown when a method is called inside a [`run()`](#scoped-execution) scope where it is not allowed.      |
-| `INSIDE_DYNAMIC_REGISTRATION` | Thrown when a method is called inside the `dynamicRegistration` callback.           |
-| `OUTSIDE_RUN`                 | Thrown when a method is called outside a [`run()`](#scoped-execution) scope where a scope is required.   |
+| Flag                          | Description                                                                                            |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `NOT_ACTIVE`                  | Thrown when a method is called while the container is not active (not initialized).                    |
+| `ALREADY_INITIALIZED`         | Thrown when a registration method is called after the container was initialized.                       |
+| `INSIDE_RUN`                  | Thrown when a method is called inside a [`run()`](#scoped-execution) scope where it is not allowed.    |
+| `INSIDE_DYNAMIC_REGISTRATION` | Thrown when a method is called inside the `dynamicRegistration` callback.                              |
+| `OUTSIDE_RUN`                 | Thrown when a method is called outside a [`run()`](#scoped-execution) scope where a scope is required. |
 
 Here is an example where `InvalidMethodCallDiError` is thrown.
 

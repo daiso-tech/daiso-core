@@ -394,11 +394,11 @@ export type IServiceResolver = {
     ): Promise<TType>;
 
     /**
-     * Resolves a service by token throwing {@link ServiceCanNotBeResolvedDiError} if not found.
+     * Resolves a service by token throwing {@link CanNotResolveServiceDiError} if not found.
      *
      * @param token - The token of the service to resolve.
      *
-     *  @throws {@link ServiceCanNotBeResolvedDiError} If not found.
+     *  @throws {@link CanNotResolveServiceDiError} If not found.
      *  @throws {@link InvalidMethodCallDiError} If the container is inactive (e.g., called before {@link IContainer.init} or after {@link IContainer.deInit}).
      * @returns The resolved service.
      */
