@@ -42,36 +42,116 @@ import type {
 } from "@/di/implementations/eager/_shared.js";
 
 /**
- * Lifetime pairs that form an invalid edge: a map of a source lifetime to
- * the set of target lifetimes it can not point to.
- *
- * Rules:
- * - dynamic node can not point to any other node
- * - transient node can not point to dynamic node
- * - only scoped node can point to dynamic node
- * - singleton node can not point to transient or scoped node
- * - scoped node can not point to transient node
- *
  * @internal
  */
-const INVALID_EDGE_TARGETS: Record<
-    InternalLifetime,
-    ReadonlySet<InternalLifetime>
-> = {
-    [INTERNAL_LIFETIME.TRANSIENT]: new Set([INTERNAL_LIFETIME.DYNAMIC]),
-    [INTERNAL_LIFETIME.SINGLETON]: new Set([
-        INTERNAL_LIFETIME.TRANSIENT,
-        INTERNAL_LIFETIME.SCOPED,
-        INTERNAL_LIFETIME.DYNAMIC,
-    ]),
-    [INTERNAL_LIFETIME.SCOPED]: new Set([INTERNAL_LIFETIME.TRANSIENT]),
-    [INTERNAL_LIFETIME.DYNAMIC]: new Set([
-        INTERNAL_LIFETIME.TRANSIENT,
-        INTERNAL_LIFETIME.SINGLETON,
-        INTERNAL_LIFETIME.SCOPED,
-        INTERNAL_LIFETIME.DYNAMIC,
-    ]),
-};
+const EDGE_RULES: Array<{
+    from: InternalLifetime;
+    to: InternalLifetime;
+    valid: boolean;
+}> = [
+    {
+        from: INTERNAL_LIFETIME.SINGLETON,
+        to: INTERNAL_LIFETIME.SINGLETON,
+        valid: true,
+    },
+    {
+        from: INTERNAL_LIFETIME.SINGLETON,
+        to: INTERNAL_LIFETIME.TRANSIENT,
+        valid: false,
+    },
+    {
+        from: INTERNAL_LIFETIME.SINGLETON,
+        to: INTERNAL_LIFETIME.SCOPED,
+        valid: false,
+    },
+    {
+        from: INTERNAL_LIFETIME.SINGLETON,
+        to: INTERNAL_LIFETIME.DYNAMIC,
+        valid: false,
+    },
+    {
+        from: INTERNAL_LIFETIME.SCOPED,
+        to: INTERNAL_LIFETIME.SINGLETON,
+        valid: true,
+    },
+    {
+        from: INTERNAL_LIFETIME.SCOPED,
+        to: INTERNAL_LIFETIME.SCOPED,
+        valid: true,
+    },
+    {
+        from: INTERNAL_LIFETIME.SCOPED,
+        to: INTERNAL_LIFETIME.DYNAMIC,
+        valid: true,
+    },
+    {
+        from: INTERNAL_LIFETIME.SCOPED,
+        to: INTERNAL_LIFETIME.TRANSIENT,
+        valid: false,
+    },
+    {
+        from: INTERNAL_LIFETIME.TRANSIENT,
+        to: INTERNAL_LIFETIME.TRANSIENT,
+        valid: true,
+    },
+    {
+        from: INTERNAL_LIFETIME.TRANSIENT,
+        to: INTERNAL_LIFETIME.SINGLETON,
+        valid: true,
+    },
+    {
+        from: INTERNAL_LIFETIME.TRANSIENT,
+        to: INTERNAL_LIFETIME.SCOPED,
+        valid: true,
+    },
+    {
+        from: INTERNAL_LIFETIME.TRANSIENT,
+        to: INTERNAL_LIFETIME.DYNAMIC,
+        valid: false,
+    },
+    {
+        from: INTERNAL_LIFETIME.DYNAMIC,
+        to: INTERNAL_LIFETIME.TRANSIENT,
+        valid: false,
+    },
+    {
+        from: INTERNAL_LIFETIME.DYNAMIC,
+        to: INTERNAL_LIFETIME.SINGLETON,
+        valid: false,
+    },
+    {
+        from: INTERNAL_LIFETIME.DYNAMIC,
+        to: INTERNAL_LIFETIME.SCOPED,
+        valid: false,
+    },
+    {
+        from: INTERNAL_LIFETIME.DYNAMIC,
+        to: INTERNAL_LIFETIME.DYNAMIC,
+        valid: false,
+    },
+];
+
+/**
+ * @internal
+ */
+const VALID_EDGE_RULES: Array<{
+    from: InternalLifetime;
+    to: InternalLifetime;
+}> = EDGE_RULES.filter((item) => item.valid).map(({ from, to }) => ({
+    from,
+    to,
+}));
+
+/**
+ * @internal
+ */
+const INVALID_EDGE_RULES: Array<{
+    from: InternalLifetime;
+    to: InternalLifetime;
+}> = EDGE_RULES.filter((item) => !item.valid).map(({ from, to }) => ({
+    from,
+    to,
+}));
 
 /**
  * @internal
@@ -163,7 +243,11 @@ export class GraphManager {
                 const sourceLifespan = this.getLifespan(source);
                 const targetLifespan = this.getLifespan(target);
 
-                return INVALID_EDGE_TARGETS[sourceLifespan].has(targetLifespan);
+                return INVALID_EDGE_RULES.some(
+                    (item) =>
+                        item.from === sourceLifespan &&
+                        item.to === targetLifespan,
+                );
             },
         });
 
@@ -455,6 +539,10 @@ export class GraphManager {
             );
         }
         return node.service;
+    }
+
+    isOverridden(nodeId: Node): boolean {
+        return this.overrideSet.has(nodeId);
     }
 
     setNodeProperty(key: Node, value: NodeProps): void {

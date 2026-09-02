@@ -37,10 +37,7 @@ import type {
     DepRecord,
     EmptyDepRecord,
 } from "@/di/contracts/_module.js";
-import type {
-    CanNotResolveServiceDiErrorCreateData,
-    CanNotResolveServiceDiErrorData,
-} from "@/di/contracts/container.errors.js";
+import type { CanNotResolveServiceDiErrorCreateData } from "@/di/contracts/container.errors.js";
 import type { Node } from "@/di/implementations/eager/_shared.js";
 import type { IExecutionContext } from "@/execution-context/contracts/_module.js";
 
