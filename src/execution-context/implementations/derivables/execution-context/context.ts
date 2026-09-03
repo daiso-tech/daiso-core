@@ -3,6 +3,7 @@
  */
 
 import { NotFoundExecutionContextError } from "@/execution-context/contracts/execution-context.errors.js";
+import { tokenToString } from "@/execution-context/implementations/derivables/execution-context/_shared.js";
 import {
     callInvocable,
     isInvocable,
@@ -12,6 +13,7 @@ import {
     resolveLazyable,
 } from "@/utilities/_module.js";
 
+import type { DiToken } from "@/di/contracts/container.contract.js";
 import type {
     ContextToken,
     DecrementSettings,
@@ -27,12 +29,12 @@ import type { Invocable, Lazyable, Option } from "@/utilities/_module.js";
  * @internal
  */
 export class Context implements ICopyableContext {
-    constructor(private readonly map: Map<symbol, unknown>) {}
+    constructor(private readonly map: Map<DiToken, unknown>) {}
 
     copy(): ICopyableContext {
         return new Context(
             new Map(
-                [...this.map].map<[symbol, unknown]>(([key, value]) => {
+                [...this.map].map<[DiToken, unknown]>(([key, value]) => {
                     if (Array.isArray(value)) {
                         return [key, [...(value as Array<unknown>)]];
                     }
@@ -67,7 +69,7 @@ export class Context implements ICopyableContext {
     }
 
     exists<TValue>(token: ContextToken<TValue>): boolean {
-        return this.map.has(token.id);
+        return this.map.has(token);
     }
 
     missing<TValue>(token: ContextToken<TValue>): boolean {
@@ -75,10 +77,10 @@ export class Context implements ICopyableContext {
     }
 
     private get_<TValue>(token: ContextToken<TValue>): Option<TValue> {
-        if (!this.map.has(token.id)) {
+        if (!this.map.has(token)) {
             return optionNone();
         }
-        return optionSome(this.map.get(token.id) as TValue);
+        return optionSome(this.map.get(token) as TValue);
     }
 
     get<TValue>(token: ContextToken<TValue>): TValue | null {
@@ -103,22 +105,20 @@ export class Context implements ICopyableContext {
     getOrFail<TValue>(token: ContextToken<TValue>): TValue {
         const value = this.get(token);
         if (value === null) {
-            throw NotFoundExecutionContextError.create(
-                token.id.description ?? String(token.id),
-            );
+            throw NotFoundExecutionContextError.create(tokenToString(token));
         }
         return value;
     }
 
     add<TValue>(token: ContextToken<TValue>, value: NoInfer<TValue>): IContext {
-        if (!this.map.has(token.id)) {
-            this.map.set(token.id, value);
+        if (!this.map.has(token)) {
+            this.map.set(token, value);
         }
         return this;
     }
 
     put<TValue>(token: ContextToken<TValue>, value: NoInfer<TValue>): IContext {
-        this.map.set(token.id, value);
+        this.map.set(token, value);
         return this;
     }
 
@@ -175,8 +175,8 @@ export class Context implements ICopyableContext {
         token: ContextToken<TValue>,
         value: NoInfer<TValue>,
     ): IContext {
-        if (this.map.has(token.id)) {
-            this.map.set(token.id, value);
+        if (this.map.has(token)) {
+            this.map.set(token, value);
         }
         return this;
     }
@@ -222,7 +222,7 @@ export class Context implements ICopyableContext {
     }
 
     remove<TValue>(token: ContextToken<TValue>): IContext {
-        this.map.delete(token.id);
+        this.map.delete(token);
         return this;
     }
 

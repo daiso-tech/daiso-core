@@ -3,6 +3,7 @@
  */
 
 import { NotFoundExecutionContextError } from "@/execution-context/contracts/execution-context.errors.js";
+import { tokenToString } from "@/execution-context/implementations/derivables/execution-context/_shared.js";
 import { resolveLazyable } from "@/utilities/_module.js";
 
 import type {
@@ -52,9 +53,7 @@ export class NoOpContext implements ICopyableContext {
     }
 
     getOrFail<TValue>(token: ContextToken<TValue>): TValue {
-        throw NotFoundExecutionContextError.create(
-            token.id.description ?? String(token.id),
-        );
+        throw NotFoundExecutionContextError.create(tokenToString(token));
     }
 
     add<TValue>(
