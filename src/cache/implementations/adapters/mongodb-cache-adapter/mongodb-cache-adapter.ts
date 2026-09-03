@@ -160,6 +160,23 @@ export class MongodbCacheAdapter<TType = unknown>
         this.serde = new MongodbCacheAdapterSerde(serde);
     }
 
+    private getDocValue(
+        document: MongodbCacheEntryDocument | null,
+    ): TType | null {
+        if (document === null) {
+            return null;
+        }
+        const { expiration, value } = document;
+        if (expiration === null) {
+            return this.serde.deserialize(value);
+        }
+        const hasExpired = expiration.getTime() <= Date.now();
+        if (hasExpired) {
+            return null;
+        }
+        return this.serde.deserialize(value);
+    }
+
     async getOrAdd(
         key: string,
         valueToAdd: InvocableFn<[], Promisable<TType>>,
@@ -174,7 +191,8 @@ export class MongodbCacheAdapter<TType = unknown>
         const hasExpirationAndExpiredQuery = {
             $and: [hasExpirationQuery, hasExpiredQuery],
         };
-        const serializedValue = this.serde.serialize(valueToAdd());
+        const valueToAddResolved = valueToAdd();
+        const serializedValue = this.serde.serialize(valueToAddResolved);
         const document = await this.collection.findOneAndUpdate(
             {
                 key,
@@ -209,21 +227,13 @@ export class MongodbCacheAdapter<TType = unknown>
             },
         );
 
-        if (document === null) {
-            return valueToAdd();
+        const value = this.getDocValue(document);
+
+        if (value === null) {
+            return valueToAddResolved;
         }
 
-        const { expiration, value } = document;
-        if (expiration === null) {
-            return this.serde.deserialize(value);
-        }
-
-        const hasExpired = expiration.getTime() <= new Date().getTime();
-        if (hasExpired) {
-            return valueToAdd();
-        }
-
-        return this.serde.deserialize(value);
+        return value;
     }
 
     /**
@@ -271,23 +281,6 @@ export class MongodbCacheAdapter<TType = unknown>
         }
     }
 
-    private getDocValue(
-        document: MongodbCacheEntryDocument | null,
-    ): TType | null {
-        if (document === null) {
-            return null;
-        }
-        const { expiration, value } = document;
-        if (expiration === null) {
-            return this.serde.deserialize(value);
-        }
-        const hasExpired = expiration.getTime() <= new Date().getTime();
-        if (hasExpired) {
-            return null;
-        }
-        return this.serde.deserialize(value);
-    }
-
     async get(key: string): Promise<TType | null> {
         const document = await this.collection.findOne(
             {
@@ -320,7 +313,9 @@ export class MongodbCacheAdapter<TType = unknown>
         return this.getDocValue(document);
     }
 
-    private isDocExpired(document: MongodbCacheEntryDocument | null): boolean {
+    private static isDocExpired(
+        document: MongodbCacheEntryDocument | null,
+    ): boolean {
         if (document === null) {
             return true;
         }
@@ -328,7 +323,7 @@ export class MongodbCacheAdapter<TType = unknown>
         if (expiration === null) {
             return false;
         }
-        const hasExpired = expiration.getTime() <= new Date().getTime();
+        const hasExpired = expiration.getTime() <= Date.now();
         return hasExpired;
     }
 
@@ -375,7 +370,7 @@ export class MongodbCacheAdapter<TType = unknown>
                 },
             },
         );
-        return this.isDocExpired(document);
+        return MongodbCacheAdapter.isDocExpired(document);
     }
 
     async put(key: string, value: TType, ttl: Date | null): Promise<boolean> {
@@ -397,7 +392,7 @@ export class MongodbCacheAdapter<TType = unknown>
                 },
             },
         );
-        return !this.isDocExpired(document);
+        return !MongodbCacheAdapter.isDocExpired(document);
     }
 
     async update(key: string, value: TType): Promise<boolean> {

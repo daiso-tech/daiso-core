@@ -125,8 +125,9 @@ export class MemoryCacheAdapter<TType = unknown>
     ): Promise<TType> {
         const cacheEntry = this.internalGet(key);
         if (cacheEntry === null) {
-            this.internalAdd(key, await valueToAdd(), ttl);
-            return valueToAdd();
+            const valueToAddResolved = valueToAdd()
+            this.internalAdd(key, await valueToAddResolved, ttl);
+            return valueToAddResolved;
         }
         return cacheEntry.value;
     }
