@@ -33,10 +33,9 @@ export type ClassToken<TInstance = unknown> = Class<Array<any>, TInstance>;
  */
 export type GenericToken<TValue> = {
     /**
-     * The unique string identifier of this token. It is used as the key when
-     * storing and retrieving the associated value in an execution context.
+     * A human-readable description.
      */
-    readonly id: string;
+    readonly description: string;
 
     /**
      * Phantom type that is only used for type inference.
@@ -79,7 +78,7 @@ export type ContextToken<TValue> = GenericToken<TValue> | ClassToken<TValue>;
  */
 export function contextToken<TValue>(id: string): ContextToken<TValue> {
     return {
-        id,
+        description: id,
     } as ContextToken<TValue>;
 }
 

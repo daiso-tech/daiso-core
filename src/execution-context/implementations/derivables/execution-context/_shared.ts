@@ -6,5 +6,5 @@ export function tokenToString<T>(diToken: ContextToken<T>): string {
     if (isClass(diToken)) {
         return diToken.name;
     }
-    return diToken.id;
+    return diToken.description;
 }

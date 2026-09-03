@@ -32,7 +32,7 @@ export function genericToken<TRegisteredType>(
     id: string,
 ): DiToken<TRegisteredType> {
     return {
-        id,
+        description: id,
     } as ContextToken<TRegisteredType>;
 }
 

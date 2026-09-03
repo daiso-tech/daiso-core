@@ -24,7 +24,7 @@ function tokenToString(diToken: DiToken): string {
     if (isClass(diToken)) {
         return diToken.name;
     }
-    return diToken.id;
+    return diToken.description;
 }
 
 /**
