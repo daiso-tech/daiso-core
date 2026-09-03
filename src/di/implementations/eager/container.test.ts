@@ -11,7 +11,6 @@ import {
     CanNotOverrideServiceDiError,
 } from "@/di/contracts/container.errors.js";
 import { Container } from "@/di/implementations/eager/container.js";
-import { RegistryManager } from "@/di/implementations/eager/registry-manager.js";
 import { AlsExecutionContextAdapter } from "@/execution-context/implementations/adapters/als-execution-context-adapter/_module-exports.js";
 import { ExecutionContext } from "@/execution-context/implementations/derivables/_module-exports.js";
 import { callInvocable, UnexpectedError } from "@/utilities/_module.js";
@@ -21,7 +20,6 @@ import type {
     IServiceProvider,
     DiToken,
     IContainer,
-    IDynamicServiceRegister,
     EmptyDepRecord,
     DepRecord,
     FactoryRegistration,
@@ -588,8 +586,8 @@ describe("class: Container", () => {
             let capturedRequestId: string | undefined;
             await container.init();
             await container.run({
-                dynamicRegistration: async (register) => {
-                    await register.set({
+                registration: (register) => {
+                    register.set({
                         token: REQUEST_ID,
                         value: "req-123",
                     });
@@ -601,63 +599,6 @@ describe("class: Container", () => {
             });
 
             expect(capturedRequestId).toBe("req-123");
-        });
-
-        test("Should set dynamic values using a DynamicValue callback", async () => {
-            container.registerDynamic(REQUEST_ID);
-
-            let capturedRequestId: string | undefined;
-            await container.init();
-            await container.run({
-                dynamicRegistration: async (register) => {
-                    await register.set({
-                        token: REQUEST_ID,
-                        value: {
-                            dynamicValue: (_executionContext) =>
-                                "req-from-callback",
-                        },
-                    });
-                },
-                scope: async () => {
-                    capturedRequestId =
-                        await container.resolveOrFail(REQUEST_ID);
-                },
-            });
-
-            expect(capturedRequestId).toBe("req-from-callback");
-        });
-
-        test("Should preserve callable values as direct service values", async () => {
-            const FN_TOKEN = genericToken<() => string>("FnToken");
-            const OBJ_TOKEN = genericToken<{ invoke: () => string }>(
-                "ObjToken",
-            );
-
-            container.registerDynamic(FN_TOKEN);
-            container.registerDynamic(OBJ_TOKEN);
-
-            const serviceFn = () => "fn-result";
-            const serviceObject = { invoke: () => "obj-result" };
-
-            await container.init();
-            await container.run({
-                dynamicRegistration: async (register) => {
-                    // Neither value is wrapped as a DynamicValue, so both must
-                    // be stored directly — never invoked as callbacks.
-                    await register.set({ token: FN_TOKEN, value: serviceFn });
-                    await register.set({
-                        token: OBJ_TOKEN,
-                        value: serviceObject,
-                    });
-                },
-                scope: async () => {
-                    const resolvedFn = await container.resolveOrFail(FN_TOKEN);
-                    const resolvedObj =
-                        await container.resolveOrFail(OBJ_TOKEN);
-                    expect(resolvedFn).toBe(serviceFn);
-                    expect(resolvedObj).toBe(serviceObject);
-                },
-            });
         });
 
         test("Should share scoped services within the same run() call", async () => {
@@ -916,72 +857,6 @@ describe("class: Container", () => {
     });
 
     // -----------------------------------------------------------------------
-    // initTransientFactories (memory-leak regression)
-    // -----------------------------------------------------------------------
-    describe("initTransientFactories", () => {
-        test("Should keep the factory closure set bounded across repeated transient resolutions", async () => {
-            const { container } = createContainerAndExecutionContext();
-
-            const DEP = genericToken<{ value: number }>("Dep");
-            const OTHER = genericToken<{ value: number }>("Other");
-            const SERVICE = genericToken<{
-                dep: { value: number };
-                other: { value: number };
-            }>("Service");
-
-            container.registerFactory({
-                token: DEP,
-                factory: () => ({ value: 1 }),
-                deps: {},
-                lifetime: LIFETIME.SINGLETON,
-            });
-            container.registerFactory({
-                token: OTHER,
-                factory: () => ({ value: 2 }),
-                deps: {},
-                lifetime: LIFETIME.TRANSIENT,
-            });
-            container.registerFactory({
-                token: SERVICE,
-                factory: ({ dep, other }) => ({ dep, other }),
-                deps: { dep: DEP, other: OTHER },
-                lifetime: LIFETIME.TRANSIENT,
-            });
-
-            const saveInBaseRegistrySpy = vi.spyOn(
-                RegistryManager.prototype,
-                "saveInBaseRegistry",
-            );
-
-            await container.init();
-            const savesAfterInit = saveInBaseRegistrySpy.mock.calls.length;
-            expect(savesAfterInit).toBeGreaterThan(0);
-
-            const resolved = new Array<{
-                dep: { value: number };
-                other: { value: number };
-            }>(100);
-            for (let i = 0; i < resolved.length; i++) {
-                resolved[i] = await container.resolveOrFail(SERVICE);
-            }
-
-            // Repeated resolutions must not write new closures or resolved
-            // instances into the registry. The factory closure set is fixed
-            // during init and bounded by the transient node count, so it
-            // cannot grow with the number of resolutions.
-            expect(saveInBaseRegistrySpy.mock.calls.length).toBe(
-                savesAfterInit,
-            );
-
-            // Transient semantics: every resolution returns a fresh instance
-            // instead of reusing a retained one.
-            expect(new Set(resolved).size).toBe(resolved.length);
-
-            saveInBaseRegistrySpy.mockRestore();
-        });
-    });
-
-    // -----------------------------------------------------------------------
     // method: fork
     // -----------------------------------------------------------------------
     describe("method: fork", () => {
@@ -1220,8 +1095,8 @@ describe("class: Container", () => {
             // Execute within a scope (simulating a request)
             await container.init();
             await container.run({
-                dynamicRegistration: async (register) => {
-                    await register.set({
+                registration: (register) => {
+                    register.set({
                         token: REQUEST_ID,
                         value: "req-001",
                     });
@@ -1579,7 +1454,7 @@ describe(`illegal method call inside DynamicServiceProvider in ${Container.proto
         const tokenA = genericToken("A");
 
         const promise = container.run({
-            dynamicRegistration: async () => {
+            registration: async () => {
                 await container.resolve(tokenA);
             },
             scope: async () => {},
@@ -1597,7 +1472,7 @@ describe(`illegal method call inside DynamicServiceProvider in ${Container.proto
         const tokenA = genericToken("A");
 
         const promise = container.run({
-            dynamicRegistration: async () => {
+            registration: async () => {
                 await container.resolveOr(tokenA, "_");
             },
             scope: async () => {},
@@ -1615,7 +1490,7 @@ describe(`illegal method call inside DynamicServiceProvider in ${Container.proto
         const tokenA = genericToken("A");
 
         const promise = container.run({
-            dynamicRegistration: async () => {
+            registration: async () => {
                 await container.resolveOrFail(tokenA);
             },
             scope: async () => {},
@@ -1624,30 +1499,6 @@ describe(`illegal method call inside DynamicServiceProvider in ${Container.proto
         await expect(promise).rejects.toHaveProperty(
             "flag",
             InvalidMethodCallDiError.FLAG.INSIDE_DYNAMIC_REGISTRATION,
-        );
-    });
-});
-
-describe(`illegal method call outside ${Container.prototype.run.name}`, () => {
-    test("DynamicServiceProvider.set()", async () => {
-        const container = createContainerAndExecutionContext().container;
-        await container.init();
-        let regCapture: IDynamicServiceRegister | null =
-            null as IDynamicServiceRegister | null;
-        await container.run({
-            dynamicRegistration: (reg) => {
-                regCapture = reg;
-            },
-            scope: () => {},
-        });
-        const token = genericToken("_");
-        const promise = (async () => {
-            await regCapture?.set({ token, value: "_" });
-        })();
-        await expect(promise).rejects.toThrow(InvalidMethodCallDiError);
-        await expect(promise).rejects.toHaveProperty(
-            "flag",
-            InvalidMethodCallDiError.FLAG.OUTSIDE_RUN,
         );
     });
 });
@@ -2748,8 +2599,8 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
 
             await container.init();
             await container.run({
-                dynamicRegistration: async (serviceRegister) => {
-                    await serviceRegister.set({
+                registration: (serviceRegister) => {
+                    serviceRegister.set({
                         token: tokenA,
                         value: correctValueA,
                     });
@@ -2773,16 +2624,16 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
 
             await container.init();
             await container.run({
-                dynamicRegistration: async (serviceRegister) => {
-                    await serviceRegister.set({
+                registration: (serviceRegister) => {
+                    serviceRegister.set({
                         token: tokenA,
                         value: scope0ValueOfA,
                     });
                 },
                 scope: async () => {
                     await container.run({
-                        dynamicRegistration: async (serviceRegister) => {
-                            await serviceRegister.set({
+                        registration: (serviceRegister) => {
+                            serviceRegister.set({
                                 token: tokenA,
                                 value: scope1ValueOfA,
                             });
@@ -2814,8 +2665,8 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             await container.init();
 
             await container.run({
-                dynamicRegistration: async (serviceRegister) => {
-                    await serviceRegister.set({ token: tokenA, value: {} });
+                registration: (serviceRegister) => {
+                    serviceRegister.set({ token: tokenA, value: {} });
                 },
                 scope: async () => {
                     valueA = await container.resolve(tokenA);
@@ -2838,8 +2689,8 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             await container.init();
 
             await container.run({
-                dynamicRegistration: async (serviceRegister) => {
-                    await serviceRegister.set({ token: tokenA, value: {} });
+                registration: (serviceRegister) => {
+                    serviceRegister.set({ token: tokenA, value: {} });
                 },
                 scope: async () => {
                     valueA = await container.resolve(tokenA);
@@ -2890,8 +2741,8 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             container.registerFactory(nodeB);
             await container.init();
             await container.run({
-                dynamicRegistration: async (serviceRegister) => {
-                    await serviceRegister.set({ token: tokenA, value: {} });
+                registration: (serviceRegister) => {
+                    serviceRegister.set({ token: tokenA, value: {} });
                 },
                 scope: async () => {
                     valueAScope0 = await container.resolve(nodeB.token);
@@ -2927,14 +2778,14 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
 
             await container.init();
             await container.run({
-                dynamicRegistration: async (serviceRegister) => {
-                    await serviceRegister.set({ token: tokenA, value: {} });
+                registration: (serviceRegister) => {
+                    serviceRegister.set({ token: tokenA, value: {} });
                 },
                 scope: async () => {
                     valueAScope0 = await container.resolve(nodeB.token);
                     await container.run({
-                        dynamicRegistration: async (serviceRegister) => {
-                            await serviceRegister.set({
+                        registration: (serviceRegister) => {
+                            serviceRegister.set({
                                 token: tokenA,
                                 value: {},
                             });
@@ -2949,6 +2800,332 @@ describe(`register & ${Container.name}.${Container.prototype.init.name} & ${Cont
             expect(valueAScope0).not.toBeUndefined();
             expect(valueAScope0).not.toBeNull();
             expect(valueAScope0).not.toBe(valueAScope1);
+        });
+    });
+
+    describe("dynamic & execution context", () => {
+        test("should resolve dynamic token if registered in graph and exist in execution context", async () => {
+            const tokenA = genericToken<string>("A");
+            const correctValueA = "_";
+            container.registerDynamic(tokenA);
+            let valueA: undefined | string | null = undefined as
+                undefined | string | null;
+            await container.init();
+
+            await executionContext.run(async () => {
+                executionContext.put(tokenA, correctValueA);
+                await container.run({
+                    scope: async () => {
+                        valueA = await container.resolve(tokenA);
+                    },
+                });
+            });
+
+            expect(valueA).toBe(correctValueA);
+        });
+
+        test("should resolve & override implicitly the original value in execution context if registered in graph  and exist in execution context before", async () => {
+            const tokenA = genericToken<string>("A");
+
+            const originalValueCorrectA = "A0";
+            const newValueCorrectA = "A1";
+
+            let originalValueA: undefined | null | string = undefined as
+                undefined | string | null;
+
+            let newValueA: undefined | null | string = undefined as
+                undefined | string | null;
+
+            container.registerDynamic(tokenA);
+            await container.init();
+
+            await executionContext.run(async () => {
+                executionContext.put(tokenA, originalValueCorrectA);
+                originalValueA = executionContext.get(tokenA);
+
+                await container.run({
+                    registration: (reg) => {
+                        reg.set({
+                            token: tokenA,
+                            value: newValueCorrectA,
+                        });
+                    },
+                    scope: async () => {
+                        newValueA = await container.resolve(tokenA);
+                    },
+                });
+            });
+
+            expect(originalValueA).toBe(originalValueCorrectA);
+            expect(newValueA).toBe(newValueCorrectA);
+        });
+
+        test("should put dynamic token in execution context after resolved if registered in graph", async () => {
+            const tokenA = genericToken<string>("A");
+            const correctValueA = "_";
+            container.registerDynamic(tokenA);
+            let valueA0: undefined | string | null = undefined as
+                undefined | string | null;
+
+            let valueA1: undefined | string | null = undefined as
+                undefined | string | null;
+
+            let valueA2: undefined | string | null = undefined as
+                undefined | string | null;
+
+            await container.init();
+
+            await executionContext.run(async () => {
+                await container.run({
+                    registration: (reg) => {
+                        reg.set({ token: tokenA, value: correctValueA });
+                        valueA0 = executionContext.get(tokenA);
+                    },
+                    scope: () => {
+                        valueA1 = executionContext.get(tokenA);
+                    },
+                });
+                valueA2 = executionContext.get(tokenA);
+            });
+
+            expect(valueA0).toBe(correctValueA);
+            expect(valueA1).toBe(correctValueA);
+            expect(valueA2).toBeNull();
+        });
+
+        test("should resolve to null if token not registered in graph even if exist execution context", async () => {
+            const tokenA = genericToken<string>("A");
+            const correctValueA = "_";
+
+            let valueA: undefined | string | null = undefined as
+                undefined | string | null;
+
+            await container.init();
+
+            await executionContext.run(async () => {
+                executionContext.put(tokenA, correctValueA);
+                await container.run({
+                    scope: async () => {
+                        valueA = await container.resolve(tokenA);
+                    },
+                });
+            });
+
+            expect(valueA).toBeNull();
+        });
+
+        test("should resolve to null if token registered in graph as other than dynamic node even if exist in execution context", async () => {
+            const tokenA = genericToken<string>("A");
+
+            let valueA: undefined | null | string = undefined as
+                undefined | string | null;
+
+            container.registerFactory({
+                token: tokenA,
+                deps: {},
+                factory: () => {
+                    return "_";
+                },
+                lifetime: LIFETIME.TRANSIENT,
+            });
+            await container.init();
+
+            await executionContext.run(async () => {
+                executionContext.put(tokenA, "_");
+                await container.run({
+                    registration: async (reg) => {
+                        valueA = await reg.get(tokenA);
+                    },
+                    scope: () => {},
+                });
+            });
+
+            expect(valueA).toBeNull();
+        });
+
+        test("IDynamicServiceRegister.has should return true if token registered in graph as dynamic node and exist in execution context", async () => {
+            const tokenA = genericToken<string>("A");
+
+            let exists: undefined | boolean = undefined as undefined | boolean;
+
+            container.registerDynamic(tokenA);
+            await container.init();
+
+            await executionContext.run(async () => {
+                executionContext.put(tokenA, "_");
+                await container.run({
+                    registration: async (reg) => {
+                        exists = await reg.has(tokenA);
+                    },
+                    scope: () => {},
+                });
+            });
+
+            expect(exists).toBe(true);
+        });
+
+        test("IDynamicServiceRegister.has should return false if token exist in execution context but not registered in graph at all", async () => {
+            const tokenA = genericToken<string>("A");
+
+            let exists: undefined | boolean = undefined as undefined | boolean;
+
+            // Note: tokenA is intentionally NOT registered in the graph.
+            await container.init();
+
+            await executionContext.run(async () => {
+                executionContext.put(tokenA, "_");
+                await container.run({
+                    registration: async (reg) => {
+                        exists = await reg.has(tokenA);
+                    },
+                    scope: () => {},
+                });
+            });
+
+            expect(exists).toBe(false);
+        });
+
+        test("IDynamicServiceRegister.has should return false if token exist in execution context but registered in graph as something other than dynamic node", async () => {
+            const tokenA = genericToken<string>("A");
+
+            let exists: undefined | boolean = undefined as undefined | boolean;
+
+            // Registered in the graph as a non-dynamic node.
+            container.registerFactory({
+                token: tokenA,
+                deps: {},
+                factory: () => "_",
+                lifetime: LIFETIME.TRANSIENT,
+            });
+            await container.init();
+
+            await executionContext.run(async () => {
+                executionContext.put(tokenA, "_");
+                await container.run({
+                    registration: async (reg) => {
+                        exists = await reg.has(tokenA);
+                    },
+                    scope: () => {},
+                });
+            });
+
+            expect(exists).toBe(false);
+        });
+
+        test("IDynamicServiceRegister.has should return false if token registered in graph as dynamic node but does not exist in execution context", async () => {
+            const tokenA = genericToken<string>("A");
+
+            let exists: undefined | boolean = undefined as undefined | boolean;
+
+            container.registerDynamic(tokenA);
+            await container.init();
+
+            await executionContext.run(async () => {
+                // No value is put into the execution context.
+                await container.run({
+                    registration: async (reg) => {
+                        exists = await reg.has(tokenA);
+                    },
+                    scope: () => {},
+                });
+            });
+
+            expect(exists).toBe(false);
+        });
+
+        test("IDynamicServiceRegister.getOrFail should throw if token exist in execution context but not registered in graph at all", async () => {
+            const tokenA = genericToken<string>("A");
+
+            let error: unknown = null;
+
+            // Note: tokenA is intentionally NOT registered in the graph.
+            await container.init();
+
+            await executionContext.run(async () => {
+                executionContext.put(tokenA, "_");
+                await container.run({
+                    registration: async (reg) => {
+                        try {
+                            await reg.getOrFail(tokenA);
+                        } catch (caught) {
+                            error = caught;
+                        }
+                    },
+                    scope: () => {},
+                });
+            });
+
+            expect(error).toBeInstanceOf(CanNotResolveServiceDiError);
+            expect(error).toHaveProperty(
+                "flag",
+                CanNotResolveServiceDiError.FLAG.NOT_REGISTERED_TOKEN,
+            );
+        });
+
+        test("IDynamicServiceRegister.getOrFail should throw if token exist in execution context but registered in graph as something other than dynamic node", async () => {
+            const tokenA = genericToken<string>("A");
+
+            let error: unknown = null;
+
+            // Registered in the graph as a non-dynamic node.
+            container.registerFactory({
+                token: tokenA,
+                deps: {},
+                factory: () => "_",
+                lifetime: LIFETIME.TRANSIENT,
+            });
+            await container.init();
+
+            await executionContext.run(async () => {
+                executionContext.put(tokenA, "_");
+                await container.run({
+                    registration: async (reg) => {
+                        try {
+                            await reg.getOrFail(tokenA);
+                        } catch (caught) {
+                            error = caught;
+                        }
+                    },
+                    scope: () => {},
+                });
+            });
+
+            expect(error).toBeInstanceOf(CanNotResolveServiceDiError);
+            expect(error).toHaveProperty(
+                "flag",
+                CanNotResolveServiceDiError.FLAG
+                    .DYNAMIC_SERVICE_PROVIDER_NOT_DYNAMIC_TOKEN,
+            );
+        });
+
+        test("IDynamicServiceRegister.getOrFail should throw if token registered in graph as dynamic node but does not exist in execution context", async () => {
+            const tokenA = genericToken<string>("A");
+
+            let error: unknown = null;
+
+            container.registerDynamic(tokenA);
+            await container.init();
+
+            await executionContext.run(async () => {
+                // No value is put into the execution context.
+                await container.run({
+                    registration: async (reg) => {
+                        try {
+                            await reg.getOrFail(tokenA);
+                        } catch (caught) {
+                            error = caught;
+                        }
+                    },
+                    scope: () => {},
+                });
+            });
+
+            expect(error).toBeInstanceOf(CanNotResolveServiceDiError);
+            expect(error).toHaveProperty(
+                "flag",
+                CanNotResolveServiceDiError.FLAG
+                    .NO_DYNAMIC_VALUE_SET_FOR_TOKENS,
+            );
         });
     });
 
