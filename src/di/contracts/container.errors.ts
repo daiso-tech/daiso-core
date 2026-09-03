@@ -24,7 +24,7 @@ function tokenToString(diToken: DiToken): string {
     if (isClass(diToken)) {
         return diToken.name;
     }
-    return diToken.id.description ?? String(diToken.id);
+    return diToken.description;
 }
 
 /**
@@ -473,6 +473,10 @@ export type CanNotResolveServiceDiErrorCreateData =
     | {
           flag: typeof CanNotResolveServiceDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS;
           dynamicTokens: Array<DiToken>;
+      }
+    | {
+          flag: typeof CanNotResolveServiceDiError.FLAG.DYNAMIC_SERVICE_PROVIDER_NOT_DYNAMIC_TOKEN;
+          token: DiToken;
       };
 
 /**
@@ -503,6 +507,10 @@ export type CanNotResolveServiceDiErrorData =
     | {
           flag: typeof CanNotResolveServiceDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS;
           requestedToken: Array<string>;
+      }
+    | {
+          flag: typeof CanNotResolveServiceDiError.FLAG.DYNAMIC_SERVICE_PROVIDER_NOT_DYNAMIC_TOKEN;
+          token: string;
       };
 
 /**
@@ -525,6 +533,7 @@ export class CanNotResolveServiceDiError
      * - {@link CanNotResolveServiceDiError.FLAG.TRANSIENT_SERVICE_DEPEND_ON_SCOPED_WHO_CALLED_OUTSIDE_RUN}: A transient service depends on a scoped service.
      * - {@link CanNotResolveServiceDiError.FLAG.RESOLVED_VALUE_IS_NULL}: The resolved value is null.
      * - {@link CanNotResolveServiceDiError.FLAG.NO_DYNAMIC_VALUE_SET_FOR_TOKENS}: Registered dynamic tokens have no value set.
+     * - {@link CanNotResolveServiceDiError.FLAG.DYNAMIC_SERVICE_PROVIDER_NOT_DYNAMIC_TOKEN}: The token is not a dynamic token.
      */
     static readonly FLAG = {
         NOT_REGISTERED_TOKEN: "NOT_REGISTERED_TOKEN",
@@ -534,6 +543,8 @@ export class CanNotResolveServiceDiError
             "TRANSIENT_SERVICE_DEPEND_ON_SCOPED_SERVICE_WHO_CALLED_OUTSIDE_RUN",
         RESOLVED_VALUE_IS_NULL: "RESOLVED_VALUE_IS_NULL",
         NO_DYNAMIC_VALUE_SET_FOR_TOKENS: "NO_DYNAMIC_VALUE_SET_FOR_TOKENS",
+        DYNAMIC_SERVICE_PROVIDER_NOT_DYNAMIC_TOKEN:
+            "DYNAMIC_SERVICE_PROVIDER_NOT_DYNAMIC_TOKEN",
     } as const;
 
     get flag(): CanNotResolveServiceFlag {
@@ -622,6 +633,15 @@ export class CanNotResolveServiceDiError
                         ),
                     },
                 );
+            case CanNotResolveServiceDiError.FLAG
+                .DYNAMIC_SERVICE_PROVIDER_NOT_DYNAMIC_TOKEN:
+                return new CanNotResolveServiceDiError(
+                    `${messageStart}: the provided token to dynamic service provider is not a dynamic token.${SEE_INFO_FIELD_DETAILS}`,
+                    {
+                        flag: data.flag,
+                        token: tokenToString(data.token),
+                    },
+                );
             default:
                 throw new UnexpectedError(UNMANAGED_FLAG_ERROR_MESSAGE);
         }
@@ -639,18 +659,36 @@ export type CanNotRegisterServiceFlag =
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Errors
  */
-export type CanNotRegisterServiceDiErrorCreateData = {
-    flag: typeof CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED;
-    token: DiToken;
-};
+export type CanNotRegisterServiceDiErrorCreateData =
+    | {
+          flag: typeof CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED;
+          token: DiToken;
+      }
+    | {
+          flag: typeof CanNotRegisterServiceDiError.FLAG.DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_IS_NOT_DYNAMIC;
+          token: DiToken;
+      }
+    | {
+          flag: typeof CanNotRegisterServiceDiError.FLAG.DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_DO_NOT_EXIST;
+          token: DiToken;
+      };
 
 /**
  * @internal
  */
-export type CanNotRegisterServiceDiErrorData = {
-    flag: typeof CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED;
-    tokenArg: string;
-};
+export type CanNotRegisterServiceDiErrorData =
+    | {
+          flag: typeof CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED;
+          tokenArg: string;
+      }
+    | {
+          flag: typeof CanNotRegisterServiceDiError.FLAG.DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_IS_NOT_DYNAMIC;
+          tokenArg: string;
+      }
+    | {
+          flag: typeof CanNotRegisterServiceDiError.FLAG.DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_DO_NOT_EXIST;
+          tokenArg: string;
+      };
 
 /**
  * Thrown when a service cannot be registered.
@@ -667,9 +705,15 @@ export class CanNotRegisterServiceDiError
      * The reasons why a service cannot be registered.
      *
      * - {@link CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED}: A registration with this token already exists.
+     * - {@link CanNotRegisterServiceDiError.FLAG.DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_IS_NOT_DYNAMIC}: The provided token to dynamic service provider is not a dynamic token, so a dynamic value cannot be registered for it.
+     * - {@link CanNotRegisterServiceDiError.FLAG.DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_DO_NOT_EXIST}: The provided  dynamic token to dynamic service provider  does not exist.
      */
     static readonly FLAG = {
         ALREADY_REGISTERED: "ALREADY_REGISTERED",
+        DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_IS_NOT_DYNAMIC:
+            "DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_IS_NOT_DYNAMIC",
+        DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_DO_NOT_EXIST:
+            "DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_DO_NOT_EXIST",
     } as const;
 
     /**
@@ -706,11 +750,32 @@ export class CanNotRegisterServiceDiError
         data: CanNotRegisterServiceDiErrorCreateData,
     ): CanNotRegisterServiceDiError {
         const messageStart = "Failed to register service";
-        const message = `${messageStart}: Token already registered and cannot be replaced.${SEE_INFO_FIELD_DETAILS}`;
-        return new CanNotRegisterServiceDiError(message, {
+        const info: CanNotRegisterServiceDiErrorData = {
             flag: data.flag,
             tokenArg: tokenToString(data.token),
-        });
+        };
+        switch (data.flag) {
+            case CanNotRegisterServiceDiError.FLAG.ALREADY_REGISTERED:
+                return new CanNotRegisterServiceDiError(
+                    `${messageStart}: Token already registered and cannot be replaced.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            case CanNotRegisterServiceDiError.FLAG
+                .DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_IS_NOT_DYNAMIC:
+                return new CanNotRegisterServiceDiError(
+                    `${messageStart}: Token provided to dynamic service provider  does not have a dynamic lifetime, so a dynamic value cannot be registered for it.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+            case CanNotRegisterServiceDiError.FLAG
+                .DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_DO_NOT_EXIST:
+                return new CanNotRegisterServiceDiError(
+                    `${messageStart}: Token provided to dynamic service provider do not exist so a dynamic value cannot be registered for it.${SEE_INFO_FIELD_DETAILS}`,
+                    info,
+                );
+
+            default:
+                throw new UnexpectedError(UNMANAGED_FLAG_ERROR_MESSAGE);
+        }
     }
 }
 /**

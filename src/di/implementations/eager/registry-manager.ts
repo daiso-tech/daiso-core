@@ -2,13 +2,14 @@
  * @module DI
  */
 import { genericToken } from "@/di/contracts/container.contract.js";
+import { INTERNAL_LIFETIME } from "@/di/implementations/eager/_shared.js";
 import { Registry } from "@/di/implementations/eager/registry.js";
 import { tokenToString } from "@/di/implementations/eager/utils.js";
 import { UnexpectedError } from "@/utilities/_module-exports.js";
 
 import type { DiToken } from "@/di/contracts/container.contract.js";
+import type { InternalLifetime } from "@/di/implementations/eager/_shared.js";
 import type { IExecutionContext } from "@/execution-context/contracts/_module-exports.js";
-
 /**
  * @internal
  */
@@ -69,9 +70,14 @@ export class RegistryManager {
     private baseRegistry: Registry<RegisterElement> =
         new Registry<RegisterElement>();
     private currentScopedRegistry: CurrentRegistry<RegisterElement>;
+    private executionContext: IExecutionContext;
 
-    constructor(currentReg: CurrentRegistry<RegisterElement>) {
+    constructor(
+        currentReg: CurrentRegistry<RegisterElement>,
+        executionContext: IExecutionContext,
+    ) {
         this.currentScopedRegistry = currentReg;
+        this.executionContext = executionContext;
     }
 
     private currentScopedOrBaseRegistry(): Registry<RegisterElement> {
@@ -82,6 +88,23 @@ export class RegistryManager {
         }
 
         return scopedRegistry;
+    }
+
+    public existInIsolatedRegistry(token: DiToken): boolean {
+        return (
+            this.has({
+                token,
+                type: INTERNAL_LIFETIME.SCOPED,
+            }) ||
+            this.has({
+                token,
+                type: INTERNAL_LIFETIME.SINGLETON,
+            }) ||
+            this.has({
+                token,
+                type: INTERNAL_LIFETIME.TRANSIENT,
+            })
+        );
     }
 
     static withExecutionContext(
@@ -95,48 +118,137 @@ export class RegistryManager {
             get: () => executionContext.get(REGISTRY_KEY),
             set: (registry) => executionContext.put(REGISTRY_KEY, registry),
         };
-        const registryManager = new RegistryManager(currentScopedRegistry);
+        const registryManager = new RegistryManager(
+            currentScopedRegistry,
+            executionContext,
+        );
 
         return registryManager;
     }
 
-    has(token: DiToken): boolean {
-        return this.currentScopedOrBaseRegistry().has(token);
-    }
-    get(token: DiToken): RegisterElement | null {
-        return this.currentScopedOrBaseRegistry().get(token);
-    }
-    getOrThrow(token: DiToken): RegisterElement {
-        return this.currentScopedOrBaseRegistry().getOrThrow(token);
+    save(args: {
+        type: InternalLifetime;
+        value: RegisterElement;
+        token: DiToken;
+    }): void {
+        switch (args.type) {
+            case INTERNAL_LIFETIME.SINGLETON:
+                this.saveInBaseRegistry(args.token, args.value);
+                break;
+            case INTERNAL_LIFETIME.SCOPED:
+                this.saveInCurrentScopedOrBaseRegistry(args.token, args.value);
+                break;
+            case INTERNAL_LIFETIME.TRANSIENT:
+                this.saveInBaseRegistry(args.token, args.value);
+                break;
+            case INTERNAL_LIFETIME.DYNAMIC:
+                this.executionContext.put(args.token, args.value[VALUE_KEY]);
+                break;
+            default:
+                throw new UnexpectedError(
+                    `Unexpected lifetime "${String(args.type)}" when saving a registry element for token "${tokenToString(args.token)}".`,
+                );
+        }
     }
 
-    getAsValueOrThrow(token: DiToken): RegisterValueElement[typeof VALUE_KEY] {
-        const element = this.getOrThrow(token);
+    get(args: {
+        type: InternalLifetime;
+        token: DiToken;
+    }): RegisterElement | null {
+        switch (args.type) {
+            case INTERNAL_LIFETIME.SINGLETON:
+                return this.baseRegistry.get(args.token);
+            case INTERNAL_LIFETIME.SCOPED:
+                return this.currentScopedOrBaseRegistry().get(args.token);
+            case INTERNAL_LIFETIME.TRANSIENT:
+                return this.baseRegistry.get(args.token);
+            case INTERNAL_LIFETIME.DYNAMIC: {
+                const value = this.executionContext.get(args.token);
+                if (value === null) {
+                    return null;
+                }
+                return { type: REGISTER_ELEMENT_TYPE.DIRECT, value };
+            }
+            default:
+                throw new UnexpectedError(
+                    `Unexpected lifetime "${String(args.type)}" when saving a registry element for token "${tokenToString(args.token)}".`,
+                );
+        }
+    }
+
+    has(args: { token: DiToken; type: InternalLifetime }): boolean {
+        switch (args.type) {
+            case INTERNAL_LIFETIME.SINGLETON:
+                return this.baseRegistry.has(args.token);
+            case INTERNAL_LIFETIME.SCOPED:
+                return this.currentScopedOrBaseRegistry().has(args.token);
+            case INTERNAL_LIFETIME.TRANSIENT:
+                return this.baseRegistry.has(args.token);
+            case INTERNAL_LIFETIME.DYNAMIC: {
+                return this.executionContext.exists(args.token);
+            }
+            default:
+                throw new UnexpectedError(
+                    `Unexpected lifetime "${String(args.type)}" when saving a registry element for token "${tokenToString(args.token)}".`,
+                );
+        }
+    }
+
+    getOrThrow(args: {
+        token: DiToken;
+        type: InternalLifetime;
+    }): RegisterElement {
+        switch (args.type) {
+            case INTERNAL_LIFETIME.SINGLETON:
+                return this.baseRegistry.getOrThrow(args.token);
+            case INTERNAL_LIFETIME.SCOPED:
+                return this.currentScopedOrBaseRegistry().getOrThrow(
+                    args.token,
+                );
+            case INTERNAL_LIFETIME.TRANSIENT:
+                return this.baseRegistry.getOrThrow(args.token);
+            case INTERNAL_LIFETIME.DYNAMIC: {
+                const value = this.executionContext.getOrFail(args.token);
+                return { type: REGISTER_ELEMENT_TYPE.DIRECT, value };
+            }
+            default:
+                throw new UnexpectedError(
+                    `Unexpected lifetime "${String(args.type)}" when saving a registry element for token "${tokenToString(args.token)}".`,
+                );
+        }
+    }
+
+    getAsValueOrThrow(args: {
+        token: DiToken;
+        type: InternalLifetime;
+    }): RegisterValueElement[typeof VALUE_KEY] {
+        const element = this.getOrThrow(args);
         if (element[TYPE_KEY] !== REGISTER_ELEMENT_TYPE.DIRECT) {
             throw new UnexpectedError(
-                `Registry element for token: "${tokenToString(token)}" is not a value. Expected a direct value element ("value") but the registered element is a function.`,
+                `Registry element for token: "${tokenToString(args.token)}" is not a value. Expected a direct value element ("value") but the registered element is a function.`,
             );
         }
         return element[VALUE_KEY];
     }
 
-    getAsFunctionOrThrow(
-        token: DiToken,
-    ): RegisterFunctionElement[typeof VALUE_KEY] {
-        const element = this.getOrThrow(token);
+    getAsFunctionOrThrow(args: {
+        token: DiToken;
+        type: InternalLifetime;
+    }): RegisterFunctionElement[typeof VALUE_KEY] {
+        const element = this.getOrThrow(args);
         if (element[TYPE_KEY] !== REGISTER_ELEMENT_TYPE.FUNC) {
             throw new UnexpectedError(
-                `Registry element for token: "${tokenToString(token)}" is not a function. Expected a function element ("func") but the registered element is not callable.`,
+                `Registry element for token: "${tokenToString(args.token)}" is not a function. Expected a function element ("func") but the registered element is not callable.`,
             );
         }
         return element[VALUE_KEY];
     }
 
-    saveInBaseRegistry(token: DiToken, element: RegisterElement): void {
+    private saveInBaseRegistry(token: DiToken, element: RegisterElement): void {
         this.baseRegistry.set(token, element);
     }
 
-    saveInCurrentScopedOrBaseRegistry(
+    private saveInCurrentScopedOrBaseRegistry(
         token: DiToken,
         element: RegisterElement,
     ): void {

@@ -430,7 +430,7 @@ Dynamic values are set at runtime using the `IDynamicServiceRegister` interface,
 await container.init();
 
 await container.run({
-    dynamicRegistration: async (register) => {
+    registration: async (register) => {
         // Set the dynamic value before the scope executes
         await register.set({
             token: REQUEST_ID,
@@ -444,24 +444,23 @@ await container.run({
 });
 ```
 
-You can also provide a `DynamicValue` callback that receives the execution context:
+`IDynamicServiceRegister` exposes `get()`, `getOrFail()` and `has()` to retrieve values from the execution context, alongside `set` which stores a value in it.
+
+For example, `CORRELATION_ID` is another dynamic token (registered with `registerDynamic()`) whose value may already be present in the execution context:
 
 ```ts
 await container.init();
 
 await container.run({
-    dynamicRegistration: async (register) => {
-        await register.set({
+    registration: async (register) => {
+        // Read an existing dynamic value from the execution context, if any.
+        // `get` returns null when no value is available.
+        const correlationId = await register.get(CORRELATION_ID);
+
+        // Store the derived value in the execution context.
+        register.set({
             token: REQUEST_ID,
-            value: {
-                dynamicValue: (executionContext) => {
-                    // Compute the value using the execution context
-                    return (
-                        executionContext.get("correlationId") ??
-                        crypto.randomUUID()
-                    );
-                },
-            },
+            value: correlationId ?? crypto.randomUUID(),
         });
     },
     scope: async () => {
@@ -470,6 +469,18 @@ await container.run({
     },
 });
 ```
+
+`IDynamicServiceRegister` also provide following methods: `getOrFail()` throws `CanNotResolveServiceDiError` when no value is available, and `has()` lets you check for a value without reading it.
+
+The methods `get()`, `has()` and `getOrFail()` only consider a token as existing when it is **registered as dynamic** **and** has a value in the execution context. if the token is not registered as dynamic, or it is registered as dynamic but has no value in the execution context it will not considered as existing.
+
+:::warning
+`set()` writes the value **directly to the execution context**. If the token already has a value in the execution context, that value is **implicitly overwritten**. If the token does not exist in the execution context yet, the value is stored with the token as key.
+:::
+
+:::info
+Dynamic values are **saved to and retrieved from the execution context**. `set()` stores the value in the execution context, while `get()`, `has()` and `getOrFail` read it from there.
+:::
 
 ### Lifetime Relationship
 
@@ -649,11 +660,13 @@ Most errors expose an error flag via the `flag` class field, along with detailed
 
 #### `CanNotRegisterServiceDiError`
 
-Thrown when a service cannot be registered. It has the following flag:
+Thrown when a service cannot be registered. It has the following flags:
 
-| Flag                 | Description                                       |
-| -------------------- | ------------------------------------------------- |
-| `ALREADY_REGISTERED` | Thrown when the token already has a registration. |
+| Flag                                                         | Description                                                                          |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| `ALREADY_REGISTERED`                                         | Thrown when the token already has a registration.                                    |
+| `DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_IS_NOT_DYNAMIC` | Thrown when the token provided to a dynamic service provider is not a dynamic token. |
+| `DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_DO_NOT_EXIST`   | Thrown when the token provided to a dynamic service provider does not exist.         |
 
 Here is an example where `CanNotRegisterServiceDiError` is thrown.
 
@@ -717,6 +730,7 @@ Thrown when a service cannot be resolved. It has the following flags:
 | `TRANSIENT_SERVICE_DEPEND_ON_SCOPED_WHO_CALLED_OUTSIDE_RUN` | Thrown when a transient service depends on a scoped service and is resolved outside a [`run()`](#scoped-execution) scope. |
 | `RESOLVED_VALUE_IS_NULL`                                    | Thrown when the resolved value is `null`.                                                                                 |
 | `NO_DYNAMIC_VALUE_SET_FOR_TOKENS`                           | Thrown when a dynamic token has no value set.                                                                             |
+| `DYNAMIC_SERVICE_PROVIDER_NOT_DYNAMIC_TOKEN`                | Thrown when the token provided to a dynamic service provider is not a dynamic token.                                      |
 
 ```ts
 import { CanNotResolveServiceDiError } from "eridu-tech/di/contracts";
@@ -733,7 +747,7 @@ Thrown when a registration cannot be overridden. It has the following flags:
 | ---------------------- | ------------------------------------------------------------------------ |
 | `TOKEN_NOT_REGISTERED` | Thrown when the token is not registered.                                 |
 | `DYNAMIC_TOKEN`        | Thrown when the token is registered as dynamic and cannot be overridden. |
-| `ALREADY_OVERRIDDEN`   | Thrown when the token has already been overridden.                       |
+| `ALREADY_OVERRIDDEN`   | Thrown when the service has already been overridden.                     |
 
 Here is an example where `CanNotOverrideServiceDiError` is thrown.
 
@@ -757,7 +771,7 @@ Thrown when a container method is called at an invalid time or context. It has t
 | `NOT_ACTIVE`                  | Thrown when a method is called while the container is not active (not initialized).                    |
 | `ALREADY_INITIALIZED`         | Thrown when a registration method is called after the container was initialized.                       |
 | `INSIDE_RUN`                  | Thrown when a method is called inside a [`run()`](#scoped-execution) scope where it is not allowed.    |
-| `INSIDE_DYNAMIC_REGISTRATION` | Thrown when a method is called inside the `dynamicRegistration` callback.                              |
+| `INSIDE_DYNAMIC_REGISTRATION` | Thrown when a method is called inside the dynamic `registration` callback.                             |
 | `OUTSIDE_RUN`                 | Thrown when a method is called outside a [`run()`](#scoped-execution) scope where a scope is required. |
 
 Here is an example where `InvalidMethodCallDiError` is thrown.

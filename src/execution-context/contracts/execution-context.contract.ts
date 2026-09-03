@@ -2,7 +2,23 @@
  * @module ExecutionContext
  */
 
-import type { Invocable, InvocableFn, Lazyable } from "@/utilities/_module.js";
+import type {
+    Invocable,
+    InvocableFn,
+    Lazyable,
+    Class,
+} from "@/utilities/_module.js";
+
+/**
+ * A class constructor used as a context token. The class itself serves as the
+ * registration key — no separate token object is needed.
+ *
+ * @typeParam TInstance - The type of the class instance.
+ *
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
+ * @group Contracts
+ */
+export type ClassToken<TInstance = unknown> = Class<Array<any>, TInstance>;
 
 /**
  * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
@@ -15,12 +31,11 @@ import type { Invocable, InvocableFn, Lazyable } from "@/utilities/_module.js";
  *
  * @template TValue - The type of value this token represents in the context
  */
-export type ContextToken<TValue> = {
+export type GenericToken<TValue> = {
     /**
-     * Unique symbol reference for this token, used internally as the storage key.
-     * Using a symbol guarantees uniqueness — two tokens with the same name will never collide.
+     * A human-readable description.
      */
-    readonly id: symbol;
+    readonly description: string;
 
     /**
      * Phantom type that is only used for type inference.
@@ -29,6 +44,17 @@ export type ContextToken<TValue> = {
      */
     readonly _type: TValue | null;
 };
+
+/**
+ * A union of {@link ClassToken} and {@link GenericToken} — the two ways to
+ * identify a value stored in an execution context.
+ *
+ * @typeParam TValue - The type of the value this token represents.
+ *
+ * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
+ * @group Contracts
+ */
+export type ContextToken<TValue> = GenericToken<TValue> | ClassToken<TValue>;
 
 /**
  * IMPORT_PATH: `"eridu-tech/execution-context/contracts"`
@@ -52,7 +78,7 @@ export type ContextToken<TValue> = {
  */
 export function contextToken<TValue>(id: string): ContextToken<TValue> {
     return {
-        id: Symbol(id),
+        description: id,
     } as ContextToken<TValue>;
 }
 
