@@ -1,5 +1,16 @@
+import { CanNotResolveServiceDiError } from "eridu-tech/di/contracts";
 import { container } from "./container";
 import { Logger } from "./logger";
 
+await container.init();
+
 // Throws CanNotResolveServiceDiError if Logger is not registered
-const logger = await container.resolveOrFail(Logger);
+try {
+    await container.resolveOrFail(Logger);
+} catch (error) {
+    if (error instanceof CanNotResolveServiceDiError) {
+        console.error(error);
+    } else {
+        throw error;
+    }
+}

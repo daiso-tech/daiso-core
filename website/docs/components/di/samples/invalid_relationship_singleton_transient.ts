@@ -1,4 +1,4 @@
-import { LIFETIME } from "eridu-tech/di/contracts";
+import { InvalidGraphDiError, LIFETIME } from "eridu-tech/di/contracts";
 import { container } from "./container";
 import { A, B, C } from "./dependency_chain";
 
@@ -26,4 +26,12 @@ container.registerFactory({
 });
 
 // will throw InvalidGraphDiError
-container.init() 
+try {
+    await container.init();
+} catch (error) {
+    if (error instanceof InvalidGraphDiError) {
+        console.error(error);
+    } else {
+        throw error;
+    }
+}

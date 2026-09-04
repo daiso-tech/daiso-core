@@ -4,7 +4,15 @@ import { CONFIG } from "./app_config";
 
 // Throws CanNotOverrideServiceDiError because CONFIG token is not registered
 // and hence cannot be overridden
-container.overrideValue({
-    token: CONFIG,
-    value: { apiUrl: "http://localhost:9999", timeout: 100 },
-});
+try {
+    container.overrideValue({
+        token: CONFIG,
+        value: { apiUrl: "http://localhost:9999", timeout: 100 },
+    });
+} catch (error) {
+    if (error instanceof CanNotOverrideServiceDiError) {
+        console.error(error);
+    } else {
+        throw error;
+    }
+}

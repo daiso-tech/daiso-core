@@ -5,7 +5,15 @@ import { CONFIG } from "./app_config";
 await container.init();
 
 // Throws InvalidMethodCallDiError because registration is attempted after init()
-container.registerValue({
-    token: CONFIG,
-    value: { apiUrl: "https://another.example.com", timeout: 3000 },
-});
+try {
+    container.registerValue({
+        token: CONFIG,
+        value: { apiUrl: "https://another.example.com", timeout: 3000 },
+    });
+} catch (error) {
+    if (error instanceof InvalidMethodCallDiError) {
+        console.error(error);
+    } else {
+        throw error;
+    }
+}

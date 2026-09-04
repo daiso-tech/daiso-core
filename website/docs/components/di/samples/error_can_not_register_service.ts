@@ -8,7 +8,15 @@ container.registerValue({
 });
 
 // Throws CanNotRegisterServiceDiError because CONFIG token is already registered
-container.registerValue({
-    token: CONFIG,
-    value: { apiUrl: "https://another.example.com", timeout: 3000 },
-});
+try {
+    container.registerValue({
+        token: CONFIG,
+        value: { apiUrl: "https://another.example.com", timeout: 3000 },
+    });
+} catch (error) {
+    if (error instanceof CanNotRegisterServiceDiError) {
+        console.error(error);
+    } else {
+        throw error;
+    }
+}

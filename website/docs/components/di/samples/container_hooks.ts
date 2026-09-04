@@ -1,5 +1,13 @@
+import { LIFETIME } from "eridu-tech/di/contracts";
 import { container } from "./container";
 import { Database } from "./database";
+
+container.registerFactory({
+    token: Database,
+    factory: () => new Database(),
+    deps: {},
+    lifetime: LIFETIME.SINGLETON,
+});
 
 container.onContainerInit(async (resolver) => {
     // Runs when container.init() is called
