@@ -18,19 +18,7 @@ The `eridu-tech/semaphore` component provides a way for managing semaphores inde
 
 To begin using the `SemaphoreFactory` class, you'll need to create and configure an instance:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
-import { SemaphoreFactory } from "eridu-tech/semaphore";
-
-const semaphoreFactory = new SemaphoreFactory({
-    // You can provide default TTL value
-    // If you set it to null it means semaphores will not expire and most be released manually by default.
-    defaultTtl: TimeSpan.fromSeconds(2),
-
-    // You can choose the adapter to use
-    adapter: new MemorySemaphoreAdapter(),
-});
+```ts file=./semaphore_usage-samples/semaphore_factory_initial_config.ts
 ```
 
 :::info
@@ -41,73 +29,17 @@ Here is a complete list of settings for the [`SemaphoreFactory`](https://eridu-t
 
 ### Creating a semaphore
 
-```ts
-const semaphore = semaphoreFactory.create("shared-resource", {
-    // You need to define a limit
-    limit: 2,
-});
+```ts file=./semaphore_usage-samples/semaphore_create.ts
 ```
 
 ### Acquiring and releasing the semaphore
 
-```ts
-// 1 slot will be acquired
-if (await semaphore.acquire()) {
-    console.log("Acquired");
-    try {
-        // The concurrent section
-    } finally {
-        await semaphore.release();
-    }
-} else {
-    console.log("Unable to acquire");
-}
-
-// 2 slots will be acquired
-if (await semaphore.acquire()) {
-    console.log("Acquired");
-    try {
-        // The concurrent section
-    } finally {
-        await semaphore.release();
-    }
-} else {
-    console.log("Unable to acquire");
-}
-
-// Will log false because the limit is reached
-console.log(await semaphore.acquire());
+```ts file=./semaphore_usage-samples/semaphore_acquire.ts
 ```
 
 Alternatively you could write it as follows:
 
-```ts
-// 1 slot will be acquired
-try {
-    console.log("Acquired");
-    // This method will throw if the semaphore limit is reached.
-    await semaphore.acquireOrFail();
-    // The critical section
-} catch {
-    console.log("Unable to acquire");
-} finally {
-    await semaphore.release();
-}
-
-// 2 slots will be acquired
-try {
-    console.log("Acquired");
-    // This method will throw if the semaphore limit is reached.
-    await semaphore.acquireOrFail();
-    // The critical section
-} catch {
-    console.log("Unable to acquire");
-} finally {
-    await semaphore.release();
-}
-
-// Will throw because the limit is reached
-await semaphore.acquireOrFail();
+```ts file=./semaphore_usage-samples/semaphore_acquire_or_fail.ts
 ```
 
 :::danger
@@ -118,42 +50,14 @@ You need always to wrap the concurrent section with `try-finally` so the semapho
 
 You can provide a custom TTL for the semaphore.
 
-```ts
-const semaphore = semaphoreFactory.create("shared-resource", {
-    // Default TTL is 5min if not overrided
-    // If you set it to null it means semaphore will not expire and most be released manually.
-    ttl: TimeSpan.fromSeconds(30),
-    limit: 2,
-});
+```ts file=./semaphore_usage-samples/semaphore_custom_ttl.ts
 ```
 
 ### Checking semaphore state
 
 You can get the semaphore state by using the `getState` method, it returns [`ISemaphoreState`](https://eridu-tech.github.io/eridu-tech-core/types/Semaphore.ISemaphoreState.html).
 
-```ts
-import { SEMAPHORE_STATE } from "eridu-tech/semaphore/contracts";
-
-const semaphore = semaphoreFactory.create("shared-resource", {
-    limit: 2,
-});
-const state = await semaphore.getState();
-
-if (state.type === SEMAPHORE_STATE.EXPIRED) {
-    console.log("The semaphore doesnt exists");
-}
-
-if (state.type === SEMAPHORE_STATE.LIMIT_REACHED) {
-    console.log("The limit have been reached and all slots are unavailable");
-}
-
-if (state.type === SEMAPHORE_STATE.ACQUIRED) {
-    console.log("The semaphore is acquired");
-}
-
-if (state.type === SEMAPHORE_STATE.UNACQUIRED) {
-    console.log("There are avilable slots but the semaphore is not acquired");
-}
+```ts file=./semaphore_usage-samples/semaphore_get_state.ts
 ```
 
 ## Patterns
@@ -163,50 +67,13 @@ if (state.type === SEMAPHORE_STATE.UNACQUIRED) {
 The semaphore can be refreshed by the current owner before it expires. This is particularly useful for long-running tasks,
 instead of setting an excessively long TTL initially, you can start with a shorter one and use the `refresh` method to set the TTL of the semaphore:
 
-```ts
-import { delay } from "eridu-tech/utilities";
-
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-    ttl: TimeSpan.fromMinutes(1),
-});
-
-async function doWork(): Promise<boolean> {
-    // ... critical section
-}
-
-const hasAcquired = await semaphore.acquire();
-if (hasAcquired) {
-    try {
-        while (true) {
-            await semaphore.refresh(TimeSpan.fromMinutes(1));
-            const hasFinished = await doWork();
-            if (hasFinished) {
-                break;
-            }
-            await delay(TimeSpan.fromSeconds(1));
-        }
-    } finally {
-        await semaphore.release();
-    }
-}
+```ts file=./semaphore_usage-samples/semaphore_refresh.ts
 ```
 
 :::warning
 Note: A semaphore must have an expiration (a `ttl` value) to be refreshed. You cannot refresh a semaphore that was created without an expiration (with `ttl: null`)
 
-```ts
-// Create a semaphore with no expiration (non-refreshable)
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-    ttl: null,
-});
-
-// A refresh attempt on this semaphore will fail
-const hasRefreshed = await semaphore.refresh();
-
-// This will log 'false' because the semaphore cannot be refreshed
-console.log(hasRefreshed);
+```ts file=./semaphore_usage-samples/semaphore_non_refreshable.ts
 ```
 
 :::
@@ -215,43 +82,23 @@ console.log(hasRefreshed);
 
 The `releaseOrFail` method is the same `release` method but it throws an error when not enable to release the semaphore:
 
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-await semaphore.releaseOrFail();
+```ts file=./semaphore_usage-samples/semaphore_release_or_fail.ts
 ```
 
 You can force release all the semaphore slots:
 
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-await semaphore.forceReleaseAll();
+```ts file=./semaphore_usage-samples/semaphore_force_release_all.ts
 ```
 
 The `refreshOrFail` method is the same `refresh` method but it throws an error when not enable to refresh the semaphore:
 
-```ts
-const semaphore = semaphoreFactory.create("resource");
-
-await semaphore.refreshOrFail();
+```ts file=./semaphore_usage-samples/semaphore_refresh_or_fail.ts
 ```
 
 The `runOrFail` method automatically manages semaphore acquisition and release around function execution.
 It calls `acquireOrFail` before invoking the function and calls `release` in a finally block, ensuring the semaphore is always freed, even if an error occurs during execution.
 
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-await semaphore.runOrFail(async () => {
-    // ... critical section
-});
+```ts file=./semaphore_usage-samples/semaphore_run_or_fail.ts
 ```
 
 :::info
@@ -266,35 +113,14 @@ You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TVa
 
 The `Semaphore` class exposes instance variables such as:
 
-```ts
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-// Will return the key of the semaphore which is "resource"
-console.log(semaphore.key.toString());
-
-// Will return the id of the semaphore
-console.log(semaphore.id);
-
-// Will return the ttl of the semaphore
-console.log(semaphore.ttl);
+```ts file=./semaphore_usage-samples/semaphore_instance_variables.ts
 ```
 
 ### Semaphore slot id
 
 By default the slot id is autogenerated but it can also manually defined.
 
-```ts
-const semaphore = semaphoreFactory.create("semaphore", {
-    slotId: "my-slot-id",
-});
-
-const hasAcquire = await semaphore.acquire();
-if (hasAcquired) {
-    console.log("Shared resource");
-    await semaphore.release();
-}
+```ts file=./semaphore_usage-samples/semaphore_slot_id.ts
 ```
 
 :::info
@@ -307,176 +133,40 @@ In most cases, setting a slot id is unnecessary.
 
 ### Retrying acquiring semaphore by attempts
 
-To retry acquiring semaphore you can use the [`retry`](../resilience.md) middleware.
+To retry acquiring semaphore you can use the [`retry`](../resilience/resilience.md) middleware.
 
 Retrying acquiring semaphore with `acquireOrFail` method:
 
-```ts
-import { retry } from "eridu-tech/resilience";
-import { FailedAcquireSemaphoreError } from "eridu-tech/semaphore/contracts";
-import { use } from "eridu-tech/middleware";
-
-const semaphore = semaphoreFactory.create("semaphore", {
-    limit: 2,
-});
-
-try {
-    await use(async () => {
-        await semaphore.acquireOrFail();
-    }, [
-        retry({
-            maxAttempts: 4,
-            errorPolicy: FailedAcquireSemaphoreError,
-        }),
-    ])();
-    // The critical section
-} finally {
-    await semaphore.release();
-}
+```ts file=./semaphore_usage-samples/semaphore_retry_acquire_or_fail.ts
 ```
 
 Retrying acquiring semaphore with `acquire` method:
 
-```ts
-import { retry } from "eridu-tech/resilience";
-import { use } from "eridu-tech/middleware";
-
-const semaphore = semaphoreFactory.create("semaphore", {
-    limit: 2,
-});
-
-const hasAquired = await use(async () => {
-    return await semaphore.acquire();
-}, [
-    retry({
-        maxAttempts: 4,
-        errorPolicy: {
-            treatFalseAsError: true,
-        },
-    }),
-])();
-
-if (hasAquired) {
-    try {
-        // The critical section
-    } finally {
-        await semaphore.release();
-    }
-}
+```ts file=./semaphore_usage-samples/semaphore_retry_acquire.ts
 ```
 
 Retrying acquiring semaphore with `runOrFail` method:
 
-```ts
-import { retry } from "eridu-tech/resilience";
-import { FailedAcquireSemaphoreError } from "eridu-tech/semaphore/contracts";
-import { use } from "eridu-tech/middleware";
-
-const semaphore = semaphoreFactory.create("semaphore", {
-    limit: 2,
-});
-
-await use(async () => {
-    await semaphore.runOrFail(async () => {
-        // The critical section
-    });
-}, [
-    retry({
-        maxAttempts: 4,
-        errorPolicy: FailedAcquireSemaphoreError,
-    }),
-])();
+```ts file=./semaphore_usage-samples/semaphore_retry_run_or_fail.ts
 ```
 
 ### Retrying acquiring semaphore by interval
 
-To retry acquiring semaphore at regular intervals you can use the [`retryInterval`](../resilience.md) middleware:
+To retry acquiring semaphore at regular intervals you can use the [`retryInterval`](../resilience/resilience.md) middleware:
 
 Retrying acquiring semaphore with `acquireOrFail` method:
 
-```ts
-import { retryInterval } from "eridu-tech/resilience";
-import { FailedAcquireSemaphoreError } from "eridu-tech/semaphore/contracts";
-import { use } from "eridu-tech/middleware";
-import { TimeSpan } from "eridu-tech/time-span";
-
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-try {
-    await use(async () => {
-        await semaphore.acquireOrFail();
-    }, [
-        retryInterval({
-            // Time to wait 1 minute
-            time: TimeSpan.fromMinutes(1),
-            // Interval to try acquire the semaphore
-            interval: TimeSpan.fromSeconds(1),
-            errorPolicy: FailedAcquireSemaphoreError,
-        }),
-    ])();
-    // ... critical section
-} finally {
-    await semaphore.release();
-}
+```ts file=./semaphore_usage-samples/semaphore_retry_interval_acquire_or_fail.ts
 ```
 
 Retrying acquiring semaphore with `acquire` method:
 
-```ts
-import { retryInterval } from "eridu-tech/resilience";
-import { use } from "eridu-tech/middleware";
-import { TimeSpan } from "eridu-tech/time-span";
-
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-const hasAcquired = await use(async () => {
-    return await semaphore.acquire();
-}, [
-    retryInterval({
-        time: TimeSpan.fromMinutes(1),
-        interval: TimeSpan.fromSeconds(1),
-        errorPolicy: {
-            treatFalseAsError: true,
-        },
-    }),
-])();
-
-if (hasAcquired) {
-    try {
-        // ... critical section
-    } finally {
-        await semaphore.release();
-    }
-}
+```ts file=./semaphore_usage-samples/semaphore_retry_interval_acquire.ts
 ```
 
 Retrying acquiring semaphore with `runOrFail` method:
 
-```ts
-import { retryInterval } from "eridu-tech/resilience";
-import { FailedAcquireSemaphoreError } from "eridu-tech/semaphore/contracts";
-import { use } from "eridu-tech/middleware";
-import { TimeSpan } from "eridu-tech/time-span";
-
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-await use(async () => {
-    await semaphore.runOrFail(async () => {
-        // ... critical section
-    });
-}, [
-    retryInterval({
-        time: TimeSpan.fromMinutes(1),
-        interval: TimeSpan.fromSeconds(1),
-        errorPolicy: FailedAcquireSemaphoreError,
-    }),
-])();
+```ts file=./semaphore_usage-samples/semaphore_retry_interval_run_or_fail.ts
 ```
 
 :::warning
@@ -487,31 +177,11 @@ Note using `retryInterval` middleware with semaphore acquiring in a HTTP request
 
 Semaphores can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
 This means you can, for example, acquire the semaphore on the main server, transfer it to a queue worker server, and release it there.
-In order to serialize or deserialize a semaphore you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `SemaphoreFactory`.
+In order to serialize or deserialize a semaphore you need pass an object that implements [`ISerderRegister`](../serde/serde.md) contract like the [`Serde`](../serde/serde.md) class to `SemaphoreFactory`.
 
 Manually serializing and deserializing the semaphore:
 
-```ts
-import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
-import { SemaphoreFactory } from "eridu-tech/semaphore";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const redisClient = new Redis("YOUR_REDIS_CONNECTION");
-
-const semaphoreFactory = new SemaphoreFactory({
-    // You can laso pass in an array of Serde class instances
-    serde,
-    adapter: new RedisSemaphoreAdapter(redisClient),
-});
-
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-const serializedSemaphore = serde.serialize(semaphore);
-const deserializedSemaphore = serde.deserialize(semaphore);
+```ts file=./semaphore_usage-samples/semaphore_manual_serialization.ts
 ```
 
 :::danger
@@ -524,51 +194,7 @@ Note you only need manuall serialization and deserialization when integrating wi
 
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the semaphore manually.
 
-```ts
-import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
-import type { ISemaphore } from "eridu-tech/semaphore/contracts";
-import { SemaphoreFactory } from "eridu-tech/semaphore";
-import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "eridu-tech/event-bus";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const redis = new Redis("YOUR_REDIS_CONNECTION");
-
-type EventMap = {
-    "sending-semaphore-over-network": {
-        semaphore: ISemaphore;
-    };
-};
-const eventBus = new EventBus<EventMap>({
-    adapter: new RedisPubSubEventBusAdapter({
-        client: redis,
-        serde,
-    }),
-});
-
-const semaphoreFactory = new SemaphoreFactory({
-    serde,
-    adapter: new RedisSemaphoreAdapter(redis),
-});
-const semaphore = semaphoreFactory.create("resource", {
-    limit: 2,
-});
-
-// We are sending the semaphore over the network to other servers.
-await eventBus.dispatch("sending-semaphore-over-network", {
-    semaphore,
-});
-
-// The other servers will recieve the serialized semaphore and automattically deserialize it.
-await eventBus.addListener(
-    "sending-semaphore-over-network",
-    ({ semaphore }) => {
-        // The semaphore is deserialized and can be used
-        console.log("SEMAPHORE:", semaphore);
-    },
-);
+```ts file=./semaphore_usage-samples/semaphore_event_bus_serialization.ts
 ```
 
 ### Separating semaphore creation from manipulation

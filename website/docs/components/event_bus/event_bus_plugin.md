@@ -39,35 +39,19 @@ The plugin prefixes event names for the following methods:
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-import { withEventBusPrefix } from "eridu-tech/event-bus/plugins";
-
-const adapter = new MemoryEventBusAdapter();
-
-// Apply the prefix plugin to the adapter
-const prefixedAdapter = withPlugin(adapter, withEventBusPrefix("tenant-42:"));
+```ts file=./event_bus_plugin-samples/with_event_bus_prefix.ts
 ```
 
 ### Before/after behavior
 
 **Before** — Event names are used as-is:
 
-```ts
-adapter.dispatch("user.created", data);
-// -> dispatches "user.created"
-adapter.addListener("user.created", listener);
-// -> listens to "user.created"
+```ts file=./event_bus_plugin-samples/unprefixed_dispatch.ts
 ```
 
 **After** — Event names are automatically prefixed:
 
-```ts
-prefixedAdapter.dispatch("user.created", data);
-// -> dispatches "tenant-42:user.created"
-prefixedAdapter.addListener("user.created", listener);
-// -> listens to "tenant-42:user.created"
+```ts file=./event_bus_plugin-samples/prefixed_dispatch.ts
 ```
 
 :::danger
@@ -217,46 +201,14 @@ The plugin execution order is:
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-import { withListenerTracking } from "eridu-tech/event-bus/plugins";
-
-const adapter = new MemoryEventBusAdapter();
-
-// A plugin that wraps listeners, e.g. to add logging or validation
-const loggingPlugin = (instance, enhance) => {
-    enhance(
-        instance,
-        "addListener",
-        ({ args: [eventName, listener], next }) => {
-            return next([
-                eventName,
-                (event) => {
-                    console.log(`Received "${eventName}"`);
-                    return listener(event);
-                },
-            ]);
-        },
-    );
-};
-
-// Apply listener tracking around a plugin that wraps listeners
-const enhancedAdapter = withPlugin(
-    adapter,
-    withListenerTracking(loggingPlugin),
-);
+```ts file=./event_bus_plugin-samples/with_listener_tracking.ts
 ```
 
 #### Chaining multiple tracking calls
 
 Multiple `withListenerTracking` calls can be composed together:
 
-```ts
-const enhancedAdapter = withPlugin(adapter, [
-    withListenerTracking(pluginA),
-    withListenerTracking(pluginB),
-]);
+```ts file=./event_bus_plugin-samples/listener_tracking_chaining.ts
 ```
 
 :::danger

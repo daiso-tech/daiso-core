@@ -42,31 +42,19 @@ The plugin prefixes keys for the following methods:
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemorySharedLockAdapter } from "eridu-tech/shared-lock/memory-shared-lock-adapter";
-import { withSharedLockPrefix } from "eridu-tech/shared-lock/plugins";
-
-const adapter = new MemorySharedLockAdapter();
-
-// Apply the prefix plugin to the adapter
-const prefixedAdapter = withPlugin(adapter, withSharedLockPrefix("tenant-42:"));
+```ts file=./shared_lock_plugin-samples/with_shared_lock_prefix.ts
 ```
 
 ### Before/after behavior
 
 **Before** — Shared lock keys are used as-is:
 
-```ts
-adapter.acquireWriter("doc:42", "writer-1", ttl);
-// -> acquires writer lock on "doc:42"
+```ts file=./shared_lock_plugin-samples/unprefixed_acquire_writer.ts
 ```
 
 **After** — Shared lock keys are automatically prefixed:
 
-```ts
-prefixedAdapter.acquireWriter("doc:42", "writer-1", ttl);
-// -> acquires writer lock on "tenant-42:doc:42"
+```ts file=./shared_lock_plugin-samples/prefixed_acquire_writer.ts
 ```
 
 :::danger

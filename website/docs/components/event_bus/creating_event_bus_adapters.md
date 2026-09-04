@@ -26,22 +26,7 @@ testing.
 
 Usage example:
 
-```ts
-// filename: MyEventBusAdapter.test.ts
-
-import { describe, test, beforeEach, expect } from "vitest";
-import { eventBusAdapterTestSuite } from "eridu-tech/event-bus/test-utilities";
-import { MyEventBusAdapter } from "./MyEventBusAdapter.js";
-
-describe("class: MyEventBusAdapter", () => {
-    eventBusAdapterTestSuite({
-        createAdapter: () => new MyEventBusAdapter(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
+```ts file=./creating_event_bus_adapters-samples/event_bus_adapter_test_suite.ts
 ```
 
 ## Implementing your custom IEventBus class
@@ -57,22 +42,7 @@ case coverage and standardized event-bus contract conformance testing.
 
 Usage example:
 
-```ts
-// filename: MyEventBus.test.ts
-
-import { describe, test, beforeEach, expect } from "vitest";
-import { eventBusTestSuite } from "eridu-tech/event-bus/test-utilities";
-import { MyEventBus } from "./MyEventBus.js";
-
-describe("class: EventBus", () => {
-    eventBusTestSuite({
-        test,
-        expect,
-        describe,
-        beforeEach,
-        createEventBus: () => new MyEventBus(),
-    });
-});
+```ts file=./creating_event_bus_adapters-samples/event_bus_test_suite.ts
 ```
 
 ## Further information

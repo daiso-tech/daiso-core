@@ -1,0 +1,1 @@
+await cache.get("a");

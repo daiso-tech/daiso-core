@@ -18,19 +18,7 @@ The `eridu-tech/circuit-breaker` component provides a way for managing circuit-b
 
 To begin using the `CircuitBreakerFactory` class, you'll need to create and configure an instance:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
-import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
-import { CircuitBreakerFactory } from "eridu-tech/circuit-breaker";
-
-const circuitBreakerFactory = new CircuitBreakerFactory({
-    // You can provide default settings
-    // You can choose the adapter to use
-    adapter: new DatabaseCircuitBreakerAdapter({
-        adapter: new MemoryCircuitBreakerStorageAdapter(),
-    }),
-});
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_initial_config.ts
 ```
 
 :::info
@@ -41,17 +29,12 @@ Here is a complete list of settings for the [`CircuitBreakerFactory`](https://er
 
 ### Creating a circuit-breaker
 
-```ts
-const circuitBreaker = circuitBreakerFactory.create("resource");
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_create.ts
 ```
 
 ### Using the circuit-breaker
 
-```ts
-// The function will only be called when the circuit-breaker is in closed state or half open state.
-await circuitBreaker.runOrFail(async () => {
-    // Call the external service
-});
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_run_or_fail.ts
 ```
 
 :::info
@@ -64,15 +47,7 @@ You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TVa
 
 ### Applying circuit-breaker on certiain errors
 
-```ts
-class ErrorA extends Error {}
-
-const circuitBreaker = circuitBreakerFactory.create("resource", {
-    errorPolicy: ErrorA,
-});
-await circuitBreaker.runOrFail(async () => {
-    // Call the external service
-});
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_error_policy.ts
 ```
 
 ### Setting circuit-breaker triggers
@@ -81,108 +56,52 @@ By default the the circuit-breaker will treat errors and slow calls as failures.
 
 The `CIRCUIT_BREAKER_TRIGGER.BOTH` will treat error and slow calls as failures.
 
-```ts
-import { CIRCUIT_BREAKER_TRIGGER } from "eridu-tech/circuit-breaker/contracts";
-
-const circuitBreaker = circuitBreakerFactory.create("resource", {
-    trigger: CIRCUIT_BREAKER_TRIGGER.BOTH,
-});
-await circuitBreaker.runOrFail(async () => {
-    // Call the external service
-});
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_trigger_both.ts
 ```
 
 The `CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR` will treat only errors as failures.
 
-```ts
-import { CIRCUIT_BREAKER_TRIGGER } from "eridu-tech/circuit-breaker/contracts";
-
-const circuitBreaker = circuitBreakerFactory.create("resource", {
-    trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_ERROR,
-});
-await circuitBreaker.runOrFail(async () => {
-    // Call the external service
-});
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_trigger_only_error.ts
 ```
 
 The `CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL` will treat slow calls as failures.
 
-```ts
-import { CIRCUIT_BREAKER_TRIGGER } from "eridu-tech/circuit-breaker/contracts";
-
-const circuitBreaker = circuitBreakerFactory.create("resource", {
-    trigger: CIRCUIT_BREAKER_TRIGGER.ONLY_SLOW_CALL,
-});
-await circuitBreaker.runOrFail(async () => {
-    // Call the external service
-});
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_trigger_only_slow_call.ts
 ```
 
 ### Setting the slow call threshold
 
 You can set custom slow call threshold that will be used when treating slow calls as failures.
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-
-const circuitBreaker = circuitBreakerFactory.create("resource", {
-    trigger: TimeSpan.fromSeconds(1),
-});
-await circuitBreaker.runOrFail(async () => {
-    // Call the external service
-});
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_slow_call_threshold.ts
 ```
 
 ### Reseting the circuit-breaker
 
 You can reset circuit-breaker state to the closed state manually.
 
-```ts
-await circuitBreaker.reset();
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_reset.ts
 ```
 
 ### Isolating the circuit-breaker
 
 You can manually hold circuit-breaker in open state until reseted.
 
-```ts
-await circuitBreaker.isolate();
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_isolate.ts
 ```
 
 ### Checking circuit-breaker state
 
 You can get the circuit-breaker state by using the `getState` method, it returns [`CircuitBreakerState`](https://eridu-tech.github.io/eridu-tech-core/types/CircuitBreaker.CircuitBreakerState.html).
 
-```ts
-import { CIRCUIT_BREAKER_STATE } from "eridu-tech/circuit-breaker/contracts";
-
-const state = await circuitBreaker.getState();
-
-if (state === CIRCUIT_BREAKER_STATE.CLOSED) {
-    console.log("The service is up and running without problems");
-}
-if (state === CIRCUIT_BREAKER_STATE.OPEN) {
-    console.log("The service is down or degraded and you need to wait");
-}
-if (state === CIRCUIT_BREAKER_STATE.HALF_OPEN) {
-    console.log(
-        "Proping to check if the server is up and running or down / degraded",
-    );
-}
-if (state === CIRCUIT_BREAKER_STATE.ISOLATED) {
-    console.log("The service is held in open state manually until reseted");
-}
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_get_state.ts
 ```
 
 ### CircuitBreaker instance variables
 
 The `CircuitBreaker` class exposes instance variables such as:
 
-```ts
-const circuitBreaker = circuitBreakerFactory.create("resource");
-
-// Will return the key of the circuit-breaker which is "resource"
-console.log(circuitBreaker);
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_instance_variables.ts
 ```
 
 ## Patterns
@@ -191,29 +110,11 @@ console.log(circuitBreaker);
 
 circuit-breakers can be serialized, allowing them to be transmitted over the network to another server and later deserialized for reuse.
 This means you can, for example, acquire the circuit-breaker on the main server, transfer it to a queue worker server, and release it there.
-In order to serialize or deserialize a circuit-breaker you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `CircuitBreakerFactory`.
+In order to serialize or deserialize a circuit-breaker you need pass an object that implements [`ISerderRegister`](../serde/serde.md) contract like the [`Serde`](../serde/serde.md) class to `CircuitBreakerFactory`.
 
 Manually serializing and deserializing the circuit-breaker:
 
-```ts
-import { RedisCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/redis-circuit-breaker-adapter";
-import { CircuitBreakerFactory } from "eridu-tech/circuit-breaker";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const redisClient = new Redis("YOUR_REDIS_CONNECTION");
-
-const circuitBreakerFactory = new CircuitBreakerFactory({
-    // You can laso pass in an array of Serde class instances
-    serde,
-    adapter: new RedisCircuitBreakerAdapter({ database: redisClient }),
-});
-
-const circuitBreaker = circuitBreakerFactory.create("resource");
-const serializedCircuitBreaker = serde.serialize(circuitBreaker);
-const deserializedCircuitBreaker = serde.deserialize(circuitBreaker);
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_manual_serialization.ts
 ```
 
 :::danger
@@ -226,49 +127,7 @@ Note you only need manuall serialization and deserialization when integrating wi
 
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the circuit-breaker manually.
 
-```ts
-import { RedisCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/redis-circuit-breaker-adapter";
-import type { ICircuitBreaker } from "eridu-tech/circuit-breaker/contracts";
-import { CircuitBreakerFactory } from "eridu-tech/circuit-breaker";
-import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "eridu-tech/event-bus";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const redis = new Redis("YOUR_REDIS_CONNECTION");
-
-type EventMap = {
-    "sending-circuit-breaker-over-network": {
-        circuitBreaker: ICircuitBreaker;
-    };
-};
-const eventBus = new EventBus<EventMap>({
-    adapter: new RedisPubSubEventBusAdapter({
-        client: redis,
-        serde,
-    }),
-});
-
-const circuitBreakerFactory = new CircuitBreakerFactory({
-    serde,
-    adapter: new RedisCircuitBreakerAdapter({ databsae: redis }),
-});
-const circuitBreaker = circuitBreakerFactory.create("resource");
-
-// We are sending the circuitBreaker over the network to other servers.
-await eventBus.dispatch("sending-circuit-breaker-over-network", {
-    circuitBreaker,
-});
-
-// The other servers will recieve the serialized circuitBreaker and automattically deserialize it.
-await eventBus.addListener(
-    "sending-circuit-breaker-over-network",
-    ({ circuitBreaker }) => {
-        // The circuitBreaker is deserialized and can be used
-        console.log("CIRCUIT_BREAKER:", circuitBreaker);
-    },
-);
+```ts file=./circuit_breaker_usage-samples/circuit_breaker_event_bus_serialization.ts
 ```
 
 ## Further information

@@ -49,31 +49,19 @@ Methods that do not accept a key (`removeAll`) are unaffected.
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { withCachePrefix } from "eridu-tech/cache/plugins";
-
-const adapter = new MemoryCacheAdapter();
-
-// Apply the prefix plugin to the adapter
-const prefixedAdapter = withPlugin(adapter, withCachePrefix("tenant-42:"));
+```ts file=./cache_plugin-samples/with_cache_prefix.ts
 ```
 
 ### Before/after behavior
 
 **Before** — Keys are stored as-is:
 
-```ts
-adapter.get("user:123");
-// -> looks up key "user:123"
+```ts file=./cache_plugin-samples/unprefixed_lookup.ts
 ```
 
 **After** — Keys are automatically prefixed:
 
-```ts
-prefixedAdapter.get("user:123");
-// -> looks up key "tenant-42:user:123"
+```ts file=./cache_plugin-samples/prefixed_lookup.ts
 ```
 
 :::danger
@@ -88,9 +76,7 @@ For more information about the `withPlugin` function and applying plugins to ada
 
 The `removeMany` method receives an array of keys. The plugin maps over the array, prefixing each entry:
 
-```ts
-prefixedAdapter.removeMany(["a", "b", "c"]);
-// -> prefixedAdapter.removeMany(["tenant-42:a", "tenant-42:b", "tenant-42:c"])
+```ts file=./cache_plugin-samples/remove_many_prefix.ts
 ```
 
 ## withCacheJitter plugin
@@ -117,15 +103,7 @@ The jitter is calculated as a random percentage of the original TTL. For example
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { withCacheJitter } from "eridu-tech/cache/plugins";
-
-const adapter = new MemoryCacheAdapter();
-
-// Apply the jitter plugin to the adapter
-const jitteredAdapter = withPlugin(adapter, withCacheJitter());
+```ts file=./cache_plugin-samples/with_cache_jitter.ts
 ```
 
 ### Settings
@@ -241,17 +219,7 @@ Read-only methods (`get`, `removeAll`, `removeByPrefix`) are unaffected.
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { withCacheWriteLock } from "eridu-tech/cache/plugins";
-import { MemoryLockFactory } from "eridu-tech/lock/memory-lock-factory";
-
-const adapter = new MemoryCacheAdapter();
-const lockFactory = new MemoryLockFactory();
-
-// Apply the write lock plugin to the adapter
-const lockedAdapter = withPlugin(adapter, withCacheWriteLock({ lockFactory }));
+```ts file=./cache_plugin-samples/with_cache_write_lock.ts
 ```
 
 ### Settings

@@ -22,19 +22,7 @@ The `eridu-tech/cache` component provides a way for storing key-value pairs with
 
 To begin using the `Cache` class, you'll need to create and configure an instance:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { Cache } from "eridu-tech/cache";
-
-const cache = new Cache({
-    // You can provide default TTL value
-    // If you set it to null it means keys will be stored forever.
-    defaultTtl: TimeSpan.fromSeconds(2),
-
-    // You can choose the adapter to use
-    adapter: new MemoryCacheAdapter(),
-});
+```ts file=./cache_usage-samples/cache_initial_config.ts
 ```
 
 :::info
@@ -47,8 +35,7 @@ Here is a complete list of settings for the [`Cache`](https://eridu-tech.github.
 
 You can add a key with a optional TTL to overide the default:
 
-```ts
-await cache.add("a", "value", TimeSpan.fromSeconds(1));
+```ts file=./cache_usage-samples/cache_add.ts
 ```
 
 The method returns true if the key does not exists.
@@ -57,69 +44,58 @@ The method returns true if the key does not exists.
 
 You can retrieve the key:
 
-```ts
-await cache.get("a");
+```ts file=./cache_usage-samples/cache_get.ts
 ```
 
 ### Checking key existence
 
 You can check if the key exists:
 
-```ts
-await cache.exists("a");
+```ts file=./cache_usage-samples/cache_exists.ts
 ```
 
 You can check if the key is missing:
 
-```ts
-await cache.missing("a");
+```ts file=./cache_usage-samples/cache_missing.ts
 ```
 
 ### Updating keys
 
 You can update a key and true will be returned if the key exists and was updated:
 
-```ts
-await cache.update("a", 2);
+```ts file=./cache_usage-samples/cache_update.ts
 ```
 
 You can increment the a key and true will be returned if the key exists and was updated. If the key is not a number an error will be thrown:
 
-```ts
-await cache.increment("a", 2);
+```ts file=./cache_usage-samples/cache_increment.ts
 ```
 
 You can decrement the a key and true will be returned if the key exists and was updated. If the key is not a number an error will be thrown,:
 
-```ts
-await cache.decrement("a", 1);
+```ts file=./cache_usage-samples/cache_decrement.ts
 ```
 
 You can perform an upsert that replaces the ttl when updated. True will be returned if the key was updated otherwise false is returned:
 
-```ts
-await cache.put("a", 2);
-await cache.put("a", 4, TimeSpan.fromSeconds(3));
+```ts file=./cache_usage-samples/cache_put.ts
 ```
 
 ### Removing keys
 
 You can remove a key and true will be returned if the key was found and removed:
 
-```ts
-await cache.remove("a");
+```ts file=./cache_usage-samples/cache_remove.ts
 ```
 
 You can remove multiple keys and true will be returned if one of the keys exists and where removed:
 
-```ts
-await cache.removeMany(["a", "b"]);
+```ts file=./cache_usage-samples/cache_remove_many.ts
 ```
 
 You can clear all the keys of the given namespace:
 
-```ts
-await cache.clear();
+```ts file=./cache_usage-samples/cache_clear.ts
 ```
 
 ## Patterns
@@ -128,82 +104,17 @@ await cache.clear();
 
 You can enforce compile time type safety by setting the cache value type:
 
-```ts
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { Cache } from "eridu-tech/cache";
-
-type IUser = {
-    name: string;
-    email: string;
-    age: number;
-};
-
-const cache = new Cache<IUser>({
-    adapter: new MemoryCacheAdapter(),
-});
-
-// A typescript error will occur because the type is not matching.
-await cache.add("a", "asd");
+```ts file=./cache_usage-samples/compile_time_type_safety.ts
 ```
 
 If you have multiple types you can use algeberical enums:
 
-```ts
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { Cache } from "eridu-tech/cache";
-
-type IUser = {
-    type: "USER";
-    name: string;
-    email: string;
-    age: number;
-};
-type IProduct = {
-    type: "PRODUCT";
-    name: string;
-    price: number;
-};
-type CacheValue = IUser | IProduct;
-
-const cache = new Cache<CacheValue>({
-    adapter: new MemoryCacheAdapter(),
-});
-
-const cacheValue = await cache.get("user1");
-// You need to check the type is "USER" inorder to access IUser fields.
-if (cacheValue.type === "USER") {
-    console.log(cacheValue.name, cacheValue.age);
-}
-// You need to check the type is "PRODUCT" inorder to access IProduct fields.
-if (cacheValue.type === "PRODUCT") {
-    console.log(cacheValue.name, cacheValue.price);
-}
+```ts file=./cache_usage-samples/cache_union_types.ts
 ```
 
 Alternatively you can use different `Cache` classes with different namespaces:
 
-```ts
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { Cache } from "eridu-tech/cache";
-
-const cacheAdapter = new MemoryCacheAdapter();
-
-type IUser = {
-    name: string;
-    email: string;
-    age: number;
-};
-const userCache = new Cache<IUser>({
-    adapter: cacheAdapter,
-});
-
-type IProduct = {
-    name: string;
-    price: number;
-};
-const productCache = new Cache<IProduct>({
-    adapter: cacheAdapter,
-});
+```ts file=./cache_usage-samples/cache_multiple_namespaces.ts
 ```
 
 ### Runtime type safety
@@ -217,102 +128,61 @@ When a schema is provided, values are validated:
 
 If validation fails, a `ValidationError` is thrown.
 
-```ts
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { Cache } from "eridu-tech/cache";
-import { z } from "zod";
-
-const userSchema = z.object({
-    name: z.string(),
-    email: z.string().email(),
-    age: z.number(),
-});
-
-const cache = new Cache({
-    adapter: new MemoryCacheAdapter(),
-    schema: userSchema,
-});
-
-await cache.add("user1", {
-    name: "John",
-    email: "john@example.com",
-    age: 30,
-});
-
-// Throws a ValidationError because the email is not valid
-await cache.add("user2", {
-    name: "Jane",
-    email: "not-an-email",
-    age: 25,
-});
+```ts file=./cache_usage-samples/cache_runtime_validation.ts
 ```
 
 #### Disabling output validation
 
 If you only want to validate values on write and skip validation when reading, set `shouldValidateOutput` to `false`:
 
-```ts
-const cache = new Cache({
-    adapter: new MemoryCacheAdapter(),
-    schema: userSchema,
-    shouldValidateOutput: false,
-});
+```ts file=./cache_usage-samples/cache_disable_output_validation.ts
 ```
 
 ### Additional methods
 
 You can retrieve the key and if it does not exist an error will be thrown:
 
-```ts
-await cache.getOrFail("ab");
+```ts file=./cache_usage-samples/cache_get_or_fail.ts
 ```
 
 You can retrieve the key and if it does not exist you can return a default value:
 
-```ts
-await cache.getOr("ab", 1);
+```ts file=./cache_usage-samples/cache_get_or.ts
 ```
 
 You can retrieve the key and if it does not exist you can insert a default value that will aslo be returned:
 
-```ts
-await cache.getOrAdd("ab", 1);
+```ts file=./cache_usage-samples/cache_get_or_add.ts
 ```
 
 You can retrieve the key and afterwards remove it:
 
-```ts
-await cache.getAndRemove("ab");
+```ts file=./cache_usage-samples/cache_get_and_remove.ts
 ```
 
 You can add key and if it does exist an error will be thrown:
 
-```ts
-await cache.addOrFail("ab", 1);
+```ts file=./cache_usage-samples/cache_add_or_fail.ts
 ```
 
 You can update the key and if it does not exist an error will be thrown:
 
-```ts
-await cache.updateOrFail("ab", 1);
+```ts file=./cache_usage-samples/cache_update_or_fail.ts
 ```
 
 You can increment the key and if it does not exist an error will be thrown:
 
-```ts
-await cache.incrementOrFail("ab", 1);
+```ts file=./cache_usage-samples/cache_increment_or_fail.ts
 ```
 
 You can decrement the key and if it does not exist an error will be thrown:
 
-```ts
-await cache.decrementOrFail("ab", 1);
+```ts file=./cache_usage-samples/cache_decrement_or_fail.ts
 ```
 
 You can remove the key and if it does not exist an error will be thrown:
 
-```ts
-await cache.removeOrFail("ab");
+```ts file=./cache_usage-samples/cache_remove_or_fail.ts
 ```
 
 ### Separating cache reading from manipulation
@@ -325,29 +195,7 @@ The library includes 2 additional contracts:
 
 This separation makes it easy to visually distinguish the two contracts, making it immediately obvious that they serve different purposes.
 
-```ts
-import type { ICache, IReadableCache } from "eridu-tech/cache/contracts";
-import { Cache } from "eridu-tech/cache";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-
-async function readingFunc(cache: IReadableCache): Promise<void> {
-    // You cannot access write methods like put, add and update
-    // You will get typescript error if you try
-
-    console.log("reading only:", await cache.get("a"));
-}
-async function manipulatingFunc(cache: ICache): Promise<void> {
-    // You will get typescript error if you try
-
-    await cache.add("a", 1);
-    console.log("writing and reading:", await cache.get("a"));
-}
-
-const cache = new Cache({
-    adapter: new MemoryCacheAdapter(),
-});
-await manipulatingFunc(cache);
-await readingFunc(cache);
+```ts file=./cache_usage-samples/cache_read_write_contracts.ts
 ```
 
 ## Further information

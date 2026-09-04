@@ -38,52 +38,23 @@ To use the `RedisRateLimiterAdapter`, you'll need to:
 
 1. Install the required dependency: [`ioredis`](https://www.npmjs.com/package/ioredis) package:
 
-```ts
-import { RedisRateLimiterAdapter } from "eridu-tech/rate-limiter/redis-rate-limiter-adapter";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
-    database,
-});
+```ts file=./configuring_rate_limiter_adapters-samples/redis_rate_limiter_adapter.ts
 ```
 
 ### Configuring backoff policy
 
 The `type` field is the only required field. All other fields are optional.
 
-```ts
-import { BACKOFFS } from "eridu-tech/backoff-policies";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
-    database,
-    backoffPolicy: {
-        type: BACKOFFS.CONSTANT,
-        delay: TimeSpan.fromSeconds(1),
-        jitter: 0.5,
-    },
-});
+```ts file=./configuring_rate_limiter_adapters-samples/redis_rate_limiter_backoff_policy.ts
 ```
 
-The settings are the same as [backoff policies](../backoff_policies.md) settings.
+The settings are the same as [backoff policies](../backoff_policies/backoff_policies.md) settings.
 
 ### Configuring RateLimiter policy
 
 The `type` field is the only required field. All other fields are optional.
 
-```ts
-import { POLICIES } from "eridu-tech/rate-limiter/policies";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-const redisRateLimiterAdapter = new RedisRateLimiterAdapter({
-    database,
-    rateLimiterPolicy: {
-        type: POLICIES.SLIDING_WINDOW,
-        failureThreshold: 5,
-        successThreshold: 5,
-    },
-});
+```ts file=./configuring_rate_limiter_adapters-samples/redis_rate_limiter_policy.ts
 ```
 
 The settings are the same as [rate-limiter policies](./configuring_rate_limiter_policies.md) settings.
@@ -94,58 +65,33 @@ To use the `DatabaseRateLimiterAdapter`, you'll need to use `IRateLimiterStorage
 
 1. Creating `IRateLimiterStorageAdapter`:
 
-```ts
-import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
-
-const rateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter();
+```ts file=./configuring_rate_limiter_adapters-samples/rate_limiter_storage_adapter.ts
 ```
 
 2. Creating `DatabaseRateLimiterAdapter`:
 
-```ts
-import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
-
-const rateLimiterAdapter = new DatabaseRateLimiterAdapter({
-    adapter: rateLimiterStorageAdapter,
-});
+```ts file=./configuring_rate_limiter_adapters-samples/database_rate_limiter_adapter.ts
 ```
 
 ### Configuring backoff policy
 
-You can use any of defined [backoff policies](../backoff_policies.md).
+You can use any of defined [backoff policies](../backoff_policies/backoff_policies.md).
 
-```ts
-import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
-import { constantBackoff } from "eridu-tech/backoff-policies";
-
-const rateLimiterAdapter = new DatabaseRateLimiterAdapter({
-    adapter: rateLimiterStorageAdapter,
-    backoffPolicy: constantBackoff(),
-});
+```ts file=./configuring_rate_limiter_adapters-samples/database_rate_limiter_backoff_policy.ts
 ```
 
 ### Configuring RateLimiter policy
 
 You can use any of defined [rate-limiter policies](./configuring_rate_limiter_policies.md) or [create your own](./creating_rate_limiter_policies.md).
 
-```ts
-import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
-import { SlidingWindowLimiter } from "eridu-tech/rate-limiter/policies";
-
-const rateLimiterAdapter = new DatabaseRateLimiterAdapter({
-    adapter: rateLimiterStorageAdapter,
-    rateLimiterPolicy: new SlidingWindowLimiter(),
-});
+```ts file=./configuring_rate_limiter_adapters-samples/database_rate_limiter_policy.ts
 ```
 
 ## NoOpRateLimiterAdapter
 
 The `NoOpRateLimiterAdapter` is a no-operation implementation, it performs no actions when called:
 
-```ts
-import { NoOpRateLimiterAdapter } from "eridu-tech/rate-limiter/no-op-rate-limiter-adpater";
-
-const noOpRateLimiterAdapter = new NoOpRateLimiterAdapter();
+```ts file=./configuring_rate_limiter_adapters-samples/no_op_rate_limiter_adapter.ts
 ```
 
 :::info
@@ -160,171 +106,58 @@ To use the `KyselyRateLimiterStorageAdapter`, you'll need to:
 
 2. Install the required dependency: [`kysely`](https://www.npmjs.com/package/kysely) package:
 
-3. Provide a string serializer ([`ISerde`](../serde.md)):
+3. Provide a string serializer ([`ISerde`](../serde/serde.md)):
 
 - We recommend using `SuperJsonSerdeAdapter` for this purpose
 
-```ts
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
+```ts file=./configuring_rate_limiter_adapters-samples/serde_instance.ts
 ```
 
 ### With Sqlite
 
 You will need to install [`better-sqlite3`](https://www.npmjs.com/package/better-sqlite3) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter";
-import Sqlite from "better-sqlite3";
-import { Kysely, SqliteDialect } from "kysely";
-
-const database = new Sqlite("DATABASE_NAME.db");
-const kysely = new Kysely({
-    dialect: new SqliteDialect({
-        database,
-    }),
-});
-const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
-    kysely,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyRateLimiterStorageAdapter.init();
+```ts file=./configuring_rate_limiter_adapters-samples/kysely_storage_sqlite.ts
 ```
 
 ### With Postgres
 
 You will need to install [`pg`](https://www.npmjs.com/package/pg) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter";
-import { Pool } from "pg";
-import { Kysely, PostgresDialect } from "kysely";
-
-const database = new Pool({
-    database: "DATABASE_NAME",
-    host: "DATABASE_HOST",
-    user: "DATABASE_USER",
-    // DATABASE port
-    port: 5432,
-    password: "DATABASE_PASSWORD",
-    max: 10,
-});
-const kysely = new Kysely({
-    dialect: new PostgresDialect({
-        pool: database,
-    }),
-});
-const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
-    kysely,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyRateLimiterStorageAdapter.init();
+```ts file=./configuring_rate_limiter_adapters-samples/kysely_storage_postgres.ts
 ```
 
 ### With Mysql
 
 You will need to install [`mysql2`](https://www.npmjs.com/package/mysql2) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter";
-import { createPool } from "mysql2";
-import { Kysely, MysqlDialect } from "kysely";
-
-const database = createPool({
-    host: "DATABASE_HOST",
-    // Database port
-    port: 3306,
-    database: "DATABASE_NAME",
-    user: "DATABASE_USER",
-    password: "DATABASE_PASSWORD",
-    connectionLimit: 10,
-});
-const kysely = new Kysely({
-    dialect: new MysqlDialect({
-        pool: database,
-    }),
-});
-const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
-    kysely,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyRateLimiterStorageAdapter.init();
+```ts file=./configuring_rate_limiter_adapters-samples/kysely_storage_mysql.ts
 ```
 
 ### With Libsql
 
 You will need to install `@libsql/kysely-libsql` package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter";
-import { LibsqlDialect } from "@libsql/kysely-libsql";
-import { Kysely } from "kysely";
-
-const kysely = new Kysely({
-    dialect: new LibsqlDialect({
-        url: "DATABASE_URL",
-    }),
-});
-const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
-    kysely,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyRateLimiterStorageAdapter.init();
+```ts file=./configuring_rate_limiter_adapters-samples/kysely_storage_libsql.ts
 ```
 
 ### Settings
 
 To clean up expired rate-limiter records, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
-```ts
-const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
-    kysely,
-    serde,
-});
-
-await kyselyRateLimiterStorageAdapter.init();
-
-// Remove all expired rate-limiter records manually.
-await kyselyRateLimiterStorageAdapter.removeAllExpired();
+```ts file=./configuring_rate_limiter_adapters-samples/kysely_storage_remove_all_expired.ts
 ```
 
 ## MemoryRateLimiterStorageAdapter
 
 To use the `MemoryRateLimiterStorageAdapter` you only need to create instance of it:
 
-```ts
-import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
-
-const memoryRateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter();
+```ts file=./configuring_rate_limiter_adapters-samples/memory_rate_limiter_storage_adapter.ts
 ```
 
 You can also provide an `Map` that will be used for storing the data in memory:
 
-```ts
-import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
-
-const map = new Map<any, any>();
-const memoryRateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter(
-    map,
-);
+```ts file=./configuring_rate_limiter_adapters-samples/memory_rate_limiter_storage_with_map.ts
 ```
 
 :::info
@@ -335,13 +168,7 @@ const memoryRateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter(
 
 To clean up expired rate-limiter records, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
-```ts
-import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
-
-const memoryRateLimiterStorageAdapter = new MemoryRateLimiterStorageAdapter();
-
-// Remove all expired rate-limiter records manually.
-await memoryRateLimiterStorageAdapter.removeAllExpired();
+```ts file=./configuring_rate_limiter_adapters-samples/memory_rate_limiter_remove_all_expired.ts
 ```
 
 ## MongodbRateLimiterStorageAdapter
@@ -352,35 +179,18 @@ To use the `MongodbRateLimiterStorageAdapter`, you'll need to:
 
 2. Install the required dependency: [`mongodb`](https://www.npmjs.com/package/mongodb) package:
 
-3. Provide a string serializer ([`ISerde`](../serde.md)):
+3. Provide a string serializer ([`ISerde`](../serde/serde.md)):
 
 - We recommend using `SuperJsonSerdeAdapter` for this purpose
 
-```ts
-import { MongodbRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/mongodb-rate-limiter-storage-adapter";
-import { MongoClient } from "mongodb";
-
-const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
-const database = client.db("database");
-const mongodbRateLimiterStorageAdapter = new MongodbRateLimiterStorageAdapter({
-    client,
-    database,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the indexes will be created
-await mongodbRateLimiterStorageAdapter.init();
+```ts file=./configuring_rate_limiter_adapters-samples/mongodb_rate_limiter_storage_adapter.ts
 ```
 
 ## NoOpRateLimiterStorageAdapter
 
 The `NoOpRateLimiterStorageAdapter` is a no-operation implementation, it performs no actions when called:
 
-```ts
-import { NoOpRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/no-op-rate-limiter-storage-adpater";
-
-const noOpRateLimiterStorageAdapter = new NoOpRateLimiterStorageAdapter();
+```ts file=./configuring_rate_limiter_adapters-samples/no_op_rate_limiter_storage_adapter.ts
 ```
 
 :::info

@@ -1,122 +1,38 @@
 # ErrorPolicy type
 
-The `ErrorPolicy` type determines which errors should be handled for example in resilience middlewares like [`retry`](../components/resilience.md) or [`fallback`](../components/resilience.md).
+The `ErrorPolicy` type determines which errors should be handled for example in resilience middlewares like [`retry`](../components/resilience/resilience.md) or [`fallback`](../components/resilience/resilience.md).
 
 ## Predicate as ErrorPolicy
 
 A predicate function can be used to dynamically determine if an error should be handled:
 
-```ts
-import { fallback } from "eridu-tech/resilience";
-import { use } from "eridu-tech/middleware";
-
-class CustomError extends Error {
-    constructor(
-        readonly errorCode: string,
-        message: string,
-        cause?: unknown,
-    ) {
-        super(message, { cause });
-        this.name = CustomError.name;
-    }
-}
-
-const func = use((): string => {
-    return "asd";
-}, [
-    fallback({
-        fallbackValue: "DEFAULT_VALUE",
-        errorPolicy: (error) => error instanceof CustomError,
-    }),
-]);
-
-await func();
+```ts file=./error_policy_type-samples/error_policy_predicate.ts
 ```
 
 ## Classes as ErrorPolicy:
 
 You can directly pass an class to match if errors are instance of the class:
 
-```ts
-import { fallback } from "eridu-tech/resilience";
-import { use } from "eridu-tech/middleware";
-
-const func = use((): string => {
-    return "asd";
-}, [
-    fallback({
-        fallbackValue: "DEFAULT_VALUE",
-        errorPolicy: CustomError,
-    }),
-]);
-
-await func();
+```ts file=./error_policy_type-samples/error_policy_class.ts
 ```
 
 You can also pass multiple error classes:
 
-```ts
-import { fallback } from "eridu-tech/resilience";
-import { use } from "eridu-tech/middleware";
-
-const func = use((): string => {
-    return "asd";
-}, [
-    fallback({
-        fallbackValue: "DEFAULT_VALUE",
-        errorPolicy: [CustomErrorA, CustomErrorB],
-    }),
-]);
-
-await func();
+```ts file=./error_policy_type-samples/error_policy_multiple_classes.ts
 ```
 
 ## Standard Schema as ErrorPolicy
 
 You can use any [standard schema](https://standardschema.dev/) as error policy:
 
-```ts
-import { z } from "zod";
-import { fallback } from "eridu-tech/resilience";
-import { use } from "eridu-tech/middleware";
-
-const func = use((): string => {
-    return "asd";
-}, [
-    fallback({
-        fallbackValue: "DEFAULT_VALUE",
-        errorPolicy: z.object({
-            code: z.literal("e20"),
-            message: z.string(),
-        }),
-    }),
-]);
-
-await func();
+```ts file=./error_policy_type-samples/error_policy_standard_schema.ts
 ```
 
 ## False return values as error
 
 You can treat false return values as errors. This useful when you want to retry functions that return boolean.
 
-```ts
-import { retry } from "eridu-tech/resilience";
-import { use } from "eridu-tech/middleware";
-
-const func = use(async (): Promise<boolean> => {
-    // Will be
-    console.log("EXECUTING");
-    return false;
-}, [
-    retry({
-        maxAttempts: 4,
-        errorPolicy: {
-            treatFalseAsError: true,
-        },
-    }),
-]);
-
-await func();
+```ts file=./error_policy_type-samples/error_policy_treat_false_as_error.ts
 ```
 
 ## Further information

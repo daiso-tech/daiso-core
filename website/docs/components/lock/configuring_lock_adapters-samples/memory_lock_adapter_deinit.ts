@@ -1,0 +1,1 @@
+await memoryLockAdapter.deInit();

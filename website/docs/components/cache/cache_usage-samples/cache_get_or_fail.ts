@@ -1,0 +1,1 @@
+await cache.getOrFail("ab");

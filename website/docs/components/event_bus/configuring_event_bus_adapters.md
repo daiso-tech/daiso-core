@@ -22,20 +22,12 @@ keywords:
 
 To use the `MemoryEventBusAdapter` you only need to create instance of it.
 
-```ts
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-
-const eventBusAdapter = new MemoryEventBusAdapter();
+```ts file=./configuring_event_bus_adapters-samples/memory_event_bus_adapter.ts
 ```
 
 You can also provide an `EventEmitter` that will be used for dispatching the events in memory:
 
-```ts
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus-adapter";
-import { EventEmitter } from "node:events";
-
-const eventEmitter = new EventEmitter<any>();
-const eventBusAdapter = new MemoryEventBusAdapter(eventEmitter);
+```ts file=./configuring_event_bus_adapters-samples/memory_event_bus_adapter_with_emitter.ts
 ```
 
 :::info
@@ -47,32 +39,18 @@ const eventBusAdapter = new MemoryEventBusAdapter(eventEmitter);
 To use the `RedisPubSubEventBusAdapter`, you'll need to:
 
 1. Install the required dependency: [`ioredis`](https://www.npmjs.com/package/ioredis) package:
-2. Provide a string serializer ([`ISerde`](../serde.md)):
+2. Provide a string serializer ([`ISerde`](../serde/serde.md)):
 
 - We recommend using `SuperJsonSerdeAdapter` for this purpose
 
-```ts
-import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-import Redis from "ioredis";
-
-const client = new Redis("YOUR_REDIS_CONNECTION_STRING");
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const eventBusAdapter = new RedisPubSubEventBusAdapter({
-    client,
-    serde,
-});
+```ts file=./configuring_event_bus_adapters-samples/redis_pub_sub_event_bus_adapter.ts
 ```
 
 ## NoOpEventBusAdapter
 
 The `NoOpEventBusAdapter` is a no-operation implementation, it performs no actions when called.
 
-```ts
-import { NoOpEventBusAdapter } from "eridu-tech/event-bus/no-op-event-bus-adapter";
-
-const noEventBusAdapter = new NoOpEventBusAdapter();
+```ts file=./configuring_event_bus_adapters-samples/no_op_event_bus_adapter.ts
 ```
 
 :::info

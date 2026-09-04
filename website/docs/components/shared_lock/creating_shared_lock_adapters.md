@@ -26,22 +26,7 @@ testing.
 
 Usage example:
 
-```ts
-// filename: MySharedLockAdapter.test.ts
-
-import { beforeEach, describe, expect, test } from "vitest";
-import { sharedLockAdapterTestSuite } from "eridu-tech/shared-lock/test-utilities";
-import { MemorySharedLockAdapter } from "./MemorySharedLockAdapter.js";
-
-describe("class: MySharedLockAdapter", () => {
-    sharedLockAdapterTestSuite({
-        createAdapter: () => new MemorySharedLockAdapter(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
+```ts file=./creating_shared_lock_adapters-samples/shared_lock_adapter_test_suite.ts
 ```
 
 ## Implementing your custom ISharedLockFactory class
@@ -58,22 +43,7 @@ testing.
 
 Usage example:
 
-```ts
-// filename: MySharedLockFactory.test.ts
-
-import { beforeEach, describe, expect, test } from "vitest";
-import { sharedLockProviderTestSuite } from "eridu-tech/shared-lock/test-utilities";
-import { MySharedLockFactory } from "./MySharedLockFactory.js";
-
-describe("class: MySharedLockFactory", () => {
-    sharedLockProviderTestSuite({
-        createSharedLockFactory: () => new MySharedLockFactory(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
+```ts file=./creating_shared_lock_adapters-samples/shared_lock_factory_test_suite.ts
 ```
 
 ## Further information

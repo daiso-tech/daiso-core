@@ -36,19 +36,12 @@ keywords:
 
 To use the `MemoryLockAdapter` you only need to create instance of it:
 
-```ts
-import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
-
-const memoryLockAdapter = new MemoryLockAdapter();
+```ts file=./configuring_lock_adapters-samples/memory_lock_adapter.ts
 ```
 
 You can also provide an `Map` that will be used for storing the data in memory:
 
-```ts
-import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
-
-const map = new Map<any, any>();
-const memoryLockAdapter = new MemoryLockAdapter(map);
+```ts file=./configuring_lock_adapters-samples/memory_lock_adapter_with_map.ts
 ```
 
 :::info
@@ -63,20 +56,13 @@ Note the `MemoryLockAdapter` is limited to single process usage and cannot be sh
 
 To clean up expired lock keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
-```ts
-import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
-
-const memoryLockAdapter = new MemoryLockAdapter();
-
-// Remove all expired lock keys manually.
-await memoryLockAdapter.removeAllExpired();
+```ts file=./configuring_lock_adapters-samples/memory_lock_remove_all_expired.ts
 ```
 
 :::info
 To remove the lock map and all stored lock data, use `deInit` method:
 
-```ts
-await memoryLockAdapter.deInit();
+```ts file=./configuring_lock_adapters-samples/memory_lock_adapter_deinit.ts
 ```
 
 :::
@@ -87,50 +73,23 @@ To use the `MongodbLockAdapter`, you'll need to:
 
 1. Install the required dependency: [`mongodb`](https://www.npmjs.com/package/mongodb) package:
 
-```ts
-import { MongodbLockAdapter } from "eridu-tech/lock/mongodb-lock-adapter";
-import { MongoClient } from "mongodb";
-
-const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
-const database = client.db("database");
-const mongodbLockAdapter = new MongodbLockAdapter({
-    database,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the indexes will be created
-await mongodbLockAdapter.init();
+```ts file=./configuring_lock_adapters-samples/mongodb_lock_adapter.ts
 ```
 
 You can change the collection name:
 
-```ts
-const mongodbLockAdapter = new MongodbLockAdapter({
-    database,
-    // By default "lock" is used as collection name
-    collectionName: "my-lock",
-});
-
-await mongodbLockAdapter.init();
+```ts file=./configuring_lock_adapters-samples/mongodb_lock_collection_name.ts
 ```
 
 You can change the collection settings:
 
-```ts
-const mongodbLockAdapter = new MongodbLockAdapter({
-    database,
-    // You configure additional collection settings
-    collectionSettings: {},
-});
-
-await mongodbLockAdapter.init();
+```ts file=./configuring_lock_adapters-samples/mongodb_lock_collection_settings.ts
 ```
 
 :::info
 To remove the lock collection and all stored lock data, use `deInit` method:
 
-```ts
-await mongodbLockAdapter.deInit();
+```ts file=./configuring_lock_adapters-samples/mongodb_lock_adapter_deinit.ts
 ```
 
 :::
@@ -145,12 +104,7 @@ To use the `RedisLockAdapter`, you'll need to:
 
 1. Install the required dependency: [`ioredis`](https://www.npmjs.com/package/ioredis) package:
 
-```ts
-import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-const redisLockAdapter = new RedisLockAdapter(database);
+```ts file=./configuring_lock_adapters-samples/redis_lock_adapter.ts
 ```
 
 :::danger
@@ -169,25 +123,7 @@ To use the `KyselyLockAdapter`, you'll need to:
 
 You will need to install [`better-sqlite3`](https://www.npmjs.com/package/better-sqlite3) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
-import Sqlite from "better-sqlite3";
-import { Kysely, SqliteDialect } from "kysely";
-
-const database = new Sqlite("DATABASE_NAME.db");
-const kysely = new Kysely({
-    dialect: new SqliteDialect({
-        database,
-    }),
-});
-const kyselyLockAdapter = new KyselyLockAdapter({
-    kysely,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyLockAdapter.init();
+```ts file=./configuring_lock_adapters-samples/kysely_lock_sqlite.ts
 ```
 
 :::danger
@@ -198,33 +134,7 @@ Note using `KyselyLockAdapter` with `sqlite` is limited to single server usage a
 
 You will need to install [`pg`](https://www.npmjs.com/package/pg) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
-import { Pool } from "pg";
-import { Kysely, PostgresDialect } from "kysely";
-
-const database = new Pool({
-    database: "DATABASE_NAME",
-    host: "DATABASE_HOST",
-    user: "DATABASE_USER",
-    // DATABASE port
-    port: 5432,
-    password: "DATABASE_PASSWORD",
-    max: 10,
-});
-const kysely = new Kysely({
-    dialect: new PostgresDialect({
-        pool: database,
-    }),
-});
-const kyselyLockAdapter = new KyselyLockAdapter({
-    kysely,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyLockAdapter.init();
+```ts file=./configuring_lock_adapters-samples/kysely_lock_postgres.ts
 ```
 
 :::danger
@@ -235,33 +145,7 @@ Note in order to use `KyselyLockAdapter` with `postgres` correctly, ensure you u
 
 You will need to install [`mysql2`](https://www.npmjs.com/package/mysql2) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
-import { createPool } from "mysql2";
-import { Kysely, MysqlDialect } from "kysely";
-
-const database = createPool({
-    host: "DATABASE_HOST",
-    // Database port
-    port: 3306,
-    database: "DATABASE_NAME",
-    user: "DATABASE_USER",
-    password: "DATABASE_PASSWORD",
-    connectionLimit: 10,
-});
-const kysely = new Kysely({
-    dialect: new MysqlDialect({
-        pool: database,
-    }),
-});
-const kyselyLockAdapter = new KyselyLockAdapter({
-    kysely,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyLockAdapter.init();
+```ts file=./configuring_lock_adapters-samples/kysely_lock_mysql.ts
 ```
 
 :::danger
@@ -272,24 +156,7 @@ Note in order to use `KyselyLockAdapter` with `mysql` correctly, ensure you use 
 
 You will need to install `@libsql/kysely-libsql` package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyLockAdapter } from "eridu-tech/lock/kysely-lock-adapter";
-import { LibsqlDialect } from "@libsql/kysely-libsql";
-import { Kysely } from "kysely";
-
-const kysely = new Kysely({
-    dialect: new LibsqlDialect({
-        url: "DATABASE_URL",
-    }),
-});
-const kyselyLockAdapter = new KyselyLockAdapter({
-    kysely,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyLockAdapter.init();
+```ts file=./configuring_lock_adapters-samples/kysely_lock_libsql.ts
 ```
 
 :::danger
@@ -300,22 +167,13 @@ Note in order to use `KyselyLockAdapter` with `libsql` correctly, ensure you use
 
 To clean up expired lock keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
-```ts
-const kyselyLockAdapter = new KyselyLockAdapter({
-    database,
-});
-
-await kyselyLockAdapter.init();
-
-// Remove all expired lock keys manually.
-await kyselyLockAdapter.removeAllExpired();
+```ts file=./configuring_lock_adapters-samples/kysely_lock_remove_all_expired.ts
 ```
 
 :::info
 To remove the lock table and all stored lock data, use `deInit` method:
 
-```ts
-await kyselyLockAdapter.deInit();
+```ts file=./configuring_lock_adapters-samples/kysely_lock_adapter_deinit.ts
 ```
 
 :::
@@ -324,10 +182,7 @@ await kyselyLockAdapter.deInit();
 
 The `NoOpLockAdapter` is a no-operation implementation, it performs no actions when called:
 
-```ts
-import { NoOpLockAdapter } from "eridu-tech/lock/no-op-lock-adpater";
-
-const noOpLockAdapter = new NoOpLockAdapter();
+```ts file=./configuring_lock_adapters-samples/no_op_lock_adapter.ts
 ```
 
 :::info

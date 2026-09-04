@@ -40,31 +40,19 @@ The plugin prefixes keys for the following methods:
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
-import { withSemaphorePrefix } from "eridu-tech/semaphore/plugins";
-
-const adapter = new MemorySemaphoreAdapter();
-
-// Apply the prefix plugin to the adapter
-const prefixedAdapter = withPlugin(adapter, withSemaphorePrefix("pool-1:"));
+```ts file=./semaphore_plugin-samples/with_semaphore_prefix.ts
 ```
 
 ### Before/after behavior
 
 **Before** — Semaphore keys are used as-is:
 
-```ts
-adapter.acquire({ key: "connections", ... })
-// -> acquires slot on "connections"
+```ts file=./semaphore_plugin-samples/unprefixed_acquire.ts
 ```
 
 **After** — Semaphore keys are automatically prefixed:
 
-```ts
-prefixedAdapter.acquire({ key: "connections", ... })
-// -> acquires slot on "pool-1:connections"
+```ts file=./semaphore_plugin-samples/prefixed_acquire.ts
 ```
 
 :::danger

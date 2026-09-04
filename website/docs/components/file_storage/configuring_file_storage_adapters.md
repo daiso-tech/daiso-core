@@ -36,19 +36,12 @@ keywords:
 
 To use the `MemoryFileStorageAdapter` you only need to create instance of it:
 
-```ts
-import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
-
-const memoryFileStorageAdapter = new MemoryFileStorageAdapter();
+```ts file=./configuring_file_storage_adapters-samples/memory_file_storage_adapter.ts
 ```
 
 You can also provide an `Map` that will be used for storing the files in memory:
 
-```ts
-import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
-
-const map = new Map<any, any>();
-const memoryFileStorageAdapter = new MemoryFileStorageAdapter(map);
+```ts file=./configuring_file_storage_adapters-samples/memory_file_storage_adapter_with_map.ts
 ```
 
 :::info
@@ -63,31 +56,17 @@ Note this adapter doesnt have support for creating signed upload, signed downloa
 
 To use the `FsFileStorageAdapter` you only need to create instance of it:
 
-```ts
-import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
-
-const fsFileStorageAdapter = new FsFileStorageAdapter();
+```ts file=./configuring_file_storage_adapters-samples/fs_file_storage_adapter.ts
 ```
 
 You can configure the root folder:
 
-```ts
-import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
-
-const fsFileStorageAdapter = new FsFileStorageAdapter({
-    location: "/my-custom-location",
-});
+```ts file=./configuring_file_storage_adapters-samples/fs_file_storage_adapter_custom_location.ts
 ```
 
 You can configure codec used for file names:
 
-```ts
-import { Base64Codec } from "eridu-tech/codec/base-64-codec";
-import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
-
-const fsFileStorageAdapter = new FsFileStorageAdapter({
-    codec: new Base64Codec(),
-});
+```ts file=./configuring_file_storage_adapters-samples/fs_file_storage_adapter_with_codec.ts
 ```
 
 :::warning
@@ -105,71 +84,12 @@ To use the `S3FileStorageAdapter`, you'll need to:
 
 1. Install the required dependency: [`@aws-sdk/client-s3`](https://www.npmjs.com/package/@aws-sdk/client-s3) package:
 
-```ts
-import { S3FileStorageAdapter } from "eridu-tech/file-storage/s3-file-storage-adapter";
-
-const s3Client = new S3Client({
-    credentials: {
-        accessKeyId: "AWS_ACCESS_KEY_ID",
-        secretAccessKey: "AWS_SECRET_ACCESS_KEY",
-    },
-    region: "AWS_REGION",
-});
-const s3FileStorageAdapter = new S3FileStorageAdapter({
-    client: s3Client,
-});
+```ts file=./configuring_file_storage_adapters-samples/s3_file_storage_adapter.ts
 ```
 
 Other settings:
 
-```ts
-import {
-    S3FileStorageAdapter,
-    defaultPublicUrlGenerator,
-} from "eridu-tech/file-storage/s3-file-storage-adapter";
-
-const s3Client = new S3Client({
-    credentials: {
-        accessKeyId: "AWS_ACCESS_KEY_ID",
-        secretAccessKey: "AWS_SECRET_ACCESS_KEY",
-    },
-    region: "AWS_REGION",
-});
-const s3FileStorageAdapter = new S3FileStorageAdapter({
-    client: s3Client,
-
-    /**
-     * The bucket option defines the S3 bucket to use for managing files.
-     */
-    bucket: "bucket",
-
-    /**
-     * The cdnUrl field can be used to define the base URL for generating public URL for a file. For example, If you use CloudFront alongside S3 to serve public files, the cdnUrl property should be the CloudFront URL.
-     */
-    cdnUrl: null,
-
-    /**
-     * Define ServerSideEncryption option for all objects uploaded to S3.
-     */
-    serverSideEncryption: "AES256",
-
-    /**
-     * If false the put method of ISignedFileStorageAdapter will perform one database call and thereby always return true even when the file doesnt exists.
-     * Note the fewer database calls the cheaper when using aws s3.
-     */
-    enableAccuratePut: true,
-
-    /**
-     * If false the getSignedDownloadUrl method of ISignedFileStorageAdapter will perfom one database call and therby always return string even when the file doesnt exists.
-     * Note the fewer database calls the cheaper when using aws s3.
-     */
-    enableAccurateDownload: true,
-
-    /**
-     * Define a custom public url generator for creating public and signed URLs.
-     */
-    publicUrlGenerator: defaultPublicUrlGenerator,
-});
+```ts file=./configuring_file_storage_adapters-samples/s3_file_storage_adapter_settings.ts
 ```
 
 :::info
@@ -197,46 +117,12 @@ To use the `SignedFileStorageAdapter` you need to provide:
 
 Basic usage:
 
-```ts
-import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
-import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
-
-const signedFileStorageAdapter = new SignedFileStorageAdapter({
-    adapter: new MemoryFileStorageAdapter(),
-    urlAdapter: {},
-});
+```ts file=./configuring_file_storage_adapters-samples/signed_file_storage_adapter.ts
 ```
 
 You can provide the URL methods that your storage backend supports:
 
-```ts
-import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
-import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
-import type {
-    FileAdapterSignedDownloadUrlSettings,
-    FileAdapterSignedUploadUrlSettings,
-} from "eridu-tech/file-storage/contracts";
-
-const signedFileStorageAdapter = new SignedFileStorageAdapter({
-    adapter: new MemoryFileStorageAdapter(),
-    urlAdapter: {
-        async getPublicUrl(key: string): Promise<string | null> {
-            return `https://cdn.example.com/${key}`;
-        },
-        async getSignedDownloadUrl(
-            key: string,
-            settings: FileAdapterSignedDownloadUrlSettings,
-        ): Promise<string | null> {
-            return generateSignedDownloadUrl(key, settings);
-        },
-        async getSignedUploadUrl(
-            key: string,
-            settings: FileAdapterSignedUploadUrlSettings,
-        ): Promise<string> {
-            return generateSignedUploadUrl(key, settings);
-        },
-    },
-});
+```ts file=./configuring_file_storage_adapters-samples/signed_file_storage_adapter_url_methods.ts
 ```
 
 :::info
@@ -251,10 +137,7 @@ Any omitted URL method falls back to a no-op implementation:
 
 The `NoOpFileStorageAdapter` is a no-operation implementation, it performs no actions when called:
 
-```ts
-import { NoOpFileStorageAdapter } from "eridu-tech/file-storage/no-op-file-storage-adpater";
-
-const noOpFileStorageAdapter = new NoOpFileStorageAdapter();
+```ts file=./configuring_file_storage_adapters-samples/no_op_file_storage_adapter.ts
 ```
 
 :::info

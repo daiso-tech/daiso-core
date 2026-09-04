@@ -38,37 +38,19 @@ The plugin prefixes keys for the following methods:
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemoryRateLimiterStorageAdapter } from "eridu-tech/rate-limiter/memory-rate-limiter-storage-adapter";
-import { DatabaseRateLimiterAdapter } from "eridu-tech/rate-limiter/database-rate-limiter-adapter";
-import { withRateLimiterPrefix } from "eridu-tech/rate-limiter/plugins";
-
-const adapter = new DatabaseRateLimiterAdapter({
-    adapter: new MemoryRateLimiterStorageAdapter(),
-});
-
-// Apply the prefix plugin to the adapter
-const prefixedAdapter = withPlugin(
-    adapter,
-    withRateLimiterPrefix("tenant-42:"),
-);
+```ts file=./rate_limiter_plugin-samples/with_rate_limiter_prefix.ts
 ```
 
 ### Before/after behavior
 
 **Before** — Rate-limiter keys are used as-is:
 
-```ts
-adapter.getState("api:login");
-// -> checks rate limit for "api:login"
+```ts file=./rate_limiter_plugin-samples/unprefixed_get_state.ts
 ```
 
 **After** — Rate-limiter keys are automatically prefixed:
 
-```ts
-prefixedAdapter.getState("api:login");
-// -> checks rate limit for "tenant-42:api:login"
+```ts file=./rate_limiter_plugin-samples/prefixed_get_state.ts
 ```
 
 :::danger

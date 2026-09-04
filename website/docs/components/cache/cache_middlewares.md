@@ -20,34 +20,7 @@ The Cache middleware intercepts function calls and caches their return values us
 
 ### Usage
 
-```ts
-import { withCacheFactory } from "eridu-tech/cache/middlewares";
-import { Cache } from "eridu-tech/cache";
-import { use } from "eridu-tech/middleware";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-import { TimeSpan } from "eridu-tech/time-span";
-
-const cache = new Cache({
-    adapter: new MemoryCacheAdapter(),
-});
-const withCache = withCacheFactory(cache);
-
-const fetchUser = async (userId: string): Promise<{ name: string }> => {
-    const response = await fetch(`/api/users/${userId}`);
-    return response.json();
-};
-
-// Wrap with caching
-const cachedFetchUser = use(
-    fetchUser,
-    withCache({
-        key: (userId) => `user:${userId}`,
-        ttl: TimeSpan.fromMinutes(10), // Cache for 10 minutes
-    }),
-);
-
-const user = await cachedFetchUser("123"); // Cache miss — fetches and caches
-const userAgain = await cachedFetchUser("123"); // Cache hit — returns immediately
+```ts file=./cache_middlewares-samples/with_cache_factory.ts
 ```
 
 :::info
@@ -62,34 +35,7 @@ This is useful for write-invalidation caching patterns, where stale cached data 
 
 ### Usage
 
-```ts
-import { withInvalidationFactory } from "eridu-tech/cache/middlewares";
-import { Cache } from "eridu-tech/cache";
-import { use } from "eridu-tech/middleware";
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-
-const cache = new Cache({
-    adapter: new MemoryCacheAdapter(),
-});
-const withInvalidation = withInvalidationFactory(cache);
-
-const updateUser = async (userId: string, name: string): Promise<void> => {
-    await fetch(`/api/users/${userId}`, {
-        method: "PUT",
-        body: JSON.stringify({ name }),
-    });
-};
-
-// Wrap with invalidation
-const invalidatingUpdateUser = use(
-    updateUser,
-    withInvalidation({
-        key: (userId) => `user:${userId}`,
-    }),
-);
-
-await invalidatingUpdateUser("123", "John");
-// The "user:123" cache entry is removed after updateUser runs
+```ts file=./cache_middlewares-samples/with_invalidation.ts
 ```
 
 :::info

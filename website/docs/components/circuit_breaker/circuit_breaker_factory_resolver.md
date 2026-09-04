@@ -20,42 +20,14 @@ The `CircuitBreakerFactoryResolver` class provides a flexible way to configure a
 
 To begin using the `CircuitBreakerFactoryResolver`, You will need to register all required adapters during initialization.
 
-```ts
-import { CircuitBreakerFactoryResolver } from "eridu-tech/circuit-breaker";
-import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storate-adapter";
-import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
-import { RedisCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/redis-circuit-breaker-adapter";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-import Redis from "ioredis";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const circuitBreakerFactoryResolver = new CircuitBreakerFactoryResolver({
-    serde,
-    adapters: {
-        memory: new DatabaseCircuitBreakerAdapter({
-            adapter: new MemoryCircuitBreakerStorageAdapter(),
-        }),
-        redis: new RedisCircuitBreakerAdapter({
-            database: new Redis("YOUR_REDIS_CONNECTION"),
-        }),
-    },
-    defaultAdapter: "memory",
-});
+```ts file=./circuit_breaker_factory_resolver-samples/circuit_breaker_factory_resolver_initial_config.ts
 ```
 
 ### Usage
 
 #### 1. Using the default adapter
 
-```ts
-// Will apply circuit-breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
-await circuitBreakerFactoryResolver
-    .use()
-    .create("a")
-    .runOrFail(async () => {
-        // ... code to apply circuit-breaker logic
-    });
+```ts file=./circuit_breaker_factory_resolver-samples/circuit_breaker_factory_resolver_default_adapter.ts
 ```
 
 :::danger
@@ -64,14 +36,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 
 #### 2. Specifying an adapter explicitly
 
-```ts
-// Will apply circuit-breaker logic using the redis adapter
-await circuitBreakerFactoryResolver
-    .use("redis")
-    .create("a")
-    .runOrFail(async () => {
-        // ... code to apply circuit-breaker logic
-    });
+```ts file=./circuit_breaker_factory_resolver-samples/circuit_breaker_factory_resolver_specific_adapter.ts
 ```
 
 :::danger
@@ -80,14 +45,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 
 #### 3. Overriding default settings
 
-```ts
-await circuitBreakerFactoryResolver
-    .use("redis")
-    .setNamespace(new Namespace(["@", "test"]))
-    .create("a")
-    .runOrFail(async () => {
-        // ... code to apply circuit-breaker logic
-    });
+```ts file=./circuit_breaker_factory_resolver-samples/circuit_breaker_factory_resolver_override_settings.ts
 ```
 
 :::info
@@ -102,64 +60,14 @@ The `DatabaseCircuitBreakerFactoryResolver` class provides a flexible way to con
 
 To begin using the `DatabaseCircuitBreakerFactoryResolver`, You will need to register all required adapters during initialization.
 
-```ts
-import { DatabaseCircuitBreakerFactoryResolver } from "eridu-tech/circuit-breaker";
-import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storate-adapter";
-import { KyselyCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/kysely-circuit-breaker-storate-adapter";
-import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-import Sqlite from "better-sqlite3";
-import { Kysely, SqliteDialect } from "kysely";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const circuitBreakerFactoryResolver = new DatabaseCircuitBreakerFactoryResolver(
-    {
-        serde,
-        adapters: {
-            memory: new MemoryCircuitBreakerStorageAdapter(),
-            sqlite: new KyselyCircuitBreakerStorageAdapter({
-                kysely: new Kysely({
-                    dialect: new SqliteDialect({
-                        database: new Sqlite("local.db"),
-                    }),
-                }),
-                serde,
-            }),
-        },
-        defaultAdapter: "memory",
-    },
-);
-
-// Will apply circuit-breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
-await circuitBreakerFactoryResolver
-    .use()
-    .create("a")
-    .runOrFail(async () => {
-        // ... code to apply circuit-breaker logic
-    });
-
-// Will apply circuit-breaker logic using the KyselyCircuitBreakerStorageAdapter
-await circuitBreakerFactoryResolver
-    .use("sqlite")
-    .create("a")
-    .runOrFail(async () => {
-        // ... code to apply circuit-breaker logic
-    });
+```ts file=./circuit_breaker_factory_resolver-samples/database_circuit_breaker_factory_resolver_initial_config.ts
 ```
 
 ### Usage
 
 #### 1. Using the default adapter
 
-```ts
-// Will apply circuit-breaker logic the default adapter which is MemoryCircuitBreakerStorageAdapter
-await circuitBreakerFactoryResolver
-    .use()
-    .create("a")
-    .runOrFail(async () => {
-        // ... code to apply circuit-breaker logic
-    });
+```ts file=./circuit_breaker_factory_resolver-samples/database_circuit_breaker_factory_resolver_default_adapter.ts
 ```
 
 :::danger
@@ -168,14 +76,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 
 #### 2. Specifying an adapter explicitly
 
-```ts
-// Will apply circuit-breaker logic using the sqlite adapter
-await circuitBreakerFactoryResolver
-    .use("sqlite")
-    .create("a")
-    .runOrFail(async () => {
-        // ... code to apply circuit-breaker logic
-    });
+```ts file=./circuit_breaker_factory_resolver-samples/database_circuit_breaker_factory_resolver_specific_adapter.ts
 ```
 
 :::danger
@@ -184,18 +85,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 
 #### 3. Overriding default settings
 
-```ts
-import { CountBreaker } from "eridu-tech/circuit-breaker/policies";
-import { constantBackoff } from "eridu-tech/backoff-policies";
-
-await circuitBreakerFactoryResolver
-    .setBackoffPolicy(constantBackoff())
-    .setDefaultCircuitBreakerPolicy(new CountBreaker())
-    .use("redis")
-    .create("a")
-    .runOrFail(async () => {
-        // ... code to apply circuit-breaker logic
-    });
+```ts file=./circuit_breaker_factory_resolver-samples/database_circuit_breaker_factory_resolver_override_settings.ts
 ```
 
 :::info

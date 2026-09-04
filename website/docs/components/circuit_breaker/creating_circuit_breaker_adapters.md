@@ -31,22 +31,7 @@ We provide a complete test suite to test your circuit-breaker storage adapter im
 
 Usage example:
 
-```ts
-// filename: MyCircuitBreakerStorageAdapter.test.ts
-
-import { beforeEach, describe, expect, test } from "vitest";
-import { circuitBreakerStorageTestSuite } from "eridu-tech/circuit-breaker/test-utilities";
-import { MemoryCircuitBreakerStorageAdapter } from "./MemoryCircuitBreakerStorageAdapter.js";
-
-describe("class: MyCircuitBreakerStorageAdapter", () => {
-    circuitBreakerStorageTestSuite({
-        createAdapter: () => new MemoryCircuitBreakerStorageAdapter(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
+```ts file=./creating_circuit_breaker_adapters-samples/circuit_breaker_storage_test_suite.ts
 ```
 
 ## Implementing your custom ICircuitBreakerProvider class

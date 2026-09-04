@@ -24,37 +24,7 @@ This is useful for emitting lifecycle events such as "about to create a user" or
 
 ### Usage
 
-```ts
-import { withDispatchBeforeFactory } from "eridu-tech/event-bus/middlewares";
-import { EventBus } from "eridu-tech/event-bus";
-import { use } from "eridu-tech/middleware";
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus";
-
-type EventMap = {
-    "user.before.create": { userId: string };
-};
-
-const eventBus = new EventBus<EventMap>({
-    adapter: new MemoryEventBusAdapter(),
-});
-const withDispatchBefore = withDispatchBeforeFactory(eventBus);
-
-const createUser = async (userId: string): Promise<string> => {
-    // ... create the user
-    return `user-${userId}`;
-};
-
-// Wrap with a "before" dispatch
-const wrappedCreateUser = use(
-    createUser,
-    withDispatchBefore({
-        type: "user.before.create",
-        payload: ({ args }) => ({ userId: args[0] }),
-    }),
-);
-
-await wrappedCreateUser("123");
-// The "user.before.create" event is dispatched before createUser runs
+```ts file=./event_bus_middlewares-samples/with_dispatch_before.ts
 ```
 
 :::info
@@ -76,41 +46,7 @@ This is useful for emitting completion events such as "user created" or for reco
 
 ### Usage
 
-```ts
-import { withDispatchAfterFactory } from "eridu-tech/event-bus/middlewares";
-import { EventBus } from "eridu-tech/event-bus";
-import { use } from "eridu-tech/middleware";
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus";
-
-type EventMap = {
-    "user.after.create": { userId: string; name: string };
-};
-
-const eventBus = new EventBus<EventMap>({
-    adapter: new MemoryEventBusAdapter(),
-});
-const withDispatchAfter = withDispatchAfterFactory(eventBus);
-
-const createUser = async (userId: string): Promise<string> => {
-    // ... create the user
-    return `user-${userId}`;
-};
-
-// Wrap with an "after" dispatch
-const wrappedCreateUser = use(
-    createUser,
-    withDispatchAfter({
-        type: "user.after.create",
-        payload: ({ args, returnValue }) => ({
-            userId: args[0],
-            name: returnValue,
-        }),
-    }),
-);
-
-const name = await wrappedCreateUser("123");
-// The "user.after.create" event is dispatched after createUser resolves,
-// with the return value included in the payload
+```ts file=./event_bus_middlewares-samples/with_dispatch_after.ts
 ```
 
 :::info
@@ -132,44 +68,7 @@ This is useful for emitting failure events such as "user creation failed" or for
 
 ### Usage
 
-```ts
-import { withDispatchOnErrorFactory } from "eridu-tech/event-bus/middlewares";
-import { EventBus } from "eridu-tech/event-bus";
-import { use } from "eridu-tech/middleware";
-import { MemoryEventBusAdapter } from "eridu-tech/event-bus/memory-event-bus";
-
-type EventMap = {
-    "user.error": { userId: string; error: unknown };
-};
-
-const eventBus = new EventBus<EventMap>({
-    adapter: new MemoryEventBusAdapter(),
-});
-const withDispatchOnError = withDispatchOnErrorFactory(eventBus);
-
-const createUser = async (userId: string): Promise<string> => {
-    // ... create the user
-    throw new Error("boom");
-};
-
-// Wrap with an error dispatch
-const wrappedCreateUser = use(
-    createUser,
-    withDispatchOnError({
-        type: "user.error",
-        payload: ({ args, error }) => ({
-            userId: args[0],
-            error,
-        }),
-    }),
-);
-
-try {
-    await wrappedCreateUser("123");
-} catch (error) {
-    // The "user.error" event is dispatched with the caught error,
-    // then the original error is re-thrown
-}
+```ts file=./event_bus_middlewares-samples/with_dispatch_on_error.ts
 ```
 
 :::info

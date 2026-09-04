@@ -41,37 +41,19 @@ The plugin prefixes keys for the following methods:
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemoryCircuitBreakerStorageAdapter } from "eridu-tech/circuit-breaker/memory-circuit-breaker-storage-adapter";
-import { DatabaseCircuitBreakerAdapter } from "eridu-tech/circuit-breaker/database-circuit-breaker-adapter";
-import { withCircuitBreakerPrefix } from "eridu-tech/circuit-breaker/plugins";
-
-const adapter = new DatabaseCircuitBreakerAdapter({
-    adapter: new MemoryCircuitBreakerStorageAdapter(),
-});
-
-// Apply the prefix plugin to the adapter
-const prefixedAdapter = withPlugin(
-    adapter,
-    withCircuitBreakerPrefix("service-a:"),
-);
+```ts file=./circuit_breaker_plugin-samples/with_circuit_breaker_prefix.ts
 ```
 
 ### Before/after behavior
 
 **Before** — Circuit keys are used as-is:
 
-```ts
-adapter.getState("api:users");
-// -> looks up circuit "api:users"
+```ts file=./circuit_breaker_plugin-samples/unprefixed_circuit_lookup.ts
 ```
 
 **After** — Circuit keys are automatically prefixed:
 
-```ts
-prefixedAdapter.getState("api:users");
-// -> looks up circuit "service-a:api:users"
+```ts file=./circuit_breaker_plugin-samples/prefixed_circuit_lookup.ts
 ```
 
 :::danger

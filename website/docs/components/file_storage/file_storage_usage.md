@@ -18,22 +18,7 @@ The `eridu-tech/file-storage` component provides a way for managing files indepe
 
 To begin using the `FileStorage` class, you'll need to create and configure an instance:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
-import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
-import { FileStorage } from "eridu-tech/file-storage";
-
-const fileStorage = new FileStorage({
-    // You can provide defaultContentType value by default is application/octet-stream
-    defaultContentType: "text/plain",
-
-    // You can choose the adapter to use
-    adapter: new SignedFileStorageAdapter({
-        adapter: new MemoryFileStorageAdapter(),
-        urlAdapter: {},
-    }),
-});
+```ts file=./file_storage_usage-samples/file_storage_initial_config.ts
 ```
 
 :::info
@@ -44,8 +29,7 @@ Here is a complete list of settings for the [`FileStorage`](https://eridu-tech.g
 
 ### Creating a file object
 
-```ts
-const file = fileStorage.create("file.txt");
+```ts file=./file_storage_usage-samples/file_storage_create_file.ts
 ```
 
 :::info
@@ -56,23 +40,17 @@ Note the file object represents a reference to a file and doesnt create the real
 
 You can add a file and true is returned if the file does not exists:
 
-```ts
-const hasAdded = await fileStorage.create("file.txt").add({ data: "CONTENT" });
+```ts file=./file_storage_usage-samples/file_storage_add.ts
 ```
 
 You can update a file and true will be returned if the file exists and was updated:
 
-```ts
-const hasUpdated = await fileStorage
-    .create("file.txt")
-    .update({ data: "TEXT 1" });
+```ts file=./file_storage_usage-samples/file_storage_update.ts
 ```
 
 You can upsert a file and true will be returned if the file was updated otherwise false is returned:
 
-```ts
-const hasUpdated = await fileStorage.create("file.txt").put({ data: "TEXT 1" });
-const hasUpdated = await fileStorage.create("file.txt").put({ data: "TEXT 2" });
+```ts file=./file_storage_usage-samples/file_storage_put.ts
 ```
 
 :::info
@@ -99,77 +77,24 @@ But usually you would use `Uint8Array` because it represents data as bytes.
 
 You can pass additional optional metadata information to `add`, `update` and `put`:
 
-```ts
-const hasAdded = await fileStorage.create("file.txt").add({
-    data: "CONTENT"
-
-    /**
-     * You can explicitly set a custom Content-Type. If one is not provided, it will be inferred from the key. For example, a key ending in .txt (such as key-a.txt) will be assigned text/plain.
-     * If the key contains a non-standard extension it will default to application/octet-stream.
-     */
-    contentType: "text/plain",
-
-    /**
-     * Note a default value is always provided. To explicitly unset a field and prevent it from being passed to the underlying adapter, pass in `null`.
-     */
-    contentLanguage: "en-US",
-
-    /**
-     * Note a default value is always provided. To explicitly unset a field and prevent it from being passed to the underlying adapter, pass in `null`.
-     */
-    contentEncoding: "gzip",
-
-    /**
-     * Note a default value is always provided. To explicitly unset a field and prevent it from being passed to the underlying adapter, pass in `null`.
-     */
-    contentDisposition: "inline",
-
-    /**
-     * Note a default value is always provided. To explicitly unset a field and prevent it from being passed to the underlying adapter, pass in `null`.
-     */
-    cacheControl: "no-cache",
-});
+```ts file=./file_storage_usage-samples/file_storage_add_with_metadata.ts
 ```
 
 ### Writing streamed files
 
 You can add a file stream and true is returned if the file does not exists:
 
-```ts
-import { createReadStream } from "node:fs";
-
-const fileStream = createReadStream("./file.txt");
-
-const hasAdded = await fileStorage
-    .create("file.txt")
-    .addStream({ data: fileStream });
+```ts file=./file_storage_usage-samples/file_storage_add_stream.ts
 ```
 
 You can update a file stream and true will be returned if the file exists and was updated:
 
-```ts
-import { createReadStream } from "node:fs";
-
-const fileStream = createReadStream("./file.txt");
-
-const hasUpdated = await fileStorage
-    .create("file.txt")
-    .updateStream({ data: fileStream });
+```ts file=./file_storage_usage-samples/file_storage_update_stream.ts
 ```
 
 You can upsert a file stream and true will be returned if the file was updated otherwise false is returned:
 
-```ts
-import { createReadStream } from "node:fs";
-
-const fileStream = createReadStream("./file.txt");
-
-const hasUpdated = await fileStorage
-    .create("file.txt")
-    .putStream({ data: fileStream });
-const hasUpdated = await fileStorage
-    .create("file.txt")
-    .putStream({ data: fileStream });
+```ts file=./file_storage_usage-samples/file_storage_put_stream.ts
 ```
 
 :::info
@@ -196,54 +121,12 @@ But usually you would use `AsyncIterable<Uint8Array>` because it represents stre
 
 You can pass additional optional metadata information to `addStrem`, `updateStream` and `putStream`:
 
-```ts
-const fileStream = createReadStream("./file.txt")
-
-const hasAdded = await fileStorage.create("file.txt").addStream({
-    data: fileStream
-
-    /**
-     * You can explicitly set a custom Content-Type. If one is not provided, it will be inferred from the key. For example, a key ending in .txt (such as key-a.txt) will be assigned text/plain.
-     * If the key contains a non-standard extension it will default to application/octet-stream.
-     */
-    contentType: "text/plain",
-
-    /**
-     * Note a default value is always provided. To explicitly unset a field and prevent it from being passed to the underlying adapter, pass in `null`.
-     */
-    contentLanguage: "en-US",
-
-    /**
-     * Note a default value is always provided. To explicitly unset a field and prevent it from being passed to the underlying adapter, pass in `null`.
-     */
-    contentEncoding: "gzip",
-
-    /**
-     * Note a default value is always provided. To explicitly unset a field and prevent it from being passed to the underlying adapter, pass in `null`.
-     */
-    contentDisposition: "inline",
-
-    /**
-     * Note a default value is always provided. To explicitly unset a field and prevent it from being passed to the underlying adapter, pass in `null`.
-     */
-    cacheControl: "no-cache",
-});
+```ts file=./file_storage_usage-samples/file_storage_add_stream_with_metadata.ts
 ```
 
 You can also pass the file-size of the stream which used for optimizations by some adapters:
 
-```ts
-import { createReadStream } from "node:fs"
-import { stat } from "node:fs/promises";
-import { FileSize } from "eridu-tech/file-size";
-
-const fileStream = createReadStream("./file.txt")
-const { size } = stat("./file.txt")
-
-const hasAdded = await fileStorage.create("file.txt").addStream({
-    data: fileStream
-    fileSize: FileSize.fromBytes(size)
-})
+```ts file=./file_storage_usage-samples/file_storage_add_stream_with_file_size.ts
 ```
 
 :::info
@@ -254,26 +137,17 @@ It is best practice to pass file-size whenever possible because of the optimizat
 
 The file can be read as utf8 text:
 
-```ts
-const content = await fileStorage.create("file.txt").getText();
-
-console.log(content);
+```ts file=./file_storage_usage-samples/file_storage_get_text.ts
 ```
 
 The file can be read as `Uint8Array`:
 
-```ts
-const content = await fileStorage.create("file.txt").getBytes();
-
-console.log(content);
+```ts file=./file_storage_usage-samples/file_storage_get_bytes.ts
 ```
 
 The file can be read as web `ArrayBuffer`:
 
-```ts
-const content = await fileStorage.create("file.txt").getArrayBuffer();
-
-console.log(content);
+```ts file=./file_storage_usage-samples/file_storage_get_array_buffer.ts
 ```
 
 console.log(content);
@@ -296,43 +170,31 @@ Note all this methods return null if the file doesnt exists.
 
 You can check if the file exists:
 
-```ts
-const exists = await fileStorage.create("file.txt").exists();
+```ts file=./file_storage_usage-samples/file_storage_exists.ts
 ```
 
 You can check if the file doesnt exists:
 
-```ts
-const missing = await fileStorage.create("file.txt").missing();
+```ts file=./file_storage_usage-samples/file_storage_missing.ts
 ```
 
 ### Removing files
 
 You can remove a file and true will be returned if the file exists and was removed:
 
-```ts
-const hasRemoved = await fileStorage.create("file.txt").remove();
-console.log(hasRemoved);
+```ts file=./file_storage_usage-samples/file_storage_remove.ts
 ```
 
 You can remove multiple files and true will be returned when at least one file exists and was removed:
 
-```ts
-const hasRemovedAtLeastOne = await fileStorage.removeMany([
-    fileStorage.create("file-1.txt"),
-    fileStorage.create("file-2.txt"),
-    fileStorage.create("file-3.txt"),
-]);
-console.log(hasRemovedAtLeastOne);
+```ts file=./file_storage_usage-samples/file_storage_remove_many.ts
 ```
 
 ### Retrieving file metadata
 
 You can retrieve the file metadata. Null is returned if the file doesnt exists:
 
-```ts
-const metadata = await fileStorage.create("file.txt").getMetadata();
-console.log(metadata);
+```ts file=./file_storage_usage-samples/file_storage_get_metadata.ts
 ```
 
 The `getMetadata` returns [FileMetadata](https://eridu-tech.github.io/eridu-tech-core/types/file-storage.FileMetadata.html) type.
@@ -358,16 +220,14 @@ These variants are equivalent to the standard methods but throw an error if the 
 
 You can copy a file. True is returned if the source exists and destination doesnt exists:
 
-```ts
-await fileStorage.create("source.txt").copy("destination.txt");
+```ts file=./file_storage_usage-samples/file_storage_copy.ts
 ```
 
 Use `copyOrFail` method to perform the same operations as the `copy` method but it throws an error if the source file is missing or destination exists.
 
 You can copy a file and repalce the destination. True is returned if the source exists:
 
-```ts
-await fileStorage.create("source.txt").copyAndReplace("destination.txt");
+```ts file=./file_storage_usage-samples/file_storage_copy_and_replace.ts
 ```
 
 Use `copyAndReplaceOrFail` method to perform the same operations as the `copyAndReplace` method but it throws an error if the source file is missing.
@@ -376,16 +236,14 @@ Use `copyAndReplaceOrFail` method to perform the same operations as the `copyAnd
 
 You can move a file. True is returned if the source exists and destination doesnt exists:
 
-```ts
-await fileStorage.create("source.txt").move("destination.txt");
+```ts file=./file_storage_usage-samples/file_storage_move.ts
 ```
 
 Use `moveOrFail` method to perform the same operations as the `move` method but it throws an error if the source file is missing or destination exists.
 
 You can move a file and repalce the destination. True is returned if the source exists:
 
-```ts
-await fileStorage.create("source.txt").moveAndReplace("destination.txt");
+```ts file=./file_storage_usage-samples/file_storage_move_and_replace.ts
 ```
 
 Use `moveAndReplaceOrFail` method to perform the same operations as the `moveAndReplace` method but it throws an error if the source file is missing.
@@ -398,14 +256,7 @@ Upload url methods:
 
 - getSignedUploadUrl: Returns the signed upload url string.
 
-```ts
-const uploadUrl = await fileStorage.create("source.txt").getSignedUploadUrl({
-    // All settings are optional
-    ttl: TimeSpan.fromMinutes(10)
-    // The content type will be infered from the filename by default
-    contentType: "text/plain"
-})
-console.log(uploadUrl)
+```ts file=./file_storage_usage-samples/file_storage_get_signed_upload_url.ts
 ```
 
 Create signed urls to allow clients to download files directly from FileStorage.
@@ -415,18 +266,7 @@ Download url methods:
 - getSignedDownloadUrl: Returns the signed download url string, or null if the file does not exist.
 - getSignedDownloadUrlOrFail: Returns the signed download url string, but throws an error if the file is missing.
 
-```ts
-const file = fileStorage.create("source.txt")
-await file.add("CONTENT")
-
-const donwloadUrl = await file.getSignedDownloadUrl({
-    // All settings are optional
-    ttl: TimeSpan.fromMinutes(10)
-    // The content type will be infered from the filename by default
-    contentType: "text/plain",
-    contentDisposition: "inline"
-})
-console.log(donwloadUrl)
+```ts file=./file_storage_usage-samples/file_storage_get_signed_download_url.ts
 ```
 
 Use these methods to retrieve a permanent link to a file that is publicly accessible within your storage provider.
@@ -434,24 +274,14 @@ Use these methods to retrieve a permanent link to a file that is publicly access
 - `getPublicUrl`: Returns the public url as a string, or null if the file does not exist.
 - `getPublicUrlOrFail`: Returns the public url, but throws an error if the file is missing.
 
-```ts
-const file = fileStorage.create("source.txt");
-await file.add("CONTENT");
-
-const publicUrl = await file.getPublicUrl();
-
-console.log(publicUrl);
+```ts file=./file_storage_usage-samples/file_storage_get_public_url.ts
 ```
 
 ### File instance variables
 
 The `File` class exposes the key instance variable which is the filename:
 
-```ts
-const file = fileStorage.create("file.txt");
-
-// Will return the file name
-console.log(file.key);
+```ts file=./file_storage_usage-samples/file_storage_instance_variables.ts
 ```
 
 ### Serialization and deserialization of file
@@ -463,31 +293,11 @@ Note only file name will be saved when serialized and not it' content.
 Which makes it efficient to send file over the network.
 :::
 
-In order to serialize or deserialize a file object you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `FileStorage`.
+In order to serialize or deserialize a file object you need pass an object that implements [`ISerderRegister`](../serde/serde.md) contract like the [`Serde`](../serde/serde.md) class to `FileStorage`.
 
 Manually serializing and deserializing the file object:
 
-```ts
-import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
-import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
-import { FileStorage } from "eridu-tech/file-storage";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const fileStorage = new FileStorage({
-    // You can laso pass in an array of Serde class instances
-    serde,
-    adapter: new SignedFileStorageAdapter({
-        adapter: new MemoryFileStorageAdapter(),
-        urlAdapter: {},
-    }),
-});
-
-const file = fileStorage.create("file.txt");
-const serializedFIle = serde.serialize(file);
-const deserializedFIle = serde.deserialize(file);
+```ts file=./file_storage_usage-samples/file_storage_manual_serialization.ts
 ```
 
 :::danger
@@ -500,50 +310,7 @@ Note you only need manuall serialization and deserialization when integrating wi
 
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the file object manually.
 
-```ts
-import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
-import { SignedFileStorageAdapter } from "eridu-tech/file-storage/signed-file-storage-adapter";
-import type { IFile } from "eridu-tech/file-storage/contracts";
-import { FileStorage } from "eridu-tech/file-storage";
-import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "eridu-tech/event-bus";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const redis = new Redis("YOUR_REDIS_CONNECTION");
-
-type EventMap = {
-    "sending-file-over-network": {
-        file: IFile;
-    };
-};
-const eventBus = new EventBus<EventMap>({
-    adapter: new RedisPubSubEventBusAdapter({
-        client: redis,
-        serde,
-    }),
-});
-
-const fileStorage = new FileStorage({
-    serde,
-    adapter: new SignedFileStorageAdapter({
-        adapter: new MemoryFileStorageAdapter(),
-        urlAdapter: {},
-    }),
-});
-const file = fileStorage.create("file.txt");
-
-// We are sending the file over the network to other servers.
-await eventBus.dispatch("sending-file-over-network", {
-    file,
-});
-
-// The other servers will recieve the serialized file and automattically deserialize it.
-await eventBus.addListener("sending-file-over-network", ({ file }) => {
-    // The file is deserialized and can be used
-    console.log("file:", file);
-});
+```ts file=./file_storage_usage-samples/file_storage_event_bus_serialization.ts
 ```
 
 ### Separating file creation from manipulation

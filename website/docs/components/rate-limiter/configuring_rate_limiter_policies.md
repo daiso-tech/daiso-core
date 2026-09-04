@@ -10,41 +10,14 @@ pagination_label: Configuring RateLimiter policies
 
 <!-- The `SlidingWindowLimiter` breaks after n requests in a row fail. -->
 
-````ts
-import { SlidingWindowLimiter } from "eridu-tech/rate-limiter/policies"
-import { TimeSpan } from "eridu-tech/time-span"
-
-new SlidingWindowLimiter({
-    /**
-     * The time span in which attempts are active before reseting.
-     * The field is optional.
-     *
-     */
-    window: TimeSpan.fromSeconds(1)
-
-    /**
-     * The field is optional.
-     * ```
-     */
-    margin: TimeSpan.fromSeconds(4).divide(4)
-})
-````
+```ts file=./configuring_rate_limiter_policies-samples/sliding_window_limiter.ts
+```
 
 ## FixedWindowLimiter
 
 <!-- The `FixedWindowLimiter` breaks after a proportion of requests in a count based sliding window fail. -->
 
-```ts
-import { FixedWindowLimiter } from "eridu-tech/rate-limiter/policies";
-import { TimeSpan } from "eridu-tech/time-span";
-
-new FixedWindowLimiter({
-    /**
-     * The time span in which attempts are active before reseting.
-     * The field is optional.
-     */
-    window: TimeSpan.fromSeconds(1),
-});
+```ts file=./configuring_rate_limiter_policies-samples/fixed_window_limiter.ts
 ```
 
 ## Further information

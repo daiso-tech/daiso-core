@@ -26,81 +26,15 @@ mkdir lambda
 
 ### 2. Create the handler
 
-```ts
-// lambda/index_edge.ts
-import {
-    HttpRouter,
-    HttpRes,
-    defaultHttpRouterAdapter,
-} from "eridu-tech/http-router";
-import { handle } from "hono/lambda-edge";
-
-const router = new HttpRouter({ router: defaultHttpRouterAdapter });
-
-router.endpoint({
-    url: "/hello",
-    method: "GET",
-    handler: async () => HttpRes.text("Hello Lambda@Edge!"),
-});
-
-export const handler = handle(router);
+```ts file=./aws_lambda_edge-samples/create_handler.ts
 ```
 
 ### 3. Set up CDK deployment
 
-```ts
-// bin/my-app.ts
-#!/usr/bin/env node
-import "source-map-support/register";
-import * as cdk from "aws-cdk-lib";
-import { MyAppStack } from "../lib/my-app-stack";
-
-const app = new cdk.App();
-new MyAppStack(app, "MyAppStack", {
-    env: {
-        account: process.env.CDK_DEFAULT_ACCOUNT,
-        region: "us-east-1",
-    },
-});
+```ts file=./aws_lambda_edge-samples/cdk_app.ts
 ```
 
-```ts
-// lib/my-app-stack.ts
-import { Construct } from "constructs";
-import * as cdk from "aws-cdk-lib";
-import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
-import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
-import * as lambda from "aws-cdk-lib/aws-lambda";
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import * as s3 from "aws-cdk-lib/aws-s3";
-
-export class MyAppStack extends cdk.Stack {
-    public readonly edgeFn: lambda.Function;
-
-    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-        super(scope, id, props);
-        const edgeFn = new NodejsFunction(this, "edgeViewer", {
-            entry: "lambda/index_edge.ts",
-            handler: "handler",
-            runtime: lambda.Runtime.NODEJS_22_X,
-        });
-
-        const originBucket = new s3.Bucket(this, "originBucket");
-
-        new cloudfront.Distribution(this, "Cdn", {
-            defaultBehavior: {
-                origin: new origins.S3Origin(originBucket),
-                edgeLambdas: [
-                    {
-                        functionVersion: edgeFn.currentVersion,
-                        eventType:
-                            cloudfront.LambdaEdgeEventType.VIEWER_REQUEST,
-                    },
-                ],
-            },
-        });
-    }
-}
+```ts file=./aws_lambda_edge-samples/cdk_stack.ts
 ```
 
 ### 4. Deploy

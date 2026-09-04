@@ -18,27 +18,14 @@ The `FileStorageResolver` class provides a flexible way to configure and switch 
 
 To begin using the `IFileStorageFactory`, You will need to register all required adapters during initialization.
 
-```ts
-import { FileStorageResolver } from "eridu-tech/file-storage";
-import { MemoryFileStorageAdapter } from "eridu-tech/file-storage/memory-file-storage-adapter";
-import { FsFileStorageAdapter } from "eridu-tech/file-storage/fs-file-storage-adapter";
-
-const fileStorageResolver = new FileStorageResolver({
-    adapters: {
-        memory: new MemoryFileStorageAdapter(),
-        fs: new FsFileStorageAdapter(),
-    },
-    // You can set an optional default adapter
-    defaultAdapter: "memory",
-});
+```ts file=./file_storage_resolver-samples/file_storage_resolver_initial_config.ts
 ```
 
 ## Usage
 
 ### 1. Using the default adapter
 
-```ts
-await fileStorageResolver.use().create("file.txt").add("Text file content");
+```ts file=./file_storage_resolver-samples/file_storage_resolver_default_adapter.ts
 ```
 
 :::danger
@@ -47,8 +34,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 
 ### 2. Specifying an adapter explicitly
 
-```ts
-await fileStorageResolver.use("fs").create("file.txt").add("Text file content");
+```ts file=./file_storage_resolver-samples/file_storage_resolver_specific_adapter.ts
 ```
 
 :::danger
@@ -57,12 +43,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 
 ### 3. Overriding default settings
 
-```ts
-await fileStorageResolver
-    .setNamespace(new Namespace("@my-namespace"))
-    .use("fs")
-    .create("file.txt")
-    .add("Text file content");
+```ts file=./file_storage_resolver-samples/file_storage_resolver_override_settings.ts
 ```
 
 :::info

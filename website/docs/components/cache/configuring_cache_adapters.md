@@ -36,19 +36,12 @@ keywords:
 
 To use the `MemoryCacheAdapter` you only need to create instance of it:
 
-```ts
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-
-const memoryCacheAdapter = new MemoryCacheAdapter();
+```ts file=./configuring_cache_adapters-samples/memory_cache_adapter.ts
 ```
 
 You can also provide an `Map` that will be used for storing the data in memory:
 
-```ts
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-
-const map = new Map<any, any>();
-const memoryCacheAdapter = new MemoryCacheAdapter(map);
+```ts file=./configuring_cache_adapters-samples/memory_cache_adapter_with_map.ts
 ```
 
 :::info
@@ -59,13 +52,7 @@ const memoryCacheAdapter = new MemoryCacheAdapter(map);
 
 To clean up expired cache keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
-```ts
-import { MemoryCacheAdapter } from "eridu-tech/cache/memory-cache-adapter";
-
-const memoryCacheAdapter = new MemoryCacheAdapter();
-
-// Remove all expired cache keys manually.
-await memoryCacheAdapter.removeAllExpired();
+```ts file=./configuring_cache_adapters-samples/memory_cache_remove_all_expired.ts
 ```
 
 :::info
@@ -75,8 +62,7 @@ Note `removeAllExpired` must be called to remove expired data that is no longer 
 :::info
 To remove the cache map and all stored cache data, use `deInit` method:
 
-```ts
-await memoryCacheAdapter.deInit();
+```ts file=./configuring_cache_adapters-samples/memory_cache_adapter_deinit.ts
 ```
 
 :::
@@ -87,60 +73,27 @@ To use the `MongodbCacheAdapter`, you'll need to:
 
 1. Install the required dependency: [`mongodb`](https://www.npmjs.com/package/mongodb) package:
 
-2. Provide a string serializer ([`ISerde`](../serde.md)):
+2. Provide a string serializer ([`ISerde`](../serde/serde.md)):
 
 -We recommend using `SuperJsonSerdeAdapter` for this purpose
 
-```ts
-import { MongodbCacheAdapter } from "eridu-tech/cache/mongodb-cache-adapter";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-import { MongoClient } from "mongodb";
-
-const client = await MongoClient.connect("YOUR_MONGODB_CONNECTION_STRING");
-const database = client.db("database");
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const mongodbCacheAdapter = new MongodbCacheAdapter({
-    database,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the indexes will be created
-await mongodbCacheAdapter.init();
+```ts file=./configuring_cache_adapters-samples/mongodb_cache_adapter_init.ts
 ```
 
 You can change the collection name:
 
-```ts
-const mongodbCacheAdapter = new MongodbCacheAdapter({
-    database,
-    serde,
-    // By default "cache" is used as collection name
-    collectionName: "my-cache",
-});
-
-await mongodbCacheAdapter.init();
+```ts file=./configuring_cache_adapters-samples/mongodb_cache_collection_name.ts
 ```
 
 You can change the collection settings:
 
-```ts
-const mongodbCacheAdapter = new MongodbCacheAdapter({
-    database,
-    serde,
-    // You configure additional collection settings
-    collectionSettings: {},
-});
-
-await mongodbCacheAdapter.init();
+```ts file=./configuring_cache_adapters-samples/mongodb_cache_collection_settings.ts
 ```
 
 :::info
 To remove the cache collection and all stored cache data, use `deInit` method:
 
-```ts
-await mongodbCacheAdapter.deInit();
+```ts file=./configuring_cache_adapters-samples/mongodb_cache_adapter_deinit.ts
 ```
 
 :::
@@ -150,22 +103,11 @@ await mongodbCacheAdapter.deInit();
 To use the `RedisCacheAdapter`, you'll need to:
 
 1. Install the required dependency: [`ioredis`](https://www.npmjs.com/package/ioredis) package:
-2. Provide a string serializer ([`ISerde`](../serde.md)):
+2. Provide a string serializer ([`ISerde`](../serde/serde.md)):
 
 - We recommend using `SuperJsonSerdeAdapter` for this purpose
 
-```ts
-import { RedisCacheAdapter } from "eridu-tech/cache/redis-cache-adapter";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-import Redis from "ioredis";
-
-const database = new Redis("YOUR_REDIS_CONNECTION_STRING");
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const redisCacheAdapter = new RedisCacheAdapter({
-    database,
-    serde,
-});
+```ts file=./configuring_cache_adapters-samples/redis_cache_adapter.ts
 ```
 
 ## KyselyCacheAdapter
@@ -173,7 +115,7 @@ const redisCacheAdapter = new RedisCacheAdapter({
 To use the `KyselyCacheAdapter`, you'll need to:
 
 1. Install the required dependency: [`kysely`](https://www.npmjs.com/package/kysely) package:
-2. Provide a string serializer ([`ISerde`](../serde.md)):
+2. Provide a string serializer ([`ISerde`](../serde/serde.md)):
 
 - We recommend using `SuperJsonSerdeAdapter` for this purpose
 
@@ -181,131 +123,28 @@ To use the `KyselyCacheAdapter`, you'll need to:
 
 You will need to install [`better-sqlite3`](https://www.npmjs.com/package/better-sqlite3) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-import Sqlite from "better-sqlite3";
-import { Kysely, SqliteDialect } from "kysely";
-
-const database = new Sqlite("DATABASE_NAME.db");
-const kysely = new Kysely({
-    dialect: new SqliteDialect({
-        database,
-    }),
-});
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const kyselyCacheAdapter = new KyselyCacheAdapter({
-    kysely,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyCacheAdapter.init();
+```ts file=./configuring_cache_adapters-samples/kysely_cache_sqlite.ts
 ```
 
 ### Usage with Postgres
 
 You will need to install [`pg`](https://www.npmjs.com/package/pg) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-import { Pool } from "pg";
-import { Kysely, PostgresDialect } from "kysely";
-
-const database = new Pool({
-    database: "DATABASE_NAME",
-    host: "DATABASE_HOST",
-    user: "DATABASE_USER",
-    // DATABASE port
-    port: 5432,
-    password: "DATABASE_PASSWORD",
-    max: 10,
-});
-const kysely = new Kysely({
-    dialect: new PostgresDialect({
-        pool: database,
-    }),
-});
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const kyselyCacheAdapter = new KyselyCacheAdapter({
-    kysely,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyCacheAdapter.init();
+```ts file=./configuring_cache_adapters-samples/kysely_cache_postgres.ts
 ```
 
 ### Usage with Mysql
 
 You will need to install [`mysql2`](https://www.npmjs.com/package/mysql2) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-import { createPool } from "mysql2";
-import { Kysely, MysqlDialect } from "kysely";
-
-const database = createPool({
-    host: "DATABASE_HOST",
-    // Database port
-    port: 3306,
-    database: "DATABASE_NAME",
-    user: "DATABASE_USER",
-    password: "DATABASE_PASSWORD",
-    connectionLimit: 10,
-});
-const kysely = new Kysely({
-    dialect: new MysqlDialect({
-        pool: database,
-    }),
-});
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const kyselyCacheAdapter = new KyselyCacheAdapter({
-    kysely,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyCacheAdapter.init();
+```ts file=./configuring_cache_adapters-samples/kysely_cache_mysql.ts
 ```
 
 ### Usage with Libsql
 
 You will need to install [`@libsql/kysely-libsql`](https://www.npmjs.com/package/@libsql/kysely-libsql) package:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { KyselyCacheAdapter } from "eridu-tech/cache/kysely-cache-adapter";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-import { LibsqlDialect } from "@libsql/kysely-libsql";
-import { Kysely } from "kysely";
-
-const kysely = new Kysely({
-    dialect: new LibsqlDialect({
-        url: "DATABASE_URL",
-    }),
-});
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const kyselyCacheAdapter = new KyselyCacheAdapter({
-    kysely,
-    serde,
-});
-
-// You need initialize the adapter once before using it.
-// During the initialization the schema will be created
-await kyselyCacheAdapter.init();
+```ts file=./configuring_cache_adapters-samples/kysely_cache_libsql.ts
 ```
 
 ### Usage with other databases
@@ -321,23 +160,13 @@ you won't be able to use following methods `put` and `increment`, as they requir
 
 To clean up expired cache keys, call `removeAllExpired` at a regular interval (for example, using a cron job):
 
-```ts
-const kyselyCacheAdapter = new KyselyCacheAdapter({
-    database,
-    serde,
-});
-
-await kyselyCacheAdapter.init();
-
-// Remove all expired cache keys manually.
-await kyselyCacheAdapter.removeAllExpired();
+```ts file=./configuring_cache_adapters-samples/kysely_cache_remove_all_expired.ts
 ```
 
 :::info
 To remove the cache table and all stored cache data, use `deInit` method:
 
-```ts
-await kyselyCacheAdapter.deInit();
+```ts file=./configuring_cache_adapters-samples/kysely_cache_adapter_deinit.ts
 ```
 
 :::
@@ -346,10 +175,7 @@ await kyselyCacheAdapter.deInit();
 
 The `NoOpCacheAdapter` is a no-operation implementation, it performs no actions when called:
 
-```ts
-import { NoOpCacheAdapter } from "eridu-tech/cache/no-op-cache-adapter";
-
-const noOpCacheAdapter = new NoOpCacheAdapter();
+```ts file=./configuring_cache_adapters-samples/no_op_cache_adapter.ts
 ```
 
 :::info

@@ -57,37 +57,10 @@ brew install azure-functions-core-tools@4
 
 ### 3. Create the application
 
-```ts
-// src/app.ts
-import {
-    HttpRouter,
-    HttpRes,
-    defaultHttpRouterAdapter,
-} from "eridu-tech/http-router";
-
-const router = new HttpRouter({ router: defaultHttpRouterAdapter });
-
-router.endpoint({
-    url: "/hello",
-    method: "GET",
-    handler: async () => HttpRes.text("Hello Azure Functions!"),
-});
-
-export default router;
+```ts file=./azure_functions-samples/app.ts
 ```
 
-```ts
-// src/functions/httpTrigger.ts
-import { app } from "@azure/functions";
-import { azureHonoHandler } from "@marplex/hono-azurefunc-adapter";
-import honoApp from "../app";
-
-app.http("httpTrigger", {
-    methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
-    authLevel: "anonymous",
-    route: "{*proxy}",
-    handler: azureHonoHandler((request: Request) => honoApp.fetch(request)),
-});
+```ts file=./azure_functions-samples/http_trigger.ts
 ```
 
 **File structure**

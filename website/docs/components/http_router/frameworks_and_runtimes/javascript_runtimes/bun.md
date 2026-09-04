@@ -22,26 +22,7 @@ bun add eridu-tech hono
 
 ### 2. Create the handler
 
-```ts
-// src/index.ts
-import {
-    HttpRouter,
-    HttpRes,
-    defaultHttpRouterAdapter,
-} from "eridu-tech/http-router";
-
-const router = new HttpRouter({ router: defaultHttpRouterAdapter });
-
-router.endpoint({
-    url: "/hello",
-    method: "GET",
-    handler: async () => HttpRes.text("Hello Bun!"),
-});
-
-export default {
-    port: 3000,
-    fetch: (request: Request) => router.fetch(request),
-};
+```ts file=./bun-samples/create_handler.ts
 ```
 
 **File structure**

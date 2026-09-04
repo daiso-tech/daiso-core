@@ -26,22 +26,7 @@ testing.
 
 Usage example:
 
-```ts
-// filename: MySemaphoreAdapter.test.ts
-
-import { beforeEach, describe, expect, test } from "vitest";
-import { semaphoreAdapterTestSuite } from "eridu-tech/semaphore/test-utilities";
-import { MemorySemaphoreAdapter } from "./MemorySemaphoreAdapter.js";
-
-describe("class: MySemaphoreAdapter", () => {
-    semaphoreAdapterTestSuite({
-        createAdapter: () => new MemorySemaphoreAdapter(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
+```ts file=./creating_semaphore_adapters-samples/semaphore_adapter_test_suite.ts
 ```
 
 ## Implementing your custom ISemaphoreFactory class
@@ -58,22 +43,7 @@ testing.
 
 Usage example:
 
-```ts
-// filename: MySemaphoreFactory.test.ts
-
-import { beforeEach, describe, expect, test } from "vitest";
-import { semaphoreFactoryTestSuite } from "eridu-tech/semaphore/test-utilities";
-import { MySemaphoreFactory } from "./MySemaphoreFactory.js";
-
-describe("class: MySemaphoreFactory", () => {
-    semaphoreFactoryTestSuite({
-        createSemaphoreFactory: () => new MySemaphoreFactory(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
+```ts file=./creating_semaphore_adapters-samples/semaphore_factory_test_suite.ts
 ```
 
 ## Further information

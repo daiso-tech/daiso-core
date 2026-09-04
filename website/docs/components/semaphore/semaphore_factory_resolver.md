@@ -18,34 +18,14 @@ The `SemaphoreFactoryResolver` class provides a flexible way to configure and sw
 
 To begin using the `ISemaphoreFactoryResolver`, you will need to register all required adapters during initialization.
 
-```ts
-import { SemaphoreFactoryResolver } from "eridu-tech/semaphore";
-import { MemorySemaphoreAdapter } from "eridu-tech/semaphore/memory-semaphore-adapter";
-import { RedisSemaphoreAdapter } from "eridu-tech/semaphore/redis-semaphore-adapter";
-import Redis from "ioredis";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const semaphoreFactoryResolver = new SemaphoreFactoryResolver({
-    adapters: {
-        memory: new MemorySemaphoreAdapter(),
-        redis: new RedisSemaphoreAdapter(new Redis("YOUR_REDIS_CONNECTION")),
-    },
-    // You can set an optional default adapter
-    defaultAdapter: "memory",
-});
+```ts file=./semaphore_factory_resolver-samples/semaphore_factory_resolver_initial_config.ts
 ```
 
 ## Usage
 
 ### 1. Using the default adapter
 
-```ts
-await semaphoreFactoryResolver
-    .use()
-    .create("shared-resource")
-    .runOrFail(async () => {
-        // code to run
-    });
+```ts file=./semaphore_factory_resolver-samples/semaphore_factory_resolver_default_adapter.ts
 ```
 
 :::danger
@@ -54,13 +34,7 @@ Note that if you dont set a default adapter, an error will be thrown.
 
 ### 2. Specifying an adapter explicitly
 
-```ts
-await semaphoreFactoryResolver
-    .use("redis")
-    .create("shared-resource")
-    .runOrFail(async () => {
-        // code to run
-    });
+```ts file=./semaphore_factory_resolver-samples/semaphore_factory_resolver_specific_adapter.ts
 ```
 
 :::danger
@@ -69,14 +43,7 @@ Note that if you specify a non-existent adapter, an error will be thrown.
 
 ### 3. Overriding default settings
 
-```ts
-await semaphoreFactoryResolver
-    .setNamespace(new Namespace("@my-namespace"))
-    .use("redis")
-    .create("shared-resource")
-    .runOrFail(async () => {
-        // code to run
-    });
+```ts file=./semaphore_factory_resolver-samples/semaphore_factory_resolver_override_settings.ts
 ```
 
 :::info

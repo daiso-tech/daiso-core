@@ -31,22 +31,7 @@ We provide a complete test suite to test your rate-limiter storage adapter imple
 
 Usage example:
 
-```ts
-// filename: MyRateLimiterStorageAdapter.test.ts
-
-import { beforeEach, describe, expect, test } from "vitest";
-import { rateLimiterBreakerStorageTestSuite } from "eridu-tech/rate-limiter/test-utilities";
-import { MemoryRateLimiterStorageAdapter } from "./MemoryRateLimiterStorageAdapter.js";
-
-describe("class: MyRateLimiterStorageAdapter", () => {
-    rateLimiterBreakerStorageTestSuite({
-        createAdapter: () => new MemoryRateLimiterStorageAdapter(),
-        test,
-        beforeEach,
-        expect,
-        describe,
-    });
-});
+```ts file=./creating_rate_limiter_adapters-samples/rate_limiter_storage_test_suite.ts
 ```
 
 ## Implementing your custom IRateLimiterProvider class

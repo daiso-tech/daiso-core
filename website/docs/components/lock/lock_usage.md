@@ -18,19 +18,7 @@ The `eridu-tech/lock` component provides a way for managing locks independent of
 
 To begin using the `LockFactory` class, you'll need to create and configure an instance:
 
-```ts
-import { TimeSpan } from "eridu-tech/time-span";
-import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
-import { LockFactory } from "eridu-tech/lock";
-
-const lockFactory = new LockFactory({
-    // You can provide default TTL value
-    // If you set it to null it means locks will not expire and most be released manually by default.
-    defaultTtl: TimeSpan.fromSeconds(2),
-
-    // You can choose the adapter to use
-    adapter: new MemoryLockAdapter(),
-});
+```ts file=./lock_usage-samples/lock_factory_initial_config.ts
 ```
 
 :::info
@@ -41,33 +29,17 @@ Here is a complete list of settings for the [`LockFactory`](https://eridu-tech.g
 
 ### Creating a lock
 
-```ts
-const lock = lockFactory.create("shared-resource");
+```ts file=./lock_usage-samples/lock_create.ts
 ```
 
 ### Acquiring and releasing the lock
 
-```ts
-const hasAquired = await lock.acquire();
-if (hasAquired) {
-    try {
-        // The critical section
-    } finally {
-        await lock.release();
-    }
-}
+```ts file=./lock_usage-samples/lock_acquire_release.ts
 ```
 
 Alternatively you could write it as follows:
 
-```ts
-try {
-    // This method will throw if the lock is not acquired
-    await lock.acquireOrFail();
-    // The critical section
-} finally {
-    await lock.release();
-}
+```ts file=./lock_usage-samples/lock_acquire_or_fail.ts
 ```
 
 :::danger
@@ -78,35 +50,14 @@ You need always to wrap the critical section with `try-finally` so the lock get 
 
 You can provide a custom TTL for the lock.
 
-```ts
-const lock = lockFactory.create("shared-resource", {
-    // Default TTL is 5min if not overrided
-    // If you set it to null it means locks will not expire and most be released manually.
-    ttl: TimeSpan.fromSeconds(30),
-});
+```ts file=./lock_usage-samples/lock_custom_ttl.ts
 ```
 
 ### Checking lock state
 
 You can get the lock state by using the `getState` method, it returns [`ILockState`](https://eridu-tech.github.io/eridu-tech-core/types/Lock.ILockState.html).
 
-```ts
-import { LOCK_STATE } from "eridu-tech/lock/contracts";
-
-const lock = lockFactory.create("shared-resource");
-const state = await lock.getState();
-
-if (state.type === LOCK_STATE.EXPIRED) {
-    console.log("The lock doesnt exists");
-}
-
-if (state.type === LOCK_STATE.UNAVAILABLE) {
-    console.log("Lock is acquired by different owner");
-}
-
-if (state.type === LOCK_STATE.ACQUIRED) {
-    console.log("The lock is acquired");
-}
+```ts file=./lock_usage-samples/lock_get_state.ts
 ```
 
 ## Patterns
@@ -116,48 +67,13 @@ if (state.type === LOCK_STATE.ACQUIRED) {
 The lock can be refreshed by the current owner before it expires. This is particularly useful for long-running tasks,
 instead of setting an excessively long TTL initially, you can start with a shorter one and use the `refresh` method to set the TTL of the lock:
 
-```ts
-import { delay } from "eridu-tech/utilities/functions";
-
-const lock = lockFactory.create("resource", {
-    ttl: TimeSpan.fromMinutes(1),
-});
-
-async function doWork(): Promise<boolean> {
-    // ... critical section
-}
-
-const hasAcquired = await lock.acquire();
-if (hasAcquired) {
-    try {
-        while (true) {
-            await lock.refresh(TimeSpan.fromMinutes(1));
-            const hasFinished = await doWork();
-            if (hasFinished) {
-                break;
-            }
-            await delay(TimeSpan.fromSeconds(1));
-        }
-    } finally {
-        await lock.release();
-    }
-}
+```ts file=./lock_usage-samples/lock_refresh.ts
 ```
 
 :::warning
 Note: A lock must have an expiration (a `ttl` value) to be refreshed. You cannot refresh a lock that was created without an expiration (with `ttl: null`)
 
-```ts
-// Create a lock with no expiration (non-refreshable)
-const lock = lockFactory.create("resource", {
-    ttl: null,
-});
-
-// A refresh attempt on this lock will fail
-const hasRefreshed = await lock.refresh();
-
-// This will log 'false' because the lock cannot be refreshed
-console.log(hasRefreshed);
+```ts file=./lock_usage-samples/lock_non_refreshable.ts
 ```
 
 :::
@@ -166,37 +82,23 @@ console.log(hasRefreshed);
 
 The `releaseOrFail` method is the same `release` method but it throws an error when not enable to release the lock:
 
-```ts
-const lock = lockFactory.create("resource");
-
-await lock.releaseOrFail();
+```ts file=./lock_usage-samples/lock_release_or_fail.ts
 ```
 
 The `forceRelease` method releases the lock regardless of the owner:
 
-```ts
-const lock = lockFactory.create("resource");
-
-await lock.forceRelease();
+```ts file=./lock_usage-samples/lock_force_release.ts
 ```
 
 The `refreshOrFail` method is the same `refresh` method but it throws an error when not enable to refresh the lock:
 
-```ts
-const lock = lockFactory.create("resource");
-
-await lock.refreshOrFail();
+```ts file=./lock_usage-samples/lock_refresh_or_fail.ts
 ```
 
 The `runOrFail` method automatically manages lock acquisition and release around function execution.
 It calls `acquireOrFail` before invoking the function and calls `release` in a finally block, ensuring the lock is always freed, even if an error occurs during execution.
 
-```ts
-const lock = lockFactory.create("resource");
-
-await lock.runOrFail(async () => {
-    // ... critical section
-});
+```ts file=./lock_usage-samples/lock_run_or_fail.ts
 ```
 
 :::info
@@ -211,33 +113,14 @@ You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TVa
 
 The `Lock` class exposes instance variables such as:
 
-```ts
-const lock = lockFactory.create("resource");
-
-// Will return the key of the lock which is "resource"
-console.log(lock.key);
-
-// Will return the id of the lock
-console.log(lock.id);
-
-// Will return the ttl of the lock
-console.log(lock.ttl);
+```ts file=./lock_usage-samples/lock_instance_variables.ts
 ```
 
 ### Lock id
 
 By default the lock id is autogenerated but it can also manually defined.
 
-```ts
-const lock = lockFactory.create("lock", {
-    lockId: "my-lock-id",
-});
-
-const hasAcquire = await lock.acquire();
-if (hasAcquired) {
-    console.log("Shared resource");
-    await lock.release();
-}
+```ts file=./lock_usage-samples/lock_custom_id.ts
 ```
 
 :::info
@@ -252,164 +135,40 @@ In most cases, setting a custom lock id is unnecessary. Misusing this feature co
 
 ### Retrying acquiring lock by attempts
 
-To retry acquiring lock you can use the [`retry`](../resilience.md) middleware.
+To retry acquiring lock you can use the [`retry`](../resilience/resilience.md) middleware.
 
 Retrying acquiring lock with `acquireOrFail` method:
 
-```ts
-import { retry } from "eridu-tech/resilience";
-import { FailedAcquireLockError } from "eridu-tech/lock/contracts";
-import { use } from "eridu-tech/middleware";
-
-const lock = lockFactory.create("lock");
-
-try {
-    await use(async () => {
-        await lock.acquireOrFail();
-    }, [
-        retry({
-            maxAttempts: 4,
-            errorPolicy: FailedAcquireLockError,
-        }),
-    ])();
-    // The critical section
-} finally {
-    await lock.release();
-}
+```ts file=./lock_usage-samples/lock_retry_acquire_or_fail.ts
 ```
 
 Retrying acquiring lock with `acquire` method:
 
-```ts
-import { retry } from "eridu-tech/resilience";
-import { use } from "eridu-tech/middleware";
-
-const lock = lockFactory.create("lock");
-
-const hasAquired = await use(async () => {
-    return await lock.acquire();
-}, [
-    retry({
-        maxAttempts: 4,
-        errorPolicy: {
-            treatFalseAsError: true,
-        },
-    }),
-])();
-
-if (hasAquired) {
-    try {
-        // The critical section
-    } finally {
-        await lock.release();
-    }
-}
+```ts file=./lock_usage-samples/lock_retry_acquire.ts
 ```
 
 Retrying acquiring lock with `runOrFail` method:
 
-```ts
-import { retry } from "eridu-tech/resilience";
-import { FailedAcquireLockError } from "eridu-tech/lock/contracts";
-import { use } from "eridu-tech/middleware";
-
-const lock = lockFactory.create("lock");
-
-await use(async () => {
-    await lock.runOrFail(async () => {
-        // The critical section
-    });
-}, [
-    retry({
-        maxAttempts: 4,
-        errorPolicy: FailedAcquireLockError,
-    }),
-])();
+```ts file=./lock_usage-samples/lock_retry_run_or_fail.ts
 ```
 
 ### Retrying acquiring lock by interval
 
-To retry acquiring lock at regular intervals you can use the [`retryInterval`](../resilience.md) middleware:
+To retry acquiring lock at regular intervals you can use the [`retryInterval`](../resilience/resilience.md) middleware:
 
 Retrying acquiring lock with `acquireOrFail` method:
 
-```ts
-import { retryInterval } from "eridu-tech/resilience";
-import { FailedAcquireLockError } from "eridu-tech/lock/contracts";
-import { use } from "eridu-tech/middleware";
-import { TimeSpan } from "eridu-tech/time-span";
-
-const lock = lockFactory.create("resource");
-
-try {
-    await use(async () => {
-        await lock.acquireOrFail();
-    }, [
-        retryInterval({
-            // Time to wait 1 minute
-            time: TimeSpan.fromMinutes(1),
-            // Interval to try acquire the lock
-            interval: TimeSpan.fromSeconds(1),
-            errorPolicy: FailedAcquireLockError,
-        }),
-    ])();
-    // ... critical section
-} finally {
-    await lock.release();
-}
+```ts file=./lock_usage-samples/lock_retry_interval_acquire_or_fail.ts
 ```
 
 Retrying acquiring lock with `acquire` method:
 
-```ts
-import { retryInterval } from "eridu-tech/resilience";
-import { use } from "eridu-tech/middleware";
-import { TimeSpan } from "eridu-tech/time-span";
-
-const lock = lockFactory.create("resource");
-
-const hasAcquired = await use(async () => {
-    return await lock.acquire();
-}, [
-    retryInterval({
-        time: TimeSpan.fromMinutes(1),
-        interval: TimeSpan.fromSeconds(1),
-        errorPolicy: {
-            treatFalseAsError: true,
-        },
-    }),
-])();
-
-if (hasAcquired) {
-    try {
-        // ... critical section
-    } finally {
-        await lock.release();
-    }
-}
+```ts file=./lock_usage-samples/lock_retry_interval_acquire.ts
 ```
 
 Retrying acquiring lock with `runOrFail` method:
 
-```ts
-import { retryInterval } from "eridu-tech/resilience";
-import { FailedAcquireLockError } from "eridu-tech/lock/contracts";
-import { use } from "eridu-tech/middleware";
-import { TimeSpan } from "eridu-tech/time-span";
-
-const lock = lockFactory.create("resource");
-
-await use(async () => {
-    await lock.runOrFail(async () => {
-        // ... critical section
-    });
-}, [
-    retryInterval({
-        time: TimeSpan.fromMinutes(1),
-        interval: TimeSpan.fromSeconds(1),
-        errorPolicy: FailedAcquireLockError,
-    }),
-])();
+```ts file=./lock_usage-samples/lock_retry_interval_run_or_fail.ts
 ```
 
 :::warning
@@ -422,29 +181,11 @@ Locks can be serialized, allowing them to be transmitted over the network to ano
 
 This means you can, for example, acquire the lock on the main server, transfer it to a queue worker server, and release it there.
 
-In order to serialize or deserialize a lock you need pass an object that implements [`ISerderRegister`](../serde.md) contract like the [`Serde`](../serde.md) class to `LockFactory`.
+In order to serialize or deserialize a lock you need pass an object that implements [`ISerderRegister`](../serde/serde.md) contract like the [`Serde`](../serde/serde.md) class to `LockFactory`.
 
 Manually serializing and deserializing the lock:
 
-```ts
-import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
-import { LockFactory } from "eridu-tech/lock";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-
-const redisClient = new Redis("YOUR_REDIS_CONNECTION");
-
-const lockFactory = new LockFactory({
-    // You can laso pass in an array of Serde class instances
-    serde,
-    adapter: new RedisLockAdapter(redisClient),
-});
-
-const lock = lockFactory.create("resource");
-const serializedLock = serde.serialize(lock);
-const deserializedLock = serde.deserialize(lock);
+```ts file=./lock_usage-samples/lock_manual_serialization.ts
 ```
 
 :::danger
@@ -457,46 +198,7 @@ Note you only need manuall serialization and deserialization when integrating wi
 
 As long you pass the same `Serde` instances with all other components you dont need to serialize and deserialize the lock manually.
 
-```ts
-import { RedisLockAdapter } from "eridu-tech/lock/redis-lock-adapter";
-import type { ILock } from "eridu-tech/lock/contracts";
-import { LockFactory } from "eridu-tech/lock";
-import { RedisPubSubEventBusAdapter } from "eridu-tech/event-bus/redis-pub-sub-event-bus-adapter";
-import { EventBus } from "eridu-tech/event-bus";
-import { Serde } from "eridu-tech/serde";
-import { SuperJsonSerdeAdapter } from "eridu-tech/serde/super-json-serde-adapter";
-
-const serde = new Serde(new SuperJsonSerdeAdapter());
-const redis = new Redis("YOUR_REDIS_CONNECTION");
-
-type EventMap = {
-    "sending-lock-over-network": {
-        lock: ILock;
-    };
-};
-const eventBus = new EventBus<EventMap>({
-    adapter: new RedisPubSubEventBusAdapter({
-        client: redis,
-        serde,
-    }),
-});
-
-const lockFactory = new LockFactory({
-    serde,
-    adapter: new RedisLockAdapter(redis),
-});
-const lock = lockFactory.create("resource");
-
-// We are sending the lock over the network to other servers.
-await eventBus.dispatch("sending-lock-over-network", {
-    lock,
-});
-
-// The other servers will recieve the serialized lock and automattically deserialize it.
-await eventBus.addListener("sending-lock-over-network", ({ lock }) => {
-    // The lock is deserialized and can be used
-    console.log("LOCK:", lock);
-});
+```ts file=./lock_usage-samples/lock_event_bus_serialization.ts
 ```
 
 ### Separating lock creation from manipulation

@@ -40,31 +40,19 @@ The plugin prefixes keys for the following methods:
 
 ### Usage
 
-```ts
-import { withPlugin } from "eridu-tech/middleware";
-import { MemoryLockAdapter } from "eridu-tech/lock/memory-lock-adapter";
-import { withLockPrefix } from "eridu-tech/lock/plugins";
-
-const adapter = new MemoryLockAdapter();
-
-// Apply the prefix plugin to the adapter
-const prefixedAdapter = withPlugin(adapter, withLockPrefix("tenant-42:"));
+```ts file=./lock_plugin-samples/with_lock_prefix.ts
 ```
 
 ### Before/after behavior
 
 **Before** — Lock keys are used as-is:
 
-```ts
-adapter.acquire("resource:42", "lock-id", ttl);
-// -> acquires lock on "resource:42"
+```ts file=./lock_plugin-samples/unprefixed_acquire.ts
 ```
 
 **After** — Lock keys are automatically prefixed:
 
-```ts
-prefixedAdapter.acquire("resource:42", "lock-id", ttl);
-// -> acquires lock on "tenant-42:resource:42"
+```ts file=./lock_plugin-samples/prefixed_acquire.ts
 ```
 
 :::danger
