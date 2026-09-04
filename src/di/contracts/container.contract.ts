@@ -1,10 +1,13 @@
 /**
  * @module DI
  */
-import type { IExecutionContext } from "@/execution-context/contracts/_module.js";
+
+import type {
+    IExecutionContext,
+    ContextToken,
+} from "@/execution-context/contracts/_module.js";
 import type {
     AsyncLazy,
-    Class,
     IDeinitizable,
     IInitizable,
     IInvocableObject,
@@ -12,68 +15,37 @@ import type {
     InvocableFn,
     Promisable,
 } from "@/utilities/_module.js";
-/**
- * A token that identifies a registered type via a unique symbol.
- * Use {@link genericToken} to create an instance.
- *
- * @typeParam TRegisteredType - The type of the registered service.
- *
- * IMPORT_PATH: `"eridu-tech/di/contracts"`
- * @group Contracts
- */
-export type GenericToken<TRegisteredType = unknown> = {
-    /**
-     * Unique identifier for this token, used internally as the storage key.
-     */
-    readonly id: symbol;
-
-    /**
-     * Phantom type that is only used for type inference.
-     * This property is never actually set at runtime and exists only to help TypeScript infer types.
-     */
-    readonly _type: TRegisteredType | null;
-};
 
 /**
- * Creates a new generic token identified by the given`id`.
+ * Creates a new generic token identified by the given `id`.
  *
  * Each call creates a distinct token, so a token must be created once and
  * exported, then reused for registration and resolution.
  *
  * @param id - A descriptive label for the token.
- * @returns A new {@link GenericToken} instance.
+ * @returns A new {@link DiToken} instance created from the given `id`.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
  */
-export function genericToken<TValue>(id: string): GenericToken<TValue> {
+export function genericToken<TRegisteredType>(
+    id: string,
+): DiToken<TRegisteredType> {
     return {
-        id: Symbol(id),
-    } as GenericToken<TValue>;
+        description: id,
+    } as ContextToken<TRegisteredType>;
 }
 
 /**
- * A class constructor used as a DI token. The class itself serves as the
- * registration key — no separate token object is needed.
+ * Token used to identify a registered service in {@link IContainer}.
  *
- * @typeParam TInstance - The type of the class instance.
- *
- * IMPORT_PATH: `"eridu-tech/di/contracts"`
- * @group Contracts
- */
-export type ClassToken<TInstance = unknown> = Class<Array<any>, TInstance>;
-
-/**
- * A union of {@link ClassToken} and {@link GenericToken} — the two ways to
- * identify a registered service in the DI container.
- *
+ * This is a type alias for {@link ContextToken}.
  * @typeParam TRegisteredType - The type of the registered service.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
  */
-export type DiToken<TRegisteredType = unknown> =
-    ClassToken<TRegisteredType> | GenericToken<TRegisteredType>;
+export type DiToken<TRegisteredType = unknown> = ContextToken<TRegisteredType>;
 
 /**
  * A record that maps dependency argument names to their resolved types.
@@ -438,20 +410,6 @@ export type DynamicValue<TRegisteredType = unknown> = Invocable<
 >;
 
 /**
- * A wrapper that explicitly marks a value as a {@link DynamicValue} callback,
- * distinguishing it from a plain service value that may itself be callable.
- *
- * @typeParam TRegisteredType - The type of the dynamic value.
- *
- * IMPORT_PATH: `"eridu-tech/di/contracts"`
- * @group Contracts
- */
-export type DynamicValueWrapper<TRegisteredType = unknown> = {
-    /** The callback that computes the dynamic value from the execution context. */
-    readonly dynamicValue: DynamicValue<TRegisteredType>;
-};
-
-/**
  * Configuration for setting a dynamic value at runtime via
  * {@link IDynamicServiceRegister.set}.
  *
@@ -468,12 +426,16 @@ export type DynamicRegistration<TRegisteredType = unknown> = {
      * A static value, or a {@link DynamicValueWrapper} wrapping a callback
      * that computes the value from the execution context.
      */
-    value: TRegisteredType | DynamicValueWrapper<TRegisteredType>;
+    value: TRegisteredType;
 };
 
 /**
  * Interface for setting dynamic values at runtime for tokens previously
  * registered via {@link IServiceRegisterBase.registerDynamic}.
+ *
+ * @remarks
+ * All methods in this interface operate directly on {@link IExecutionContext}
+ * rather than the isolated dependency container registry. Operations here can interfere with data in the execution context and vice versa.
  *
  * IMPORT_PATH: `"eridu-tech/di/contracts"`
  * @group Contracts
@@ -483,11 +445,48 @@ export type IDynamicServiceRegister = {
      * Sets the value for a token previously registered via
      * {@link IServiceRegisterBase.registerDynamic}.
      *
-     * @param settings - The dynamic registration settings.
+     * @param args - The dynamic registration settings.
+     * @throws {@link CanNotRegisterServiceDiError} When the token is not registered as a dynamic token with {@link IContainer.registerDynamic}
+     *
+     * @remarks
+     * This method sets the token directly on the execution context. If the token already exists in the execution context, it will be implicitly overwritten.
+     * If the token do not exists in the execution context it will be put inside execution context with token as key.
      */
     set<TRegisteredType = unknown>(
-        settings: DynamicRegistration<TRegisteredType>,
-    ): Promise<void>;
+        args: DynamicRegistration<TRegisteredType>,
+    ): void;
+
+    /**
+     * Retrieves the registered value from the execution context for a given dynamic token.
+     *
+     * @param token - The dynamic token to look up.
+     * @returns The registered value for the dynamic token or `null` if token is not registered as dynamic with {@link IContainer.registerDynamic} or do not exist in the execution context.
+     *
+     */
+    get<TRegisteredType>(
+        token: DiToken<TRegisteredType>,
+    ): Promise<TRegisteredType | null>;
+
+    /**
+     * Retrieves the registered value from the execution context for a given dynamic token, throwing an error if it cannot be resolved.
+     *
+     * @param token - The dynamic token to look up.
+     * @returns The registered value for the dynamic token
+     * @throws {@link CanNotResolveServiceDiError} When token is not registered as dynamic with {@link IContainer.registerDynamic} or do not exist in the execution context.
+     *
+     */
+    getOrFail<TRegisteredType>(
+        token: DiToken<TRegisteredType>,
+    ): Promise<TRegisteredType>;
+
+    /**
+     * Checks whether a value can be resolved for a given dynamic token.
+     *
+     * @param token - The dynamic token to check.
+     * @returns `true` if the token exists in the execution context and is registered as dynamic in the graph; otherwise, `false`.
+     *
+     */
+    has<TRegisteredType>(token: DiToken<TRegisteredType>): Promise<boolean>;
 };
 
 /**
@@ -537,7 +536,7 @@ export type RunSettings<TValue = unknown> = {
     /**
      * Optional dynamic service provider to register before the scope executes.
      */
-    dynamicRegistration?: DynamicServiceProvider;
+    registration?: DynamicServiceProvider;
 
     /**
      * The lazily-evaluated scope body to execute within the container scope.

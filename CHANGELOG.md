@@ -1,5 +1,75 @@
 # @daiso-tech/core
 
+## 0.61.0
+
+### Minor Changes
+
+- 83d134e: `ICacheAdapter.getOrAdd` now always takes a lazy function that produces the value to cache, instead of accepting either a plain value or a function. The value producer is invoked **only on a cache miss** (when the key is missing or expired), so the value is never computed when a cached entry already exists.
+
+    This also makes adapters easier to implement: they no longer need to branch between plain values and functions and can rely on a single, uniform lazy invocation for the value to add.
+
+- e77cc4f: Enhanced the event bus dispatch middlewares so you can return `null` from the `payload` invocable if you don't want to dispatch an event:
+
+    - Return `null` from the `payload` of `withDispatchBefore` to skip dispatching and invoke the wrapped function directly.
+    - Return `null` from the `payload` of `withDispatchAfter` to skip dispatching and return the wrapped function's result.
+    - Return `null` from the `payload` of `withDispatchOnError` to skip dispatching and re-throw the original error.
+
+    The `payload` type of the three middlewares is now `TEventMap[TEventName] | void`.
+
+- 37a4973: Simplified the HttpRouter component with a unified schema-aware request API.
+
+    ### Breaking changes
+    - Replaced the `raw*` request accessors (`rawCookies`, `rawJson`, `rawFormData`, `rawParams`, `rawSearchParams`, `rawHeaders`) with `cookies()`, `json()`, `params()`, `searchParams()`, `headers()`, `fields()`, and `files()`.
+    - Removed the `withSchema()` flow along with the `IValidatedHttpReq`, `IHttpReqBase`, `IHttpReqValidation`, `HttpReqSchemas`, and `ReqInputs` types. Each request accessor now accepts an optional Standard Schema directly and returns the validated result.
+    - Removed the `ValidatedHttpReq` implementation.
+    - `IHttpFileCollection.count` is now the `size()` method, and `IHttpFileCollection.isEmpty` is now the `isEmpty()` method.
+    - `IHttpFileCollection.getOrFail()` and `firstOrFail()` now throw an `HttpError` with status `400` instead of the removed `FileIndexOutOfBoundsError` and `EmptyFileCollectionError`.
+    - Removed the `FileIndexOutOfBoundsError` and `EmptyFileCollectionError` error classes.
+    - `StaticFileDef.name` now accepts only a `RegExp` (previously `string | RegExp`).
+    - `DynamicFileDef` now receives the uploaded `IHttpFileCollection` and returns an error message `string | null` (previously received an `IHttpFile` and returned a `StaticFileDef`).
+
+    ### Additions
+    - Added `CoercibleStringInputs` and `CoercibleMultiStringInputs` output types for schema-validated request data.
+    - Added `payload` to `HttpError` (and `HttpErrorSettings.payload`), now used to carry validation issues.
+
+    ### Validation behavior
+    - Validation failures in `HttpReq` now throw an `HttpError` with status `400` and the validation issues attached as `payload`, instead of throwing `ValidationError`.
+
+- 42f4765: Removed the unused force-release methods from the shared-lock component to simplify its API.
+
+    ### Breaking changes
+    - Removed `forceReleaseWriter` from `ISharedLockAdapter` and `IWriterLock`.
+    - Removed `forceReleaseAllReaders` from `ISharedLockAdapter` and `IReaderSemaphore`.
+
+    These methods allowed bypassing ownership checks to release locks for emergency or administrative cleanup, but they were redundant with the existing ownership-based release methods and have been removed along with their implementations in `KyselySharedLockAdapter`, `MemorySharedLockAdapter`, `MongodbSharedLockAdapter`, `NoOpSharedLockAdapter`, `RedisSharedLockAdapter`, the derived `SharedLock`, and the `withSharedLockPrefix` plugin.
+
+    ### Migration
+
+    Use the `forceRelease` method instead.
+
+- 29a7a2d: - Reworked context tokens and unified them across modules. In the execution-context module, `ContextToken` is now a union of a new `ClassToken` (a class constructor used directly as the key) and `GenericToken`, whose identifier is a string `description` instead of a runtime-unique symbol. The DI `DiToken` is now a type alias of the execution-context `ContextToken`, so dependency injection and execution context now share a single token type.
+    - Reworked `IDynamicServiceRegister`, used to set dynamic values inside `run()`:
+        - `set` no longer accepts a `DynamicValueWrapper` callback as its value and is now synchronous. It writes the value directly to the execution context and implicitly overwrites an existing value for the token.
+        - Added `get` and `getOrFail` to read a dynamic value, and `has` to check whether one is available. `getOrFail` throws `CanNotResolveServiceDiError` when the token is not registered as dynamic or has no value.
+    - Dynamic values are now stored in and read from the execution context directly, instead of the container's isolated registry.
+    - Renamed the `run()` setting `dynamicRegistration` to `registration`.
+    - Added DI error flags thrown by the `IDynamicServiceRegister` methods:
+        - `IDynamicServiceRegister.set` throws `CanNotRegisterServiceDiError.DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_IS_NOT_DYNAMIC` when the token is not registered as dynamic, and `CanNotRegisterServiceDiError.DYNAMIC_SERVICE_PROVIDER_REGISTRATION_TOKEN_DO_NOT_EXIST` when the token does not exist.
+        - `IDynamicServiceRegister.getOrFail` throws `CanNotResolveServiceDiError.DYNAMIC_SERVICE_PROVIDER_NOT_DYNAMIC_TOKEN` when the token is not registered as dynamic.
+
+### Patch Changes
+
+- a9b309c: Fixed a bug in `MongodbLockAdapter.refresh` and `MongodbSharedLockAdapter.refreshWriter` where a caller that doesn't own the lock could still modify its expiration.
+
+    Previously, both methods only filtered the MongoDB document by `key` and checked ownership _after_ the update was applied. As a result, calling `refresh` (or `refreshWriter`) with a stale or foreign `lockId`, or after the lock had already expired, would still mutate the stored expiration even though the method ultimately returned `false`.
+
+    The owner and unexpired-expiration checks are now part of the MongoDB query filter itself, making the refresh conditional and atomic:
+
+    - `MongodbLockAdapter.refresh` only updates documents matching `key`, `owner: lockId`, and an unexpired `expiration`.
+    - `MongodbSharedLockAdapter.refreshWriter` only updates documents matching `key`, `writer.owner: lockId`, and an unexpired `writer.expiration`.
+
+    A refresh by a non-owner (or of an expired lock) now leaves the document untouched and returns `false` as expected.
+
 ## 0.60.0
 
 ### Minor Changes

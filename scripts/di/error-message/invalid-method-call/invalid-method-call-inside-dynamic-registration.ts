@@ -14,7 +14,7 @@ async function main(): Promise<void> {
     // Wrong usage: resolving inside the dynamicRegistration callback
     await container.init();
     await container.run({
-        dynamicRegistration: async () => {
+        registration: async () => {
             await container.resolve(token);
         },
         scope: async () => {},

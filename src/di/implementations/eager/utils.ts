@@ -19,7 +19,7 @@ export function tokenToString(token: DiToken): string {
     if (isClass(token)) {
         return token.name;
     }
-    return token.id.toString();
+    return token.description;
 }
 
 /**
