@@ -1,4 +1,7 @@
 import { LIFETIME } from "eridu-tech/di/contracts";
+import { container } from "./initial_configuration";
+import { Database } from "./database";
+import { UserProvider } from "./user_provider";
 
 container.registerFactory({
     token: Database,
@@ -10,10 +13,10 @@ container.registerFactory({
 // ✅ Service is registered as `LIFETIME.TRANSIENT`
 // and its `db` dependency is `LIFETIME.SINGLETON`
 container.registerFactory({
-    token: UserRepository,
-    factory: ({ db }) => new UserRepository(db),
+    token: UserProvider,
+    factory: ({ db }) => new UserProvider(db),
     deps: { db: Database },
     lifetime: LIFETIME.TRANSIENT,
 });
 
-// container.init() will not throw InvalidGraphDiError
+container.init()  // will not throw InvalidGraphDiError

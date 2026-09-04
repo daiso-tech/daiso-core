@@ -1,7 +1,6 @@
-import { contextToken } from "eridu-tech/execution-context/contracts";
-
-// A context token for the current request id
-const REQUEST_ID = contextToken<string>("requestId");
+import { LIFETIME } from "eridu-tech/di/contracts";
+import { container } from "./initial_configuration";
+import { REQUEST_ID } from "./request_id";
 
 class RequestService {
     constructor(private requestId: string) {

@@ -1,7 +1,10 @@
+import { container } from "./initial_configuration";
+import { REQUEST_ID } from "./request_id";
+
 await container.init();
 
 await container.run({
-    dynamicRegistration: async (register) => {
+    registration: async (register) => {
         // Set the dynamic value before the scope executes
         await register.set({
             token: REQUEST_ID,

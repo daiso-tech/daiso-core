@@ -4,6 +4,6 @@ import { ExecutionContext } from "eridu-tech/execution-context";
 
 const executionContext = new ExecutionContext(new AlsExecutionContextAdapter());
 
-const container = new Container({
+export const container = new Container({
     executionContext,
 });

@@ -23,7 +23,7 @@ The `eridu-tech/di` component provides an Inversion of Control (IoC) container f
 
 To begin using the DI container, create a `Container` instance and provide an [`IExecutionContext`](../execution_context/execution_context.md):
 
-```ts file=./di-samples/di_initial_configuration.ts
+```ts file=./samples/initial_configuration.ts
 ```
 
 ## DI Basics
@@ -68,12 +68,12 @@ To create a token using `genericToken()`, pass a string describing the service a
 
 Example of a generic token created with the `genericToken` method:
 
-```ts file=./di-samples/di_generic_token.ts
+```ts file=./samples/generic_token.ts
 ```
 
 Example of a class constructor used as a token:
 
-```ts file=./di-samples/di_class_constructor_token.ts
+```ts file=./samples/class_constructor_token.ts
 ```
 
 ### Lifetime
@@ -111,29 +111,29 @@ Use `registerFactory()` to register a **Singleton**, **Scoped**, or **Transient*
 
 Here is a simple example of `registerFactory()` with no dependencies:
 
-```ts file=./di-samples/di_register_factory_no_dependencies.ts
+```ts file=./samples/register_factory_no_dependencies.ts
 ```
 
 Here is a simple example of `registerFactory()` with one dependency:
 
-```ts file=./di-samples/di_register_factory_with_dependency.ts
+```ts file=./samples/register_factory_with_dependency.ts
 ```
 
 Here is an example of `registerFactory()` that reads a value from the `executionContext`:
 
-```ts file=./di-samples/di_register_factory_execution_context.ts
+```ts file=./samples/register_factory_execution_context.ts
 ```
 
 Here is an example of a service factory defined as an object with an `invoke` method.
 
-```ts file=./di-samples/di_service_factory_object_invoke.ts
+```ts file=./samples/service_factory_object_invoke.ts
 ```
 
 #### `registerValue`
 
 Use `registerValue()` to register values as singletons.
 
-```ts file=./di-samples/di_register_value.ts
+```ts file=./samples/register_value.ts
 ```
 
 #### `registerProvider`
@@ -143,7 +143,7 @@ Use `registerProvider()` to encapsulate a group of related registrations into a 
 - A plain **function** that receives an `IServiceRegister` to register services.
 - A **class** with an `invoke(register: IServiceRegister)` method.
 
-```ts file=./di-samples/di_register_provider.ts
+```ts file=./samples/register_provider.ts
 ```
 
 :::tip
@@ -166,28 +166,28 @@ Before resolving any service, the container **must be initialized** by calling a
 
 Returns the service if found, `null` otherwise:
 
-```ts file=./di-samples/di_resolve.ts
+```ts file=./samples/resolve.ts
 ```
 
 #### `resolveOr`
 
 Returns the service if found, otherwise returns the provided default value:
 
-```ts file=./di-samples/di_resolve_or.ts
+```ts file=./samples/resolve_or.ts
 ```
 
 #### `resolveOrFail`
 
 Returns the service if found, otherwise throws `CanNotResolveServiceDiError`:
 
-```ts file=./di-samples/di_resolve_or_fail.ts
+```ts file=./samples/resolve_or_fail.ts
 ```
 
 #### `has`
 
 Returns `true` if the token can be resolved, or `false` otherwise.
 
-```ts file=./di-samples/di_has.ts
+```ts file=./samples/has.ts
 ```
 
 :::info
@@ -202,7 +202,7 @@ Calling `has()` may invoke service factories as a side effect.
 
 The `run()` method creates an isolated scope where scoped services are resolved once and then discarded.
 
-```ts file=./di-samples/di_scoped_execution.ts
+```ts file=./samples/scoped_execution.ts
 ```
 
 :::info
@@ -213,17 +213,17 @@ Before calling `run()`, the container **must be initialized** by calling and awa
 
 Use `registerDynamic()` when a token's value is not known at registration time and must be provided later at runtime — for example, values derived from an incoming request:
 
-```ts file=./di-samples/di_register_dynamic.ts
+```ts file=./samples/register_dynamic.ts
 ```
 
 Dynamic values are set at runtime using the `IDynamicServiceRegister` interface, inside a scoped [`run()`](#scoped-execution) execution:
 
-```ts file=./di-samples/di_dynamic_value_set.ts
+```ts file=./samples/dynamic_value_set.ts
 ```
 
 You can also provide a `DynamicValue` callback that receives the execution context:
 
-```ts file=./di-samples/di_dynamic_value_callback.ts
+```ts file=./samples/dynamic_value_callback.ts
 ```
 
 ### Lifetime Relationship
@@ -249,12 +249,12 @@ A **Dynamic** service cannot depend on others, even on other **Dynamic** service
 
 Example of a valid relationship — a transient service depending on a singleton service:
 
-```ts file=./di-samples/di_valid_relationship_transient_singleton.ts
+```ts file=./samples/valid_relationship_transient_singleton.ts
 ```
 
 Example of an invalid relationship — a singleton service depending on a transient service:
 
-```ts file=./di-samples/di_invalid_relationship_singleton_transient.ts
+```ts file=./samples/invalid_relationship_singleton_transient.ts
 ```
 
 ### Container Hooks
@@ -267,7 +267,7 @@ Both callbacks for `onContainerInit()` and `onContainerDeInit()` receive an obje
 Hooks must be registered before `container.init()` is called. Calling `onContainerInit()` or `onContainerDeInit()` after `container.init()` throws [`InvalidMethodCallDiError`](#invalidmethodcalldierror).
 :::
 
-```ts file=./di-samples/di_container_hooks.ts
+```ts file=./samples/container_hooks.ts
 ```
 
 ### Overriding Registrations
@@ -282,7 +282,7 @@ We recommend using overrides only during testing, not in production code. Overri
 Overriding a registration is **forbidden after the container is initialized**. Calling `overrideFactory()` or `overrideValue()` after `container.init()` throws [`InvalidMethodCallDiError`](#invalidmethodcalldierror).
 :::
 
-```ts file=./di-samples/di_override_registrations.ts
+```ts file=./samples/override_registrations.ts
 ```
 
 ### Forking a Container
@@ -297,7 +297,7 @@ We recommend using forking only during testing. It is useful for testing differe
 Forking is forbidden after the container is initialized. Calling `fork()` after `container.init()` throws [`InvalidMethodCallDiError`](#invalidmethodcalldierror).
 :::
 
-```ts file=./di-samples/di_fork_container.ts
+```ts file=./samples/fork_container.ts
 ```
 
 ### Errors
@@ -322,7 +322,7 @@ Thrown when a service cannot be registered. It has the following flag:
 
 Here is an example where `CanNotRegisterServiceDiError` is thrown.
 
-```ts file=./di-samples/di_error_can_not_register_service.ts
+```ts file=./samples/error_can_not_register_service.ts
 ```
 
 #### `InvalidGraphDiError`
@@ -337,7 +337,7 @@ Thrown when the service graph is invalid. It has the following flags:
 
 Here is an example where `InvalidGraphDiError` is thrown.
 
-```ts file=./di-samples/di_error_invalid_graph.ts
+```ts file=./samples/error_invalid_graph.ts
 ```
 
 #### `CanNotResolveServiceDiError`
@@ -353,7 +353,7 @@ Thrown when a service cannot be resolved. It has the following flags:
 | `RESOLVED_VALUE_IS_NULL`                                    | Thrown when the resolved value is `null`.                                                                                 |
 | `NO_DYNAMIC_VALUE_SET_FOR_TOKENS`                           | Thrown when a dynamic token has no value set.                                                                             |
 
-```ts file=./di-samples/di_error_can_not_resolve_service.ts
+```ts file=./samples/error_can_not_resolve_service.ts
 ```
 
 #### `CanNotOverrideServiceDiError`
@@ -368,7 +368,7 @@ Thrown when a registration cannot be overridden. It has the following flags:
 
 Here is an example where `CanNotOverrideServiceDiError` is thrown.
 
-```ts file=./di-samples/di_error_can_not_override_service.ts
+```ts file=./samples/error_can_not_override_service.ts
 ```
 
 #### `InvalidMethodCallDiError`
@@ -385,7 +385,7 @@ Thrown when a container method is called at an invalid time or context. It has t
 
 Here is an example where `InvalidMethodCallDiError` is thrown.
 
-```ts file=./di-samples/di_error_invalid_method_call.ts
+```ts file=./samples/error_invalid_method_call.ts
 ```
 
 ## Patterns

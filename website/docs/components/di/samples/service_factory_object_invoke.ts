@@ -1,3 +1,5 @@
+import type { ServiceFactory } from "eridu-tech/di/contracts";
+
 const serviceAsObject = {
     invoke() {
         return "hello";

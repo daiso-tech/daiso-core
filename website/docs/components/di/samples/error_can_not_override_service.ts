@@ -1,4 +1,6 @@
 import { CanNotOverrideServiceDiError } from "eridu-tech/di/contracts";
+import { container } from "./initial_configuration";
+import { CONFIG } from "./app_config";
 
 // Throws CanNotOverrideServiceDiError because CONFIG token is not registered
 // and hence cannot be overridden

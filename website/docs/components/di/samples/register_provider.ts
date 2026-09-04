@@ -3,6 +3,10 @@ import {
     type IServiceRegister,
     type IServiceProvider,
 } from "eridu-tech/di/contracts";
+import { container } from "./initial_configuration";
+import { Database } from "./database";
+import { FileLogger, Logger } from "./logger";
+import { UserProvider } from "./user_provider";
 
 // As a plain function
 function loggingProvider(register: IServiceRegister): void {
@@ -32,8 +36,8 @@ class DatabaseProvider implements IServiceProvider {
         });
 
         register.registerFactory({
-            token: UserRepository,
-            factory: ({ db }) => new UserRepository(db),
+            token: UserProvider,
+            factory: ({ db }) => new UserProvider(db),
             deps: { db: Database },
             lifetime: LIFETIME.SCOPED,
         });

@@ -1,3 +1,6 @@
+import { container } from "./initial_configuration";
+import { REQUEST_ID } from "./request_id";
+
 await container.init();
 
 await container.run({

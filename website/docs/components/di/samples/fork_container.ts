@@ -1,3 +1,6 @@
+import { container } from "./initial_configuration";
+import { CONFIG } from "./app_config";
+
 const childContainer = container.fork();
 
 // Override in the child container — parent is unaffected

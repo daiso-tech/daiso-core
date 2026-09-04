@@ -1,9 +1,5 @@
-interface AppConfig {
-    apiUrl: string;
-    timeout: number;
-}
-
-const CONFIG = genericToken<AppConfig>("AppConfig");
+import { container } from "./initial_configuration";
+import { CONFIG } from "./app_config";
 
 container.registerValue({
     token: CONFIG,

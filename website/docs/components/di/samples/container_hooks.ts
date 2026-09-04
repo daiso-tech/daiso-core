@@ -1,3 +1,6 @@
+import { container } from "./initial_configuration";
+import { Database } from "./database";
+
 container.onContainerInit(async (resolver) => {
     // Runs when container.init() is called
     // Use the resolver to resolve services after all registrations are complete

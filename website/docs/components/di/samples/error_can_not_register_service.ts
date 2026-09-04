@@ -1,4 +1,6 @@
 import { CanNotRegisterServiceDiError } from "eridu-tech/di/contracts";
+import { container } from "./initial_configuration";
+import { CONFIG } from "./app_config";
 
 container.registerValue({
     token: CONFIG,
