@@ -127,7 +127,7 @@ Use `registerFactory()` to register a **Singleton**, **Scoped**, or **Transient*
 
 - **`deps`** — The dependencies required by the service, defined as a record where each value is a **token** identifying a dependency. Pass an empty object literal `{}` if the service has no dependencies.
 
-- **`factory`** — [`invocable`](utilities/invocable.md) (function or object with `invoke` method) that creates and returns the service instance. It receives a record of resolved dependencies as its first argument and the [`execution context`](../execution_context/execution_context.md) as its second argument. The factory can also be `async` and return a `Promise`.
+- **`factory`** — [`invocable`](utilities/invocable/invocable.md) (function or object with `invoke` method) that creates and returns the service instance. It receives a record of resolved dependencies as its first argument and the [`execution context`](../execution_context/execution_context.md) as its second argument. The factory can also be `async` and return a `Promise`.
 
 - **`lifetime`** — The lifetime of the service. Must be either `LIFETIME.SINGLETON`, `LIFETIME.TRANSIENT` or `LIFETIME.SCOPED`.
 

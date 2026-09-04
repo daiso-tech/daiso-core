@@ -137,7 +137,7 @@ This separation makes it easy to visually distinguish the two contracts, making 
 An event listener is `Invocable` meaning you can also pass in an object (class instance or object literal) as listener:
 
 :::info
-For further information refer the [`Invocable`](../../utilities/invocable.md) docs.
+For further information refer the [`Invocable`](../../utilities/invocable/invocable.md) docs.
 :::
 
 ```ts file=./event_bus_usage-samples/event_bus_invocable_listener.ts

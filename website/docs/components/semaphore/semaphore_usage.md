@@ -106,7 +106,7 @@ Note the method throws an error when the semaphore cannot be acquired.
 :::
 
 :::info
-You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TValue>>`](../../utilities/invocable.md) as values for the `runOrFail` method.
+You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TValue>>`](../../utilities/invocable/invocable.md) as values for the `runOrFail` method.
 :::
 
 ### Semaphore instance variables

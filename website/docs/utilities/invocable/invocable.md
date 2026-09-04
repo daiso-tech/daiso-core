@@ -15,14 +15,14 @@ An [`Invocable`](https://eridu-tech.github.io/eridu-tech-core/types/Utilities.In
 
 Represents a standard function with typed parameters and return value.
 
-```typescript file=./invocable-samples/invocable_fn.ts
+```typescript file=./samples/fn.ts
 ```
 
 ## Object Invocable (`IInvocableObject`)
 
 An object that implements a callable contract through an invoke method. This pattern is especially useful for dependency injection (DI) integration, as most DI frameworks are adapted for class-based resolution.
 
-```ts file=./invocable-samples/invocable_object.ts
+```ts file=./samples/object.ts
 ```
 
 ## Further information

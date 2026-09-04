@@ -408,7 +408,7 @@ Both handlers and middleware can be invocable objects (classes with an `invoke` 
 ```
 
 :::info
-For further information about invocable objects, refer to the [`Invocable`](../../utilities/invocable.md) documentation.
+For further information about invocable objects, refer to the [`Invocable`](../../utilities/invocable/invocable.md) documentation.
 :::
 
 ### Interoperability with Winter TC standard web request handlers

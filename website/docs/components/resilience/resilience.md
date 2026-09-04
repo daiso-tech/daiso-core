@@ -24,19 +24,19 @@ The `fallback` middleware adds fallback value when an error occurs:
 ```
 
 :::info
-You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TValue>>`](../../utilities/invocable.md) as fallback value.
+You can provide synchronous or asynchronous [`Invocable<[], TValue | Promise<TValue>>`](../../utilities/invocable/invocable.md) as fallback value.
 :::
 
 ### Custom ErrorPolicy
 
-You can define an [`ErrorPolicy`](../../utilities/error_policy_type.md) to specify fallback values for specific error cases:
+You can define an [`ErrorPolicy`](../../utilities/error_policy_type/error_policy_type.md) to specify fallback values for specific error cases:
 
 ```ts file=./samples/fallback_error_policy.ts
 ```
 
 ### Callbacks
 
-You can add callback [`Invocable`](../../utilities/invocable.md) that will be called before the fallback value is returned.
+You can add callback [`Invocable`](../../utilities/invocable/invocable.md) that will be called before the fallback value is returned.
 
 ```ts file=./samples/fallback_on_fallback.ts
 ```
@@ -56,7 +56,7 @@ The `retry` middleware enables automatic retries for all errors or specific erro
 
 ### Custom ErrorPolicy
 
-You can define an [`ErrorPolicy`](../../utilities/error_policy_type.md) to retry specific error cases:
+You can define an [`ErrorPolicy`](../../utilities/error_policy_type/error_policy_type.md) to retry specific error cases:
 
 ```ts file=./samples/retry_error_policy.ts
 ```
@@ -77,12 +77,12 @@ You can use custom [`BackoffPolicy`](../backoff_policies/backoff_policies.md):
 
 ### Callbacks
 
-You can add callback [`Invocable`](../../utilities/invocable.md) that will be called before execution attempt:
+You can add callback [`Invocable`](../../utilities/invocable/invocable.md) that will be called before execution attempt:
 
 ```ts file=./samples/retry_on_execution_attempt.ts
 ```
 
-You can add callback [`Invocable`](../../utilities/invocable.md) that will be called before the retry delay starts:
+You can add callback [`Invocable`](../../utilities/invocable/invocable.md) that will be called before the retry delay starts:
 
 :::info
 For more details about `onExecutionAttempt` callback data, see the `OnRetryAttemptData` type.
@@ -106,7 +106,7 @@ The `retryInterval` middleware retries a function repeatedly within a given time
 
 ### Custom ErrorPolicy
 
-You can define an [`ErrorPolicy`](../../utilities/error_policy_type.md) to retry only specific error cases:
+You can define an [`ErrorPolicy`](../../utilities/error_policy_type/error_policy_type.md) to retry only specific error cases:
 
 ```ts file=./samples/retry_interval_error_policy.ts
 ```
@@ -120,7 +120,7 @@ By default, a `RetryIntervalResilienceError` is thrown when the time window expi
 
 ### Callbacks
 
-You can add callback [`Invocable`](../../utilities/invocable.md) that will be called before each execution attempt:
+You can add callback [`Invocable`](../../utilities/invocable/invocable.md) that will be called before each execution attempt:
 
 ```ts file=./samples/retry_interval_on_execution_attempt.ts
 ```
@@ -129,7 +129,7 @@ You can add callback [`Invocable`](../../utilities/invocable.md) that will be ca
 For more details about `onExecutionAttempt` callback data, see the `OnRetryAttemptData` type.
 :::
 
-You can add callback [`Invocable`](../../utilities/invocable.md) that will be called before the retry delay starts:
+You can add callback [`Invocable`](../../utilities/invocable/invocable.md) that will be called before the retry delay starts:
 
 ```ts file=./samples/retry_interval_on_retry_delay.ts
 ```
@@ -149,7 +149,7 @@ The `timeout` middleware automatically aborts functions after a specified time p
 
 ### Callbacks
 
-You can add callback [`Invocable`](../../utilities/invocable.md) that will be called before the timeout occurs.
+You can add callback [`Invocable`](../../utilities/invocable/invocable.md) that will be called before the timeout occurs.
 
 ```ts file=./samples/timeout_on_timeout.ts
 ```
