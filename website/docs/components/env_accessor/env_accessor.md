@@ -15,7 +15,7 @@ It supports multiple sources (sync/async), schema validation, and convenient acc
 
 ### Initial configuration
 
-```ts file=./env_accessor-samples/env_accessor_initial_config.ts
+```ts file=./samples/initial_config.ts
 ```
 
 ### Accessing enviroment variables
@@ -24,21 +24,21 @@ It supports multiple sources (sync/async), schema validation, and convenient acc
 
 Will return null if PORT enviroment field is missing:
 
-```ts file=./env_accessor-samples/env_accessor_get.ts
+```ts file=./samples/get.ts
 ```
 
 #### getOr
 
 Will return default value if NODE_ENV enviroment field is missing:
 
-```ts file=./env_accessor-samples/env_accessor_get_or.ts
+```ts file=./samples/get_or.ts
 ```
 
 ## IEnvAccessor contract
 
 The `IEnvAccessor` contract defines the contract for environment variable access. It provides type-safe methods for retrieving environment variables.
 
-```ts file=./env_accessor-samples/env_accessor_contract.ts
+```ts file=./samples/contract.ts
 ```
 
 ## Further information

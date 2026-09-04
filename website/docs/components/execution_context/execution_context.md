@@ -14,7 +14,7 @@ The `eridu-tech/execution-context` module provides a type-safe, composable, and 
 
 To begin using the execution-context, you'll need to create and configure an instance:
 
-```ts file=./execution_context-samples/execution_context_initial_config.ts
+```ts file=./samples/initial_config.ts
 ```
 
 ## ExecutionContext basics
@@ -23,14 +23,14 @@ To begin using the execution-context, you'll need to create and configure an ins
 
 You can run code within a context boundary, and all context values will be accessible throughout the call chain:
 
-```ts file=./execution_context-samples/execution_context_run.ts
+```ts file=./samples/run.ts
 ```
 
 ### Binding functions to context
 
 You can bind a function to the current context, so it always executes with the captured context values:
 
-```ts file=./execution_context-samples/execution_context_bind.ts
+```ts file=./samples/bind.ts
 ```
 
 ## Patterns
@@ -39,21 +39,21 @@ You can bind a function to the current context, so it always executes with the c
 
 You can enforce compile-time type safety by defining context tokens with specific types:
 
-```ts file=./execution_context-samples/execution_context_type_safety.ts
+```ts file=./samples/type_safety.ts
 ```
 
 ### Immutable and chainable context operations
 
 All context mutation methods return the context instance, allowing for method chaining:
 
-```ts file=./execution_context-samples/execution_context_chainable.ts
+```ts file=./samples/chainable.ts
 ```
 
 ### Conditional context updates
 
 You can conditionally update the context:
 
-```ts file=./execution_context-samples/execution_context_conditional.ts
+```ts file=./samples/conditional.ts
 ```
 
 ### Adapters

@@ -22,37 +22,37 @@ Note `TimeSpan` cannot be negative.
 
 Creating `TimeSpan` from milliseconds:
 
-```ts file=./time_span-samples/time_span_creating_from_milliseconds.ts
+```ts file=./samples/creating_from_milliseconds.ts
 ```
 
 Creating `TimeSpan` from seconds:
 
-```ts file=./time_span-samples/time_span_creating_from_seconds.ts
+```ts file=./samples/creating_from_seconds.ts
 ```
 
 Creating `TimeSpan` from minutes:
 
-```ts file=./time_span-samples/time_span_creating_from_minutes.ts
+```ts file=./samples/creating_from_minutes.ts
 ```
 
 Creating `TimeSpan` from hours:
 
-```ts file=./time_span-samples/time_span_creating_from_hours.ts
+```ts file=./samples/creating_from_hours.ts
 ```
 
 Creating `TimeSpan` from days:
 
-```ts file=./time_span-samples/time_span_creating_from_days.ts
+```ts file=./samples/creating_from_days.ts
 ```
 
 Creating `TimeSpan` from date range:
 
-```ts file=./time_span-samples/time_span_creating_from_date_range.ts
+```ts file=./samples/creating_from_date_range.ts
 ```
 
 Creating `TimeSpan` from `string`:
 
-```ts file=./time_span-samples/time_span_creating_from_str.ts
+```ts file=./samples/creating_from_str.ts
 ```
 
 :::info
@@ -64,147 +64,147 @@ Refer to its documentation for a complete list of supported time formats and uni
 
 You can add milliseconds to a `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_adding_milliseconds.ts
+```ts file=./samples/adding_milliseconds.ts
 ```
 
 You can add seconds to a `TimeSpan`:`
 
-```ts file=./time_span-samples/time_span_adding_seconds.ts
+```ts file=./samples/adding_seconds.ts
 ```
 
 You can add minutes to a `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_adding_minutes.ts
+```ts file=./samples/adding_minutes.ts
 ```
 
 You can add hours to a `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_adding_hours.ts
+```ts file=./samples/adding_hours.ts
 ```
 
 You can add days to a `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_adding_days.ts
+```ts file=./samples/adding_days.ts
 ```
 
 You can add 2 `TimeSpan` together:
 
-```ts file=./time_span-samples/time_span_adding_time_span.ts
+```ts file=./samples/adding_time_span.ts
 ```
 
 ### Subtracting time from TimeSpan
 
 You can subtract milliseconds from a `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_subtracting_milliseconds.ts
+```ts file=./samples/subtracting_milliseconds.ts
 ```
 
 You can subtract seconds from a `TimeSpan`:`
 
-```ts file=./time_span-samples/time_span_subtracting_seconds.ts
+```ts file=./samples/subtracting_seconds.ts
 ```
 
 You can subtract minutes from a `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_subtracting_minutes.ts
+```ts file=./samples/subtracting_minutes.ts
 ```
 
 You can subtract hours from a `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_subtracting_hours.ts
+```ts file=./samples/subtracting_hours.ts
 ```
 
 You can subtract days from a `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_subtracting_days.ts
+```ts file=./samples/subtracting_days.ts
 ```
 
 You can subtract 2 `TimeSpan` together:
 
-```ts file=./time_span-samples/time_span_subtracting_time_span.ts
+```ts file=./samples/subtracting_time_span.ts
 ```
 
 ### Multiplying and dividing a TimeSpan
 
 Dividing a timespan:
 
-```ts file=./time_span-samples/time_span_dividing.ts
+```ts file=./samples/dividing.ts
 ```
 
 Multiplying a timespan:
 
-```ts file=./time_span-samples/time_span_multiplying.ts
+```ts file=./samples/multiplying.ts
 ```
 
 ### Comparing TimeSpan:s
 
 Equals:
 
-```ts file=./time_span-samples/time_span_comparing_equal.ts
+```ts file=./samples/comparing_equal.ts
 ```
 
 Greater than:
 
-```ts file=./time_span-samples/time_span_comparing_gt.ts
+```ts file=./samples/comparing_gt.ts
 ```
 
 Greater than or equals:
 
-```ts file=./time_span-samples/time_span_comparing_gte.ts
+```ts file=./samples/comparing_gte.ts
 ```
 
 Less than:
 
-```ts file=./time_span-samples/time_span_comparing_lt.ts
+```ts file=./samples/comparing_lt.ts
 ```
 
 Less than or equals:
 
-```ts file=./time_span-samples/time_span_comparing_lte.ts
+```ts file=./samples/comparing_lte.ts
 ```
 
 ### Converting a TimeSpan
 
 You can get amount of milliseconds contained in the `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_converting_to_milliseconds.ts
+```ts file=./samples/converting_to_milliseconds.ts
 ```
 
 You can get amount of seconds contained in the `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_converting_to_seconds.ts
+```ts file=./samples/converting_to_seconds.ts
 ```
 
 You can get amount of minutes contained in the `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_converting_to_minutes.ts
+```ts file=./samples/converting_to_minutes.ts
 ```
 
 You can get amount of hours contained in the `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_converting_to_hours.ts
+```ts file=./samples/converting_to_hours.ts
 ```
 
 You can get amount of days contained in the `TimeSpan`:
 
-```ts file=./time_span-samples/time_span_converting_to_days.ts
+```ts file=./samples/converting_to_days.ts
 ```
 
 You can get end date relative to a start date:
 
-```ts file=./time_span-samples/time_span_converting_to_end_date.ts
+```ts file=./samples/converting_to_end_date.ts
 ```
 
 You can get start date relative to a end date:
 
-```ts file=./time_span-samples/time_span_converting_to_start_date.ts
+```ts file=./samples/converting_to_start_date.ts
 ```
 
 ### Serialization and deserialization of TimeSpan
 
 The `TimeSpan` class supports serialization and deserialization, allowing you to easily convert instances to and from serialized formats. However, registration is required first:
 
-```ts file=./time_span-samples/time_span_serde_serialization.ts
+```ts file=./samples/serde_serialization.ts
 ```
 
 ## ITimeSpan contract
@@ -222,7 +222,7 @@ Note `TimeSpan` class implements `ITimeSpan` contract.
 
 The `ITimeSpan` contract requires you to implement the `TO_MILLISECONDS` method on the duration object, which must return the duration in milliseconds.
 
-```ts file=./time_span-samples/time_span_implementing_itimespan.ts
+```ts file=./samples/implementing_itimespan.ts
 ```
 
 ## Further information

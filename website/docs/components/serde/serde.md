@@ -12,7 +12,7 @@ The `eridu-tech/serde` component provides seamless way to serialize/deserialize 
 
 ## Initial configuration
 
-```ts file=./serde-samples/serde_initial_config.ts
+```ts file=./samples/initial_config.ts
 ```
 
 ## Serde basics
@@ -21,14 +21,14 @@ The `eridu-tech/serde` component provides seamless way to serialize/deserialize 
 
 Here is an example of serializing and deserializing a value.
 
-```ts file=./serde-samples/serde_serialize.ts
+```ts file=./samples/serialize.ts
 ```
 
 ### Custom serialization and deserialization logic
 
 The `registerCustom` method offers control over serialization and deserialization behavior.
 
-```ts file=./serde-samples/serde_register_custom.ts
+```ts file=./samples/register_custom.ts
 ```
 
 :::info
@@ -39,7 +39,7 @@ Note the `ISerdeTranformer` object can be dynamically created.
 
 The `registerClass` method provides a simplified abstraction over `registerCustom` method for serialization and deserialization classes.
 
-```ts file=./serde-samples/serde_register_class.ts
+```ts file=./samples/register_class.ts
 ```
 
 :::danger
@@ -49,7 +49,7 @@ Note you need to register the class before serializing or deserializing any clas
 :::warning
 To ensure correct serialization and deserialization, class names must be unique. If multiple classes share the same name, conflicts may occur when serializing and deserializing the objects. To resolve this, you can assign a unique prefix to differentiate between them during the process.
 
-```ts file=./serde-samples/serde_register_class_with_prefix.ts
+```ts file=./samples/register_class_with_prefix.ts
 ```
 
 :::
@@ -60,7 +60,7 @@ To ensure correct serialization and deserialization, class names must be unique.
 
 When using `Serde` class instance there is no need to call `serialize` and `deserialize` manually. Because components like `Cache` handle it automatically through their adapter.
 
-```ts file=./serde-samples/serde_with_cache.ts
+```ts file=./samples/with_cache.ts
 ```
 
 :::info

@@ -12,7 +12,7 @@ The `eridu-tech/codec` component provides seamless way to encode/decode data.
 
 ## Usage
 
-```ts file=./codec-samples/codec_usage.ts
+```ts file=./samples/usage.ts
 ```
 
 ## Separating encoding and decoding

@@ -14,7 +14,7 @@ The `eridu-tech/config-accessor` component provides standardized type-safe acces
 
 ### Initial configuration
 
-```ts file=./config_accessor-samples/config_accessor_initial_config.ts
+```ts file=./samples/initial_config.ts
 ```
 
 ### Accessing configuration variables
@@ -23,7 +23,7 @@ The `eridu-tech/config-accessor` component provides standardized type-safe acces
 
 Will return null if path is missing:
 
-```ts file=./config_accessor-samples/config_accessor_get.ts
+```ts file=./samples/get.ts
 ```
 
 :::info
@@ -34,12 +34,12 @@ Note you can only access fields up to 2 levels deep.
 
 Will return default value if path is missing:
 
-```ts file=./config_accessor-samples/config_accessor_get_or.ts
+```ts file=./samples/get_or.ts
 ```
 
 ## IConfigAccessor contract
 
-```ts file=./config_accessor-samples/config_accessor_contract.ts
+```ts file=./samples/contract.ts
 ```
 
 ## Further information

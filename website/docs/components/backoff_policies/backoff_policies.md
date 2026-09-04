@@ -16,22 +16,22 @@ The library includes predefined backoff policies:
 
 - `constantBackoff` - Constant backoff policy with jitter
 
-```ts file=./backoff_policies-samples/constant_backoff.ts
+```ts file=./samples/constant_backoff.ts
 ```
 
 - `exponentialBackoff` - Exponential backoff policy with jitter
 
-```ts file=./backoff_policies-samples/exponential_backoff.ts
+```ts file=./samples/exponential_backoff.ts
 ```
 
 - `linearBackoff` - Linear backoff policy with jitter
 
-```ts file=./backoff_policies-samples/linear_backoff.ts
+```ts file=./samples/linear_backoff.ts
 ```
 
 - `polynomialBackoff` - Polynomial backoff policy with jitter
 
-```ts file=./backoff_policies-samples/polynomial_backoff.ts
+```ts file=./samples/polynomial_backoff.ts
 ```
 
 ## Further information
