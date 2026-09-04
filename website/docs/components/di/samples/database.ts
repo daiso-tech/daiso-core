@@ -1,12 +1,4 @@
-import { genericToken } from "eridu-tech/di/contracts";
-
-export interface IDatabase {
-    query(sql: string, params: Array<unknown>): Promise<unknown>;
-    connect(): Promise<void>;
-    disconnect(): Promise<void>;
-}
-
-export const IDATABASE = genericToken<IDatabase>("IDatabase");
+import { IDatabase } from "./idatabase";
 
 export class Database implements IDatabase {
     query(sql: string, params: Array<unknown>): Promise<unknown> {

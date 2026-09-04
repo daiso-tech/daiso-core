@@ -23,7 +23,8 @@ The `eridu-tech/di` component provides an Inversion of Control (IoC) container f
 
 To begin using the DI container, create a `Container` instance and provide an [`IExecutionContext`](../execution_context/execution_context.md):
 
-```ts file=./samples/initial_configuration.ts
+```ts file=./samples/container.ts
+
 ```
 
 ## DI Basics
@@ -66,15 +67,36 @@ A **token** is the key that identifies a service in the container. It is used bo
 
 To create a token using `genericToken()`, pass a string describing the service and an optional phantom type parameter. The phantom type exists purely for static type checking. It holds no runtime value and is used by TypeScript to infer the correct service type upon resolution.
 
+#### Generic token
+
 Example of a generic token created with the `genericToken` method:
 
 ```ts file=./samples/generic_token.ts
+
 ```
 
+The `Database` service interface:
+
+```ts file=./samples/idatabase.ts
+
+```
+
+
+
+#### Class constructor token
 Example of a class constructor used as a token:
 
 ```ts file=./samples/class_constructor_token.ts
+
 ```
+
+The `Database` class:
+
+```ts file=./samples/database.ts
+
+```
+
+
 
 ### Lifetime
 
@@ -109,31 +131,56 @@ Use `registerFactory()` to register a **Singleton**, **Scoped**, or **Transient*
 
 - **`lifetime`** — The lifetime of the service. Must be either `LIFETIME.SINGLETON`, `LIFETIME.TRANSIENT` or `LIFETIME.SCOPED`.
 
+
+
 Here is a simple example of `registerFactory()` with no dependencies:
 
 ```ts file=./samples/register_factory_no_dependencies.ts
+
+```
+
+The `UserProvider` service used below depends on the `Database` service:
+
+```ts file=./samples/user_provider.ts
+
 ```
 
 Here is a simple example of `registerFactory()` with one dependency:
 
 ```ts file=./samples/register_factory_with_dependency.ts
+
+```
+
+The `REQUEST_ID` token:
+
+```ts file=./samples/request_id.ts
+
 ```
 
 Here is an example of `registerFactory()` that reads a value from the `executionContext`:
 
 ```ts file=./samples/register_factory_execution_context.ts
+
 ```
 
 Here is an example of a service factory defined as an object with an `invoke` method.
 
 ```ts file=./samples/service_factory_object_invoke.ts
+
 ```
 
 #### `registerValue`
 
+The `CONFIG` token:
+
+```ts file=./samples/app_config.ts
+
+```
+
 Use `registerValue()` to register values as singletons.
 
 ```ts file=./samples/register_value.ts
+
 ```
 
 #### `registerProvider`
@@ -143,7 +190,14 @@ Use `registerProvider()` to encapsulate a group of related registrations into a 
 - A plain **function** that receives an `IServiceRegister` to register services.
 - A **class** with an `invoke(register: IServiceRegister)` method.
 
+The `Logger` services:
+
+```ts file=./samples/logger.ts
+
+```
+
 ```ts file=./samples/register_provider.ts
+
 ```
 
 :::tip
@@ -167,6 +221,7 @@ Before resolving any service, the container **must be initialized** by calling a
 Returns the service if found, `null` otherwise:
 
 ```ts file=./samples/resolve.ts
+
 ```
 
 #### `resolveOr`
@@ -174,6 +229,7 @@ Returns the service if found, `null` otherwise:
 Returns the service if found, otherwise returns the provided default value:
 
 ```ts file=./samples/resolve_or.ts
+
 ```
 
 #### `resolveOrFail`
@@ -181,6 +237,7 @@ Returns the service if found, otherwise returns the provided default value:
 Returns the service if found, otherwise throws `CanNotResolveServiceDiError`:
 
 ```ts file=./samples/resolve_or_fail.ts
+
 ```
 
 #### `has`
@@ -188,6 +245,7 @@ Returns the service if found, otherwise throws `CanNotResolveServiceDiError`:
 Returns `true` if the token can be resolved, or `false` otherwise.
 
 ```ts file=./samples/has.ts
+
 ```
 
 :::info
@@ -198,32 +256,42 @@ The method `has()` checks whether a service **can be resolved**, not whether it 
 Calling `has()` may invoke service factories as a side effect.
 :::
 
-### Scoped Execution
+### Scoped
 
 The `run()` method creates an isolated scope where scoped services are resolved once and then discarded.
 
 ```ts file=./samples/scoped_execution.ts
+
 ```
 
 :::info
 Before calling `run()`, the container **must be initialized** by calling and awaiting `init()`.
 :::
 
-### Dynamic Registration
+### Dynamic
 
 Use `registerDynamic()` when a token's value is not known at registration time and must be provided later at runtime — for example, values derived from an incoming request:
 
 ```ts file=./samples/register_dynamic.ts
+
 ```
 
-Dynamic values are set at runtime using the `IDynamicServiceRegister` interface, inside a scoped [`run()`](#scoped-execution) execution:
+Dynamic values are set at runtime using the `IDynamicServiceRegister` interface, inside a scoped [`run()`](#scoped-execution) execution. 
 
 ```ts file=./samples/dynamic_value_set.ts
+
+```
+
+The `RequestHandler`:
+
+```ts file=./samples/request_handler.ts
+
 ```
 
 You can also provide a `DynamicValue` callback that receives the execution context:
 
 ```ts file=./samples/dynamic_value_callback.ts
+
 ```
 
 ### Lifetime Relationship
@@ -250,11 +318,19 @@ A **Dynamic** service cannot depend on others, even on other **Dynamic** service
 Example of a valid relationship — a transient service depending on a singleton service:
 
 ```ts file=./samples/valid_relationship_transient_singleton.ts
+
+```
+
+The dependency chain used below:
+
+```ts file=./samples/dependency_chain.ts
+
 ```
 
 Example of an invalid relationship — a singleton service depending on a transient service:
 
 ```ts file=./samples/invalid_relationship_singleton_transient.ts
+
 ```
 
 ### Container Hooks
@@ -268,6 +344,7 @@ Hooks must be registered before `container.init()` is called. Calling `onContain
 :::
 
 ```ts file=./samples/container_hooks.ts
+
 ```
 
 ### Overriding Registrations
@@ -283,6 +360,7 @@ Overriding a registration is **forbidden after the container is initialized**. C
 :::
 
 ```ts file=./samples/override_registrations.ts
+
 ```
 
 ### Forking a Container
@@ -298,6 +376,7 @@ Forking is forbidden after the container is initialized. Calling `fork()` after 
 :::
 
 ```ts file=./samples/fork_container.ts
+
 ```
 
 ### Errors
@@ -323,6 +402,7 @@ Thrown when a service cannot be registered. It has the following flag:
 Here is an example where `CanNotRegisterServiceDiError` is thrown.
 
 ```ts file=./samples/error_can_not_register_service.ts
+
 ```
 
 #### `InvalidGraphDiError`
@@ -338,6 +418,7 @@ Thrown when the service graph is invalid. It has the following flags:
 Here is an example where `InvalidGraphDiError` is thrown.
 
 ```ts file=./samples/error_invalid_graph.ts
+
 ```
 
 #### `CanNotResolveServiceDiError`
@@ -354,6 +435,7 @@ Thrown when a service cannot be resolved. It has the following flags:
 | `NO_DYNAMIC_VALUE_SET_FOR_TOKENS`                           | Thrown when a dynamic token has no value set.                                                                             |
 
 ```ts file=./samples/error_can_not_resolve_service.ts
+
 ```
 
 #### `CanNotOverrideServiceDiError`
@@ -369,6 +451,7 @@ Thrown when a registration cannot be overridden. It has the following flags:
 Here is an example where `CanNotOverrideServiceDiError` is thrown.
 
 ```ts file=./samples/error_can_not_override_service.ts
+
 ```
 
 #### `InvalidMethodCallDiError`
@@ -386,6 +469,7 @@ Thrown when a container method is called at an invalid time or context. It has t
 Here is an example where `InvalidMethodCallDiError` is thrown.
 
 ```ts file=./samples/error_invalid_method_call.ts
+
 ```
 
 ## Patterns

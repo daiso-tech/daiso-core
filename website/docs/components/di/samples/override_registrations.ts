@@ -1,6 +1,7 @@
-import { container } from "./initial_configuration";
+import { container } from "./container";
 import { CONFIG } from "./app_config";
-import { IDatabase, IDATABASE } from "./database";
+import { IDatabase } from "./idatabase";
+import { IDATABASE } from "./generic_token";
 
 class MockDatabase implements IDatabase {
     query(sql: string, params: Array<unknown>): Promise<unknown> {

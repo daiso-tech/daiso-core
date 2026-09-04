@@ -1,4 +1,4 @@
-import { container } from "./initial_configuration";
+import { container } from "./container";
 import { Database } from "./database";
 
 container.onContainerInit(async (resolver) => {

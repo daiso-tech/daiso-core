@@ -1,9 +1,6 @@
 import { genericToken } from "eridu-tech/di/contracts";
-
-interface IDatabase {
-    query(sql: string, params: Array<unknown>): Promise<unknown>;
-}
+import { IDatabase } from "./idatabase";
 
 // token created with genericToken where
 // `"Database service"` is the description and `IDatabase` is the phantom type.
-const IDATABASE = genericToken<IDatabase>("Database service");
+export const IDATABASE = genericToken<IDatabase>("Database service");

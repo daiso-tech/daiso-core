@@ -1,4 +1,4 @@
-import { container } from "./initial_configuration";
+import { container } from "./container";
 import { Logger } from "./logger";
 
 if (await container.has(Logger)) {

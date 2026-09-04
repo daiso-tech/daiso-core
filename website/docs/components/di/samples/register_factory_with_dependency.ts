@@ -1,6 +1,6 @@
 import { LIFETIME } from "eridu-tech/di/contracts";
-import { container } from "./initial_configuration";
-import { IDATABASE } from "./database";
+import { container } from "./container";
+import { IDATABASE } from "./generic_token";
 import { UserProvider } from "./user_provider";
 
 // `UserProvider` service requires `IDATABASE` dependency

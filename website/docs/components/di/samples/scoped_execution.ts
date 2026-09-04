@@ -1,6 +1,9 @@
 import { LIFETIME } from "eridu-tech/di/contracts";
-import { container } from "./initial_configuration";
-import { A } from "./dependency_chain";
+import { container } from "./container";
+
+class A {
+    // ...
+}
 
 // Register a scoped service
 container.registerFactory({

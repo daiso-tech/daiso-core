@@ -1,4 +1,4 @@
-import { IDatabase } from "./database";
+import { IDatabase } from "./idatabase";
 
 export interface User {
     firstName: string;

@@ -3,7 +3,7 @@ import {
     type IServiceRegister,
     type IServiceProvider,
 } from "eridu-tech/di/contracts";
-import { container } from "./initial_configuration";
+import { container } from "./container";
 import { Database } from "./database";
 import { FileLogger, Logger } from "./logger";
 import { UserProvider } from "./user_provider";

@@ -1,4 +1,4 @@
-import { container } from "./initial_configuration";
+import { container } from "./container";
 import { CONFIG } from "./app_config";
 
 const childContainer = container.fork();

@@ -1,5 +1,5 @@
 import { LIFETIME } from "eridu-tech/di/contracts";
-import { container } from "./initial_configuration";
+import { container } from "./container";
 import { REQUEST_ID } from "./request_id";
 
 class RequestService {
