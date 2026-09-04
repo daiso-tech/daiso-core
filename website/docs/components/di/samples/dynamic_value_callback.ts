@@ -4,7 +4,7 @@ import { REQUEST_ID } from "./request_id";
 await container.init();
 
 await container.run({
-    dynamicRegistration: async (register) => {
+    registration: async (register) => {
         await register.set({
             token: REQUEST_ID,
             value: {
