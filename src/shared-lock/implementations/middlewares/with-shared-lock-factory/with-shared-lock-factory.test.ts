@@ -8,7 +8,7 @@ import { SharedLock } from "@/shared-lock/implementations/derivables/shared-lock
 import {
     SHARED_LOCK_WHEN,
     withSharedLockFactory,
-} from "@/shared-lock/implementations/middlewares/with-shared-lock/with-shared-lock-factory.js";
+} from "@/shared-lock/implementations/middlewares/with-shared-lock-factory/with-shared-lock-factory.js";
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 
 import type { SharedLockFactoryCreateSettings } from "@/shared-lock/contracts/_module.js";
