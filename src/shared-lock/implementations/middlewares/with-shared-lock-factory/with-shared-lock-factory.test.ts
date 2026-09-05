@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { use } from "@/middleware/implementations/_module.js";
