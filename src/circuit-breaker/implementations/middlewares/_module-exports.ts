@@ -1,1 +1,1 @@
-export * from "@/circuit-breaker/implementations/middlewares/with-circuit-breaker/_module.js";
+export * from "@/circuit-breaker/implementations/middlewares/with-circuit-breaker-factory/_module.js";
