@@ -94,11 +94,11 @@ export class Lock implements ILock {
     }
 
     async runOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
+        asyncInvocable: AsyncLazy<TValue>,
     ): Promise<TValue> {
         await this.acquireOrFail();
         try {
-            return await resolveLazyable(asyncFn);
+            return await resolveLazyable(asyncInvocable);
         } finally {
             await this.release();
         }

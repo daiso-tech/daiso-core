@@ -204,13 +204,13 @@ export class CircuitBreaker implements ICircuitBreaker {
     }
 
     async runOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
+        asyncInvocable: AsyncLazy<TValue>,
     ): Promise<TValue> {
         await this.guard();
 
         return await this.trackErrorWrapper(async () => {
             return await this.trackSlowCallWrapper(async () => {
-                return await resolveAsyncLazyable(asyncFn);
+                return await resolveAsyncLazyable(asyncInvocable);
             });
         });
     }

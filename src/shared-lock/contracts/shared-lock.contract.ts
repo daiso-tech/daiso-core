@@ -17,7 +17,9 @@ export type IReaderSemaphore = {
      * The `runReaderOrFail` method wraps an {@link Invocable | `Invocable`} with the `acquireOrFail` and `release` method.
      * @throws {LimitReachedReaderSemaphoreError}
      */
-    runReaderOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
+    runReaderOrFail<TValue = void>(
+        asyncInvocable: AsyncLazy<TValue>,
+    ): Promise<TValue>;
 
     /**
      * The `acquireReader` method acquires an slots only if the slot limit is not reached.
@@ -72,7 +74,9 @@ export type IWriterLock = {
      * The `runWriterOrFail` method wraps an {@link Invocable | `Invocable`} with the `acquireOrFail` and `release` method.
      * @throws {FailedAcquireWriterLockError}
      */
-    runWriterOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
+    runWriterOrFail<TValue = void>(
+        asyncInvocable: AsyncLazy<TValue>,
+    ): Promise<TValue>;
 
     /**
      * The `acquireWriter` method acquires a lock only if the key is not already acquired by different owner.
