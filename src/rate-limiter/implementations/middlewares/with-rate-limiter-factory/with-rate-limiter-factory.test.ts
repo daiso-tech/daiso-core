@@ -4,7 +4,7 @@ import { use } from "@/middleware/implementations/_module.js";
 import { NoOpRateLimiterAdapter } from "@/rate-limiter/implementations/adapters/_module.js";
 import { RateLimiterFactory } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/_module.js";
 import { RateLimiter } from "@/rate-limiter/implementations/derivables/rate-limiter-factory/rate-limiter.js";
-import { withRateLimiterFactory } from "@/rate-limiter/implementations/middlewares/with-rate-limiter/with-rate-limiter-factory.js";
+import { withRateLimiterFactory } from "@/rate-limiter/implementations/middlewares/with-rate-limiter-factory/with-rate-limiter-factory.js";
 
 import type { RateLimiterFactoryCreateSettings } from "@/rate-limiter/contracts/_module.js";
 
