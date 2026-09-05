@@ -148,7 +148,7 @@ export class RateLimiter implements IRateLimiter {
     }
 
     private async trackErrorWrapper<TValue>(
-        asyncFn: AsyncLazy<TValue>,
+        asyncInvocable: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
             await this.adapter.getState(this.internalKey),
@@ -160,7 +160,7 @@ export class RateLimiter implements IRateLimiter {
         }
 
         try {
-            return await resolveAsyncLazyable(asyncFn);
+            return await resolveAsyncLazyable(asyncInvocable);
         } catch (error: unknown) {
             const isErrorMatching = await callErrorPolicyOnThrow(
                 this.errorPolicy,
@@ -186,7 +186,7 @@ export class RateLimiter implements IRateLimiter {
     }
 
     private async trackWrapper<TValue>(
-        asyncFn: AsyncLazy<TValue>,
+        asyncInvocable: AsyncLazy<TValue>,
     ): Promise<TValue> {
         const state = this.toRateLimiterState(
             await this.adapter.updateState(this.internalKey, this.limit),
@@ -197,16 +197,16 @@ export class RateLimiter implements IRateLimiter {
             throw BlockedRateLimiterError.create(rest, this.internalKey);
         }
 
-        return await resolveAsyncLazyable(asyncFn);
+        return await resolveAsyncLazyable(asyncInvocable);
     }
 
     async runOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
+        asyncInvocable: AsyncLazy<TValue>,
     ): Promise<TValue> {
         if (this.onlyError) {
-            return await this.trackErrorWrapper(asyncFn);
+            return await this.trackErrorWrapper(asyncInvocable);
         }
-        return await this.trackWrapper(asyncFn);
+        return await this.trackWrapper(asyncInvocable);
     }
 
     async reset(): Promise<void> {

@@ -45,7 +45,9 @@ export type ICircuitBreaker = ICircuitBreakerStateMethods & {
      * @returns The return value of the function
      * @throws {OpenCircuitBreakerError} If the circuit breaker is in OPEN or ISOLATED state
      */
-    runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
+    runOrFail<TValue = void>(
+        asyncInvocable: AsyncLazy<TValue>,
+    ): Promise<TValue>;
 
     /**
      * Manually transitions the circuit breaker to ISOLATED state.

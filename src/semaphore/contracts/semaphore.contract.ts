@@ -59,7 +59,9 @@ export type ISemaphoreBase = {
      * @returns The return value of the function
      * @throws {LimitReachedSemaphoreError} If all slots are already acquired
      */
-    runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
+    runOrFail<TValue = void>(
+        asyncInvocable: AsyncLazy<TValue>,
+    ): Promise<TValue>;
 
     /**
      * Attempts to acquire a semaphore slot if the limit is not reached.

@@ -53,7 +53,9 @@ export type IRateLimiter = IRateLimiterStateMethods & {
      * @returns The return value of the function
      * @throws {BlockedRateLimiterError} If the rate limiter has reached its limit
      */
-    runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
+    runOrFail<TValue = void>(
+        asyncInvocable: AsyncLazy<TValue>,
+    ): Promise<TValue>;
 
     /**
      * Resets the rate limiter to its initial state.

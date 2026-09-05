@@ -110,11 +110,11 @@ export class SharedLock implements ISharedLock {
     }
 
     async runReaderOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
+        asyncInvocable: AsyncLazy<TValue>,
     ): Promise<TValue> {
         await this.acquireReaderOrFail();
         try {
-            return await resolveLazyable(asyncFn);
+            return await resolveLazyable(asyncInvocable);
         } finally {
             await this.releaseReader();
         }
@@ -175,11 +175,11 @@ export class SharedLock implements ISharedLock {
     }
 
     async runWriterOrFail<TValue = void>(
-        asyncFn: AsyncLazy<TValue>,
+        asyncInvocable: AsyncLazy<TValue>,
     ): Promise<TValue> {
         await this.acquireWriterOrFail();
         try {
-            return await resolveLazyable(asyncFn);
+            return await resolveLazyable(asyncInvocable);
         } finally {
             await this.releaseWriter();
         }

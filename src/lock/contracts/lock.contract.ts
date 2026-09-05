@@ -59,7 +59,9 @@ export type ILockBase = {
      * @returns The return value of the function
      * @throws {FailedAcquireLockError} If the lock is already held by a different owner
      */
-    runOrFail<TValue = void>(asyncFn: AsyncLazy<TValue>): Promise<TValue>;
+    runOrFail<TValue = void>(
+        asyncInvocable: AsyncLazy<TValue>,
+    ): Promise<TValue>;
 
     /**
      * Attempts to acquire the lock if not already held by another owner.
