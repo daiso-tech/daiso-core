@@ -1,1 +1,1 @@
-export * from "@/lock/implementations/middlewares/with-lock/_module.js";
+export * from "@/lock/implementations/middlewares/with-lock-factory/_module.js";
