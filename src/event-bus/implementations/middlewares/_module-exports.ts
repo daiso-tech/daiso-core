@@ -1,3 +1,3 @@
-export * from "@/event-bus/implementations/middlewares/with-dispatch-after/_module.js";
-export * from "@/event-bus/implementations/middlewares/with-dispatch-before/_module.js";
-export * from "@/event-bus/implementations/middlewares/with-dispatch-on-error/_module.js";
+export * from "@/event-bus/implementations/middlewares/with-dispatch-after-factory/_module.js";
+export * from "@/event-bus/implementations/middlewares/with-dispatch-before-factory/_module.js";
+export * from "@/event-bus/implementations/middlewares/with-dispatch-on-error-factory/_module.js";

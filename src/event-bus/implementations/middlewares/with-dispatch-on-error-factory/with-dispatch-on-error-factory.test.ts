@@ -2,10 +2,10 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpEventBusAdapter } from "@/event-bus/implementations/adapters/_module.js";
 import { EventBus } from "@/event-bus/implementations/derivables/_module.js";
-import { withDispatchOnErrorFactory } from "@/event-bus/implementations/middlewares/with-dispatch-on-error/with-dispatch-on-error-factory.js";
+import { withDispatchOnErrorFactory } from "@/event-bus/implementations/middlewares/with-dispatch-on-error-factory/with-dispatch-on-error-factory.js";
 import { use } from "@/middleware/implementations/_module.js";
 
-import type { WithDispatchOnErrorPayloadSettings } from "@/event-bus/implementations/middlewares/with-dispatch-on-error/with-dispatch-on-error-factory.js";
+import type { WithDispatchOnErrorPayloadSettings } from "@/event-bus/implementations/middlewares/with-dispatch-on-error-factory/with-dispatch-on-error-factory.js";
 
 describe("function: withDispatchOnErrorFactory", () => {
     const adapter = new NoOpEventBusAdapter();
