@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { NoOpCacheAdapter } from "@/cache/implementations/adapters/_module.js";
 import { Cache } from "@/cache/implementations/derivables/_module.js";
-import { withInvalidationFactory } from "@/cache/implementations/middlewares/with-invalidation/with-invalidation-factory.js";
+import { withInvalidationFactory } from "@/cache/implementations/middlewares/with-invalidation-factory/with-invalidation-factory.js";
 import { use } from "@/middleware/implementations/_module.js";
 
 describe("function: withInvalidationFactory", () => {
