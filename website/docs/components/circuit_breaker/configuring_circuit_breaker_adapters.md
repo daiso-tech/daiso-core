@@ -233,7 +233,7 @@ const kyselyCircuitBreakerStorageAdapter =
 await kyselyCircuitBreakerStorageAdapter.init();
 ```
 
-### With Mysql
+### With Mysql and MariaDB
 
 You will need to install [`mysql2`](https://www.npmjs.com/package/mysql2) package:
 
@@ -267,6 +267,10 @@ const kyselyCircuitBreakerStorageAdapter =
 // During the initialization the schema will be created
 await kyselyCircuitBreakerStorageAdapter.init();
 ```
+
+:::info
+Works with both MySQL and MariaDB.
+:::
 
 ### With Libsql
 

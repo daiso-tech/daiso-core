@@ -125,7 +125,11 @@ class KyselyCircuitBreakerStorageAdapterTransaction<
  * To utilize the `KyselyCircuitBreakerStorageAdapter`, you must install the [`"kysely"`](https://www.npmjs.com/package/kysely) package and configure a `Kysely` class instance.
  *
  * Note in order to use `KyselyCircuitBreakerStorageAdapter` correctly, you need to use a database that has support for transactions.
- * The adapter have been tested with `sqlite`, `postgres` and `mysql` databases.
+ * This adapter is compatible and have been tested with:
+ * - `Sqlite`
+ * - `Postgres`
+ * - `Mysql`
+ * - `Mariadb`
  *
  * IMPORT_PATH: `"eridu-tech/circuit-breaker/kysely-circuit-breaker-storage-adapter"`
  * @group Adapters
