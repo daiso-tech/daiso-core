@@ -2,6 +2,7 @@
  * @module HttpRouter
  */
 
+import { TO_BYTES } from "@/file-size/contracts/_module.js";
 import { HttpError } from "@/http-router/contracts/_module.js";
 import { HttpFileCollection } from "@/http-router/implementations/http-file-collection.js";
 import { HttpFile } from "@/http-router/implementations/http-file.js";
@@ -634,7 +635,11 @@ export class HttpReq implements IHttpReq {
                     continue;
                 }
 
-                return "!!__MESSAGE__!!";
+                return `File "${item.name}" is ${String(
+                    item.fileSize.toBytes(),
+                )} bytes which exceeds the maximum allowed size of ${String(
+                    staticFileDef.fileSize[TO_BYTES](),
+                )} bytes.`;
             }
         }
 
@@ -651,7 +656,7 @@ export class HttpReq implements IHttpReq {
                     continue;
                 }
 
-                return "!!__MESSAGE__!!";
+                return `File "${item.name}" has content type "${item.contentType}", but expected "${staticFileDef.contentType}".`;
             }
         }
 
@@ -671,7 +676,7 @@ export class HttpReq implements IHttpReq {
                     continue;
                 }
 
-                return "!!__MESSAGE__!!";
+                return `File "${item.name}" does not match the required name pattern "${String(staticFileDef.name)}".`;
             }
         }
 
@@ -686,14 +691,18 @@ export class HttpReq implements IHttpReq {
             staticFileDef.max !== undefined &&
             collection.size() > staticFileDef.max
         ) {
-            return "!!__MESSAGE__!!";
+            return `Expected at most ${String(
+                staticFileDef.max,
+            )} files, but received ${String(collection.size())}.`;
         }
 
         if (
             staticFileDef.min !== undefined &&
             collection.size() < staticFileDef.min
         ) {
-            return "!!__MESSAGE__!!";
+            return `Expected at least ${String(
+                staticFileDef.min,
+            )} files, but received ${String(collection.size())}.`;
         }
 
         return null;
@@ -708,7 +717,7 @@ export class HttpReq implements IHttpReq {
             !staticFileDef.optional &&
             collection.isEmpty()
         ) {
-            return "!!__MESSAGE__!!";
+            return "A file is required for this field, but none was uploaded.";
         }
 
         return null;
