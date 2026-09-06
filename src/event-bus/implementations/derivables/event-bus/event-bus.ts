@@ -143,7 +143,9 @@ export class EventBus<
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
         if (typeof eventName !== "string") {
-            throw new TypeError("!!__MESSAGE__!!");
+            throw new TypeError(
+                "Event name must be a string to add a listener.",
+            );
         }
         const resolvedListener = this.store.getOrAdd(
             eventName,
@@ -175,7 +177,9 @@ export class EventBus<
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
         if (typeof eventName !== "string") {
-            throw new TypeError("!!__MESSAGE__!!");
+            throw new TypeError(
+                "Event name must be a string to remove a listener.",
+            );
         }
         const resolvedListener = this.store.getAndRemove(eventName, listener);
         if (resolvedListener === null) {
@@ -206,7 +210,9 @@ export class EventBus<
         listener: EventListener<InferEvent<TEventMap, TEventName>>,
     ): Promise<void> {
         if (typeof eventName !== "string") {
-            throw new TypeError("!!__MESSAGE__!!");
+            throw new TypeError(
+                "Event name must be a string to listen for a single event.",
+            );
         }
         const wrappedListener = async (
             event_: InferEvent<TEventMap, TEventName>,
@@ -290,7 +296,9 @@ export class EventBus<
         event: TEventMap[TEventName],
     ): Promise<void> {
         if (typeof eventName !== "string") {
-            throw new TypeError("!!__MESSAGE__!!");
+            throw new TypeError(
+                "Event name must be a string to dispatch an event.",
+            );
         }
         await this.adapter.dispatch(eventName, event);
     }

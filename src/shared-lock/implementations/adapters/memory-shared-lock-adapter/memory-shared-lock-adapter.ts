@@ -81,7 +81,9 @@ export class MemorySharedLockAdapter
         }
         const { writerLock, readerSemaphore } = sharedLockEntry;
         if (readerSemaphore !== null && writerLock !== null) {
-            throw new UnexpectedError("!!__MESSAGE__!!");
+            throw new UnexpectedError(
+                "Invalid ISharedLockAdapterState, expected either a reader semaphore or a writer lock to be defined, but not both.",
+            );
         }
         if (readerSemaphore !== null) {
             return "reader-active";
@@ -122,7 +124,9 @@ export class MemorySharedLockAdapter
         }
         const { writerLock, readerSemaphore } = sharedLock;
         if (readerSemaphore !== null && writerLock !== null) {
-            throw new UnexpectedError("!!__MESSAGE__!!");
+            throw new UnexpectedError(
+                "Invalid ISharedLockAdapterState, expected either a reader semaphore or a writer lock to be defined, but not both.",
+            );
         }
         if (writerLock !== null) {
             return "writer-active";
