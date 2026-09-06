@@ -131,6 +131,12 @@ export type KyselyRateLimiterStorageAdapterSettings = {
 };
 
 /**
+ * This adapter is compatible and have been tested with:
+ * - Sqlite
+ * - Postgres
+ * - Mysql
+ * - Mariadb
+ *
  * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
  */

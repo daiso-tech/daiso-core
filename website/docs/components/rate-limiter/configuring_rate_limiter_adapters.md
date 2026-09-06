@@ -231,7 +231,7 @@ const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
 await kyselyRateLimiterStorageAdapter.init();
 ```
 
-### With Mysql
+### With Mysql and MariaDB
 
 You will need to install [`mysql2`](https://www.npmjs.com/package/mysql2) package:
 
@@ -264,6 +264,10 @@ const kyselyRateLimiterStorageAdapter = new KyselyRateLimiterStorageAdapter({
 // During the initialization the schema will be created
 await kyselyRateLimiterStorageAdapter.init();
 ```
+
+:::info
+Works with both MySQL and MariaDB.
+:::
 
 ### With Libsql
 
