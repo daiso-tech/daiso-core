@@ -131,11 +131,14 @@ export type KyselyRateLimiterStorageAdapterSettings = {
 };
 
 /**
+ * To utilize the `KyselyRateLimiterStorageAdapter`, you must install the [`"kysely"`](https://www.npmjs.com/package/kysely) package and configure a `Kysely` class instance.
+ *
+ * Note in order to use `KyselyRateLimiterStorageAdapter` correctly, you need to use a database that has support for transactions.
  * This adapter is compatible and have been tested with:
- * - Sqlite
- * - Postgres
- * - Mysql
- * - Mariadb
+ * - `Sqlite`
+ * - `Postgres`
+ * - `Mysql`
+ * - `Mariadb`
  *
  * IMPORT_PATH: `"eridu-tech/rate-limiter/kysely-rate-limiter-storage-adapter"`
  * @group Adapters
