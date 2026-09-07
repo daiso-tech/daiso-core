@@ -163,11 +163,7 @@ export class TransactionContext<
         asyncInvocable: AsyncLazy<TValue>,
     ): Promise<TValue> {
         return this.executionContext.run(async () => {
-            if (!this.isInTransaction) {
-                throw PropagationTransactionError.create(
-                    TRANSACTION_PROPAGATION.MANDATORY,
-                );
-            }
+            this.getTransactionOrFail()
             return callInvocable(asyncInvocable);
         });
     }

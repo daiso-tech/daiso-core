@@ -587,6 +587,7 @@
         "@aws-sdk/s3-request-presigner": "^3.1102.0",
         "@changesets/cli": "^2.31.1",
         "@standard-schema/spec": "^1.1.0",
+        "@testcontainers/mariadb": "^12.0.4",
         "@testcontainers/minio": "^12.0.4",
         "@testcontainers/mongodb": "^12.0.4",
         "@testcontainers/mysql": "^12.0.4",
