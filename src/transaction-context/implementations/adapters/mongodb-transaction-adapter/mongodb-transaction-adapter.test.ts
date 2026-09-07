@@ -1,6 +1,6 @@
 import { MongoDBContainer } from "@testcontainers/mongodb";
 import { MongoClient } from "mongodb";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { MongodbTransactionAdapter } from "@/transaction-context/implementations/adapters/mongodb-transaction-adapter/mongodb-transaction-adapter.js";
@@ -124,6 +124,83 @@ describe("class: MongodbTransactionAdapter", () => {
 
             expect(session.inTransaction()).toBe(true);
             await transaction.abort();
+        });
+        test("Should forward the session, transaction, commit timeout and end-session settings to the underlying MongoDB client", async () => {
+            const database = client.db("database");
+            const startSessionSettings = { causalConsistency: false };
+            const startTransactionSettings = {
+                readConcern: { level: "local" },
+            };
+            const endSessionSettings = {};
+            const commitTimeout = TimeSpan.fromSeconds(30);
+
+            const originalStartSession = client.startSession.bind(client);
+            const startTransactionCalls: Array<unknown> = [];
+            const startSessionSpy = vi
+                .spyOn(client, "startSession")
+                .mockImplementation((options) => {
+                    const session = originalStartSession(options);
+                    const originalStartTransaction =
+                        session.startTransaction.bind(session);
+                    vi.spyOn(session, "startTransaction").mockImplementation(
+                        (transactionOptions) => {
+                            startTransactionCalls.push(transactionOptions);
+                            originalStartTransaction(transactionOptions);
+                        },
+                    );
+                    return session;
+                });
+            const adapter = new MongodbTransactionAdapter({
+                client,
+                database,
+                commitTimeout,
+                startSessionSettings,
+                startTransactionSettings,
+                endSessionSettings,
+            });
+
+            const transaction = await adapter.start();
+            const session = transaction.client;
+            if (session === null) {
+                throw new Error("Expected a transaction session.");
+            }
+            const commitTransactionSpy = vi.spyOn(session, "commitTransaction");
+            const endSessionSpy = vi.spyOn(session, "endSession");
+
+            await transaction.commit();
+
+            expect(startSessionSpy).toHaveBeenCalledWith(startSessionSettings);
+            expect(startTransactionCalls).toEqual([startTransactionSettings]);
+            expect(commitTransactionSpy).toHaveBeenCalledWith({
+                timeoutMS: commitTimeout.toMilliseconds(),
+            });
+            expect(endSessionSpy).toHaveBeenCalledWith(endSessionSettings);
+        });
+        test("Should forward the abort timeout and end-session settings to the underlying MongoDB client", async () => {
+            const database = client.db("database");
+            const endSessionSettings = {};
+            const abortTimeout = TimeSpan.fromSeconds(15);
+            const adapter = new MongodbTransactionAdapter({
+                client,
+                database,
+                abortTimeout,
+                endSessionSettings,
+            });
+
+            const transaction = await adapter.start();
+            const session = transaction.client;
+            if (session === null) {
+                throw new Error("Expected a transaction session.");
+            }
+            const abortTransactionSpy = vi.spyOn(session, "abortTransaction");
+            const endSessionSpy = vi.spyOn(session, "endSession");
+
+            await transaction.abort();
+
+            expect(abortTransactionSpy).toHaveBeenCalledWith({
+                timeoutMS: abortTimeout.toMilliseconds(),
+            });
+            expect(endSessionSpy).toHaveBeenCalledWith(endSessionSettings);
         });
     });
 });

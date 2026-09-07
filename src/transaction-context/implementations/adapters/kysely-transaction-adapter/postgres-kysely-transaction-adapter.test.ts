@@ -1,7 +1,7 @@
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { KyselyTransactionAdapter } from "@/transaction-context/implementations/adapters/kysely-transaction-adapter/kysely-transaction-adapter.js";
@@ -116,6 +116,31 @@ describe("postgres class: KyselyTransactionAdapter", () => {
 
             await expect(promise).rejects.toThrow();
             await transaction.abort();
+        });
+        test("Should pass the configured access mode and isolation level to the underlying Kysely client", async () => {
+            const accessMode = "read only";
+            const isolationLevel = "read committed";
+            const adapter = new KyselyTransactionAdapter({
+                database: kysely,
+                accessMode,
+                isolationLevel,
+            });
+
+            const execute = vi.fn().mockResolvedValue({});
+            const setIsolationLevel = vi.fn(() => ({ execute }));
+            const setAccessMode = vi.fn(() => ({ setIsolationLevel }));
+            const startTransactionSpy = vi
+                .spyOn(kysely, "startTransaction")
+                .mockReturnValue({ setAccessMode } as unknown as ReturnType<
+                    typeof kysely.startTransaction
+                >);
+
+            await adapter.start();
+
+            expect(startTransactionSpy).toHaveBeenCalledTimes(1);
+            expect(setAccessMode).toHaveBeenCalledWith(accessMode);
+            expect(setIsolationLevel).toHaveBeenCalledWith(isolationLevel);
+            expect(execute).toHaveBeenCalledTimes(1);
         });
     });
 });

@@ -1,6 +1,6 @@
 import Sqlite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { KyselyTransactionAdapter } from "@/transaction-context/implementations/adapters/kysely-transaction-adapter/kysely-transaction-adapter.js";
 
@@ -83,6 +83,31 @@ describe("sqlite class: KyselyTransactionAdapter", () => {
                 .execute();
 
             expect(persons).toEqual([]);
+        });
+        test("Should pass the configured access mode and isolation level to the underlying Kysely client", async () => {
+            const accessMode = "read only";
+            const isolationLevel = "read committed";
+            const adapter = new KyselyTransactionAdapter({
+                database: kysely,
+                accessMode,
+                isolationLevel,
+            });
+
+            const execute = vi.fn().mockResolvedValue({});
+            const setIsolationLevel = vi.fn(() => ({ execute }));
+            const setAccessMode = vi.fn(() => ({ setIsolationLevel }));
+            const startTransactionSpy = vi
+                .spyOn(kysely, "startTransaction")
+                .mockReturnValue({ setAccessMode } as unknown as ReturnType<
+                    typeof kysely.startTransaction
+                >);
+
+            await adapter.start();
+
+            expect(startTransactionSpy).toHaveBeenCalledTimes(1);
+            expect(setAccessMode).toHaveBeenCalledWith(accessMode);
+            expect(setIsolationLevel).toHaveBeenCalledWith(isolationLevel);
+            expect(execute).toHaveBeenCalledTimes(1);
         });
     });
 });
