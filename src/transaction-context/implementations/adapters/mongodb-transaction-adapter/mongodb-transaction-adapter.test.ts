@@ -6,6 +6,7 @@ import { TimeSpan } from "@/time-span/implementations/_module.js";
 import { MongodbTransactionAdapter } from "@/transaction-context/implementations/adapters/mongodb-transaction-adapter/mongodb-transaction-adapter.js";
 
 import type { StartedMongoDBContainer } from "@testcontainers/mongodb";
+import type { TransactionOptions } from "mongodb";
 
 const timeout = TimeSpan.fromMinutes(2);
 describe("class: MongodbTransactionAdapter", () => {
@@ -128,7 +129,7 @@ describe("class: MongodbTransactionAdapter", () => {
         test("Should forward the session, transaction, commit timeout and end-session settings to the underlying MongoDB client", async () => {
             const database = client.db("database");
             const startSessionSettings = { causalConsistency: false };
-            const startTransactionSettings = {
+            const startTransactionSettings: TransactionOptions = {
                 readConcern: { level: "local" },
             };
             const endSessionSettings = {};

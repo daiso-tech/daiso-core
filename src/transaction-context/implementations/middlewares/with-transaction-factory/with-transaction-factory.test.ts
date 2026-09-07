@@ -1,26 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import { contextToken } from "@/execution-context/contracts/_module.js";
+import { NoOpExecutionContextAdapter } from "@/execution-context/implementations/adapters/no-op-execution-context-adapter/_module.js";
+import { ExecutionContext } from "@/execution-context/implementations/derivables/_module.js";
 import { use } from "@/middleware/implementations/_module.js";
 import { TRANSACTION_PROPAGATION } from "@/transaction-context/contracts/_module.js";
+import { NoOpTransactionAdapter } from "@/transaction-context/implementations/adapters/no-op-transaction-adapter/_module.js";
+import { TransactionContext } from "@/transaction-context/implementations/derivables/transaction-context/transaction-context.js";
 import { withTransactionFactory } from "@/transaction-context/implementations/middlewares/with-transaction-factory/with-transaction-factory.js";
-import { callInvocable } from "@/utilities/_module.js";
-
-import type {
-    ITransactionContext,
-    TransactionPropagation,
-} from "@/transaction-context/contracts/_module.js";
-import type { AsyncLazy } from "@/utilities/_module.js";
 
 describe("function: withTransactionFactory", () => {
-    const transactionContext: Pick<ITransactionContext, "run"> = {
-        run: async <TValue>(
-            _propagation: TransactionPropagation,
-            asyncInvocable: AsyncLazy<TValue>,
-        ): Promise<TValue> => {
-            return callInvocable(asyncInvocable);
-        },
-    };
+    const transactionContext = new TransactionContext<null, null>({
+        token: contextToken<null>(""),
+        adapter: new NoOpTransactionAdapter<null, null>(null),
+        executionContext: new ExecutionContext(
+            new NoOpExecutionContextAdapter(),
+        ),
+    });
 
     beforeEach(() => {
         vi.restoreAllMocks();
@@ -54,11 +51,11 @@ describe("function: withTransactionFactory", () => {
         const argValue = "value";
         await use(
             fn,
-            withTransaction(TRANSACTION_PROPAGATION.MANDATORY),
+            withTransaction(TRANSACTION_PROPAGATION.SUPPORTS),
         )(argValue);
 
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-            TRANSACTION_PROPAGATION.MANDATORY,
+            TRANSACTION_PROPAGATION.SUPPORTS,
             expect.any(Function),
         );
     });
